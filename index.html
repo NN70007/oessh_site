@@ -43,7 +43,7 @@
   <nav class="nav" aria-label="Navigation principale">
     <a href="#top" class="brand" aria-label="OESSH Luxembourg — Accueil">
       <img class="cross" src="assets/croix-jerusalem.svg" alt="Croix de Jérusalem"/>
-      <span class="brand-text"><span class="l1">Ordre Équestre du Saint-Sépulcre de Jérusalem</span><span class="l2">Lieutenance pour le Luxembourg</span></span></a>
+      <span class="brand-text"><span class="l1"><span class="w">Ordre Équestre</span> <span class="w">du Saint-Sépulcre</span> <span class="w">de Jérusalem</span></span><span class="l2">Lieutenance pour le Luxembourg</span></span></a>
     <div class="nav-links">
       <a href="#mission">Notre Ordre</a>
       <a href="#actualites">Actualités</a>
@@ -52,9 +52,19 @@
     </div>
     <div class="nav-cta">
       <a href="https://secure.oessh.lu/" target="_blank" rel="noopener" class="btn btn-ghost">Espace membres</a>
-      <a href="#don" class="btn btn-primary">Faire un don <span class="arr">→</span></a>
+      <a href="#don" class="btn btn-primary"><span class="lbl">Faire un don</span> <span class="arr">→</span></a>
+      <button class="menu-btn" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu" onclick="toggleMobileMenu()">
+        <span class="bars"><span></span><span></span><span></span></span>
+      </button>
     </div>
   </nav>
+  <div id="mobile-menu" class="mobile-menu" aria-hidden="true">
+    <a href="#mission" onclick="closeMobileMenu()">Notre Ordre</a>
+    <a href="#actualites" onclick="closeMobileMenu()">Actualités</a>
+    <a href="#oeuvres" onclick="closeMobileMenu()">Œuvres</a>
+    <a href="#publications" onclick="closeMobileMenu()">Publications</a>
+    <a href="https://secure.oessh.lu/" target="_blank" rel="noopener" onclick="closeMobileMenu()">Espace membres ↗</a>
+  </div>
 </header>
 
 <main id="top">
@@ -751,6 +761,25 @@ function closePayconiqQR(){
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closePayconiqQR();
 });
+</script>
+
+<script>
+function toggleMobileMenu(){
+  var m = document.getElementById('mobile-menu');
+  var b = document.querySelector('.menu-btn');
+  var open = m.classList.toggle('is-open');
+  b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  m.setAttribute('aria-hidden', open ? 'false' : 'true');
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeMobileMenu(){
+  var m = document.getElementById('mobile-menu');
+  var b = document.querySelector('.menu-btn');
+  m.classList.remove('is-open');
+  if(b) b.setAttribute('aria-expanded','false');
+  m.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
 </script>
 
 </body>
