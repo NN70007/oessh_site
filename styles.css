@@ -212,6 +212,8 @@ header.site{
 @media (max-width: 760px){
   .lang-switch{display:none}
 }
+.mobile-menu:not(.is-open){visibility:hidden !important; pointer-events:none}
+.mobile-menu.is-open{visibility:visible}
 .btn .arr{display:inline-block; transition:transform .2s ease}
 .btn:hover .arr{transform:translateX(3px)}
 
