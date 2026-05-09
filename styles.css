@@ -209,8 +209,8 @@ header.site{
   font-weight:500;
 }
 .lang-switch .lang-sep{color:var(--line); font-weight:300}
-@media (max-width: 480px){
-  .lang-switch{font-size:10px; margin-right:2px}
+@media (max-width: 760px){
+  .lang-switch{display:none}
 }
 .btn .arr{display:inline-block; transition:transform .2s ease}
 .btn:hover .arr{transform:translateX(3px)}
