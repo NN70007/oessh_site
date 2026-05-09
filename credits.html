@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Crédits — OESSH Luxembourg</title>
+<link rel="stylesheet" href="styles.css"/>
+<link rel="icon" type="image/svg+xml" href="assets/croix-jerusalem.svg"/>
+</head>
+<body>
+
+<header class="site">
+  <nav class="nav" aria-label="Navigation principale">
+    <a href="index.html#top" class="brand" aria-label="OESSH Luxembourg — Accueil">
+      <img class="cross" src="assets/croix-jerusalem.svg" alt="Croix de Jérusalem"/>
+      <span class="brand-text"><span class="l1"><span class="w">Ordre Équestre</span> <span class="w">du Saint-Sépulcre</span> <span class="w">de Jérusalem</span></span><span class="l2">Lieutenance pour le Luxembourg</span></span></a>
+    <div class="nav-links">
+      <a href="index.html#mission">Notre Ordre</a>
+      <a href="index.html#actualites">Actualités</a>
+      <a href="index.html#oeuvres">Œuvres</a>
+      <a href="index.html#publications">Publications</a>
+    </div>
+    <div class="nav-cta">
+      <a href="https://secure.oessh.lu/" target="_blank" rel="noopener" class="btn btn-ghost">Espace membres</a>
+      <a href="index.html#don" class="btn btn-primary"><span class="lbl">Faire un don</span> <span class="arr">→</span></a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section style="padding:64px 0 80px">
+    <div class="container" style="max-width:680px;color:#5a5448">
+
+      <div style="font-family:var(--sans); font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:#8a8276; margin-bottom:8px">Informations</div>
+      <h1 style="font-family:var(--sans); font-size:14px; letter-spacing:.04em; font-weight:500; color:#3d362c; margin:0 0 36px; text-transform:none">Mentions et crédits</h1>
+
+      <dl style="display:grid; grid-template-columns:200px 1fr; column-gap:28px; row-gap:14px; margin:0; font-size:13.5px; line-height:1.6">
+
+        <dt style="font-family:var(--sans); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:#9a9286; padding-top:2px">Édition</dt>
+        <dd style="margin:0; color:#4a4339">OESSH — Lieutenance pour le Luxembourg</dd>
+
+        <dt style="font-family:var(--sans); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:#9a9286; padding-top:2px">Conception du site</dt>
+        <dd style="margin:0; color:#4a4339">Jean-Baptiste Niedercorn</dd>
+
+        <dt style="font-family:var(--sans); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:#9a9286; padding-top:2px">Protection des données</dt>
+        <dd style="margin:0">
+          <a href="https://drive.google.com/file/d/1nY6uMTLuOqwZZdTtGhrtgg-mCylyT0um/view" target="_blank" rel="noopener" style="color:#4a4339; text-decoration:underline; text-underline-offset:3px; text-decoration-color:#cfc8b8">Consulter le document ↗</a>
+        </dd>
+
+        <dt style="font-family:var(--sans); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:#9a9286; padding-top:2px">Contact</dt>
+        <dd style="margin:0; color:#4a4339"><a href="#" class="js-mail" data-u="secretariat" data-d="oessh.lu" onclick="(function(a){var u=a.dataset.u,d=a.dataset.d;window.location.href='mailto:'+u+'@'+d;})(this);return false;" style="color:#4a4339;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#cfc8b8"><span class="js-mail-text">Nous écrire</span></a></dd>
+
+      </dl>
+
+      <p style="margin-top:48px; font-size:12.5px; color:#9a9286">
+        <a href="index.html" style="color:#9a9286; text-decoration:none; border-bottom:1px solid #d8d2c2; padding-bottom:1px">← Retour à l'accueil</a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="container">
+    <div class="footer-bottom" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-mute);padding-top:32px;border-top:1px solid var(--line-soft)">
+      <div>© 2026 OESSH · Lieutenance pour le Luxembourg</div>
+      <div style="display:flex;gap:24px">
+        <a href="https://drive.google.com/file/d/1nY6uMTLuOqwZZdTtGhrtgg-mCylyT0um/view" target="_blank" rel="noopener">Protection des données</a>
+        <a href="credits.html">Crédits</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.js-mail').forEach(function(a){
+  var u = a.dataset.u, d = a.dataset.d;
+  if(!u || !d) return;
+  var span = a.querySelector('.js-mail-text');
+  if(span) span.textContent = u + '@' + d;
+});
+</script>
+
+</body>
+</html>

@@ -188,6 +188,30 @@ header.site{
 .btn-primary:hover{background:#8a0102}
 .btn-ghost{border:1px solid var(--line); color:var(--ink-soft)}
 .btn-ghost:hover{border-color:var(--ink); color:var(--ink)}
+
+/* FR / EN language switcher */
+.lang-switch{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:var(--sans);
+  font-size:11px;
+  letter-spacing:.16em;
+  margin-right:6px;
+}
+.lang-switch .lang-opt{
+  color:var(--ink-mute);
+  text-decoration:none;
+  padding:4px 2px;
+  transition:color .2s ease;
+}
+.lang-switch .lang-opt:hover{color:var(--ink)}
+.lang-switch .lang-opt.is-active{
+  color:var(--ink);
+  font-weight:500;
+}
+.lang-switch .lang-sep{color:var(--line); font-weight:300}
+@media (max-width: 480px){
+  .lang-switch{font-size:10px; margin-right:2px}
+}
 .btn .arr{display:inline-block; transition:transform .2s ease}
 .btn:hover .arr{transform:translateX(3px)}
 
@@ -990,3 +1014,27 @@ button.payconiq-card{
   cursor:pointer; font:inherit; color:inherit;
   text-align:left;
 }
+
+
+/* PDF link card (project figures) */
+.pdf-link{
+  display:inline-flex; align-items:center; gap:16px;
+  padding:14px 18px;
+  border:1px solid var(--line);
+  background:#fff;
+  text-decoration:none; color:var(--ink);
+  transition:border-color .15s ease, background .15s ease;
+  max-width:420px;
+}
+.pdf-link:hover{ border-color:var(--cardinal); background:#fbf8f2 }
+.pdf-link .ico{
+  font-family:var(--sans); font-size:11px; font-weight:600;
+  letter-spacing:.12em; color:#fff;
+  background:var(--cardinal);
+  padding:8px 10px; line-height:1; flex:0 0 auto;
+}
+.pdf-link .lbl{display:flex; flex-direction:column; gap:2px; line-height:1.3}
+.pdf-link .lbl strong{font-weight:500; font-size:14.5px; color:var(--ink)}
+.pdf-link .lbl span{font-size:12.5px; color:var(--ink-mute)}
+.pdf-link .arr{margin-left:auto; color:var(--ink-mute); font-size:18px}
+.pdf-link:hover .arr{color:var(--cardinal)}

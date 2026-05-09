@@ -51,7 +51,11 @@
       <a href="#publications">Publications</a>
     </div>
     <div class="nav-cta">
-      <a href="https://secure.oessh.lu/" target="_blank" rel="noopener" class="btn btn-ghost">Espace membres</a>
+      <div class="lang-switch" role="group" aria-label="Langue / Language">
+        <a href="index.html" class="lang-opt is-active" aria-current="page">FR</a>
+        <span class="lang-sep" aria-hidden="true">/</span>
+        <a href="en.html" class="lang-opt">EN</a>
+      </div>
       <a href="#don" class="btn btn-primary"><span class="lbl">Faire un don</span> <span class="arr">→</span></a>
       <button class="menu-btn" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu" onclick="toggleMobileMenu()">
         <span class="bars"><span></span><span></span><span></span></span>
@@ -63,7 +67,7 @@
     <a href="#actualites" onclick="closeMobileMenu()">Actualités</a>
     <a href="#oeuvres" onclick="closeMobileMenu()">Œuvres</a>
     <a href="#publications" onclick="closeMobileMenu()">Publications</a>
-    <a href="https://secure.oessh.lu/" target="_blank" rel="noopener" onclick="closeMobileMenu()">Espace membres ↗</a>
+    <a href="en.html" onclick="closeMobileMenu()">English ↗</a>
   </div>
 </header>
 
@@ -90,7 +94,7 @@
 
     <aside class="hero-aside">
       <div class="hero-quote">
-        <p>« L'Église vous confie à nouveau la tâche d'être les gardiens du tombeau du Christ. Faites-le avec l'enthousiasme joyeux de l'espérance. »</p>
+        <p>« L'Église vous confie à nouveau la tâche d'être les gardiens du tombeau du Christ. Faites-le avec l'espoir de l'attente, le zèle de la charité et l'enthousiasme joyeux de l'espérance. »</p>
         <cite>Pape Léon XIV — Audience du 23 octobre 2025</cite>
       </div>
       <div class="hero-stats">
@@ -321,6 +325,11 @@
                 <div class="num">23 690 €</div>
                 <div class="lab">Coût du projet</div>
               </div>
+              <a class="pdf-link" href="assets/beit-afram-proposal.pdf" target="_blank" rel="noopener">
+                <span class="ico" aria-hidden="true">PDF</span>
+                <span class="lbl"><strong>Dossier complet du projet</strong><span>Eldery House Proposal — Beit Afram</span></span>
+                <span class="arr">↗</span>
+              </a>
             </div>
           </div>
         </article>
@@ -353,6 +362,11 @@
                 <div class="num">12 950 €</div>
                 <div class="lab">Coût du projet</div>
               </div>
+              <a class="pdf-link" href="assets/sisters-rosary-heating.pdf" target="_blank" rel="noopener">
+                <span class="ico" aria-hidden="true">PDF</span>
+                <span class="lbl"><strong>Dossier complet du projet</strong><span>Installing a Heating System — Sisters of the Rosary</span></span>
+                <span class="arr">↗</span>
+              </a>
             </div>
           </div>
         </article>
@@ -681,6 +695,7 @@
         <a href="#oeuvres">Œuvres</a>
         <a href="#publications">Publications</a>
         <a href="#calendrier">Calendrier</a>
+        <a href="#" onclick="openContactModal();return false;">Contact</a>
       </div>
       <div class="col">
         <h5>Engagement</h5>
@@ -699,6 +714,7 @@
       <div>© 2026 OESSH · Lieutenance pour le Luxembourg</div>
       <div style="display:flex;gap:24px">
         <a href="https://drive.google.com/file/d/1nY6uMTLuOqwZZdTtGhrtgg-mCylyT0um/view" target="_blank" rel="noopener">Protection des données</a>
+        <a href="credits.html">Crédits</a>
       </div>
     </div>
   </div>
@@ -747,6 +763,12 @@ document.querySelectorAll('.section-head, .pillar, .news-card, .oeuvre, .nl, .ca
 </div>
 <script>
 function openPayconiqQR(){
+  // Sur mobile : redirige directement vers Payconiq
+  var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.matchMedia('(max-width: 760px)').matches;
+  if(isMobile){
+    window.location.href = 'https://payconiq.com/T/1/60E6C3DB5BA15A00060BA205?A=0&R=OESSHaidehumanitaire';
+    return;
+  }
   var m = document.getElementById('payconiq-modal');
   m.classList.add('is-open');
   m.setAttribute('aria-hidden','false');
@@ -780,6 +802,84 @@ function closeMobileMenu(){
   m.setAttribute('aria-hidden','true');
   document.body.style.overflow = '';
 }
+</script>
+
+<script>
+// Reveal email addresses (anti-bot) once DOM ready
+document.querySelectorAll('.js-mail').forEach(function(a){
+  var u = a.dataset.u, d = a.dataset.d;
+  if(!u || !d) return;
+  var span = a.querySelector('.js-mail-text');
+  if(span) span.textContent = u + '@' + d;
+});
+document.querySelectorAll('.js-mail-full').forEach(function(el){
+  var u = el.dataset.u, d = el.dataset.d;
+  if(u && d) el.textContent = u + '@' + d;
+});
+</script>
+
+<!-- ====================== CONTACT MODAL ====================== -->
+<div id="contact-modal" class="qr-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+  <div class="qr-modal-backdrop" onclick="closeContactModal()"></div>
+  <div class="qr-modal-card" role="document" style="max-width:520px;text-align:left">
+    <button type="button" class="qr-modal-close" aria-label="Fermer" onclick="closeContactModal()">×</button>
+    <h3 id="contact-modal-title" style="text-align:left">Nous contacter</h3>
+    <p style="font-size:14px;color:var(--ink-soft);margin:0 0 8px">
+      Depuis votre messagerie :
+    </p>
+    <p style="margin:0 0 28px">
+      <a href="#" class="js-mail" data-u="secretariat" data-d="oessh.lu" onclick="(function(a){var u=a.dataset.u,d=a.dataset.d;window.location.href='mailto:'+u+'@'+d;})(this);return false;" style="font-family:var(--sans);font-size:16px;color:var(--cardinal);text-decoration:underline;text-underline-offset:3px"><span class="js-mail-text">secretariat@oessh.lu</span></a>
+    </p>
+    <hr style="border:none;border-top:1px solid var(--line-soft);margin:0 0 24px"/>
+    <p style="font-size:14px;color:var(--ink-soft);margin:0 0 14px">
+      Depuis le formulaire :
+    </p>
+    <form id="contact-form" onsubmit="sendContactMessage(event)" style="display:flex;flex-direction:column;gap:12px">
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute)">
+        Nom
+        <input type="text" name="name" required style="font-family:var(--sans);font-size:14px;padding:10px 12px;border:1px solid var(--line);background:#fff;color:var(--ink);letter-spacing:0;text-transform:none"/>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute)">
+        Email
+        <input type="email" name="email" required style="font-family:var(--sans);font-size:14px;padding:10px 12px;border:1px solid var(--line);background:#fff;color:var(--ink);letter-spacing:0;text-transform:none"/>
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute)">
+        Message
+        <textarea name="message" rows="4" required style="font-family:var(--sans);font-size:14px;padding:10px 12px;border:1px solid var(--line);background:#fff;color:var(--ink);letter-spacing:0;text-transform:none;resize:vertical"></textarea>
+      </label>
+      <button type="submit" class="btn btn-primary" style="margin-top:6px;align-self:flex-start">Envoyer <span class="arr">→</span></button>
+    </form>
+  </div>
+</div>
+<script>
+function openContactModal(){
+  var m = document.getElementById('contact-modal');
+  m.classList.add('is-open');
+  m.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+function closeContactModal(){
+  var m = document.getElementById('contact-modal');
+  m.classList.remove('is-open');
+  m.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
+function sendContactMessage(e){
+  e.preventDefault();
+  var f = e.target;
+  var subject = encodeURIComponent('Message via oessh.lu — ' + f.name.value);
+  var body = encodeURIComponent(
+    'Nom : ' + f.name.value + '\n' +
+    'Email : ' + f.email.value + '\n\n' +
+    f.message.value
+  );
+  window.location.href = 'mailto:secretariat@oessh.lu?subject=' + subject + '&body=' + body;
+  closeContactModal();
+  f.reset();
+}
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeContactModal();
+});
 </script>
 
 </body>
