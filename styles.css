@@ -70,7 +70,7 @@ em.italic{font-style:italic}
 .container{max-width:var(--maxw); margin:0 auto; padding-left:var(--gutter); padding-right:var(--gutter)}
 
 /* ---------- Calendrier — événements passés ---------- */
-.cal-row.past{opacity:.42; filter:grayscale(.85)}
+.cal-row.past{opacity:.62; filter:grayscale(.6)}
 .cal-row.past .date,
 .cal-row.past .ev,
 .cal-row.past .where{color:var(--ink-mute)}
@@ -877,9 +877,10 @@ footer.site{
 }
 @media (max-width:880px){.footer-grid{grid-template-columns:1fr 1fr; gap:36px}}
 @media (max-width:560px){.footer-grid{grid-template-columns:1fr}}
+footer.site .col h3,
 footer.site .col h4,
 footer.site .col h5{
-  font-family:var(--sans); font-size:11px; letter-spacing:.22em;
+  font-family:var(--sans); font-size:11px; letter-spacing:.22em; font-weight:500;
   text-transform:uppercase; color:var(--ink-mute);
   margin:0 0 18px; font-weight:500;
 }
