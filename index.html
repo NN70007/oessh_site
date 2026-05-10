@@ -6,6 +6,33 @@
 <script>if('scrollRestoration' in history){history.scrollRestoration='manual'} window.addEventListener('load',function(){window.scrollTo(0,0)});</script>
 <title>OESSH · Lieutenance pour le Luxembourg</title>
 <meta name="description" content="Ordre Équestre du Saint-Sépulcre de Jérusalem — Lieutenance pour le Luxembourg. Au service des pierres vivantes en Terre Sainte." />
+<meta name="author" content="Ordre Équestre du Saint-Sépulcre de Jérusalem — Lieutenance pour le Luxembourg" />
+<meta name="robots" content="index,follow" />
+<meta name="theme-color" content="#7a1a18" />
+
+<!-- Canonical & language alternates -->
+<link rel="canonical" href="https://luxembourg.oessh.lu/" />
+<link rel="alternate" hreflang="fr" href="https://luxembourg.oessh.lu/" />
+<link rel="alternate" hreflang="en" href="https://luxembourg.oessh.lu/en.html" />
+<link rel="alternate" hreflang="x-default" href="https://luxembourg.oessh.lu/" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="OESSH · Lieutenance pour le Luxembourg" />
+<meta property="og:title" content="OESSH · Lieutenance pour le Luxembourg" />
+<meta property="og:description" content="Ordre Équestre du Saint-Sépulcre de Jérusalem — Au service des pierres vivantes en Terre Sainte." />
+<meta property="og:url" content="https://luxembourg.oessh.lu/" />
+<meta property="og:locale" content="fr_FR" />
+<meta property="og:locale:alternate" content="en_GB" />
+<meta property="og:image" content="https://luxembourg.oessh.lu/assets/oessh_lu_001.jpg" />
+<meta property="og:image:alt" content="Ordre Équestre du Saint-Sépulcre de Jérusalem — Lieutenance pour le Luxembourg" />
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="OESSH · Lieutenance pour le Luxembourg" />
+<meta name="twitter:description" content="Ordre Équestre du Saint-Sépulcre de Jérusalem — Au service des pierres vivantes en Terre Sainte." />
+<meta name="twitter:image" content="https://luxembourg.oessh.lu/assets/oessh_lu_001.jpg" />
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -13,6 +40,40 @@
 <link rel="alternate icon" href="assets/croix-jerusalem.svg" />
 <link rel="apple-touch-icon" href="assets/croix-jerusalem.svg" />
 <link rel="stylesheet" href="styles.css" />
+
+<!-- Structured data : Organization -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NGO",
+  "name": "Ordre Équestre du Saint-Sépulcre de Jérusalem — Lieutenance pour le Luxembourg",
+  "alternateName": ["OESSH Luxembourg", "EOHSJ Luxembourg"],
+  "url": "https://luxembourg.oessh.lu/",
+  "logo": "https://luxembourg.oessh.lu/assets/croix-jerusalem.svg",
+  "image": "https://luxembourg.oessh.lu/assets/oessh_lu_001.jpg",
+  "description": "Ordre pontifical au service des chrétiens de Terre Sainte. La Lieutenance pour le Luxembourg réunit les Chevaliers et Dames de l'Ordre établis au Grand-Duché.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "LU",
+    "addressLocality": "Luxembourg"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "general",
+    "email": "secretariat@oessh.lu",
+    "availableLanguage": ["fr", "en", "de", "lb"]
+  },
+  "sameAs": [
+    "https://www.oessh.va/"
+  ],
+  "parentOrganization": {
+    "@type": "Organization",
+    "name": "Ordo Equestris Sancti Sepulcri Hierosolymitani",
+    "url": "https://www.oessh.va/"
+  },
+  "inLanguage": ["fr", "en"]
+}
+</script>
 </head>
 <body>
 
@@ -45,7 +106,7 @@
 <header class="site">
   <nav class="nav" aria-label="Navigation principale">
     <a href="#top" class="brand" aria-label="OESSH Luxembourg — Accueil">
-      <img class="cross" src="assets/croix-jerusalem.svg" alt="Croix de Jérusalem"/>
+      <img class="cross" src="assets/croix-jerusalem.svg" alt="Croix de Jérusalem" decoding="async"/>
       <span class="brand-text"><span class="l1"><span class="w">Ordre Équestre</span> <span class="w">du Saint-Sépulcre</span> <span class="w">de Jérusalem</span></span><span class="l2">Lieutenance pour le Luxembourg</span></span></a>
     <div class="nav-links">
       <a href="#mission">Notre Ordre</a>
@@ -195,7 +256,7 @@
     <div class="news-grid">
       <article class="news-card feature">
         <div class="thumb has-image">
-          <img src="assets/oessh_lu_001.jpg" alt="Audience du Pape Léon XIV avec l'OESSH dans la salle Paul VI au Vatican — 23 octobre 2025"/>
+          <img src="assets/oessh_lu_001.jpg" alt="Audience du Pape Léon XIV avec l'OESSH dans la salle Paul VI au Vatican — 23 octobre 2025" decoding="async" fetchpriority="high"/>
           <span class="thumb-label">Vatican · 23 oct. 2025</span>
         </div>
         <div class="meta-line">
@@ -209,7 +270,7 @@
 
       <article class="news-card">
         <div class="thumb has-image">
-          <img src="assets/oessh_lu_002.jpg" alt="Cardinal Hollerich recevant l'acte d'installation comme Grand Prieur"/>
+          <img src="assets/oessh_lu_002.jpg" alt="Cardinal Hollerich recevant l'acte d'installation comme Grand Prieur" loading="lazy" decoding="async"/>
           <span class="thumb-label">Luxembourg · 9 juil. 2025</span>
         </div>
         <div class="meta-line"><span>Lieutenance</span></div>
@@ -220,7 +281,7 @@
 
       <article class="news-card">
         <div class="thumb has-image">
-          <img src="assets/oessh_lu_003.jpg" alt="Portrait de Bartolo Longo, Chevalier Grand-Croix de l'Ordre, en prière" style="object-position:center top"/>
+          <img src="assets/oessh_lu_003.jpg" alt="Portrait de Bartolo Longo, Chevalier Grand-Croix de l'Ordre, en prière" style="object-position:center top" loading="lazy" decoding="async"/>
           <span class="thumb-label">Rome · 19 oct. 2025</span>
         </div>
         <div class="meta-line"><span>Spiritualité</span></div>
@@ -231,7 +292,7 @@
 
       <article class="news-card">
         <div class="thumb has-image">
-          <img src="assets/oessh_lu_004.jpg" alt="Procession des Chevaliers de l'Ordre lors de l'investiture à Notre-Dame de Paris"/>
+          <img src="assets/oessh_lu_004.jpg" alt="Procession des Chevaliers de l'Ordre lors de l'investiture à Notre-Dame de Paris" loading="lazy" decoding="async"/>
           <span class="thumb-label">Paris · 26-28 sept. 2025</span>
         </div>
         <div class="meta-line"><span>Investiture</span></div>
@@ -242,7 +303,7 @@
 
       <article class="news-card">
         <div class="thumb has-image">
-          <img src="assets/oessh_lu_005.jpg" alt="Conférence Saint-Yves sur le Statu Quo à Jérusalem — Luxembourg, 4 décembre 2025"/>
+          <img src="assets/oessh_lu_005.jpg" alt="Conférence Saint-Yves sur le Statu Quo à Jérusalem — Luxembourg, 4 décembre 2025" loading="lazy" decoding="async"/>
           <span class="thumb-label">Luxembourg · 4 déc. 2025</span>
         </div>
         <div class="meta-line"><span>Conférence</span></div>
@@ -253,7 +314,7 @@
 
       <article class="news-card">
         <div class="thumb has-image">
-          <img src="assets/oessh_lu_006.jpg" alt="Méditation de Noël — Bethléem au crépuscule, colombe de la paix et famille en prière"/>
+          <img src="assets/oessh_lu_006.jpg" alt="Méditation de Noël — Bethléem au crépuscule, colombe de la paix et famille en prière" loading="lazy" decoding="async"/>
           <span class="thumb-label">Bethléem · Méditation</span>
         </div>
         <div class="meta-line"><span>Méditation de Noël</span></div>
@@ -303,7 +364,7 @@
         <article class="project-feature compact">
           <div class="image has-image">
             <div class="blur-bg" style="background-image:url('assets/oessh_lu_036.jpg')"></div>
-            <img src="assets/oessh_lu_036.jpg" alt="Maison de retraite Beit Afram à Taybeh — bâtiment en pierre avec balcons, vue d'ensemble"/>
+            <img src="assets/oessh_lu_036.jpg" alt="Maison de retraite Beit Afram à Taybeh — bâtiment en pierre avec balcons, vue d'ensemble" loading="lazy" decoding="async"/>
             <span class="image-label">Beit Afram · Taybeh</span>
           </div>
           <div class="body">
@@ -341,7 +402,7 @@
         <article class="project-feature compact">
           <div class="image has-image">
             <div class="blur-bg" style="background-image:url('assets/oessh_lu_037.jpg')"></div>
-            <img src="assets/oessh_lu_037.jpg" alt="Maison des Sœurs du Rosaire à Beit Jala — extérieur en pierre claire avec porte rouge"/>
+            <img src="assets/oessh_lu_037.jpg" alt="Maison des Sœurs du Rosaire à Beit Jala — extérieur en pierre claire avec porte rouge" loading="lazy" decoding="async"/>
             <span class="image-label">Sœurs du Rosaire · Beit Jala</span>
           </div>
           <div class="body">
@@ -382,7 +443,7 @@
       <article class="project-feature">
         <div class="image has-image">
           <div class="blur-bg" style="background-image:url('assets/oessh_lu_007.jpg')"></div>
-          <img src="assets/oessh_lu_007.jpg" alt="Caritas Baby Hospital de Bethléem — entrée principale"/>
+          <img src="assets/oessh_lu_007.jpg" alt="Caritas Baby Hospital de Bethléem — entrée principale" loading="lazy" decoding="async"/>
           <span class="image-label">Caritas Baby Hospital · Bethléem</span>
         </div>
         <div class="body">
@@ -454,7 +515,7 @@
 
     <div>
       <figure class="don-photo">
-        <img src="assets/oessh_lu_008.jpg" alt="Signature de la convention entre la Lieutenance et la Fondation Sainte-Irmine — Luxembourg, 5 août 2025"/>
+        <img src="assets/oessh_lu_008.jpg" alt="Signature de la convention entre la Lieutenance et la Fondation Sainte-Irmine — Luxembourg, 5 août 2025" loading="lazy" decoding="async"/>
         <figcaption>Signature de la convention entre la Lieutenance et la Fondation Sainte-Irmine — Luxembourg, 15 septembre 2025.</figcaption>
       </figure>
       <div class="don-card">
@@ -476,7 +537,7 @@
 
       <div class="don-alt">
         <button type="button" class="payconiq-card" aria-label="Agrandir le QR code Payconiq" onclick="openPayconiqQR()">
-          <img src="assets/oessh_lu_009.png" alt="QR code Payconiq — Aide humanitaire de l'OESSH" />
+          <img src="assets/oessh_lu_009.png" alt="QR code Payconiq — Aide humanitaire de l'OESSH" loading="lazy" decoding="async"/>
         </button>
         <div class="qr-info">
           <strong>Don mobile par Payconiq</strong>
@@ -507,7 +568,7 @@
     <div class="newsletters">
       <a class="nl featured has-image" href="https://drive.google.com/file/d/1F5qRuZcU-Ck4A6toILV2hd8JNiJhOVSz/view" target="_blank" rel="noopener">
         <div class="cover">
-          <img src="assets/oessh_lu_010.jpg" alt="Couverture de la newsletter de Noël 2025"/>
+          <img src="assets/oessh_lu_010.jpg" alt="Couverture de la newsletter de Noël 2025" loading="lazy" decoding="async"/>
           <span class="new-tag">Nouvelle</span>
         </div>
         <div class="info"><span class="name">Noël 2025</span><span class="pages">48 p.</span></div>
@@ -515,56 +576,56 @@
 
       <a class="nl has-image" href="https://drive.google.com/file/d/1Pst-N0cF_ej-20Fzp2WYiIopeBgaI9Vq/view" target="_blank" rel="noopener">
         <div class="cover">
-          <img src="assets/oessh_lu_011.jpg" alt="Couverture de la newsletter Pâques 2025"/>
+          <img src="assets/oessh_lu_011.jpg" alt="Couverture de la newsletter Pâques 2025" loading="lazy" decoding="async"/>
         </div>
         <div class="info"><span class="name">Pâques 2025</span><span class="pages">PDF</span></div>
       </a>
 
       <a class="nl has-image" href="https://drive.google.com/file/d/11dWvTDkaNAjTNHLuggdd9zoLqZw9Gd6L/view" target="_blank" rel="noopener">
         <div class="cover">
-          <img src="assets/oessh_lu_012.jpg" alt="Couverture de la newsletter Noël 2024"/>
+          <img src="assets/oessh_lu_012.jpg" alt="Couverture de la newsletter Noël 2024" loading="lazy" decoding="async"/>
         </div>
         <div class="info"><span class="name">Noël 2024</span><span class="pages">PDF</span></div>
       </a>
 
       <a class="nl has-image" href="https://drive.google.com/file/d/1_MfGsDz9DI3ZVmO1xR--Dpkm_OHmXGTH/view" target="_blank" rel="noopener">
         <div class="cover">
-          <img src="assets/oessh_lu_013.jpg" alt="Couverture de la newsletter Pâques 2024"/>
+          <img src="assets/oessh_lu_013.jpg" alt="Couverture de la newsletter Pâques 2024" loading="lazy" decoding="async"/>
         </div>
         <div class="info"><span class="name">Pâques 2024</span><span class="pages">PDF</span></div>
       </a>
 
       <a class="nl has-image" href="https://drive.google.com/file/d/1M9_qbIYS8j1QV6aLWIvryfYNjD3sKdRe/view" target="_blank" rel="noopener">
         <div class="cover">
-          <img src="assets/oessh_lu_014.jpg" alt="Couverture de la newsletter Noël 2023"/>
+          <img src="assets/oessh_lu_014.jpg" alt="Couverture de la newsletter Noël 2023" loading="lazy" decoding="async"/>
         </div>
         <div class="info"><span class="name">Noël 2023</span><span class="pages">PDF</span></div>
       </a>
 
       <a class="nl has-image" href="https://drive.google.com/file/d/1Kefs0IUTdKr9q8QxFSQkLcmz4jfHGPI2/view" target="_blank" rel="noopener">
         <div class="cover">
-          <img src="assets/oessh_lu_015.jpg" alt="Couverture de la newsletter Pâques 2023"/>
+          <img src="assets/oessh_lu_015.jpg" alt="Couverture de la newsletter Pâques 2023" loading="lazy" decoding="async"/>
         </div>
         <div class="info"><span class="name">Pâques 2023</span><span class="pages">PDF</span></div>
       </a>
 
       <a class="nl has-image" href="https://drive.google.com/file/d/1lIe5RYXWVRG5zMF6h7HswsXOfcDe9JN-/view" target="_blank" rel="noopener">
         <div class="cover">
-          <img src="assets/oessh_lu_016.jpg" alt="Couverture de la newsletter Noël 2022"/>
+          <img src="assets/oessh_lu_016.jpg" alt="Couverture de la newsletter Noël 2022" loading="lazy" decoding="async"/>
         </div>
         <div class="info"><span class="name">Noël 2022</span><span class="pages">PDF</span></div>
       </a>
 
       <a class="nl has-image" href="https://drive.google.com/file/d/1ko8BNtwohDOwZF5Xa2J0GWuGfMxXiWNQ/view" target="_blank" rel="noopener">
         <div class="cover">
-          <img src="assets/oessh_lu_017.jpg" alt="Couverture de la newsletter Pâques 2022"/>
+          <img src="assets/oessh_lu_017.jpg" alt="Couverture de la newsletter Pâques 2022" loading="lazy" decoding="async"/>
         </div>
         <div class="info"><span class="name">Pâques 2022</span><span class="pages">PDF</span></div>
       </a>
 
       <a class="nl has-image" href="https://drive.google.com/file/d/1SVR0hvBbS8BncDF2lveKnxZoQOLY2POa/view" target="_blank" rel="noopener">
         <div class="cover">
-          <img src="assets/oessh_lu_018.jpg" alt="Couverture de la newsletter Noël 2021"/>
+          <img src="assets/oessh_lu_018.jpg" alt="Couverture de la newsletter Noël 2021" loading="lazy" decoding="async"/>
         </div>
         <div class="info"><span class="name">Noël 2021</span><span class="pages">PDF</span></div>
       </a>
@@ -590,15 +651,40 @@
     </div>
 
     <div class="calendar">
+      <div class="cal-row" data-date="2025-11-20">
+        <div class="date"><span class="month">NOV</span> 20</div>
+        <div class="ev">Réunion de formation · « En vertu de nos engagements… »</div>
+        <div class="where">Présentation : Isabelle Scart<br>Coordination : Isabelle Scart</div>
+      </div>
+      <div class="cal-row" data-date="2025-12-17">
+        <div class="date"><span class="month">DEC</span> 17</div>
+        <div class="ev">Réunion de formation · « Prudence et prud'homie »</div>
+        <div class="where">Présentation : Carlo Mulbach<br>Coordination : Isabelle Scart</div>
+      </div>
       <div class="cal-row" data-date="2026-01-09">
         <div class="date"><span class="month">JAN</span> 09</div>
         <div class="ev">Messe du 1ᵉʳ vendredi · Galette des Rois</div>
         <div class="where">Chapelle des Sœurs Franciscaines · Belair · 12h00</div>
       </div>
+      <div class="cal-row" data-date="2026-01-28">
+        <div class="date"><span class="month">JAN</span> 28</div>
+        <div class="ev">Réunion de formation · Renoncement, pauvreté et tempérance</div>
+        <div class="where">Présentation : Matthieu et Jeanne Ducorroy<br>Coordination : Isabelle Scart</div>
+      </div>
       <div class="cal-row" data-date="2026-02-06">
         <div class="date"><span class="month">FEV</span> 06</div>
         <div class="ev">Messe du 1ᵉʳ vendredi du mois</div>
         <div class="where">Chapelle des Sœurs Franciscaines · Belair · 12h00</div>
+      </div>
+      <div class="cal-row" data-date="2026-02-25">
+        <div class="date"><span class="month">FEV</span> 25</div>
+        <div class="ev">Réunion de formation · Courage ou force d'âme</div>
+        <div class="where">Présentation : Arthur Scart<br>Coordination : Isabelle Scart</div>
+      </div>
+      <div class="cal-row" data-date="2026-03-16">
+        <div class="date"><span class="month">MAR</span> 16</div>
+        <div class="ev">Réunion de formation · Justice et paix</div>
+        <div class="where">Présentation : Jean-Baptiste Niedercorn<br>Coordination : Isabelle Scart</div>
       </div>
       <div class="cal-row" data-date="2026-03-19">
         <div class="date"><span class="month">MAR</span> 19</div>
@@ -610,10 +696,20 @@
         <div class="ev">Messe du Lundi de Pâques + déjeuner</div>
         <div class="where">Église de Manternach · 10h30</div>
       </div>
+      <div class="cal-row" data-date="2026-04-22">
+        <div class="date"><span class="month">AVR</span> 22</div>
+        <div class="ev">Réunion de formation · Sollicitude, solidarité et générosité</div>
+        <div class="where">Présentation : Joris<br>Coordination : Isabelle Scart</div>
+      </div>
       <div class="cal-row" data-date="2026-05-17">
         <div class="date"><span class="month">MAI</span> 03→17</div>
         <div class="ev">Octave · Pèlerinage à Notre-Dame de Luxembourg</div>
         <div class="where">Cathédrale Notre-Dame</div>
+      </div>
+      <div class="cal-row" data-date="2026-05-18">
+        <div class="date"><span class="month">MAI</span> 18</div>
+        <div class="ev">Réunion de formation · Implication et collaboration</div>
+        <div class="where">Présentation : Olivier de Gassart<br>Coordination : Isabelle Scart</div>
       </div>
       <div class="cal-row" data-date="2026-06-23">
         <div class="date"><span class="month">JUI</span> 23</div>
@@ -686,7 +782,7 @@
     <div class="footer-grid">
       <div class="col">
         <div class="brand">
-          <img class="cross" src="assets/croix-jerusalem.svg" alt="Croix de Jérusalem"/>
+          <img class="cross" src="assets/croix-jerusalem.svg" alt="Croix de Jérusalem" decoding="async"/>
           <span class="brand-text"><span class="l1">Ordre Équestre du Saint-Sépulcre de Jérusalem</span><span class="l2">Lieutenance pour le Luxembourg</span></span></div>
         <p class="baseline">
           « Une force spirituelle et caritative au service de la Terre Sainte. »
@@ -761,7 +857,7 @@ document.querySelectorAll('.section-head, .pillar, .news-card, .oeuvre, .nl, .ca
     <button type="button" class="qr-modal-close" aria-label="Fermer" onclick="closePayconiqQR()">×</button>
     <h3 id="payconiq-modal-title">Don par Payconiq</h3>
     <p class="qr-modal-lede">Scannez le QR code avec l'application Payconiq de votre téléphone.</p>
-    <img src="assets/oessh_lu_009.png" alt="QR code Payconiq — Aide humanitaire de l'OESSH"/>
+    <img src="assets/oessh_lu_009.png" alt="QR code Payconiq — Aide humanitaire de l'OESSH" loading="lazy" decoding="async"/>
     <p class="qr-modal-foot">Depuis mobile : <a href="https://irmine.lu/st-irmine-project/aide-humanitaire-de-l_oessh/" target="_blank" rel="noopener">ouvrir la page Sainte-Irmine →</a></p>
   </div>
 </div>

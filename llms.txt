@@ -1,0 +1,40 @@
+# OESSH Luxembourg — Lieutenance pour le Luxembourg
+
+> Site officiel de l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH),
+> Lieutenance pour le Luxembourg. Ordre pontifical au service des chrétiens
+> de Terre Sainte (les « pierres vivantes »).
+
+## À propos
+
+L'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH) est l'un des deux
+seuls ordres laïcs de chevalerie sous protection directe du Saint-Siège.
+Sa mission : soutenir les œuvres caritatives, culturelles et sociales du
+Patriarcat latin de Jérusalem, notamment les écoles, les paroisses et les
+institutions chrétiennes en Terre Sainte (Israël, Palestine, Jordanie, Chypre).
+
+La Lieutenance pour le Luxembourg réunit les Chevaliers et Dames de l'Ordre
+établis au Grand-Duché. Elle est dirigée par un Lieutenant nommé par le
+Cardinal Grand Maître à Rome.
+
+## Pages
+
+- [Accueil — version française](https://luxembourg.oessh.lu/): mission, œuvres soutenues, calendrier, publications
+- [Home — English version](https://luxembourg.oessh.lu/en.html): mission, supported works, calendar, publications
+- [Crédits & mentions légales](https://luxembourg.oessh.lu/credits.html)
+
+## Contact
+
+- Courriel : secretariat@oessh.lu
+- Pays : Luxembourg
+
+## Œuvres principales soutenues
+
+- Patriarcat latin de Jérusalem (écoles et paroisses)
+- Beit Afram (maison de retraite chrétienne)
+- Sœurs du Rosaire (chauffage des écoles en hiver)
+- Aide humanitaire en Terre Sainte
+
+## Organisation parente
+
+Ordo Equestris Sancti Sepulcri Hierosolymitani (Grand Magistère, Rome)
+https://www.oessh.va/
