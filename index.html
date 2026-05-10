@@ -120,7 +120,7 @@
         <span class="lang-sep" aria-hidden="true">/</span>
         <a href="en.html" class="lang-opt">EN</a>
       </div>
-      <a href="#don" class="btn btn-primary"><span class="lbl">Faire un don</span> <span class="arr">→</span></a>
+      <a href="#don" class="btn btn-primary" aria-label="Faire un don"><span class="lbl">Faire un don</span> <span class="arr" aria-hidden="true">→</span></a>
       <button class="menu-btn" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu" onclick="toggleMobileMenu()">
         <span class="bars"><span></span><span></span><span></span></span>
       </button>
@@ -256,7 +256,11 @@
     <div class="news-grid">
       <article class="news-card feature">
         <div class="thumb has-image">
-          <img src="assets/oessh_lu_001.jpg" alt="Audience du Pape Léon XIV avec l'OESSH dans la salle Paul VI au Vatican — 23 octobre 2025" decoding="async" fetchpriority="high"/>
+          <picture>
+            <source type="image/webp" srcset="assets/oessh_lu_001-800.webp 800w, assets/oessh_lu_001-1600.webp 1600w" sizes="(max-width:760px) 100vw, 800px"/>
+            <source type="image/jpeg" srcset="assets/oessh_lu_001-800.jpg 800w, assets/oessh_lu_001-1600.jpg 1600w" sizes="(max-width:760px) 100vw, 800px"/>
+            <img src="assets/oessh_lu_001-800.jpg" width="800" height="600" alt="Audience du Pape Léon XIV avec l'OESSH dans la salle Paul VI au Vatican — 23 octobre 2025" decoding="async" fetchpriority="high"/>
+          </picture>
           <span class="thumb-label">Vatican · 23 oct. 2025</span>
         </div>
         <div class="meta-line">
@@ -363,8 +367,12 @@
       <div class="projects-pair">
         <article class="project-feature compact">
           <div class="image has-image">
-            <div class="blur-bg" style="background-image:url('assets/oessh_lu_036.jpg')"></div>
-            <img src="assets/oessh_lu_036.jpg" alt="Maison de retraite Beit Afram à Taybeh — bâtiment en pierre avec balcons, vue d'ensemble" loading="lazy" decoding="async"/>
+            <div class="blur-bg" style="background-image:url('assets/oessh_lu_036-800.jpg')"></div>
+            <picture>
+              <source type="image/webp" srcset="assets/oessh_lu_036-800.webp 800w, assets/oessh_lu_036-1600.webp 1600w" sizes="(max-width:760px) 100vw, 800px"/>
+              <source type="image/jpeg" srcset="assets/oessh_lu_036-800.jpg 800w, assets/oessh_lu_036-1600.jpg 1600w" sizes="(max-width:760px) 100vw, 800px"/>
+              <img src="assets/oessh_lu_036-800.jpg" width="805" height="476" alt="Maison de retraite Beit Afram à Taybeh — bâtiment en pierre avec balcons, vue d'ensemble" loading="lazy" decoding="async"/>
+            </picture>
             <span class="image-label">Beit Afram · Taybeh</span>
           </div>
           <div class="body">
@@ -401,8 +409,12 @@
 
         <article class="project-feature compact">
           <div class="image has-image">
-            <div class="blur-bg" style="background-image:url('assets/oessh_lu_037.jpg')"></div>
-            <img src="assets/oessh_lu_037.jpg" alt="Maison des Sœurs du Rosaire à Beit Jala — extérieur en pierre claire avec porte rouge" loading="lazy" decoding="async"/>
+            <div class="blur-bg" style="background-image:url('assets/oessh_lu_037-800.jpg')"></div>
+            <picture>
+              <source type="image/webp" srcset="assets/oessh_lu_037-800.webp 800w, assets/oessh_lu_037-1600.webp 1600w" sizes="(max-width:760px) 100vw, 800px"/>
+              <source type="image/jpeg" srcset="assets/oessh_lu_037-800.jpg 800w, assets/oessh_lu_037-1600.jpg 1600w" sizes="(max-width:760px) 100vw, 800px"/>
+              <img src="assets/oessh_lu_037-800.jpg" width="804" height="481" alt="Maison des Sœurs du Rosaire à Beit Jala — extérieur en pierre claire avec porte rouge" loading="lazy" decoding="async"/>
+            </picture>
             <span class="image-label">Sœurs du Rosaire · Beit Jala</span>
           </div>
           <div class="body">
@@ -442,8 +454,12 @@
       <div class="year-tag"><span class="bar"></span>Projet 2025</div>
       <article class="project-feature">
         <div class="image has-image">
-          <div class="blur-bg" style="background-image:url('assets/oessh_lu_007.jpg')"></div>
-          <img src="assets/oessh_lu_007.jpg" alt="Caritas Baby Hospital de Bethléem — entrée principale" loading="lazy" decoding="async"/>
+          <div class="blur-bg" style="background-image:url('assets/oessh_lu_007-800.jpg')"></div>
+          <picture>
+            <source type="image/webp" srcset="assets/oessh_lu_007-800.webp 800w, assets/oessh_lu_007-1600.webp 1600w" sizes="(max-width:760px) 100vw, 800px"/>
+            <source type="image/jpeg" srcset="assets/oessh_lu_007-800.jpg 800w, assets/oessh_lu_007-1600.jpg 1600w" sizes="(max-width:760px) 100vw, 800px"/>
+            <img src="assets/oessh_lu_007-800.jpg" width="1439" height="1264" alt="Caritas Baby Hospital de Bethléem — entrée principale" loading="lazy" decoding="async"/>
+          </picture>
           <span class="image-label">Caritas Baby Hospital · Bethléem</span>
         </div>
         <div class="body">
@@ -789,7 +805,7 @@
         </p>
       </div>
       <div class="col">
-        <h5>Le site</h5>
+        <h4>Le site</h4>
         <a href="#mission">Notre Ordre</a>
         <a href="#actualites">Actualités</a>
         <a href="#oeuvres">Œuvres</a>
@@ -798,12 +814,12 @@
         <a href="#" onclick="openContactModal();return false;">Contact</a>
       </div>
       <div class="col">
-        <h5>Engagement</h5>
+        <h4>Engagement</h4>
         <a href="#don">Faire un don</a>
         <a href="#priere">Prière du Chevalier</a>
       </div>
       <div class="col">
-        <h5>Institutions</h5>
+        <h4>Institutions</h4>
         <a href="https://www.oessh.va" target="_blank" rel="noopener">Grand Magistère ↗</a>
         <a href="https://www.lpj.org" target="_blank" rel="noopener">Patriarcat latin ↗</a>
         <a href="https://irmine.lu/la-fondation-sainte-irmine/" target="_blank" rel="noopener">Fondation Sainte-Irmine ↗</a>

@@ -843,7 +843,7 @@ section{padding:clamp(72px, 9vw, 130px) 0; position:relative}
 .cal-row .date{font-family:var(--mono); font-size:13px; color:var(--ink); letter-spacing:.04em}
 .cal-row .date .month{color:var(--cardinal)}
 .cal-row .ev{font-family:var(--serif); font-size:20px; color:var(--ink); line-height:1.25}
-.cal-row .where{font-size:13px; color:var(--ink-mute)}
+.cal-row .where{font-size:13px; color:var(--ink-soft)}
 @media (max-width:760px){
   .cal-row{grid-template-columns:90px 1fr; gap:16px}
   .cal-row .where{grid-column:1/-1; padding-left:106px; font-size:12px}
@@ -877,6 +877,7 @@ footer.site{
 }
 @media (max-width:880px){.footer-grid{grid-template-columns:1fr 1fr; gap:36px}}
 @media (max-width:560px){.footer-grid{grid-template-columns:1fr}}
+footer.site .col h4,
 footer.site .col h5{
   font-family:var(--sans); font-size:11px; letter-spacing:.22em;
   text-transform:uppercase; color:var(--ink-mute);
@@ -931,7 +932,7 @@ footer.site .baseline{
 .cookie-text{display:flex; flex-direction:column; gap:6px; font-size:13.5px; line-height:1.5}
 .cookie-text strong{
   font-family:var(--mono); font-size:11px; letter-spacing:.18em;
-  color:var(--cardinal); text-transform:uppercase; font-weight:500;
+  color:#ff8a8c; text-transform:uppercase; font-weight:500;
 }
 .cookie-text span{color:rgba(244,237,224,.82)}
 .cookie-actions{display:flex; gap:10px; flex-wrap:wrap}
