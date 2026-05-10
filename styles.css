@@ -26,6 +26,9 @@
 
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
+/* Empêche le « balancement » horizontal sur mobile sans bloquer le pinch-zoom */
+html,body{overflow-x:clip; max-width:100%}
+img,svg,video,iframe{max-width:100%}
 html{scroll-behavior:smooth; scroll-padding-top:80px !important}
 section[id]{scroll-margin-top:80px !important}
 section[id]{padding-top:36px !important}
