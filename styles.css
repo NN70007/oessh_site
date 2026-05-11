@@ -28,8 +28,9 @@
 html,body{margin:0;padding:0}
 /* Empêche le « balancement » horizontal sur mobile sans bloquer le pinch-zoom */
 html,body{overflow-x:hidden; max-width:100%; width:100%}
-/* Containment des ornements/décors qui dépassent à droite */
-section, header, footer{overflow-x:clip}
+/* Containment des ornements/décors qui dépassent à droite
+   (header EXCLU — sinon le menu mobile position:fixed se fait clipper) */
+section, footer{overflow-x:clip}
 img,svg,video,iframe{max-width:100%}
 html{scroll-behavior:smooth; scroll-padding-top:80px !important}
 section[id]{scroll-margin-top:80px !important}
