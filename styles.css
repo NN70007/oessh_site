@@ -27,7 +27,8 @@
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
 /* Empêche le « balancement » horizontal sur mobile sans bloquer le pinch-zoom */
-html,body{overflow-x:hidden; max-width:100%; width:100%}
+html{overflow-x:clip}
+body{max-width:100%; width:100%; overflow-x:clip}
 /* Containment des ornements/décors qui dépassent à droite
    (header EXCLU — sinon le menu mobile position:fixed se fait clipper) */
 section, footer{overflow-x:clip}
@@ -127,7 +128,7 @@ header.site{
   max-width:var(--maxw); margin:0 auto;
 }
 .brand{display:flex; align-items:center; gap:18px; flex:0 0 auto; grid-row:1; grid-column:1; text-decoration:none}
-.nav-cta{display:flex; gap:10px; align-items:center; flex:0 0 auto; grid-row:1; grid-column:3}
+.nav-cta{display:flex; gap:8px; align-items:center; flex:0 0 auto; grid-row:1; grid-column:3}
 .brand .cross{width:84px;height:84px;flex:0 0 auto;display:block; background:transparent}
 .brand-text{display:flex; flex-direction:column; line-height:1.2; gap:5px; max-width:none; min-width:0; white-space:nowrap}
 .brand-text .l1{font-family:var(--serif); font-size:28px; letter-spacing:.005em; color:var(--cardinal); line-height:1.1; font-weight:500; white-space:nowrap}
@@ -197,16 +198,16 @@ header.site{
 
 /* FR / EN language switcher */
 .lang-switch{
-  display:inline-flex; align-items:center; gap:6px;
+  display:inline-flex; align-items:center; gap:4px;
   font-family:var(--sans);
   font-size:11px;
-  letter-spacing:.16em;
-  margin-right:6px;
+  letter-spacing:.12em;
+  margin-right:4px;
 }
 .lang-switch .lang-opt{
   color:var(--ink-mute);
   text-decoration:none;
-  padding:4px 2px;
+  padding:4px 1px;
   transition:color .2s ease;
 }
 .lang-switch .lang-opt:hover{color:var(--ink)}
@@ -242,7 +243,7 @@ header.site{
   background:#fff;
   border-bottom:1px solid var(--line);
   padding:80px 24px 28px;
-  z-index:90;
+  z-index:40;
   flex-direction:column; gap:4px;
   box-shadow:0 20px 40px -20px rgba(0,0,0,.15);
   transform:translateY(-100%);
