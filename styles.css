@@ -26,9 +26,9 @@
 
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
-/* Correctif overflow ornements décoratifs — UNIQUEMENT pour la version DE */
-html[lang="de"], html[lang="de"] body{overflow-x:hidden; max-width:100%; width:100%}
-html[lang="de"] section, html[lang="de"] header, html[lang="de"] footer{overflow-x:clip}
+/* Correctif overflow ornements décoratifs — UNIQUEMENT pour la version DE
+   (on évite overflow sur html/body pour ne pas casser position:sticky du header) */
+html[lang="de"] section, html[lang="de"] footer{overflow-x:clip}
 img,svg,video,iframe{max-width:100%}
 html{scroll-behavior:smooth; scroll-padding-top:80px !important}
 section[id]{scroll-margin-top:80px !important}
