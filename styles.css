@@ -104,7 +104,8 @@ em.italic{font-style:italic}
 .tb-right{justify-self:end}
 @media (max-width:780px){
   .topbar-inner{grid-template-columns:1fr; gap:6px; text-align:center; padding:10px 20px}
-  .tb-left{justify-self:center}
+  .tb-left{display:none}
+  .tb-center{justify-self:center; white-space:normal; line-height:1.35; text-wrap:balance}
 }
 
 /* ---------- Header ---------- */
