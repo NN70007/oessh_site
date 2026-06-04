@@ -72,7 +72,7 @@
   "contactPoint": {
     "@type": "ContactPoint",
     "contactType": "general",
-    "email": "secretariat@oessh.lu",
+    "email": "secretariat.asbl@oessh.lu",
     "availableLanguage": ["de", "fr", "en", "lb"]
   },
   "sameAs": [
@@ -125,6 +125,7 @@
       <a href="#oeuvres">Werke</a>
       <a href="#publications">Publikationen</a>
       <a href="#lectures">Lektüre</a>
+      <a href="#" onclick="openContactModal();return false;">Kontakt</a>
     </div>
     <div class="nav-cta">
       <div class="lang-switch" role="group" aria-label="Sprache / Language">
@@ -146,6 +147,7 @@
     <a href="#oeuvres" onclick="closeMobileMenu()">Werke</a>
     <a href="#publications" onclick="closeMobileMenu()">Publikationen</a>
     <a href="#lectures" onclick="closeMobileMenu()">Lektüre</a>
+    <a href="#" onclick="closeMobileMenu();openContactModal();return false;">Kontakt</a>
     <a href="index.html" onclick="closeMobileMenu()">Français ↗</a>
     <a href="en.html" onclick="closeMobileMenu()">English ↗</a>
   </div>
@@ -1138,7 +1140,7 @@ document.querySelectorAll('.js-mail-full').forEach(function(el){
       Über Ihr E-Mail-Programm:
     </p>
     <p style="margin:0 0 28px">
-      <a href="#" class="js-mail" data-u="secretariat" data-d="oessh.lu" onclick="(function(a){var u=a.dataset.u,d=a.dataset.d;window.location.href='mailto:'+u+'@'+d;})(this);return false;" style="font-family:var(--sans);font-size:16px;color:var(--cardinal);text-decoration:underline;text-underline-offset:3px"><span class="js-mail-text">secretariat@oessh.lu</span></a>
+      <a href="#" class="js-mail" data-u="secretariat.asbl" data-d="oessh.lu" onclick="(function(a){var u=a.dataset.u,d=a.dataset.d;window.location.href='mailto:'+u+'@'+d;})(this);return false;" style="font-family:var(--sans);font-size:16px;color:var(--cardinal);text-decoration:underline;text-underline-offset:3px"><span class="js-mail-text">secretariat.asbl@oessh.lu</span></a>
     </p>
     <hr style="border:none;border-top:1px solid var(--line-soft);margin:0 0 24px"/>
     <p style="font-size:14px;color:var(--ink-soft);margin:0 0 14px">
@@ -1196,12 +1198,12 @@ function sendContactMessage(e){
         setTimeout(closeContactModal, 2200);
       } else {
         status.style.color = 'var(--cardinal)';
-        status.textContent = (res && res.error) ? res.error : 'Senden fehlgeschlagen. Bitte schreiben Sie an secretariat@oessh.lu.';
+        status.textContent = (res && res.error) ? res.error : 'Senden fehlgeschlagen. Bitte schreiben Sie an secretariat.asbl@oessh.lu.';
       }
     })
     .catch(function(){
       status.style.color = 'var(--cardinal)';
-      status.textContent = 'Senden fehlgeschlagen. Bitte schreiben Sie an secretariat@oessh.lu.';
+      status.textContent = 'Senden fehlgeschlagen. Bitte schreiben Sie an secretariat.asbl@oessh.lu.';
     })
     .finally(function(){ btn.disabled = false; });
 }

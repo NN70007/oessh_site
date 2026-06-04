@@ -34,7 +34,7 @@ $name  = str_replace(["\r", "\n"], ' ', $name);
 $email = str_replace(["\r", "\n"], ' ', $email);
 
 // Destinataires
-$to = 'secretariat@oessh.lu';
+$to = 'secretariat.asbl@oessh.lu, lieutenant@oessh.lu';
 
 $subject = 'Message via oessh.lu — ' . $name;
 
@@ -53,5 +53,5 @@ if (mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, $headers)) {
     echo json_encode(['ok' => true]);
 } else {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => "L'envoi a échoué. Merci de réessayer ou d'écrire directement à secretariat@oessh.lu."]);
+    echo json_encode(['ok' => false, 'error' => "L'envoi a échoué. Merci de réessayer ou d'écrire directement à secretariat.asbl@oessh.lu."]);
 }
