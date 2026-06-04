@@ -1137,6 +1137,7 @@ document.querySelectorAll('.js-mail-full').forEach(function(el){
       Via the form:
     </p>
     <form id="contact-form" onsubmit="sendContactMessage(event)" style="display:flex;flex-direction:column;gap:12px">
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"/>
       <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute)">
         Name
         <input type="text" name="name" required style="font-family:var(--sans);font-size:14px;padding:10px 12px;border:1px solid var(--line);background:#fff;color:var(--ink);letter-spacing:0;text-transform:none"/>
@@ -1150,6 +1151,7 @@ document.querySelectorAll('.js-mail-full').forEach(function(el){
         <textarea name="message" rows="4" required style="font-family:var(--sans);font-size:14px;padding:10px 12px;border:1px solid var(--line);background:#fff;color:var(--ink);letter-spacing:0;text-transform:none;resize:vertical"></textarea>
       </label>
       <button type="submit" class="btn btn-primary" style="margin-top:6px;align-self:flex-start">Send <span class="arr">→</span></button>
+      <p id="contact-status" role="status" aria-live="polite" style="margin:6px 0 0;font-size:13px;color:var(--ink-mute);display:none"></p>
     </form>
   </div>
 </div>
@@ -1169,15 +1171,30 @@ function closeContactModal(){
 function sendContactMessage(e){
   e.preventDefault();
   var f = e.target;
-  var subject = encodeURIComponent('Message via oessh.lu — ' + f.name.value);
-  var body = encodeURIComponent(
-    'Name: ' + f.name.value + '\n' +
-    'Email: ' + f.email.value + '\n\n' +
-    f.message.value
-  );
-  window.location.href = 'mailto:secretariat@oessh.lu?subject=' + subject + '&body=' + body;
-  closeContactModal();
-  f.reset();
+  var status = document.getElementById('contact-status');
+  var btn = f.querySelector('button[type="submit"]');
+  status.style.display = 'block';
+  status.style.color = 'var(--ink-mute)';
+  status.textContent = 'Sending…';
+  btn.disabled = true;
+  fetch('contact.php', { method: 'POST', body: new FormData(f) })
+    .then(function(r){ return r.json().catch(function(){ return {ok:false}; }); })
+    .then(function(res){
+      if(res.ok){
+        status.style.color = '#1a7a3c';
+        status.textContent = 'Thank you! Your message has been sent.';
+        f.reset();
+        setTimeout(closeContactModal, 2200);
+      } else {
+        status.style.color = 'var(--cardinal)';
+        status.textContent = (res && res.error) ? res.error : "Sending failed. Please write to secretariat@oessh.lu.";
+      }
+    })
+    .catch(function(){
+      status.style.color = 'var(--cardinal)';
+      status.textContent = "Sending failed. Please write to secretariat@oessh.lu.";
+    })
+    .finally(function(){ btn.disabled = false; });
 }
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeContactModal();
