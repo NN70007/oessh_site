@@ -503,6 +503,19 @@ section{padding:clamp(72px, 9vw, 130px) 0; position:relative}
   align-self:flex-start; text-decoration:none;
 }
 .news-card:hover .read{color:var(--cardinal); border-color:var(--cardinal)}
+.read-row{margin-top:auto; display:flex; flex-wrap:wrap; gap:12px 20px}
+.read-row .read{margin-top:0}
+.more-text{display:none}
+.news-card.is-open .more-text{display:block}
+.news-card.is-open .teaser{display:none}
+.read-more{
+  align-self:flex-start; margin:2px 0 18px;
+  font-size:13px; color:var(--cardinal);
+  background:none; border:none; cursor:pointer;
+  font-family:var(--sans); letter-spacing:.02em;
+  padding:0; text-decoration:none;
+}
+.read-more:hover{text-decoration:underline; text-underline-offset:3px}
 
 /* ---------- Quote band ---------- */
 .quote-band{
@@ -687,6 +700,24 @@ section{padding:clamp(72px, 9vw, 130px) 0; position:relative}
   white-space:nowrap;
 }
 .don-card .iban-copy:hover{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+.iban-box{
+  margin:10px 0 0;
+  padding:12px 14px;
+  background:var(--bg);
+  border:1px dashed var(--line);
+  font-family:var(--mono); font-size:15px; color:var(--ink);
+  letter-spacing:.04em;
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+}
+.iban-box .iban-num{user-select:all}
+.iban-box .iban-copy{
+  font-size:10px; letter-spacing:.16em; color:var(--ink-mute);
+  text-transform:uppercase; cursor:pointer;
+  padding:6px 10px; border:1px solid var(--line);
+  font-family:var(--sans); transition:all .2s;
+  white-space:nowrap; background:transparent;
+}
+.iban-box .iban-copy:hover{background:var(--ink); color:var(--paper); border-color:var(--ink)}
 .don-card .mention{
   font-size:13px; color:var(--ink-mute); margin-bottom:20px;
 }
@@ -844,6 +875,9 @@ section{padding:clamp(72px, 9vw, 130px) 0; position:relative}
   position:relative;
 }
 .book .cover img{width:100%; height:100%; object-fit:cover; display:block}
+.book .cover-wrap{display:flex; flex-direction:column; gap:8px}
+.book .cover-wrap .cover{display:block}
+.book .cover-note{font-size:11px; color:var(--ink-mute); font-style:italic; margin:0; line-height:1.4}
 .book .body .eyebrow{
   font-family:var(--mono); font-size:11px; letter-spacing:.18em;
   color:var(--ink-mute); text-transform:uppercase; margin-bottom:14px;
@@ -891,7 +925,7 @@ section{padding:clamp(72px, 9vw, 130px) 0; position:relative}
 .book .body .links a.muted{color:var(--ink-mute); border-bottom-color:var(--line)}
 @media (max-width:760px){
   .book{grid-template-columns:1fr; gap:28px}
-  .book .cover{max-width:220px}
+  .book .cover-wrap{max-width:220px}
 }
 .nl.featured-tag{position:relative}
 .nl .new-tag{
