@@ -2,6 +2,64 @@
   "version": 2,
   "articles": [
     {
+      "id": "centenaire-de-la-lieutenance-pour-la-bel",
+      "date_affichee": "6 juin 2026",
+      "lieu": "Bruxelles",
+      "badges": [
+        "À la Une",
+        "Centenaire",
+        "Investitures",
+        "Lieutenance"
+      ],
+      "img_filename": "centenaire-lieutenance-belgique-sablon-2026.jpg",
+      "legende": {
+        "fr": "Bruxelles · 6 juin 2026 · © Grand Magistère OESSJ",
+        "de": "Brüssel · 6. Juni 2026 · © Großmagisterium ROHGJ",
+        "en": "Brussels · 6 June 2026 · © Grand Magisterium EOHSJ"
+      },
+      "titre": {
+        "fr": "Centenaire de la Lieutenance pour la Belgique",
+        "de": "Hundertjahrfeier der Statthalterei für Belgien",
+        "en": "Centenary of the Lieutenancy for Belgium"
+      },
+      "teaser": {
+        "fr": "Le 6 juin 2026, la Lieutenance pour la Belgique célébrait son centenaire avec une Investiture présidée par le Cardinal Fernando Filoni au Sablon, à Bruxelles.",
+        "de": "Am 6. Juni 2026 feierte die Statthalterei für Belgien ihr hundertjähriges Bestehen mit einer Investitur unter dem Vorsitz von Kardinal Fernando Filoni am Sablon in Brüssel.",
+        "en": "On 6 June 2026, the Lieutenancy for Belgium celebrated its centenary with an Investiture presided over by Cardinal Fernando Filoni at the Sablon, in Brussels."
+      },
+      "texte": {
+        "fr": "C'est dans la vénérable église Notre-Dame des Victoires au Sablon, à Bruxelles, que la Lieutenance pour la Belgique de l'Ordre Équestre du Saint-Sépulcre de Jérusalem a célébré, le 6 juin 2026, le centenaire de sa fondation. Pour marquer dignement cet anniversaire exceptionnel, le Cardinal Fernando Filoni, Grand Maître de l'Ordre, a présidé en personne la cérémonie d'Investiture au cours de laquelle onze nouveaux Chevaliers et Dames ont été reçus au sein de l'Ordre. Il était entouré de Son Excellence Mgr Franco Coppola, Nonce Apostolique en Belgique et au Luxembourg, ainsi que de Son Excellence Mgr Bernardito Auza, Nonce Apostolique auprès de l'Union Européenne.\n\nLa solennité de l'événement fut encore rehaussée par la présence du représentant de Sa Majesté le Roi Philippe, rappelant avec éclat que le Souverain et Sa Majesté la Reine Mathilde sont Membres de l'Ordre. Le Grand Magistère était largement représenté : M. Jean-Pierre de Glutz-Ruchti, Vice-Gouverneur Général pour l'Europe, représentait le Gouverneur Général ; M. Enric Mas, Vice-Gouverneur Général pour l'Amérique latine, M. Alfredo Bastianelli, Chancelier de l'Ordre, et M. Giorgio Moroni Stampa, Vice-Gouverneur Général honoraire, participaient également aux célébrations, témoignant de l'importance accordée par le Grand Magistère à ce centenaire.\n\nLa Lieutenance pour le Luxembourg avait tenu à s'associer pleinement à cette commémoration fraternelle. En effet, parmi la grande assemblée réunie dans un esprit de prière recueillie, figuraient les Lieutenants venus de Malte, du Portugal, du Luxembourg, du nord de l'Italie, des Pays-Bas, de Norvège, de France, d'Autriche, de Suisse et du Liechtenstein. Cette présence unanime et fraternelle manifeste, cent ans après la création de la Lieutenance pour la Belgique, la vitalité de l'Ordre et l'ardeur commune de ses Chevaliers et Dames à soutenir les chrétiens de Terre Sainte.",
+        "de": "In der ehrwürdigen Kirche Notre-Dame des Victoires au Sablon in Brüssel feierte die Statthalterei für Belgien des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem am 6. Juni 2026 das hundertjährige Jubiläum ihrer Gründung. Um diesen außergewöhnlichen Jahrestag in würdiger Weise zu begehen, leitete Kardinal Fernando Filoni, Großmeister des Ordens, persönlich die Investiturzeremonie, im Rahmen derer elf neue Ritter und Damen in den Orden aufgenommen wurden. Er war umgeben von Seiner Exzellenz Msgr. Franco Coppola, Apostolischem Nuntius in Belgien und Luxemburg, sowie von Seiner Exzellenz Msgr. Bernardito Auza, Apostolischem Nuntius bei der Europäischen Union.\n\nDie Feierlichkeit des Ereignisses wurde noch durch die Anwesenheit des Vertreters Seiner Majestät König Philippe unterstrichen, der eindrucksvoll daran erinnerte, dass der Souverän und Ihre Majestät Königin Mathilde Mitglieder des Ordens sind. Das Großmagisterium war in starker Vertretung zugegen: Herr Jean-Pierre de Glutz-Ruchti, Stellvertretender Generalgouverneur für Europa, vertrat den Generalgouverneur; Herr Enric Mas, Stellvertretender Generalgouverneur für Lateinamerika, Herr Alfredo Bastianelli, Kanzler des Ordens, und Herr Giorgio Moroni Stampa, Ehren-Stellvertretender Generalgouverneur, nahmen ebenfalls an den Feierlichkeiten teil und bezeugten damit die Bedeutung, die das Großmagisterium diesem Jahrhundertjubiläum beimisst.\n\nDie Statthalterei für Luxemburg hatte ihrerseits besonderen Wert darauf gelegt, sich dieser brüderlichen Gedenkfeier vollumfänglich anzuschließen. In der großen, in gesammeltem Gebet vereinten Versammlung waren Statthalter aus Malta, Portugal, Luxemburg, Norditalien, den Niederlanden, Norwegen, Frankreich, Österreich, der Schweiz und Liechtenstein zugegen. Diese einmütige und brüderliche Anwesenheit bezeugt, hundert Jahre nach der Gründung der Statthalterei für Belgien, die Lebendigkeit des Ordens und den gemeinsamen Eifer seiner Ritter und Damen, die Christen im Heiligen Land zu unterstützen.",
+        "en": "It was in the venerable Church of Notre-Dame des Victoires au Sablon, in Brussels, that the Lieutenancy for Belgium of the Equestrian Order of the Holy Sepulchre of Jerusalem celebrated, on 6 June 2026, the centenary of its foundation. To mark this exceptional anniversary with due solemnity, Cardinal Fernando Filoni, Grand Master of the Order, personally presided over the Investiture ceremony, during which eleven new Knights and Ladies were received into the Order. He was accompanied by His Excellency Archbishop Franco Coppola, Apostolic Nuncio to Belgium and Luxembourg, and by His Excellency Archbishop Bernardito Auza, Apostolic Nuncio to the European Union.\n\nThe solemnity of the occasion was further enhanced by the presence of the representative of His Majesty King Philippe, a reminder of the distinguished fact that the Sovereign and Her Majesty Queen Mathilde are Members of the Order. The Grand Magisterium was represented in considerable strength: Mr Jean-Pierre de Glutz-Ruchti, Deputy Governor General for Europe, represented the Governor General; Mr Enric Mas, Deputy Governor General for Latin America, Mr Alfredo Bastianelli, Chancellor of the Order, and Mr Giorgio Moroni Stampa, Honorary Deputy Governor General, also took part in the celebrations, bearing witness to the importance the Grand Magisterium attaches to this centenary.\n\nThe Lieutenancy for Luxembourg was particularly keen to associate itself fully with this fraternal commemoration. Indeed, among the great assembly gathered in a spirit of recollected prayer, Lieutenants had come from Malta, Portugal, Luxembourg, northern Italy, the Netherlands, Norway, France, Austria, Switzerland and Liechtenstein. This unanimous and fraternal presence manifests, one hundred years after the creation of the Lieutenancy for Belgium, the vitality of the Order and the shared ardour of its Knights and Ladies in supporting the Christians of the Holy Land."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Grand Magistère de l'Ordre du Saint-Sépulcre de Jérusalem — page Facebook officielle",
+            "de": "Großmagisterium des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem — offizielle Facebook-Seite",
+            "en": "Grand Magisterium of the Equestrian Order of the Holy Sepulchre of Jerusalem — official Facebook page"
+          },
+          "url": "https://www.facebook.com/grandmagisterium.eohsj.eng/"
+        },
+        {
+          "label": {
+            "fr": "Homélie de la veillée",
+            "de": "Homilie der Vigil",
+            "en": "Vigil homily"
+          },
+          "url": "assets/fra_omelia-veglia_belgio-2026_def.pdf"
+        },
+        {
+          "label": {
+            "fr": "Homélie de l'investiture",
+            "de": "Homilie der Investitur",
+            "en": "Investiture homily"
+          },
+          "url": "assets/fra_omelia-investitura_belgio-2026_def.pdf"
+        }
+      ]
+    },
+    {
       "id": "le-cardinal-pizzaballa-decore-de-la-legi",
       "date_affichee": "2025",
       "lieu": "Jérusalem",
@@ -38,48 +96,6 @@
             "en": "Original post by Emmanuel Macron – official Facebook page"
           },
           "url": "https://www.facebook.com/EmmanuelMacron"
-        }
-      ]
-    },
-    {
-      "id": "centenaire-de-la-lieutenance-pour-la-bel",
-      "date_affichee": "6 juin 2026",
-      "lieu": "Bruxelles",
-      "badges": [
-        "À la Une",
-        "Centenaire",
-        "Investitures",
-        "Lieutenance"
-      ],
-      "img_filename": "centenaire-lieutenance-belgique-sablon-2026.jpg",
-      "legende": {
-        "fr": "Bruxelles · 6 juin 2026 · © Grand Magistère OESSJ",
-        "de": "Brüssel · 6. Juni 2026 · © Großmagisterium ROHGJ",
-        "en": "Brussels · 6 June 2026 · © Grand Magisterium EOHSJ"
-      },
-      "titre": {
-        "fr": "Centenaire de la Lieutenance pour la Belgique",
-        "de": "Hundertjahrfeier der Leutnantschaft für Belgien",
-        "en": "Centenary of the Lieutenancy for Belgium"
-      },
-      "teaser": {
-        "fr": "Le 6 juin 2026, la Lieutenance pour la Belgique célébrait son centenaire avec une Investiture présidée par le Cardinal Fernando Filoni au Sablon, à Bruxelles.",
-        "de": "Am 6. Juni 2026 beging die Leutnantschaft für Belgien ihr hundertjähriges Bestehen mit einer Investitur unter dem Vorsitz von Kardinal Fernando Filoni im Sablon, in Brüssel.",
-        "en": "On 6 June 2026, the Lieutenancy for Belgium celebrated its centenary with an Investiture presided over by Cardinal Fernando Filoni at the Sablon, in Brussels."
-      },
-      "texte": {
-        "fr": "C'est dans la vénérable église Notre-Dame des Victoires au Sablon, à Bruxelles, que la Lieutenance pour la Belgique de l'Ordre Équestre du Saint-Sépulcre de Jérusalem a célébré, le 6 juin 2026, le centenaire de sa fondation. Pour marquer dignement cet anniversaire exceptionnel, le Cardinal Fernando Filoni, Grand Maître de l'Ordre, a présidé en personne la cérémonie d'Investiture au cours de laquelle onze nouveaux Chevaliers et Dames ont été reçus au sein de l'Ordre. Il était entouré de Son Excellence Mgr Franco Coppola, Nonce Apostolique en Belgique et au Luxembourg, ainsi que de Son Excellence Mgr Bernardito Auza, Nonce Apostolique auprès de l'Union Européenne.\n\nLa solennité de l'événement fut encore rehaussée par la présence du représentant de Sa Majesté le Roi Philippe, rappelant avec éclat que le Souverain et Sa Majesté la Reine Mathilde sont Membres de l'Ordre. Le Grand Magistère était largement représenté : M. Jean-Pierre de Glutz-Ruchti, Vice-Gouverneur Général pour l'Europe, représentait le Gouverneur Général ; M. Enric Mas, Vice-Gouverneur Général pour l'Amérique latine, M. Alfredo Bastianelli, Chancelier de l'Ordre, et M. Giorgio Moroni Stampa, Vice-Gouverneur Général honoraire, participaient également aux célébrations, témoignant de l'importance accordée par le Grand Magistère à ce centenaire.\n\nLa Lieutenance pour le Luxembourg avait tenu à s'associer pleinement à cette commémoration fraternelle. En effet, parmi la grande assemblée réunie dans un esprit de prière recueillie, figuraient les Lieutenants venus de Malte, du Portugal, du Luxembourg, du nord de l'Italie, des Pays-Bas, de Norvège, de France, d'Autriche, de Suisse et du Liechtenstein. Cette présence unanime et fraternelle manifeste, cent ans après la création de la Lieutenance pour la Belgique, la vitalité de l'Ordre et l'ardeur commune de ses Chevaliers et Dames à soutenir les chrétiens de Terre Sainte.",
-        "de": "In der ehrwürdigen Kirche Notre-Dame des Victoires au Sablon in Brüssel hat die Leutnantschaft für Belgien des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem am 6. Juni 2026 das hundertjährige Jubiläum ihrer Gründung gefeiert. Um diesem außergewöhnlichen Jahrestag in würdiger Weise zu begehen, leitete Kardinal Fernando Filoni, Großmeister des Ordens, persönlich die Investiturfeier, im Zuge derer elf neue Ritter und Damen in den Orden aufgenommen wurden. Er war umgeben von Seiner Exzellenz Msgr. Franco Coppola, Apostolischer Nuntius in Belgien und Luxemburg, sowie von Seiner Exzellenz Msgr. Bernardito Auza, Apostolischer Nuntius bei der Europäischen Union.\n\nDie Feierlichkeit des Ereignisses wurde durch die Anwesenheit des Vertreters Seiner Majestät König Philipps noch erhöht, was auf eindrucksvolle Weise daran erinnerte, dass der Souverän und Ihre Majestät Königin Mathilde Mitglieder des Ordens sind. Das Großmagisterium war in starker Besetzung vertreten: Herr Jean-Pierre de Glutz-Ruchti, Generalvizegouverneur für Europa, vertrat den Generalgouverneur; Herr Enric Mas, Generalvizegouverneur für Lateinamerika, Herr Alfredo Bastianelli, Kanzler des Ordens, und Herr Giorgio Moroni Stampa, Ehrengeneralvizegouverneur, nahmen ebenfalls an den Feierlichkeiten teil und bezeugten damit die Bedeutung, die das Großmagisterium diesem Jahrhundertjubiläum beimisst.\n\nDie Leutnantschaft für Luxemburg hatte es sich angelegen sein lassen, dieser brüderlichen Gedenkfeier in vollem Umfang beizuwohnen. So waren unter der großen, in einem Geist andächtigen Gebets versammelten Gemeinschaft auch die Leutnants aus Malta, Portugal, Luxemburg, Norditalien, den Niederlanden, Norwegen, Frankreich, Österreich, der Schweiz und Liechtenstein zugegen. Diese einmütige und brüderliche Präsenz bekundet, hundert Jahre nach der Gründung der Leutnantschaft für Belgien, die Lebendigkeit des Ordens und den gemeinsamen Eifer seiner Ritter und Damen, die Christen im Heiligen Land zu unterstützen.",
-        "en": "It was in the venerable church of Notre-Dame des Victoires au Sablon, in Brussels, that the Lieutenancy for Belgium of the Equestrian Order of the Holy Sepulchre of Jerusalem celebrated, on 6 June 2026, the centenary of its foundation. To mark this exceptional anniversary in a manner befitting its dignity, Cardinal Fernando Filoni, Grand Master of the Order, personally presided over the Investiture ceremony, during which eleven new Knights and Ladies were received into the Order. He was accompanied by His Excellency Msgr Franco Coppola, Apostolic Nuncio to Belgium and Luxembourg, and by His Excellency Msgr Bernardito Auza, Apostolic Nuncio to the European Union.\n\nThe solemnity of the occasion was further enhanced by the presence of the representative of His Majesty King Philippe, a vivid reminder that the Sovereign and Her Majesty Queen Mathilde are Members of the Order. The Grand Magisterium was widely represented: Mr Jean-Pierre de Glutz-Ruchti, Deputy Governor General for Europe, represented the Governor General; Mr Enric Mas, Deputy Governor General for Latin America, Mr Alfredo Bastianelli, Chancellor of the Order, and Mr Giorgio Moroni Stampa, Honorary Deputy Governor General, also took part in the celebrations, bearing witness to the importance the Grand Magisterium attaches to this centenary.\n\nThe Lieutenancy for Luxembourg was determined to associate itself fully with this fraternal commemoration. Indeed, among the large assembly gathered in a spirit of recollected prayer, there were Lieutenants from Malta, Portugal, Luxembourg, northern Italy, the Netherlands, Norway, France, Austria, Switzerland and Liechtenstein. This unanimous and fraternal presence manifests, one hundred years after the creation of the Lieutenancy for Belgium, the vitality of the Order and the shared ardour of its Knights and Ladies in supporting the Christians of the Holy Land."
-      },
-      "liens": [
-        {
-          "label": {
-            "fr": "Grand Magistère de l'Ordre du Saint-Sépulcre de Jérusalem — page Facebook officielle",
-            "de": "Großmagisterium des Ordens vom Heiligen Grab zu Jerusalem — offizielle Facebook-Seite",
-            "en": "Grand Magisterium of the Order of the Holy Sepulchre of Jerusalem — official Facebook page"
-          },
-          "url": "https://www.facebook.com/grandmagisterium.eohsj.eng/"
         }
       ]
     }
