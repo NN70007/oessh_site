@@ -131,6 +131,23 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 .pub-status{font-size:13px;padding:12px 14px;border-radius:6px;display:none;margin-top:10px;line-height:1.5}
 .pub-ok{background:#edfff4;border:1px solid #b0e8c4;color:#1a6e3a}
 .pub-err{background:#fff0f0;border:1px solid #ffc0c0;color:#a00}
+.nav-tabs-bar{display:flex}
+.nav-tab{background:none;border:none;padding:12px 20px;font-size:13px;font-weight:500;color:var(--ink-mute);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+.nav-tab:hover{color:var(--ink)}
+.nav-tab.active{color:var(--cardinal);border-bottom-color:var(--cardinal)}
+.article-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px}
+.article-row.is-active{border-color:var(--cardinal);background:#fff8f8}
+.article-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#fde8e8;color:var(--cardinal);white-space:nowrap}
+.article-info{flex:1;min-width:0}
+.article-titre{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.article-meta{font-size:12px;color:var(--ink-mute);margin-top:2px}
+.article-actions{display:flex;gap:8px;flex-shrink:0}
+.btn-pub{padding:6px 14px;font-size:12px;font-weight:600;background:var(--cardinal);color:#fff;border:none;border-radius:5px;cursor:pointer}
+.btn-pub:hover{opacity:.85}
+.btn-pub.current{background:#1a7a3c}
+.btn-del{padding:6px 10px;font-size:13px;background:none;border:1px solid var(--border);border-radius:5px;cursor:pointer;color:var(--ink-mute)}
+.btn-del:hover{background:#fff0f0;color:var(--cardinal);border-color:#ffc0c0}
+.empty-state{text-align:center;padding:40px;color:var(--ink-mute);font-size:13px}
 </style>
 </head>
 <body>
@@ -191,7 +208,15 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
     </div>
   </div>
 
+  <div class="nav-tabs-bar" style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:0">
+    <button class="nav-tab active" id="tab-new" onclick="showTab('new')">✦ Nouvel article</button>
+    <button class="nav-tab" id="tab-articles" onclick="showTab('articles')">📂 Articles</button>
+  </div>
+
   <div class="main">
+
+  <!-- TAB: NOUVEL ARTICLE -->
+  <div id="tab-new-content">
     <h1 class="page-title">Nouvelle actualité « À la Une »</h1>
     <p class="page-sub">Workflow en 4 étapes — Claude rédige, vous validez, il traduit.</p>
 
@@ -265,8 +290,18 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
       </div>
 
     </div>
+  </div><!-- end tab-new-content -->
+
+  <!-- TAB: ARTICLES -->
+  <div id="tab-articles-content" style="display:none">
+    <h1 class="page-title">Articles stockés</h1>
+    <p class="page-sub">Gérez les articles du stock dynamique.</p>
+    <div id="articles-loading" style="font-size:13px;color:var(--ink-mute);padding:20px 0">Chargement…</div>
+    <div id="articles-list"></div>
   </div>
-</div>
+
+  </div><!-- end main -->
+</div><!-- end app -->
 
 <script>
 var ALLOWED_EMAILS = ['jb.niedercorn@gmail.com', 's.niedercorn@gmail.com', 'norbert.stors@gmail.com', 'secretariat@oessh.lu', 'lieutenant@oessh.lu'];
@@ -594,6 +629,121 @@ function setLoading(lid,bid,on){
 function showErr(id,msg){ var e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
 function hideErr(id){ document.getElementById(id).style.display='none'; }
 function showPub(msg,type){ var e=document.getElementById('pubStatus'); e.textContent=msg; e.className='pub-status pub-'+(type==='ok'?'ok':'err'); e.style.display='block'; }
+
+// ── Tabs ──────────────────────────────────────────
+function showTab(tab){
+  document.getElementById('tab-new-content').style.display = tab==='new' ? 'block' : 'none';
+  document.getElementById('tab-articles-content').style.display = tab==='articles' ? 'block' : 'none';
+  document.getElementById('tab-new').classList.toggle('active', tab==='new');
+  document.getElementById('tab-articles').classList.toggle('active', tab==='articles');
+  if(tab==='articles') loadArticles();
+}
+
+// ── Articles management ───────────────────────────
+var articlesData = null;
+
+async function loadArticles(){
+  var s = getSettings();
+  var listEl = document.getElementById('articles-list');
+  var loadEl = document.getElementById('articles-loading');
+  loadEl.style.display = 'block';
+  listEl.innerHTML = '';
+
+  try {
+    var url = 'https://api.github.com/repos/'+s.repo+'/contents/actualites.json';
+    var resp = await fetch(url, {headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
+    if(!resp.ok) throw new Error('Fichier actualites.json introuvable');
+    var fileData = await resp.json();
+    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/
+/g,''))));
+    articlesData = JSON.parse(decoded);
+    articlesData._sha = fileData.sha;
+  } catch(e) {
+    loadEl.textContent = 'Erreur : ' + e.message;
+    return;
+  }
+  loadEl.style.display = 'none';
+
+  // Support both v1 (actu_une) and v2 (articles array)
+  var articles = articlesData.articles || (articlesData.actu_une ? [articlesData.actu_une] : []);
+  var activeId = articlesData.actu_une_id || (articlesData.actu_une ? articlesData.actu_une.id : null);
+
+  if(articles.length === 0){
+    listEl.innerHTML = '<div class="empty-state">Aucun article dans le stock dynamique.</div>';
+    return;
+  }
+
+  articles.forEach(function(art, idx){
+    var isActive = art.id === activeId || (articles.length === 1);
+    var titre = (art.titre && art.titre.fr) || art.titre || '(sans titre)';
+    var date = art.date_affichee || '';
+    var lieu = art.lieu || '';
+
+    var row = document.createElement('div');
+    row.className = 'article-row' + (isActive ? ' is-active' : '');
+    row.innerHTML =
+      (isActive ? '<span class="article-badge">● Publié</span>' : '<span style="width:60px"></span>') +
+      '<div class="article-info">'+
+        '<div class="article-titre">'+titre+'</div>'+
+        '<div class="article-meta">'+[lieu, date].filter(Boolean).join(' · ')+'</div>'+
+      '</div>'+
+      '<div class="article-actions">'+
+        (!isActive ? '<button class="btn-pub" onclick="publishArticle(''+art.id+'')">Publier</button>' : '<button class="btn-pub current" disabled>Publié ✓</button>')+
+        '<button class="btn-del" onclick="deleteArticle(''+art.id+'')" title="Supprimer">🗑</button>'+
+      '</div>';
+    listEl.appendChild(row);
+  });
+}
+
+async function publishArticle(id){
+  var s = getSettings();
+  if(!articlesData) return;
+
+  // Update actu_une_id
+  if(articlesData.articles){
+    articlesData.actu_une_id = id;
+  } else {
+    // v1 format - nothing to change, only one article
+    return;
+  }
+
+  var sha = articlesData._sha;
+  delete articlesData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(articlesData, null, 2))));
+  articlesData._sha = sha;
+
+  try {
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: publication de l'article '+id);
+    loadArticles();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function deleteArticle(id){
+  if(!confirm('Supprimer définitivement cet article ?')) return;
+  var s = getSettings();
+  if(!articlesData) return;
+
+  var sha = articlesData._sha;
+  delete articlesData._sha;
+
+  if(articlesData.articles){
+    articlesData.articles = articlesData.articles.filter(function(a){ return a.id !== id; });
+    if(articlesData.actu_une_id === id){
+      articlesData.actu_une_id = articlesData.articles.length ? articlesData.articles[0].id : null;
+    }
+  } else if(articlesData.actu_une && articlesData.actu_une.id === id){
+    articlesData.actu_une = null;
+  }
+
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(articlesData, null, 2))));
+  articlesData._sha = sha;
+
+  try {
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: suppression article '+id);
+    articlesData._sha = sha; // restore for next op
+    loadArticles();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
 </script>
 </body>
 </html>
