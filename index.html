@@ -1175,6 +1175,8 @@ function toggleMore(btn){
       } else if (data.actu_une) {
         articles = [data.actu_une];
       }
+      // Filter out hidden articles
+      articles = articles.filter(function(a){ return a.published !== false; });
       if (!articles.length) { slot.remove(); return; }
 
       var html = '';

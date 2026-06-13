@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>OESSH Admin</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 :root{
   --cardinal:#b10103;
@@ -228,6 +229,7 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
   <div class="nav-tabs-bar" style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:0">
     <button class="nav-tab active" id="tab-new" onclick="showTab('new')">✦ Nouvel article</button>
     <button class="nav-tab" id="tab-articles" onclick="showTab('articles')">📂 Articles</button>
+    <button class="nav-tab" id="tab-export" onclick="showTab('export')">📤 Export</button>
   </div>
 
   <div class="main">
@@ -348,6 +350,33 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 
     </div>
   </div><!-- end tab-new-content -->
+
+  <!-- TAB: EXPORT -->
+  <div id="tab-export-content" style="display:none">
+    <h1 class="page-title">Export newsletter</h1>
+    <p class="page-sub">Sélectionnez les articles et les langues à exporter en ZIP.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px">
+      <label class="lbl">Langues</label>
+      <div style="display:flex;gap:20px;margin-top:8px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer"><input type="checkbox" id="exp-fr" checked style="width:16px;height:16px"/> Français</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer"><input type="checkbox" id="exp-de" checked style="width:16px;height:16px"/> Deutsch</label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer"><input type="checkbox" id="exp-en" checked style="width:16px;height:16px"/> English</label>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <label class="lbl" style="margin:0">Articles</label>
+        <div style="display:flex;gap:8px">
+          <button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="selectAllExport(true)">Tout</button>
+          <button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="selectAllExport(false)">Aucun</button>
+        </div>
+      </div>
+      <div id="export-list"><div style="font-size:13px;color:var(--ink-mute)">Chargement…</div></div>
+    </div>
+    <button class="btn-gen" id="btn-export" onclick="doExport()" style="background:var(--ink)">↓ Télécharger le ZIP</button>
+    <div class="err-box" id="export-err"></div>
+    <div class="loader" id="export-loader"><div class="spinner"></div>Génération du ZIP…</div>
+  </div>
 
   <!-- TAB: ARTICLES -->
   <div id="tab-articles-content" style="display:none">
@@ -964,9 +993,12 @@ function showPub(msg,type){ var e=document.getElementById('pubStatus'); e.textCo
 function showTab(tab){
   document.getElementById('tab-new-content').style.display = tab==='new' ? 'block' : 'none';
   document.getElementById('tab-articles-content').style.display = tab==='articles' ? 'block' : 'none';
+  document.getElementById('tab-export-content').style.display = tab==='export' ? 'block' : 'none';
   document.getElementById('tab-new').classList.toggle('active', tab==='new');
   document.getElementById('tab-articles').classList.toggle('active', tab==='articles');
+  document.getElementById('tab-export').classList.toggle('active', tab==='export');
   if(tab==='articles') loadArticles();
+  if(tab==='export') loadExportList();
 }
 
 // ── Articles management ───────────────────────────
@@ -1233,6 +1265,116 @@ async function deleteArticle(id){
     articlesData._sha = sha; // restore for next op
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
+}
+
+// ── Export newsletter ─────────────────────────────
+async function loadExportList(){
+  var s = getSettings();
+  var listEl = document.getElementById('export-list');
+  listEl.innerHTML = '<div style="font-size:13px;color:var(--ink-mute)">Chargement...</div>';
+  var data = await fetchActualites(s);
+  if(!data || !data.articles || !data.articles.length){
+    listEl.innerHTML = '<div style="font-size:13px;color:var(--ink-mute)">Aucun article.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  listEl._articles = data.articles;
+  data.articles.forEach(function(art, i){
+    var num = String(i+1).padStart(3,'0');
+    var titre = (art.titre && (art.titre.fr || art.titre)) || '(sans titre)';
+    var legende = (art.legende && (art.legende.fr || art.legende)) || '';
+    var row = document.createElement('label');
+    row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer';
+    var cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.checked = true; cb.value = i;
+    cb.style.cssText = 'width:16px;height:16px;flex-shrink:0';
+    var numSpan = document.createElement('span');
+    numSpan.style.cssText = 'font-size:11px;font-family:var(--mono);color:var(--ink-mute);flex-shrink:0;width:32px';
+    numSpan.textContent = num;
+    var info = document.createElement('div');
+    info.style.cssText = 'flex:1;min-width:0';
+    info.innerHTML = '<div style="font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+titre+'</div><div style="font-size:12px;color:var(--ink-mute)">'+legende+'</div>';
+    var icons = document.createElement('span');
+    icons.style.cssText = 'font-size:13px;flex-shrink:0;color:var(--ink-mute)';
+    var ic = (art.img_filename ? 'img ' : '') + ((art.liens||[]).some(function(l){ return l.url && l.url.indexOf('.pdf') > -1; }) ? 'pdf' : '');
+    icons.textContent = ic;
+    row.appendChild(cb); row.appendChild(numSpan); row.appendChild(info); row.appendChild(icons);
+    listEl.appendChild(row);
+  });
+}
+
+function selectAllExport(val){
+  document.querySelectorAll('#export-list input[type=checkbox]').forEach(function(cb){ cb.checked = val; });
+}
+
+async function doExport(){
+  if(typeof JSZip === 'undefined'){ alert('JSZip non charge, rechargez la page.'); return; }
+  var s = getSettings();
+  var langs = [];
+  if(document.getElementById('exp-fr').checked) langs.push('fr');
+  if(document.getElementById('exp-de').checked) langs.push('de');
+  if(document.getElementById('exp-en').checked) langs.push('en');
+  if(!langs.length){ alert('Selectionnez au moins une langue.'); return; }
+  var listEl = document.getElementById('export-list');
+  var arts = listEl._articles || [];
+  var selected = [];
+  document.querySelectorAll('#export-list input[type=checkbox]').forEach(function(cb){
+    if(cb.checked) selected.push(arts[parseInt(cb.value)]);
+  });
+  if(!selected.length){ alert('Selectionnez au moins un article.'); return; }
+  document.getElementById('btn-export').disabled = true;
+  document.getElementById('export-loader').style.display = 'flex';
+  document.getElementById('export-err').style.display = 'none';
+  var zip = new JSZip();
+  for(var ai=0; ai<selected.length; ai++){
+    var art = selected[ai];
+    var idx = arts.indexOf(art);
+    var num = String(idx+1).padStart(3,'0');
+    var slug = ((art.titre&&(art.titre.fr||art.titre))||'article')
+      .toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+      .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').substring(0,30);
+    var folder = 'article-'+num+'-'+slug+'/';
+    langs.forEach(function(lang){
+      var titre = (art.titre&&(art.titre[lang]||art.titre.fr))||'';
+      var teaser = (art.teaser&&(art.teaser[lang]||art.teaser.fr))||'';
+      var texte = (art.texte&&(art.texte[lang]||art.texte.fr))||'';
+      var legende = (art.legende&&(art.legende[lang]||art.legende.fr))||'';
+      var liens = (art.liens||[]).map(function(l){
+        return ((l.label&&(l.label[lang]||l.label.fr))||'') + ' : ' + l.url;
+      }).join('\\n');
+      var nl='\n';
+      var txt=nl+nl+'TITRE'+nl+titre+nl+nl+'TEASER'+nl+teaser+nl+nl+'TEXTE'+nl+texte+nl+nl+'LEGENDE IMAGE'+nl+legende+(liens?nl+nl+'LIENS'+nl+liens:'');
+      zip.file(folder+'article-'+num+'-'+lang+'.txt', txt);
+    });
+    if(art.img_filename){
+      try {
+        var imgUrl = 'https://raw.githubusercontent.com/'+s.repo+'/main/assets/'+art.img_filename;
+        var imgResp = await fetch(imgUrl);
+        if(imgResp.ok) zip.file(folder+art.img_filename, await imgResp.blob());
+      } catch(e){}
+    }
+    var pdfLiens = (art.liens||[]).filter(function(l){ return l.url && l.url.indexOf('.pdf') > -1; });
+    for(var pi=0; pi<pdfLiens.length; pi++){
+      try {
+        var pdfUrl = 'https://raw.githubusercontent.com/'+s.repo+'/main/'+pdfLiens[pi].url;
+        var pdfResp = await fetch(pdfUrl);
+        if(pdfResp.ok) zip.file(folder+pdfLiens[pi].url.replace('assets/',''), await pdfResp.blob());
+      } catch(e){}
+    }
+  }
+  try {
+    var blob = await zip.generateAsync({type:'blob'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'oessh-export.zip';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch(e){
+    document.getElementById('export-err').textContent = 'Erreur ZIP : '+e.message;
+    document.getElementById('export-err').style.display = 'block';
+  }
+  document.getElementById('btn-export').disabled = false;
+  document.getElementById('export-loader').style.display = 'none';
 }
 </script>
 </body>
