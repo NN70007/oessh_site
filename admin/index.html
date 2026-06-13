@@ -145,9 +145,18 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 .btn-pub{padding:6px 14px;font-size:12px;font-weight:600;background:var(--cardinal);color:#fff;border:none;border-radius:5px;cursor:pointer}
 .btn-pub:hover{opacity:.85}
 .btn-pub.current{background:#1a7a3c}
+.btn-edit{padding:6px 10px;font-size:13px;background:none;border:1px solid var(--border);border-radius:5px;cursor:pointer;color:var(--ink-mute)}
+.btn-edit:hover{background:#f0ede6;color:var(--ink)}
+.btn-unpub{padding:6px 10px;font-size:13px;background:none;border:1px solid var(--border);border-radius:5px;cursor:pointer;color:var(--ink-mute)}
+.btn-unpub:hover{background:#fff8e8;color:#854F0B;border-color:#FAC775}
 .btn-del{padding:6px 10px;font-size:13px;background:none;border:1px solid var(--border);border-radius:5px;cursor:pointer;color:var(--ink-mute)}
 .btn-del:hover{background:#fff0f0;color:var(--cardinal);border-color:#ffc0c0}
 .empty-state{text-align:center;padding:40px;color:var(--ink-mute);font-size:13px}
+.drag-handle{cursor:grab;color:var(--ink-mute);font-size:18px;padding:0 6px;user-select:none;flex-shrink:0}
+.drag-handle:active{cursor:grabbing}
+.article-row.dragging{opacity:.4;border-style:dashed}
+.article-row.drag-over{border-color:var(--cardinal);background:#fff8f8}
+.drag-hint{font-size:12px;color:var(--ink-mute);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
@@ -394,6 +403,7 @@ async function claudeCall(system, user, maxTokens){
 
 // ── ÉTAPE 1 : Générer FR ──────────────────────────
 async function generateFR(){
+  editingId = null; // fresh article
   var desc=document.getElementById('desc').value.trim();
   if(!desc){ showErr('err1','Décrivez l\'événement.'); return; }
   if(!getSettings().claudeKey){ showErr('err1','Clé Claude manquante.'); return; }
@@ -567,7 +577,8 @@ async function publish(){
   showPub('Publication en cours…','ok');
 
   var ext = imgOrigName ? imgOrigName.split('.').pop().toLowerCase() : 'jpg';
-  var slug = fr.titre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').substring(0,40);
+  // Keep same id when editing an existing article
+  var slug = editingId || fr.titre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').substring(0,40);
   var imgFilename = fr.img || ('actu-'+slug+'.'+ext);
   if(imgOrigName) imgFilename = imgFilename.replace(/\.[^.]+$/, '.'+ext);
 
@@ -629,6 +640,23 @@ async function publish(){
     var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(json,null,2))));
     await githubPut(s, 'actualites.json', jsonB64, 'Admin: actualité "'+fr.titre.substring(0,50)+'"');
     showPub('✓ Publié avec succès ! L\'article est en ligne.','ok');
+    setTimeout(function(){
+      document.getElementById('desc').value = '';
+      document.getElementById('fr-titre').value = '';
+      document.getElementById('fr-teaser').value = '';
+      document.getElementById('fr-texte').value = '';
+      document.getElementById('fr-legende').value = '';
+      document.getElementById('liens-edit').innerHTML = '';
+      document.getElementById('imgPreview').style.display = 'none';
+      document.getElementById('imgFname').style.display = 'none';
+      document.getElementById('panel-de').innerHTML = '';
+      document.getElementById('panel-en').innerHTML = '';
+      document.getElementById('pubStatus').style.display = 'none';
+      imgBase64 = null; imgMime = null; imgOrigName = ''; editingId = null;
+      articleDE = {}; articleEN = {};
+      addLienRow('','');
+      goStep(1);
+    }, 2000);
   } catch(e){ showPub('Erreur : '+e.message,'err'); }
   document.getElementById('btn3').disabled = false;
 }
@@ -665,6 +693,51 @@ function showTab(tab){
 
 // ── Articles management ───────────────────────────
 var articlesData = null;
+var editingId = null;
+
+function editArticle(art){
+  // Switch to new article tab
+  showTab('new');
+  editingId = art.id;
+
+  // Fill step 1 description field with FR content
+  var fr = art.fr || {};
+  var desc = [];
+  if(art.date_affichee) desc.push('Date : ' + art.date_affichee);
+  if(art.lieu) desc.push('Lieu : ' + art.lieu);
+  document.getElementById('desc').value = desc.join('\n');
+
+  // Pre-fill FR form directly and go to step 2
+  var tEl = document.getElementById('fr-titre');
+  tEl.value = fr.titre || '';
+  tEl.dataset.img = art.img_filename || '';
+  tEl.dataset.badges = (Array.isArray(art.badges) ? art.badges.join('|') : art.badges) || 'À la Une';
+  tEl.dataset.date = art.date_affichee || '';
+  tEl.dataset.lieu = art.lieu || '';
+
+  document.getElementById('fr-teaser').value = fr.teaser || '';
+  document.getElementById('fr-texte').value = fr.texte || '';
+  document.getElementById('fr-legende').value = (art.legende && art.legende.fr) || fr.legende || '';
+
+  // Fill liens
+  var container = document.getElementById('liens-edit');
+  container.innerHTML = '';
+  (art.liens || []).forEach(function(l){
+    var label = (l.label && l.label.fr) || l.label || '';
+    addLienRow(label, l.url);
+  });
+  if(!(art.liens && art.liens.length)) addLienRow('','');
+
+  // Show image from assets if available
+  var imgFname = art.img_filename;
+  if(imgFname){
+    document.getElementById('imgFname').style.display = 'block';
+    document.getElementById('imgFname').textContent = '📷 Image actuelle : ' + imgFname + ' (uploadez une nouvelle image pour la remplacer)';
+  }
+
+  goStep(2);
+  window.scrollTo(0, 0);
+}
 
 async function loadArticles(){
   var s = getSettings();
@@ -672,6 +745,7 @@ async function loadArticles(){
   var loadEl = document.getElementById('articles-loading');
   loadEl.style.display = 'block';
   listEl.innerHTML = '';
+  listEl.innerHTML = '<div class="drag-hint">&#8963; Glissez pour réordonner</div>';
 
   try {
     var url = 'https://api.github.com/repos/'+s.repo+'/contents/actualites.json';
@@ -710,6 +784,17 @@ async function loadArticles(){
     pubBtn.disabled = isActive;
     pubBtn.textContent = isActive ? 'Publié ✓' : 'Publier';
     if(!isActive){ pubBtn.onclick = (function(id){ return function(){ publishArticle(id); }; })(art.id); }
+    var unpubBtn = document.createElement('button');
+    unpubBtn.className = 'btn-unpub';
+    unpubBtn.title = 'Dépublier';
+    unpubBtn.textContent = '⊘';
+    unpubBtn.style.display = isActive ? 'inline-block' : 'none';
+    unpubBtn.onclick = (function(id){ return function(){ unpublishArticle(id); }; })(art.id);
+    var editBtn = document.createElement('button');
+    editBtn.className = 'btn-edit';
+    editBtn.title = 'Modifier';
+    editBtn.textContent = '✏️';
+    editBtn.onclick = (function(a){ return function(){ editArticle(a); }; })(art);
     var delBtn = document.createElement('button');
     delBtn.className = 'btn-del';
     delBtn.title = 'Supprimer';
@@ -725,10 +810,19 @@ async function loadArticles(){
     var actions = document.createElement('div');
     actions.className = 'article-actions';
     actions.appendChild(pubBtn);
+    actions.appendChild(unpubBtn);
+    actions.appendChild(editBtn);
     actions.appendChild(delBtn);
+    var handle = document.createElement('span');
+    handle.className = 'drag-handle';
+    handle.textContent = '⠿';
+    handle.title = 'Glisser pour réordonner';
+    row.appendChild(handle);
     row.appendChild(badge);
     row.appendChild(info);
     row.appendChild(actions);
+    row.draggable = true;
+    row.dataset.artId = art.id;
     listEl.appendChild(row);
   });
 }
@@ -752,6 +846,47 @@ async function publishArticle(id){
 
   try {
     await githubPut(s, 'actualites.json', jsonB64, 'Admin: publication article '+id);
+    loadArticles();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function reorderArticles(fromId, toId){
+  if(!articlesData || !articlesData.articles) return;
+  var s = getSettings();
+  var arts = articlesData.articles;
+  var fromIdx = arts.findIndex(function(a){ return a.id === fromId; });
+  var toIdx = arts.findIndex(function(a){ return a.id === toId; });
+  if(fromIdx === -1 || toIdx === -1) return;
+  var moved = arts.splice(fromIdx, 1)[0];
+  arts.splice(toIdx, 0, moved);
+  articlesData.articles = arts;
+  var sha = articlesData._sha;
+  delete articlesData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(articlesData, null, 2))));
+  articlesData._sha = sha;
+  try {
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: reorder articles');
+    loadArticles();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function unpublishArticle(id){
+  if(!articlesData) return;
+  var s = getSettings();
+  var sha = articlesData._sha;
+  delete articlesData._sha;
+  // Move article to end of list
+  var arts = articlesData.articles || [];
+  var art = arts.find(function(a){ return a.id === id; });
+  if(art){
+    arts = arts.filter(function(a){ return a.id !== id; });
+    arts.push(art);
+    articlesData.articles = arts;
+  }
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(articlesData, null, 2))));
+  articlesData._sha = sha;
+  try {
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: dépublication article '+id);
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }

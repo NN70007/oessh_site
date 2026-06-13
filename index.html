@@ -1233,13 +1233,30 @@ function toggleMore(btn){
     return o[lang] || o.fr || '';
   }
 
+
+  var badgeTranslations = {
+    'À la Une':      { de: 'Im Fokus',         en: 'Featured' },
+    'Investitures':  { de: 'Investituren',    en: 'Investitures' },
+    'Pèlerinage':    { de: 'Wallfahrt',       en: 'Pilgrimage' },
+    'Spiritualité':  { de: 'Spiritualität', en: 'Spirituality' },
+    'Conférence':    { de: 'Vortrag',          en: 'Lecture' },
+    'Lieutenance':   { de: 'Statthalterei',   en: 'Lieutenancy' },
+    'Centenaire':    { de: 'Hundertjahrfeier',en: 'Centenary' },
+    'Diplomatie':    { de: 'Diplomatie',      en: 'Diplomacy' },
+    'Terre Sainte':  { de: 'Heiliges Land',   en: 'Holy Land' }
+  };
+  function trBadge(b){ if(lang==='fr') return b; var t=badgeTranslations[b]; return (t&&t[lang])||b; }
   function buildCard(a, isFeature){
     var liensHTML = (a.liens || []).map(function(lien){
       var label = pick(lien.label) || pick(lien.label);
       return '<a class="read" href="' + lien.url + '" target="_blank" rel="noopener">' + label + ' <span>\u2192</span></a>';
     }).join('');
-    var badgesHTML = (Array.isArray(a.badges) ? a.badges : []).map(function(b, i){
-      return i === 0 ? '<span class="tag">' + b + '</span>' : '<span>' + b + '</span>';
+    var badges = Array.isArray(a.badges) ? a.badges : [];
+    // "À la Une" only shown on first article
+    if(!isFeature) badges = badges.filter(function(b){ return b !== 'À la Une'; });
+    var badgesHTML = badges.map(function(b, i){
+      var tb = trBadge(b);
+      return i === 0 ? '<span class="tag">' + tb + '</span>' : '<span>' + tb + '</span>';
     }).join('');
     var texteParas = pick(a.texte).split('\n\n').filter(Boolean)
       .map(function(p){ return '<p>' + p + '</p>'; }).join('');
