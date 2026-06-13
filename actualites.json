@@ -2,6 +2,46 @@
   "version": 2,
   "articles": [
     {
+      "id": "canonisation-de-bartolo-longo",
+      "date_affichee": "19 octobre 2025",
+      "lieu": "Rome",
+      "badges": [
+        "À la Une",
+        "Spiritualité"
+      ],
+      "img_filename": "canonisation-bartolo-longo-rome-2025.jpg",
+      "legende": {
+        "fr": "Rome · 19 oct. 2025",
+        "de": "Rom · 19. Okt. 2025",
+        "en": "Rome · 19 Oct. 2025"
+      },
+      "titre": {
+        "fr": "Canonisation de Bartolo Longo",
+        "de": "Heiligsprechung von Bartolo Longo",
+        "en": "Canonisation of Bartolo Longo"
+      },
+      "teaser": {
+        "fr": "Bartolo Longo, Chevalier Grand-Croix de l'Ordre, a été canonisé le 19 octobre 2025 Place Saint-Pierre par le Pape Léon XIV.",
+        "de": "Bartolo Longo, Großkreuzritter des Ordens, wurde am 19. Oktober 2025 auf dem Petersplatz von Papst Leo XIV. heiliggesprochen.",
+        "en": "Bartolo Longo, Knight Grand Cross of the Order, was canonised on 19 October 2025 in St Peter's Square by Pope Leo XIV."
+      },
+      "texte": {
+        "fr": "C'est un événement d'une portée spirituelle exceptionnelle qui s'est accompli Place Saint-Pierre, en ce dimanche 19 octobre 2025 : le Pape Léon XIV a élevé à la gloire des autels Bartolo Longo, apôtre du Rosaire et fondateur du Sanctuaire de Pompéi, inscrivant ainsi son nom au catalogue des saints de l'Église universelle.\n\nChevalier Grand-Croix de l'Ordre Équestre du Saint-Sépulcre de Jérusalem depuis 1925, Bartolo Longo demeure à ce jour le premier laïc membre de notre Ordre à accéder à la sainteté canonisée. Son itinéraire de conversion, de l'obscurité du péché à la lumière de la foi, constitue un témoignage éloquent de la grâce divine et un modèle lumineux pour chaque Chevalier et chaque Dame désireux de vivre pleinement leur engagement au service du Christ et de Son Église.\n\nLa Lieutenance pour le Luxembourg s'unit à la joie de l'Ordre tout entier pour rendre grâce en ce jour historique. Que l'intercession du nouveau saint Bartolo Longo soutienne nos frères et sœurs Chevaliers et Dames dans leur mission au service des chrétiens de Terre Sainte, et les affermisse sur le chemin de la sainteté à laquelle chaque baptisé est appelé.",
+        "de": "Ein Ereignis von außergewöhnlicher geistlicher Tragweite hat sich an diesem Sonntag, dem 19. Oktober 2025, auf dem Petersplatz vollzogen: Papst Leo XIV. hat Bartolo Longo, den Apostel des Rosenkranzes und Gründer des Heiligtums von Pompei, in die Herrlichkeit der Altäre erhoben und damit seinen Namen in das Verzeichnis der Heiligen der universalen Kirche eingeschrieben.\n\nSeit 1925 Großkreuzritter des Ritterordens vom Heiligen Grab zu Jerusalem, ist Bartolo Longo bis heute der erste Laie aus den Reihen unseres Ordens, dem die kanonisierte Heiligkeit zuteilwird. Sein Weg der Bekehrung, aus der Dunkelheit der Sünde in das Licht des Glaubens, ist ein beredtes Zeugnis der göttlichen Gnade und ein leuchtendes Vorbild für jeden Ritter und jede Dame, die ihren Einsatz im Dienst Christi und Seiner Kirche in voller Tiefe leben möchten.\n\nDie Statthalterschaft für Luxemburg vereint sich mit der Freude des gesamten Ordens, um an diesem historischen Tag Dank zu sagen. Möge die Fürsprache des neuen heiligen Bartolo Longo unsere Mitbrüder und Mitschwestern, die Ritter und Damen, in ihrer Sendung zum Dienst an den Christen im Heiligen Land stärken und sie auf dem Weg zur Heiligkeit festigen, zu der jeder Getaufte berufen ist.",
+        "en": "An event of exceptional spiritual significance took place in St Peter's Square on this Sunday, 19 October 2025: Pope Leo XIV raised to the glory of the altars Bartolo Longo, apostle of the Rosary and founder of the Sanctuary of Pompei, thereby inscribing his name in the catalogue of saints of the universal Church.\n\nA Knight Grand Cross of the Equestrian Order of the Holy Sepulchre of Jerusalem since 1925, Bartolo Longo remains to this day the first lay member of our Order to attain canonised sainthood. His journey of conversion, from the darkness of sin to the light of faith, stands as an eloquent testimony to divine grace and a radiant model for every Knight and Dame who desires to live their commitment to the service of Christ and His Church to the full.\n\nThe Lieutenancy for Luxembourg joins in the joy of the entire Order to give thanks on this historic day. May the intercession of the new saint Bartolo Longo sustain our brother and sister Knights and Dames in their mission in service of the Christians of the Holy Land, and strengthen them on the path to holiness to which every baptised person is called."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Article complet sur la canonisation de Bartolo Longo — document officiel",
+            "de": "Vollständiger Artikel zur Heiligsprechung von Bartolo Longo — offizielles Dokument",
+            "en": "Full article on the canonisation of Bartolo Longo — official document"
+          },
+          "url": "https://drive.google.com/file/d/1F5qRuZcU-Ck4A6toILV2hd8JNiJhOVSz/view"
+        }
+      ]
+    },
+    {
       "id": "le-cardinal-jean-claude-hollerich-instal",
       "date_affichee": "9 juillet 2025",
       "lieu": "Luxembourg",
