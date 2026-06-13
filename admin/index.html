@@ -60,6 +60,8 @@ h1.page-title{font-family:var(--serif);font-size:26px;font-weight:normal;margin-
 /* Steps */
 .workflow{display:flex;flex-direction:column;gap:0}
 .wstep{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;opacity:.5;pointer-events:none;transition:opacity .2s}
+#step25{display:none}
+#step25.active,#step25.done{display:block}
 .wstep.active{opacity:1;pointer-events:all}
 .wstep.done{opacity:.7}
 .wstep-head{display:flex;align-items:center;gap:12px;padding:14px 18px;background:#faf9f6;border-bottom:1px solid var(--border)}
@@ -547,6 +549,16 @@ async function generateFR(){
     var txt = await claudeCall(system, desc, 2000);
     var fr = parseFields(txt);
     fillFRForm(fr);
+    // Auto-name PDFs from step1 if any (creation mode)
+    if(pdfFiles.filter(Boolean).length > 0){
+      var pdfInputs = document.querySelectorAll('#pdf-list .pdf-label');
+      pdfInputs.forEach(function(inp, i){
+        if(!inp.value && pdfFiles[i] && pdfFiles[i].filename){
+          // Ask Claude to name it based on filename and article title
+          inp.value = pdfFiles[i].filename.replace(/[-_]/g,' ').replace(/\.pdf$/i,'');
+        }
+      });
+    }
     goStep(2);
   } catch(e){ showErr('err1','Erreur : '+e.message); }
   setLoading('load1','btn1',false);
@@ -652,11 +664,20 @@ function validateFR(){
     }
   });
 
-  if(pendingPDFs.length > 0){
-    // Show loading state and let Claude name the PDFs
+  if(editingId && pendingPDFs.length > 0){
+    // Edit mode with new PDFs → step 2.5 to name them
     document.getElementById('pdf-labels-container').innerHTML = '';
     namePDFsWithClaude();
   } else {
+    // Creation mode (PDF labels already in step2 form) or no PDFs → translate directly
+    // For creation mode, collect PDF labels from step1 pdf-list inputs
+    pdfFiles.filter(Boolean).forEach(function(p){
+      if(p.filename && !p.label){
+        // Try to read label from input if present
+        var inputs = document.querySelectorAll('#pdf-list .pdf-label');
+        inputs.forEach(function(inp){ if(inp.closest('[data-idx]')) p.label = inp.value.trim(); });
+      }
+    });
     translateDEEN();
   }
 }
@@ -1072,7 +1093,8 @@ async function loadArticles(){
     badge.style.width = isActive ? '' : '60px';
     var info = document.createElement('div');
     info.className = 'article-info';
-    info.innerHTML = '<div class="article-titre">'+titre+'</div><div class="article-meta">'+[lieu, date].filter(Boolean).join(' · ')+'</div>';
+    var legende = (art.legende && (art.legende.fr || art.legende)) || [lieu, date].filter(Boolean).join(' · ');
+    info.innerHTML = '<div class="article-titre">'+titre+'</div><div class="article-meta">'+legende+'</div>';
     var actions = document.createElement('div');
     actions.className = 'article-actions';
     actions.appendChild(pubBtn);
