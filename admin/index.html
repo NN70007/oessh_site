@@ -1163,18 +1163,19 @@ async function moveArticle(id, direction){
   var tmp = arts[idx];
   arts[idx] = arts[newIdx];
   arts[newIdx] = tmp;
-  // Always fetch fresh SHA before writing
+  // Reload fresh data before writing to avoid SHA conflicts
   var freshData = await fetchActualites(s);
-  var freshSha = freshData ? freshData._sha : articlesData._sha;
-  var toSave = JSON.parse(JSON.stringify(articlesData));
-  delete toSave._sha;
-  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(toSave, null, 2))));
+  if(!freshData) { alert('Erreur: impossible de charger actualites.json'); return; }
+  var freshArts = freshData.articles || [];
+  var fi = freshArts.findIndex(function(a){ return a.id === id; });
+  var newFi = fi + direction;
+  if(fi === -1 || newFi < 0 || newFi >= freshArts.length) return;
+  var tmp2 = freshArts[fi]; freshArts[fi] = freshArts[newFi]; freshArts[newFi] = tmp2;
+  freshData.articles = freshArts;
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    var url = 'https://api.github.com/repos/'+s.repo+'/contents/actualites.json';
-    var body = { message: 'Admin: reorder articles', content: jsonB64 };
-    if(freshSha) body.sha = freshSha;
-    var r = await fetch(url, { method:'PUT', headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json','Content-Type':'application/json'}, body: JSON.stringify(body) });
-    if(!r.ok){ var e=await r.json(); throw new Error(e.message||r.statusText); }
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: reorder articles');
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
@@ -1202,15 +1203,10 @@ async function togglePublish(id, makeVisible){
     if(a.id === id) a.published = makeVisible;
     return a;
   });
-  var sha = freshData._sha;
   delete freshData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    var url = 'https://api.github.com/repos/'+s.repo+'/contents/actualites.json';
-    var body = { message: 'Admin: '+(makeVisible?'publication':'masquage')+' '+id, content: jsonB64 };
-    if(sha) body.sha = sha;
-    var r = await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(!r.ok){ var e=await r.json(); throw new Error(e.message); }
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' '+id);
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
