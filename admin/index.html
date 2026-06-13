@@ -152,11 +152,17 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 .btn-del{padding:6px 10px;font-size:13px;background:none;border:1px solid var(--border);border-radius:5px;cursor:pointer;color:var(--ink-mute)}
 .btn-del:hover{background:#fff0f0;color:var(--cardinal);border-color:#ffc0c0}
 .empty-state{text-align:center;padding:40px;color:var(--ink-mute);font-size:13px}
-.drag-handle{cursor:grab;color:var(--ink-mute);font-size:18px;padding:0 6px;user-select:none;flex-shrink:0}
-.drag-handle:active{cursor:grabbing}
-.article-row.dragging{opacity:.4;border-style:dashed}
-.article-row.drag-over{border-color:var(--cardinal);background:#fff8f8}
-.drag-hint{font-size:12px;color:var(--ink-mute);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.drag-hint{font-size:12px;color:var(--ink-mute);margin-bottom:10px}
+.btn-move{padding:4px 8px;font-size:14px;background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--ink-mute);line-height:1}
+.btn-move:hover{background:#f0ede6;color:var(--ink)}
+.btn-move:disabled{opacity:.25;cursor:not-allowed}
+.pdf-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;padding:8px 10px;background:#faf9f6;border:1px solid var(--border);border-radius:6px}
+.pdf-row label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);margin-bottom:3px;display:block;font-weight:500}
+.pdf-row input[type=text]{width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink);background:#fff}
+.pdf-row input[type=file]{font-size:12px;color:var(--ink-mute);width:100%}
+.pdf-row .btn-rm{background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:16px;padding:4px}
+.pdf-row .btn-rm:hover{color:var(--cardinal)}
+.pdf-info{font-size:11px;color:#1a7a3c;margin-top:2px}
 </style>
 </head>
 <body>
@@ -247,6 +253,12 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
             <div class="img-preview" id="imgPreview"><img id="imgThumb" src="" alt=""/></div>
             <div class="img-fname" id="imgFname"></div>
           </div>
+          <div style="margin-top:12px">
+            <label class="lbl">Documents PDF (facultatif — homélie, article, etc.)</label>
+            <div id="pdf-list" style="display:flex;flex-direction:column;gap:8px"></div>
+            <button type="button" class="btn-add-lien" onclick="addPDFRow()" style="margin-top:6px">+ Ajouter un PDF</button>
+          </div>
+
           <div style="margin-top:14px">
             <button class="btn-gen" id="btn1" onclick="generateFR()">✦ Générer la version française</button>
             <div class="err-box" id="err1"></div>
@@ -315,6 +327,7 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 <script>
 var ALLOWED_EMAILS = ['jb.niedercorn@gmail.com', 's.niedercorn@gmail.com', 'norbert.stors@gmail.com', 'secretariat@oessh.lu', 'lieutenant@oessh.lu'];
 var imgBase64 = null, imgMime = null, imgOrigName = '';
+var pdfFiles = []; // [{label, filename, base64}]
 var articleDE = {}, articleEN = {};
 var currentStep = 1;
 
@@ -402,6 +415,45 @@ async function claudeCall(system, user, maxTokens){
 }
 
 // ── ÉTAPE 1 : Générer FR ──────────────────────────
+function addPDFRow(existingLabel, existingFilename){
+  pdfFiles.push({ label: existingLabel || '', filename: existingFilename || '', base64: null });
+  var idx = pdfFiles.length - 1;
+  var container = document.getElementById('pdf-list');
+  var row = document.createElement('div');
+  row.className = 'pdf-row';
+  row.dataset.idx = idx;
+  row.innerHTML =
+    '<div>' +
+      '<label>Intitulé du lien (ex: Homélie de la veillée)</label>' +
+      '<input type="text" class="pdf-label" value="' + (existingLabel||'') + '" oninput="pdfFiles[' + idx + '].label=this.value"/>' +
+    '</div>' +
+    '<div>' +
+      '<label>' + (existingFilename ? '📄 ' + existingFilename + ' — ' : '') + 'Fichier PDF</label>' +
+      '<input type="file" class="pdf-file" accept=".pdf" onchange="handlePDF(this,' + idx + ')"/>' +
+      '<div class="pdf-info" id="pdf-info-' + idx + '">' + (existingFilename ? 'Fichier existant conservé si aucun nouveau fichier uploadé' : '') + '</div>' +
+    '</div>' +
+    '<button class="btn-rm" onclick="removePDFRow(this,' + idx + ')" title="Supprimer">✕</button>';
+  container.appendChild(row);
+}
+
+function removePDFRow(btn, idx){
+  pdfFiles[idx] = null;
+  btn.closest('.pdf-row').remove();
+}
+
+function handlePDF(input, idx){
+  var file = input.files[0];
+  if(!file) return;
+  var fname = file.name.replace(/\s+/g,'-').toLowerCase();
+  pdfFiles[idx].filename = fname;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    pdfFiles[idx].base64 = e.target.result.split(',')[1];
+    document.getElementById('pdf-info-' + idx).textContent = '✓ Prêt : ' + fname;
+  };
+  reader.readAsDataURL(file);
+}
+
 async function generateFR(){
   editingId = null; // fresh article
   var desc=document.getElementById('desc').value.trim();
@@ -637,6 +689,23 @@ async function publish(){
 
   try {
     if(imgBase64) await githubPut(s, 'assets/'+imgFilename, imgBase64, 'Admin: image '+imgFilename);
+    // Upload PDFs and add as liens
+    var pdfLiens = [];
+    for(var pi=0; pi<pdfFiles.length; pi++){
+      var pdf = pdfFiles[pi];
+      if(!pdf) continue;
+      if(pdf.base64 && pdf.filename){
+        await githubPut(s, 'assets/'+pdf.filename, pdf.base64, 'Admin: PDF '+pdf.filename);
+      }
+      if(pdf.filename && pdf.label){
+        pdfLiens.push({
+          label: { fr: pdf.label, de: pdf.label, en: pdf.label },
+          url: 'assets/'+pdf.filename
+        });
+      }
+    }
+    // Merge PDF liens with regular liens
+    newArticle.liens = newArticle.liens.concat(pdfLiens);
     var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(json,null,2))));
     await githubPut(s, 'actualites.json', jsonB64, 'Admin: actualité "'+fr.titre.substring(0,50)+'"');
     showPub('✓ Publié avec succès ! L\'article est en ligne.','ok');
@@ -652,7 +721,7 @@ async function publish(){
       document.getElementById('panel-de').innerHTML = '';
       document.getElementById('panel-en').innerHTML = '';
       document.getElementById('pubStatus').style.display = 'none';
-      imgBase64 = null; imgMime = null; imgOrigName = ''; editingId = null;
+      imgBase64 = null; imgMime = null; imgOrigName = ''; editingId = null; pdfFiles = []; document.getElementById('pdf-list').innerHTML = '';
       articleDE = {}; articleEN = {};
       addLienRow('','');
       goStep(1);
@@ -696,43 +765,56 @@ var articlesData = null;
 var editingId = null;
 
 function editArticle(art){
-  // Switch to new article tab
   showTab('new');
   editingId = art.id;
 
-  // Fill step 1 description field with FR content
-  var fr = art.fr || {};
-  var desc = [];
-  if(art.date_affichee) desc.push('Date : ' + art.date_affichee);
-  if(art.lieu) desc.push('Lieu : ' + art.lieu);
-  document.getElementById('desc').value = desc.join('\n');
+  // Helper: extract FR value from multilingual field
+  function fr(field){ return (field && (field.fr || field)) || ''; }
 
-  // Pre-fill FR form directly and go to step 2
+  // Step 1 description (informational only)
+  var descParts = [];
+  if(art.date_affichee) descParts.push('Date : ' + art.date_affichee);
+  if(art.lieu) descParts.push('Lieu : ' + art.lieu);
+  document.getElementById('desc').value = descParts.join('\n');
+
+  // Fill FR form fields
   var tEl = document.getElementById('fr-titre');
-  tEl.value = fr.titre || '';
+  tEl.value = fr(art.titre);
   tEl.dataset.img = art.img_filename || '';
-  tEl.dataset.badges = (Array.isArray(art.badges) ? art.badges.join('|') : art.badges) || 'À la Une';
+  tEl.dataset.badges = (Array.isArray(art.badges) ? art.badges.join('|') : (art.badges || 'À la Une'));
   tEl.dataset.date = art.date_affichee || '';
   tEl.dataset.lieu = art.lieu || '';
 
-  document.getElementById('fr-teaser').value = fr.teaser || '';
-  document.getElementById('fr-texte').value = fr.texte || '';
-  document.getElementById('fr-legende').value = (art.legende && art.legende.fr) || fr.legende || '';
+  document.getElementById('fr-teaser').value = fr(art.teaser);
+  document.getElementById('fr-texte').value = fr(art.texte);
+  document.getElementById('fr-legende').value = fr(art.legende);
 
-  // Fill liens
+  // Fill liens and PDFs separately
   var container = document.getElementById('liens-edit');
   container.innerHTML = '';
+  document.getElementById('pdf-list').innerHTML = '';
+  pdfFiles = [];
   (art.liens || []).forEach(function(l){
-    var label = (l.label && l.label.fr) || l.label || '';
-    addLienRow(label, l.url);
+    var label = fr(l.label);
+    // PDF liens start with assets/ and end with .pdf
+    if(l.url && l.url.match(/\.pdf$/i)){
+      var fname = l.url.replace(/^assets\//,'');
+      addPDFRow(label, fname);
+    } else {
+      addLienRow(label, l.url);
+    }
   });
-  if(!(art.liens && art.liens.length)) addLienRow('','');
+  if(!(art.liens && art.liens.filter(function(l){ return !l.url.match(/\.pdf$/i); }).length)) addLienRow('','');
 
-  // Show image from assets if available
-  var imgFname = art.img_filename;
-  if(imgFname){
+  // Show current image info
+  if(art.img_filename){
     document.getElementById('imgFname').style.display = 'block';
-    document.getElementById('imgFname').textContent = '📷 Image actuelle : ' + imgFname + ' (uploadez une nouvelle image pour la remplacer)';
+    document.getElementById('imgFname').textContent = '📷 Image actuelle : ' + art.img_filename + ' — uploadez une nouvelle image pour la remplacer';
+    // Show thumbnail from repo
+    var thumb = document.getElementById('imgPreview');
+    var thumbImg = document.getElementById('imgThumb');
+    thumbImg.src = 'https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/' + art.img_filename;
+    thumb.style.display = 'block';
   }
 
   goStep(2);
@@ -745,7 +827,7 @@ async function loadArticles(){
   var loadEl = document.getElementById('articles-loading');
   loadEl.style.display = 'block';
   listEl.innerHTML = '';
-  listEl.innerHTML = '<div class="drag-hint">&#8963; Glissez pour réordonner</div>';
+  listEl.innerHTML = '<div class="drag-hint">Utilisez ↑ ↓ pour changer l’ordre d’affichage</div>';
 
   try {
     var url = 'https://api.github.com/repos/'+s.repo+'/contents/actualites.json';
@@ -813,16 +895,26 @@ async function loadArticles(){
     actions.appendChild(unpubBtn);
     actions.appendChild(editBtn);
     actions.appendChild(delBtn);
-    var handle = document.createElement('span');
-    handle.className = 'drag-handle';
-    handle.textContent = '⠿';
-    handle.title = 'Glisser pour réordonner';
-    row.appendChild(handle);
+    var moveUp = document.createElement('div');
+    moveUp.style.cssText = 'display:flex;flex-direction:column;gap:3px;flex-shrink:0';
+    var btnUp = document.createElement('button');
+    btnUp.className = 'btn-move';
+    btnUp.textContent = '↑';
+    btnUp.title = 'Monter';
+    btnUp.disabled = (idx === 0);
+    btnUp.onclick = (function(id){ return function(){ moveArticle(id, -1); }; })(art.id);
+    var btnDn = document.createElement('button');
+    btnDn.className = 'btn-move';
+    btnDn.textContent = '↓';
+    btnDn.title = 'Descendre';
+    btnDn.disabled = (idx === articles.length - 1);
+    btnDn.onclick = (function(id){ return function(){ moveArticle(id, 1); }; })(art.id);
+    moveUp.appendChild(btnUp);
+    moveUp.appendChild(btnDn);
+    row.appendChild(moveUp);
     row.appendChild(badge);
     row.appendChild(info);
     row.appendChild(actions);
-    row.draggable = true;
-    row.dataset.artId = art.id;
     listEl.appendChild(row);
   });
 }
@@ -850,16 +942,16 @@ async function publishArticle(id){
   } catch(e){ alert('Erreur : '+e.message); }
 }
 
-async function reorderArticles(fromId, toId){
+async function moveArticle(id, direction){
   if(!articlesData || !articlesData.articles) return;
   var s = getSettings();
   var arts = articlesData.articles;
-  var fromIdx = arts.findIndex(function(a){ return a.id === fromId; });
-  var toIdx = arts.findIndex(function(a){ return a.id === toId; });
-  if(fromIdx === -1 || toIdx === -1) return;
-  var moved = arts.splice(fromIdx, 1)[0];
-  arts.splice(toIdx, 0, moved);
-  articlesData.articles = arts;
+  var idx = arts.findIndex(function(a){ return a.id === id; });
+  var newIdx = idx + direction;
+  if(idx === -1 || newIdx < 0 || newIdx >= arts.length) return;
+  var tmp = arts[idx];
+  arts[idx] = arts[newIdx];
+  arts[newIdx] = tmp;
   var sha = articlesData._sha;
   delete articlesData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(articlesData, null, 2))));
