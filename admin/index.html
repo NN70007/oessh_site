@@ -654,8 +654,7 @@ async function loadArticles(){
     var resp = await fetch(url, {headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
     if(!resp.ok) throw new Error('Fichier actualites.json introuvable');
     var fileData = await resp.json();
-    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/
-/g,''))));
+    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
     articlesData = JSON.parse(decoded);
     articlesData._sha = fileData.sha;
   } catch(e) {
@@ -681,16 +680,31 @@ async function loadArticles(){
 
     var row = document.createElement('div');
     row.className = 'article-row' + (isActive ? ' is-active' : '');
-    row.innerHTML =
-      (isActive ? '<span class="article-badge">● Publié</span>' : '<span style="width:60px"></span>') +
-      '<div class="article-info">'+
-        '<div class="article-titre">'+titre+'</div>'+
-        '<div class="article-meta">'+[lieu, date].filter(Boolean).join(' · ')+'</div>'+
-      '</div>'+
-      '<div class="article-actions">'+
-        (!isActive ? '<button class="btn-pub" onclick="publishArticle(''+art.id+'')">Publier</button>' : '<button class="btn-pub current" disabled>Publié ✓</button>')+
-        '<button class="btn-del" onclick="deleteArticle(''+art.id+'')" title="Supprimer">🗑</button>'+
-      '</div>';
+    row.dataset.id = art.id;
+    var pubBtn = document.createElement('button');
+    pubBtn.className = 'btn-pub' + (isActive ? ' current' : '');
+    pubBtn.disabled = isActive;
+    pubBtn.textContent = isActive ? 'Publié ✓' : 'Publier';
+    if(!isActive){ pubBtn.onclick = (function(id){ return function(){ publishArticle(id); }; })(art.id); }
+    var delBtn = document.createElement('button');
+    delBtn.className = 'btn-del';
+    delBtn.title = 'Supprimer';
+    delBtn.textContent = '🗑';
+    delBtn.onclick = (function(id){ return function(){ deleteArticle(id); }; })(art.id);
+    var badge = document.createElement('span');
+    badge.className = isActive ? 'article-badge' : '';
+    badge.textContent = isActive ? '● Publié' : '';
+    badge.style.width = isActive ? '' : '60px';
+    var info = document.createElement('div');
+    info.className = 'article-info';
+    info.innerHTML = '<div class="article-titre">'+titre+'</div><div class="article-meta">'+[lieu, date].filter(Boolean).join(' · ')+'</div>';
+    var actions = document.createElement('div');
+    actions.className = 'article-actions';
+    actions.appendChild(pubBtn);
+    actions.appendChild(delBtn);
+    row.appendChild(badge);
+    row.appendChild(info);
+    row.appendChild(actions);
     listEl.appendChild(row);
   });
 }
