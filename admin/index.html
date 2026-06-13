@@ -21,99 +21,113 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px}
 
-/* Login */
 #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:24px;padding:40px 20px}
-.login-logo{display:flex;align-items:center;gap:12px}
-.login-logo svg{width:36px;height:36px}
-.login-logo-text{line-height:1.2;text-align:left}
+.login-logo{display:flex;align-items:center;gap:14px}
+.login-logo img{width:52px;height:52px}
+.login-logo-text span:first-child{font-family:var(--serif);font-size:20px;color:var(--cardinal);display:block}
+.login-logo-text span:last-child{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-mute);display:block;margin-top:3px}
 .login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:40px;max-width:400px;width:100%;text-align:center}
 .login-card h2{font-family:var(--serif);font-size:22px;font-weight:normal;margin-bottom:8px}
 .login-card p{font-size:13px;color:var(--ink-mute);margin-bottom:28px;line-height:1.5}
 #login-err{display:none;font-size:13px;color:var(--cardinal);margin-top:14px;padding:10px;background:#fff0f0;border-radius:6px}
 
-/* Setup screen */
 #setup-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px}
 .setup-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:36px;max-width:480px;width:100%}
-.setup-card h2{font-family:var(--serif);font-size:22px;font-weight:normal;margin-bottom:6px}
-.setup-card p{font-size:13px;color:var(--ink-mute);margin-bottom:24px;line-height:1.5}
-.setup-row{margin-bottom:16px}
-.setup-row label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-mute);margin-bottom:6px;font-weight:500}
-.setup-row input{width:100%;font-size:13px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);background:#fff;color:var(--ink)}
-.setup-row input:focus{outline:none;border-color:rgba(177,1,3,.4)}
-.setup-hint{font-size:11px;color:var(--ink-mute);margin-top:4px}
-.btn-setup{width:100%;padding:12px;font-size:14px;font-weight:600;background:var(--cardinal);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;margin-top:8px}
-.btn-setup:hover{opacity:.88}
-#setup-err{display:none;font-size:13px;color:var(--cardinal);margin-top:12px;padding:10px;background:#fff0f0;border-radius:6px}
+.setup-card h2{font-family:var(--serif);font-size:20px;font-weight:normal;margin-bottom:6px}
+.setup-card p{font-size:13px;color:var(--ink-mute);margin-bottom:24px}
+.setup-row{margin-bottom:14px}
+.setup-row label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-mute);margin-bottom:5px;font-weight:500}
+.setup-row input{width:100%;font-size:13px;padding:9px 11px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);color:var(--ink)}
+.setup-hint{font-size:11px;color:var(--ink-mute);margin-top:3px}
+.btn-primary{width:100%;padding:12px;font-size:14px;font-weight:600;background:var(--cardinal);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;margin-top:8px;transition:opacity .15s}
+.btn-primary:hover{opacity:.88}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+#setup-err{display:none;font-size:13px;color:var(--cardinal);margin-top:10px;padding:10px;background:#fff0f0;border-radius:6px}
 
-/* App */
 #app{display:none;min-height:100vh}
 .topbar{background:var(--cardinal);color:#fff;padding:10px 28px;display:flex;align-items:center;justify-content:space-between}
-.topbar-brand{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;letter-spacing:.04em}
-.topbar-brand svg{width:22px;height:22px;opacity:.9}
+.topbar-brand{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500}
+.topbar-brand img{width:22px;height:22px;filter:brightness(0) invert(1);opacity:.9}
 .topbar-right{display:flex;align-items:center;gap:12px;font-size:13px}
-.topbar-right img{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.4)}
+.topbar-right img.avatar{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.4)}
 .btn-sm{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:12px;padding:5px 12px;border-radius:4px;cursor:pointer}
 .btn-sm:hover{background:rgba(255,255,255,.3)}
 
-.main{max-width:820px;margin:0 auto;padding:40px 24px}
-h1.page-title{font-family:var(--serif);font-size:28px;font-weight:normal;margin-bottom:6px}
+.main{max-width:860px;margin:0 auto;padding:40px 24px}
+h1.page-title{font-family:var(--serif);font-size:26px;font-weight:normal;margin-bottom:4px}
 .page-sub{font-size:13px;color:var(--ink-mute);margin-bottom:32px}
 
-.steps{display:flex;flex-direction:column;gap:16px}
-.step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.step-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);background:#faf9f6}
-.step-num{width:26px;height:26px;border-radius:50%;background:var(--cardinal);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.step-title{font-size:14px;font-weight:600;color:var(--ink)}
-.step-body{padding:20px}
+/* Steps */
+.workflow{display:flex;flex-direction:column;gap:0}
+.wstep{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;opacity:.5;pointer-events:none;transition:opacity .2s}
+.wstep.active{opacity:1;pointer-events:all}
+.wstep.done{opacity:.7}
+.wstep-head{display:flex;align-items:center;gap:12px;padding:14px 18px;background:#faf9f6;border-bottom:1px solid var(--border)}
+.wstep-num{width:26px;height:26px;border-radius:50%;background:var(--border);color:var(--ink-mute);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.wstep.active .wstep-num{background:var(--cardinal);color:#fff}
+.wstep.done .wstep-num{background:#1a7a3c;color:#fff}
+.wstep-title{font-size:14px;font-weight:600;color:var(--ink)}
+.wstep-body{padding:18px 20px}
 
 label.lbl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-mute);margin-bottom:6px;font-weight:500}
-textarea{width:100%;font-family:var(--sans);font-size:14px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ink);resize:vertical;min-height:90px;line-height:1.55}
+textarea{width:100%;font-family:var(--sans);font-size:14px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ink);resize:vertical;line-height:1.55}
 textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 
-.dropzone{border:1.5px dashed var(--border);border-radius:6px;padding:28px 20px;text-align:center;cursor:pointer;position:relative;transition:background .15s}
+.dropzone{border:1.5px dashed var(--border);border-radius:6px;padding:24px 20px;text-align:center;cursor:pointer;position:relative;transition:background .15s}
 .dropzone:hover{background:#f7f4ee}
 .dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.dz-icon{font-size:28px;margin-bottom:8px;color:var(--ink-mute)}
+.dz-icon{font-size:26px;margin-bottom:6px;color:var(--ink-mute)}
 .dz-txt{font-size:13px;color:var(--ink-mute)}
 .dz-txt strong{color:var(--ink)}
-.img-preview{display:none;margin-top:12px;border-radius:6px;overflow:hidden;max-height:180px}
-.img-preview img{width:100%;height:180px;object-fit:cover}
-.img-fname{display:none;font-size:12px;color:var(--ink-mute);margin-top:6px}
+.img-preview{display:none;margin-top:10px;border-radius:6px;overflow:hidden;max-height:160px}
+.img-preview img{width:100%;height:160px;object-fit:cover}
+.img-fname{display:none;font-size:12px;color:var(--ink-mute);margin-top:5px}
 
-.btn-generate{width:100%;padding:14px;font-size:15px;font-weight:600;background:var(--cardinal);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;transition:opacity .15s}
-.btn-generate:hover{opacity:.88}
-.btn-generate:disabled{opacity:.4;cursor:not-allowed}
+.btn-gen{width:100%;padding:13px;font-size:14px;font-weight:600;background:var(--cardinal);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;transition:opacity .15s;margin-top:4px}
+.btn-gen:hover{opacity:.88}
+.btn-gen:disabled{opacity:.4;cursor:not-allowed}
 
-.loader{display:none;align-items:center;gap:12px;padding:14px 16px;background:#f7f4ee;border-radius:6px;margin-top:12px;font-size:13px;color:var(--ink-mute)}
+.loader{display:none;align-items:center;gap:12px;padding:12px 14px;background:#f7f4ee;border-radius:6px;margin-top:10px;font-size:13px;color:var(--ink-mute)}
 .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--cardinal);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-.err-box{display:none;padding:12px 14px;background:#fff0f0;border:1px solid #ffc0c0;border-radius:6px;font-size:13px;color:#a00;margin-top:10px}
+.err-box{display:none;padding:10px 14px;background:#fff0f0;border:1px solid #ffc0c0;border-radius:6px;font-size:13px;color:#a00;margin-top:10px}
 
-.preview-wrap{display:none;margin-top:20px}
-.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.badge{font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600}
-.badge-une{background:#fde8e8;color:#a00}
-.badge-other{background:#f0ede6;color:var(--ink-soft)}
-.lang-tabs{display:flex;gap:6px;margin-bottom:14px}
-.lang-tab{padding:6px 16px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:transparent;color:var(--ink-mute);letter-spacing:.04em;transition:all .15s}
+/* FR Edit zone */
+.fr-edit{display:none;margin-top:12px}
+.field-edit{margin-bottom:14px}
+.field-edit label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-mute);margin-bottom:5px;font-weight:500}
+.field-edit textarea{min-height:60px}
+.field-edit input[type=text]{width:100%;font-size:14px;padding:9px 11px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);color:var(--ink);background:#fff}
+.field-edit input:focus,.field-edit textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
+.liens-edit{display:flex;flex-direction:column;gap:10px}
+.lien-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;background:#faf9f6;border:1px solid var(--border);border-radius:6px}
+.lien-row label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);margin-bottom:4px;display:block;font-weight:500}
+.lien-row input{width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink);background:#fff}
+.btn-add-lien{background:none;border:1px dashed var(--border);border-radius:6px;padding:8px;font-size:13px;color:var(--ink-mute);cursor:pointer;width:100%;margin-top:4px}
+.btn-add-lien:hover{background:#f0ede6}
+
+.action-bar{display:flex;gap:10px;margin-top:16px}
+.btn-secondary{flex:0;padding:11px 18px;font-size:13px;border:1px solid var(--border);background:#fff;border-radius:var(--radius);cursor:pointer;color:var(--ink-soft)}
+.btn-secondary:hover{background:#f0ede6}
+.btn-action{flex:1;padding:11px;font-size:14px;font-weight:600;background:var(--ink);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;transition:opacity .15s}
+.btn-action:hover{opacity:.82}
+.btn-action:disabled{opacity:.4;cursor:not-allowed}
+
+/* Preview DE/EN */
+.lang-tabs{display:flex;gap:6px;margin-bottom:12px}
+.lang-tab{padding:5px 14px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:transparent;color:var(--ink-mute);transition:all .15s}
 .lang-tab.active{background:var(--cardinal);color:#fff;border-color:var(--cardinal)}
 .lang-panel{display:none}
 .lang-panel.active{display:block}
-.preview-card{background:#faf9f6;border:1px solid var(--border);border-radius:6px;padding:16px}
-.pv-row{margin-bottom:12px}
+.preview-card{background:#faf9f6;border:1px solid var(--border);border-radius:6px;padding:14px}
+.pv-row{margin-bottom:10px}
 .pv-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-mute);margin-bottom:3px;font-weight:600}
 .pv-val{font-size:13px;color:var(--ink);line-height:1.55}
 .pv-val.big{font-size:15px;font-weight:500;font-family:var(--serif)}
-.links-preview{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-.link-prev{font-size:12px;color:var(--ink-mute);padding:6px 10px;background:#fff;border:1px solid var(--border);border-radius:4px}
-.link-prev a{color:var(--cardinal);font-size:11px;word-break:break-all}
+.link-prev{font-size:13px;color:var(--ink);padding:5px 0;border-bottom:1px solid var(--border)}
+.link-prev:last-child{border:none}
+.link-prev a{color:var(--cardinal);font-size:11px}
 
-.publish-bar{display:flex;gap:10px;margin-top:20px}
-.btn-publish{flex:1;padding:12px;font-size:14px;font-weight:600;background:var(--ink);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;transition:opacity .15s}
-.btn-publish:hover{opacity:.82}
-.btn-publish:disabled{opacity:.4;cursor:not-allowed}
-.btn-regen{padding:12px 18px;font-size:14px;border:1px solid var(--border);background:#fff;border-radius:var(--radius);cursor:pointer;color:var(--ink-soft)}
-.btn-regen:hover{background:#f0ede6}
 .pub-status{font-size:13px;padding:12px 14px;border-radius:6px;display:none;margin-top:10px;line-height:1.5}
 .pub-ok{background:#edfff4;border:1px solid #b0e8c4;color:#1a6e3a}
 .pub-err{background:#fff0f0;border:1px solid #ffc0c0;color:#a00}
@@ -121,40 +135,29 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 </head>
 <body>
 
-<!-- ── LOGIN ─────────────────────────────────────────── -->
+<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-logo">
-    <img src="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem.svg" alt="Croix de Jérusalem" style="width:48px;height:48px"/>
+    <img src="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem.svg" alt="Croix de Jérusalem"/>
     <div class="login-logo-text">
-      <span style="font-family:Georgia,serif;font-size:20px;color:#b10103;font-weight:normal;display:block">Ordre Équestre du Saint-Sépulcre de Jérusalem</span>
-      <span style="font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#6e6e6e;display:block;margin-top:3px">Lieutenance pour le Luxembourg</span>
+      <span>Ordre Équestre du Saint-Sépulcre de Jérusalem</span>
+      <span>Lieutenance pour le Luxembourg · Admin</span>
     </div>
   </div>
   <div class="login-card">
     <h2>Administration</h2>
     <p>Accès réservé aux éditeurs autorisés de la Lieutenance pour le Luxembourg.</p>
-    <div id="g_id_onload"
-      data-client_id="52829295071-cer9p7voptd0lgdrmgk5a35furmtn256.apps.googleusercontent.com"
-      data-callback="onGoogleLogin"
-      data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin"
-      data-type="standard"
-      data-size="large"
-      data-theme="outline"
-      data-text="sign_in_with"
-      data-shape="rectangular"
-      data-logo_alignment="left">
-    </div>
+    <div id="g_id_onload" data-client_id="52829295071-cer9p7voptd0lgdrmgk5a35furmtn256.apps.googleusercontent.com" data-callback="onGoogleLogin" data-auto_prompt="false"></div>
+    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
     <div id="login-err">Accès refusé. Votre compte Google n'est pas autorisé.</div>
   </div>
 </div>
 
-<!-- ── SETUP (première utilisation) ──────────────────── -->
+<!-- SETUP -->
 <div id="setup-screen">
   <div class="setup-card">
-    <h2>Configuration initiale</h2>
-    <p>Saisissez vos clés API. Elles seront stockées uniquement dans ce navigateur et n'apparaîtront jamais dans le code source.</p>
+    <h2>Configuration</h2>
+    <p>Saisissez vos clés API. Elles sont stockées uniquement dans ce navigateur.</p>
     <div class="setup-row">
       <label>Clé API Claude</label>
       <input type="password" id="setup-claude" placeholder="sk-ant-api03-…"/>
@@ -163,26 +166,25 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
     <div class="setup-row">
       <label>GitHub Personal Access Token</label>
       <input type="password" id="setup-github" placeholder="github_pat_…"/>
-      <div class="setup-hint">github.com → Settings → Developer settings → Fine-grained tokens</div>
     </div>
     <div class="setup-row">
       <label>Repo GitHub</label>
       <input type="text" id="setup-repo" value="NN70007/oessh_site"/>
     </div>
-    <button class="btn-setup" onclick="saveSetup()">Enregistrer et continuer →</button>
+    <button class="btn-primary" onclick="saveSetup()">Enregistrer →</button>
     <div id="setup-err">Veuillez remplir la clé Claude et le token GitHub.</div>
   </div>
 </div>
 
-<!-- ── APP ────────────────────────────────────────────── -->
+<!-- APP -->
 <div id="app">
   <div class="topbar">
     <div class="topbar-brand">
-      <img src="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem.svg" alt="Croix de Jérusalem" style="width:24px;height:24px;filter:brightness(0) invert(1);opacity:.9"/>
-      Ordre Équestre du Saint-Sépulcre · Admin
+      <img src="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem.svg" alt=""/>
+      OESSH Admin
     </div>
     <div class="topbar-right">
-      <img id="user-avatar" src="" alt=""/>
+      <img class="avatar" id="user-avatar" src="" alt=""/>
       <span id="user-name"></span>
       <button class="btn-sm" onclick="showSetup()">⚙ Clés API</button>
       <button class="btn-sm" onclick="logout()">Déconnexion</button>
@@ -191,61 +193,74 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 
   <div class="main">
     <h1 class="page-title">Nouvelle actualité « À la Une »</h1>
-    <p class="page-sub">Décrivez l'événement en quelques lignes — Claude rédige l'article complet en français, allemand et anglais.</p>
+    <p class="page-sub">Workflow en 4 étapes — Claude rédige, vous validez, il traduit.</p>
 
-    <div class="steps">
+    <div class="workflow">
 
-      <div class="step">
-        <div class="step-head"><div class="step-num">1</div><div class="step-title">Décrivez l'événement</div></div>
-        <div class="step-body">
-          <label class="lbl">Lieu, date, personnes clés, ce qui s'est passé</label>
-          <textarea id="desc" placeholder="Ex : Le 15 juin 2026 à Luxembourg, le Cardinal Filoni a présidé la cérémonie d'investiture annuelle à la cathédrale Notre-Dame. Trois nouveaux membres ont été investis…"></textarea>
+      <!-- ÉTAPE 1 : Saisie -->
+      <div class="wstep active" id="step1">
+        <div class="wstep-head"><div class="wstep-num">1</div><div class="wstep-title">Décrivez l'événement + image</div></div>
+        <div class="wstep-body">
+          <label class="lbl">Description libre — lieu, date, personnes, ce qui s'est passé (toute langue)</label>
+          <textarea id="desc" rows="4" placeholder="Ex : Le 15 juin 2026 à Luxembourg, le Cardinal Filoni a présidé la cérémonie d'investiture…"></textarea>
+          <div style="margin-top:12px">
+            <label class="lbl">Image</label>
+            <div class="dropzone">
+              <input type="file" id="imgInput" accept="image/*" onchange="handleImage(this)"/>
+              <div class="dz-icon">📷</div>
+              <div class="dz-txt"><strong>Choisir une image</strong> ou glisser-déposer</div>
+            </div>
+            <div class="img-preview" id="imgPreview"><img id="imgThumb" src="" alt=""/></div>
+            <div class="img-fname" id="imgFname"></div>
+          </div>
+          <div style="margin-top:14px">
+            <button class="btn-gen" id="btn1" onclick="generateFR()">✦ Générer la version française</button>
+            <div class="err-box" id="err1"></div>
+            <div class="loader" id="load1"><div class="spinner"></div>Claude rédige la version française…</div>
+          </div>
         </div>
       </div>
 
-      <div class="step">
-        <div class="step-head"><div class="step-num">2</div><div class="step-title">Image de l'article</div></div>
-        <div class="step-body">
-          <div class="dropzone">
-            <input type="file" id="imgInput" accept="image/*" onchange="handleImage(this)"/>
-            <div class="dz-icon">📷</div>
-            <div class="dz-txt"><strong>Choisir une image</strong><br/>ou glisser-déposer · JPG, PNG, WebP</div>
+      <!-- ÉTAPE 2 : Relecture FR -->
+      <div class="wstep" id="step2">
+        <div class="wstep-head"><div class="wstep-num">2</div><div class="wstep-title">Relire et corriger le français</div></div>
+        <div class="wstep-body">
+          <p style="font-size:13px;color:var(--ink-mute);margin-bottom:14px">Modifiez librement le texte et les liens ci-dessous avant de valider.</p>
+          <div class="fr-edit" id="frEdit" style="display:block">
+            <div class="field-edit"><label>Titre</label><input type="text" id="fr-titre"/></div>
+            <div class="field-edit"><label>Teaser (1-2 phrases)</label><textarea id="fr-teaser" rows="2"></textarea></div>
+            <div class="field-edit"><label>Texte complet</label><textarea id="fr-texte" rows="6"></textarea></div>
+            <div class="field-edit"><label>Légende image (courte : Ville · Date · © Source)</label><input type="text" id="fr-legende"/></div>
+            <div class="field-edit">
+              <label>Liens</label>
+              <div class="liens-edit" id="liens-edit"></div>
+              <button class="btn-add-lien" onclick="addLienRow()">+ Ajouter un lien</button>
+            </div>
           </div>
-          <div class="img-preview" id="imgPreview"><img id="imgThumb" src="" alt=""/></div>
-          <div class="img-fname" id="imgFname"></div>
+          <div class="action-bar">
+            <button class="btn-secondary" onclick="goStep(1)">← Retour</button>
+            <button class="btn-action" id="btn2" onclick="translateDEEN()">Valider le français et traduire →</button>
+          </div>
+          <div class="loader" id="load2"><div class="spinner"></div>Claude traduit en allemand et anglais…</div>
+          <div class="err-box" id="err2"></div>
         </div>
       </div>
 
-      <div class="step">
-        <div class="step-head"><div class="step-num">3</div><div class="step-title">Génération &amp; publication</div></div>
-        <div class="step-body">
-          <button class="btn-generate" id="genBtn" onclick="generate()">✦ Générer l'article en 3 langues</button>
-          <div class="err-box" id="genErr"></div>
-          <div class="loader" id="loader">
-            <div class="spinner"></div>
-            Claude rédige l'article en français, allemand et anglais…
+      <!-- ÉTAPE 3 : Validation DE/EN -->
+      <div class="wstep" id="step3">
+        <div class="wstep-head"><div class="wstep-num">3</div><div class="wstep-title">Vérifier les versions allemande et anglaise</div></div>
+        <div class="wstep-body">
+          <div class="lang-tabs">
+            <button class="lang-tab active" onclick="switchLang('de',this)">🇩🇪 Deutsch</button>
+            <button class="lang-tab" onclick="switchLang('en',this)">🇬🇧 English</button>
           </div>
-
-          <div class="preview-wrap" id="previewWrap">
-            <div class="badges" id="badgesRow"></div>
-            <div class="lang-tabs">
-              <button class="lang-tab active" onclick="switchLang('fr',this)">🇫🇷 Français</button>
-              <button class="lang-tab" onclick="switchLang('de',this)">🇩🇪 Deutsch</button>
-              <button class="lang-tab" onclick="switchLang('en',this)">🇬🇧 English</button>
-            </div>
-            <div id="panel-fr" class="lang-panel active"></div>
-            <div id="panel-de" class="lang-panel"></div>
-            <div id="panel-en" class="lang-panel"></div>
-            <div style="margin-top:14px">
-              <div class="pv-label">Liens suggérés</div>
-              <div class="links-preview" id="linksPreview"></div>
-            </div>
-            <div class="publish-bar">
-              <button class="btn-regen" onclick="generate()">↺ Régénérer</button>
-              <button class="btn-publish" id="pubBtn" onclick="publish()">↑ Publier sur le site</button>
-            </div>
-            <div class="pub-status" id="pubStatus"></div>
+          <div id="panel-de" class="lang-panel active"></div>
+          <div id="panel-en" class="lang-panel"></div>
+          <div class="action-bar" style="margin-top:16px">
+            <button class="btn-secondary" onclick="goStep(2)">← Corriger le français</button>
+            <button class="btn-action" id="btn3" onclick="publish()">↑ Publier sur le site</button>
           </div>
+          <div class="pub-status" id="pubStatus"></div>
         </div>
       </div>
 
@@ -254,12 +269,12 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 </div>
 
 <script>
-var articleData = null;
-var imgBase64 = null;
-var imgMime = null;
-var imgOrigName = '';
+var ALLOWED_EMAILS = ['jb.niedercorn@gmail.com', 's.niedercorn@gmail.com', 'norbert.stors@gmail.com', 'secretariat@oessh.lu', 'lieutenant@oessh.lu'];
+var imgBase64 = null, imgMime = null, imgOrigName = '';
+var articleDE = {}, articleEN = {};
+var currentStep = 1;
 
-// ── Settings (localStorage uniquement) ──────────────────
+// ── Settings ──────────────────────────────────────
 function getSettings(){
   return {
     claudeKey:   localStorage.getItem('oessh_claude_key') || '',
@@ -267,47 +282,35 @@ function getSettings(){
     repo:        localStorage.getItem('oessh_repo') || 'NN70007/oessh_site'
   };
 }
-function hasSettings(){
-  var s = getSettings();
-  return s.claudeKey && s.githubToken;
-}
+function hasSettings(){ var s=getSettings(); return s.claudeKey && s.githubToken; }
 function saveSetup(){
-  var c = document.getElementById('setup-claude').value.trim();
-  var g = document.getElementById('setup-github').value.trim();
-  var r = document.getElementById('setup-repo').value.trim();
-  if(!c || !g){ document.getElementById('setup-err').style.display='block'; return; }
-  localStorage.setItem('oessh_claude_key', c);
-  localStorage.setItem('oessh_github_token', g);
-  localStorage.setItem('oessh_repo', r || 'NN70007/oessh_site');
+  var c=document.getElementById('setup-claude').value.trim();
+  var g=document.getElementById('setup-github').value.trim();
+  var r=document.getElementById('setup-repo').value.trim();
+  if(!c||!g){ document.getElementById('setup-err').style.display='block'; return; }
+  localStorage.setItem('oessh_claude_key',c);
+  localStorage.setItem('oessh_github_token',g);
+  localStorage.setItem('oessh_repo',r||'NN70007/oessh_site');
   document.getElementById('setup-screen').style.display='none';
   document.getElementById('app').style.display='block';
 }
 function showSetup(){
-  var s = getSettings();
-  document.getElementById('setup-claude').value = s.claudeKey;
-  document.getElementById('setup-github').value = s.githubToken;
-  document.getElementById('setup-repo').value = s.repo;
+  var s=getSettings();
+  document.getElementById('setup-claude').value=s.claudeKey;
+  document.getElementById('setup-github').value=s.githubToken;
+  document.getElementById('setup-repo').value=s.repo;
   document.getElementById('app').style.display='none';
   document.getElementById('setup-screen').style.display='flex';
 }
 
-// ── Google Auth ─────────────────────────────────────────
-var ALLOWED_EMAILS = ['jb.niedercorn@gmail.com', 's.niedercorn@gmail.com', 'norbert.stors@gmail.com', 'secretariat@oessh.lu', 'lieutenant@oessh.lu'];
-
-function onGoogleLogin(response){
-  var payload = JSON.parse(atob(response.credential.split('.')[1]));
-  if(ALLOWED_EMAILS.indexOf(payload.email) === -1){
-    document.getElementById('login-err').style.display = 'block';
-    return;
-  }
-  document.getElementById('user-name').textContent = payload.name;
-  document.getElementById('user-avatar').src = payload.picture;
+// ── Auth ──────────────────────────────────────────
+function onGoogleLogin(r){
+  var p=JSON.parse(atob(r.credential.split('.')[1]));
+  if(ALLOWED_EMAILS.indexOf(p.email)===-1){ document.getElementById('login-err').style.display='block'; return; }
+  document.getElementById('user-name').textContent=p.name;
+  document.getElementById('user-avatar').src=p.picture;
   document.getElementById('login-screen').style.display='none';
-  if(hasSettings()){
-    document.getElementById('app').style.display='block';
-  } else {
-    document.getElementById('setup-screen').style.display='flex';
-  }
+  hasSettings() ? document.getElementById('app').style.display='block' : document.getElementById('setup-screen').style.display='flex';
 }
 function logout(){
   google.accounts.id.disableAutoSelect();
@@ -315,263 +318,282 @@ function logout(){
   document.getElementById('login-screen').style.display='flex';
 }
 
-// ── Image ────────────────────────────────────────────────
+// ── Image ─────────────────────────────────────────
 function handleImage(input){
-  var file = input.files[0];
-  if(!file) return;
-  imgOrigName = file.name;
-  imgMime = file.type;
-  var reader = new FileReader();
-  reader.onload = function(e){
-    imgBase64 = e.target.result.split(',')[1];
+  var file=input.files[0]; if(!file) return;
+  imgOrigName=file.name; imgMime=file.type;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    imgBase64=e.target.result.split(',')[1];
     document.getElementById('imgPreview').style.display='block';
-    document.getElementById('imgThumb').src = e.target.result;
+    document.getElementById('imgThumb').src=e.target.result;
     document.getElementById('imgFname').style.display='block';
-    document.getElementById('imgFname').textContent = '✓ ' + file.name;
+    document.getElementById('imgFname').textContent='✓ '+file.name;
   };
   reader.readAsDataURL(file);
 }
 
-// ── Generate ─────────────────────────────────────────────
-function generate(){
-  var desc = document.getElementById('desc').value.trim();
-  if(!desc){ showGenErr('Décrivez l\'événement avant de générer.'); return; }
-  var s = getSettings();
-  if(!s.claudeKey){ showGenErr('Clé API Claude manquante — cliquez sur ⚙ Clés API.'); return; }
-
-  document.getElementById('genBtn').disabled = true;
-  document.getElementById('loader').style.display = 'flex';
-  document.getElementById('previewWrap').style.display = 'none';
-  document.getElementById('genErr').style.display = 'none';
-
-  var system = 'Tu es le redacteur de la Lieutenance pour le Luxembourg de l Ordre Equestre du Saint-Sepulcre de Jerusalem. Tu rediges des actualites pour luxembourg.oessh.lu, registre solennel et elegant.\n\nReponds en utilisant EXACTEMENT ces marqueurs dans cet ordre. Chaque section commence par ###NOM### et se termine par ###FIN###. Ne pas changer les noms des marqueurs.\n\n###DATE###\n[date ex: 15 juin 2026]\n###FIN###\n###LIEU###\n[ville]\n###FIN###\n###BADGES###\n[A la Une|Badge2]\n###FIN###\n###IMG###\n[actu-slug-2026.jpg]\n###FIN###\n###FR_TITRE###\n[titre complet en FRANCAIS]\n###FIN###\n###FR_TEASER###\n[teaser en FRANCAIS 1-2 phrases]\n###FIN###\n###FR_TEXTE###\n[texte complet en FRANCAIS 3 paragraphes]\n###FIN###\n###FR_LEGENDE###\nLegende COURTE: Ville - Date - © Source. Ex: Bruxelles - 5-6 juin 2026 - © Grand Magistere OESSH. MAX 60 car.\n###FIN###\n###DE_TITRE###\nTitre COMPLET traduit en allemand - OBLIGATOIRE, meme longueur que FR_TITRE (ex: Feierliche Investituren der Statthalterei fur Schweiz und Liechtenstein)\n###FIN###\n###DE_TEASER###\n[teaser AUF DEUTSCH]\n###FIN###\n###DE_TEXTE###\n[text vollstandig AUF DEUTSCH 3 absatze]\n###FIN###\n###DE_LEGENDE###\nKurze Legende: Ort - Datum - © Quelle. Ex: Brussel - 5.-6. Juni 2026 - © Grossmagisterium OESSH. MAX 60 Z.\n###FIN###\n###EN_TITRE###\n[full title IN ENGLISH]\n###FIN###\n###EN_TEASER###\n[teaser IN ENGLISH]\n###FIN###\n###EN_TEXTE###\n[full text IN ENGLISH 3 paragraphs]\n###FIN###\n###EN_LEGENDE###\nShort caption: City - Date - © Source. Ex: Brussels - 5-6 June 2026 - © Grand Magisterium OESSH. Max 60 chars.\n###FIN###\n###LIEN1_URL###\n[https://...]\n###FIN###\n###LIEN1_FR###\nIntitule descriptif du lien 1 en francais (ex: Grand Magistere de l Ordre - page Facebook officielle)\n###FIN###\\n###LIEN1_DE###\nIntitule descriptif du lien 1 TRADUIT en allemand (ex: Grossmagisterium des Ordens - offizielle Facebook-Seite)\n###FIN###\\n###LIEN1_EN###\nIntitule descriptif du lien 1 TRADUIT en anglais (ex: Grand Magisterium of the Order - official Facebook page)\n###FIN###\\n###LIEN2_URL###\\nhttps://... ou laisser vide si pas de 2eme lien\\n###FIN###\\n###LIEN2_FR###\nIntitule descriptif du lien 2 en francais (ex: Patriarcat latin de Jerusalem, Article de cathol.lu) - laisser vide si pas de 2eme lien\n###FIN###\\n###LIEN2_DE###\nIntitule descriptif du lien 2 TRADUIT en allemand (ex: Lateinisches Patriarchat Jerusalem) - laisser vide si pas de 2eme lien\n###FIN###\\n###LIEN2_EN###\nIntitule descriptif du lien 2 TRADUIT en anglais (ex: Latin Patriarchate of Jerusalem) - leave empty if no second link\n###FIN###\n\nREGLES : badges separes par |, toujours commencer par A la Une + 1-2 parmi Investitures, Pelerinage, Spiritualite, Conference, Lieutenance, Centenaire, Diplomatie, Terre Sainte. Liens plausibles : lpj.org, facebook.com/grandmagistere.oessj.fra, cathol.lu, oessh.va. IMPORTANT : remplir OBLIGATOIREMENT toutes les sections FR, DE et EN en entier. LABELS DES LIENS : le label decrit la destination avec une fleche a la fin (ex FR: Grand Magistere de l Ordre - page Facebook, ex DE: Grossmagisterium - offizielle Facebook-Seite, ex EN: Grand Magisterium - official Facebook page). JAMAIS de verbe generique seul (View, Read, Voir, Lire). Toujours traduit dans les 3 langues. Le 2eme lien doit aussi avoir un label descriptif complet dans les 3 langues.';
-
-  fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': s.claudeKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2500,
-      system: system,
-      messages: [{ role: 'user', content: desc }]
-    })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(data){
-    if(data.error) throw new Error(data.error.message);
-    var raw = (data.content||[]).find(function(b){ return b.type==='text'; });
-    if(!raw) throw new Error('Réponse vide');
-    // Parse ### marker response
-    var txt = raw.text;
-    function getField(name) {
-      // Try exact name first, then common English variants
-      var variants = [name];
-      if(name === 'EN_TITRE')   variants.push('EN_TITLE');
-      if(name === 'EN_TEASER')  variants.push('EN_TEASER');
-      if(name === 'EN_TEXTE')   variants.push('EN_TEXT', 'EN_TEXTE');
-      if(name === 'EN_LEGENDE') variants.push('EN_LEGEND', 'EN_LEGENDE');
-      if(name === 'DE_TITRE')   variants.push('DE_TITLE');
-      if(name === 'DE_TEXTE')   variants.push('DE_TEXT');
-      if(name === 'DE_LEGENDE') variants.push('DE_LEGEND');
-      if(name === 'FR_TITRE')   variants.push('FR_TITLE');
-      if(name === 'FR_TEXTE')   variants.push('FR_TEXT');
-      if(name === 'FR_LEGENDE') variants.push('FR_LEGEND');
-      // Also try END as closing marker variant
-      var closes = ['###FIN###', '###END###', '###ENDE###'];
-      for(var vi = 0; vi < variants.length; vi++) {
-        var open = '###' + variants[vi] + '###';
-        var start = txt.indexOf(open);
-        if(start === -1) continue;
-        start += open.length;
-        var end = -1;
-        for(var ci = 0; ci < closes.length; ci++) {
-          var e = txt.indexOf(closes[ci], start);
-          if(e !== -1 && (end === -1 || e < end)) end = e;
-        }
-        if(end === -1) return txt.substring(start).trim();
-        return txt.substring(start, end).trim();
-      }
-      return '';
-    }
-    var badges = getField('BADGES').split('|').map(function(b){ return b.trim(); }).filter(Boolean);
-    var liens = [];
-    for(var li = 1; li <= 3; li++) {
-      var lurl = getField('LIEN'+li+'_URL');
-      if(lurl) {
-        liens.push({
-          label: {
-            fr: (getField('LIEN'+li+'_FR') || 'Voir'),
-            de: (getField('LIEN'+li+'_DE') || 'Ansehen'),
-            en: (getField('LIEN'+li+'_EN') || 'View')
-          },
-          url: lurl
-        });
-      }
-    }
-    // Rename image with slug based on title
-    var rawImg = getField('IMG');
-    var slug = getField('FR_TITRE')
-      .toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/[^a-z0-9]+/g,'-')
-      .replace(/^-+|-+$/g,'')
-      .substring(0, 40);
-    var ext = imgOrigName ? imgOrigName.split('.').pop().toLowerCase() : 'jpg';
-    var imgFilename = rawImg || ('actu-' + slug + '.' + ext);
-    if(imgOrigName && ext) imgFilename = imgFilename.replace(/\.[^.]+$/, '.' + ext);
-
-    articleData = {
-      date_affichee: getField('DATE'),
-      lieu: getField('LIEU'),
-      badges: badges,
-      img_filename: imgFilename,
-      fr: { titre: getField('FR_TITRE'), teaser: getField('FR_TEASER'), texte: getField('FR_TEXTE'), legende: getField('FR_LEGENDE') },
-      de: { titre: getField('DE_TITRE'), teaser: getField('DE_TEASER'), texte: getField('DE_TEXTE'), legende: getField('DE_LEGENDE') },
-      en: { titre: getField('EN_TITRE'), teaser: getField('EN_TEASER'), texte: getField('EN_TEXTE'), legende: getField('EN_LEGENDE') },
-      liens: liens
-    };
-    if(!articleData.fr.titre) throw new Error('Réponse invalide ou incomplète — relancez la génération');
-    renderPreview();
-    document.getElementById('previewWrap').style.display = 'block';
-  })
-  .catch(function(e){ showGenErr('Erreur : ' + e.message); })
-  .finally(function(){
-    document.getElementById('genBtn').disabled = false;
-    document.getElementById('loader').style.display = 'none';
-  });
-}
-
-function renderPreview(){
-  var d = articleData;
-  document.getElementById('badgesRow').innerHTML = (d.badges||[]).map(function(b){
-    return '<span class="badge ' + (b==='À la Une'?'badge-une':'badge-other') + '">' + b + '</span>';
-  }).join('');
-  ['fr','de','en'].forEach(function(l){ renderPanel(l, d[l]); });
-  document.getElementById('linksPreview').innerHTML = (d.liens||[]).map(function(l){
-    return '<div class="link-prev"><strong>' + l.label.fr + '</strong> <span style="color:var(--ink-mute);font-size:11px">' + l.url + '</span></div>';
-  }).join('') || '<div class="link-prev" style="color:var(--ink-mute)">Aucun lien suggéré</div>';
-}
-function renderPanel(lang, d){
-  var texte = d.texte || '';
-  var paras = texte.split(/\n\n+/).filter(Boolean);
-  var firstPara = paras[0] || '';
-  var teaser230 = firstPara.length > 230 ? firstPara.substring(0, 230) + '…' : firstPara;
-  var restParas = paras.slice(1);
-  var readMoreId = 'readmore-' + lang;
-
-  var moreHTML = '';
-  if(restParas.length > 0 || firstPara.length > 230) {
-    var fullText = paras.map(function(p){ return '<p style="margin:0 0 10px">' + p + '</p>'; }).join('');
-    moreHTML =
-      '<div id="' + readMoreId + '" style="display:none;margin-top:6px">' + fullText + '</div>' +
-      '<button onclick="var el=document.getElementById(\'' + readMoreId + '\');var open=el.style.display===\'block\';el.style.display=open?\'none\':\'block\';this.textContent=open?\'… Lire la suite\':\'Réduire ↑\';" ' +
-      'style="background:none;border:none;padding:0;font-size:12px;color:var(--ink-mute);cursor:pointer;margin-top:4px;text-transform:uppercase;letter-spacing:.08em;font-weight:500">… Lire la suite</button>';
+// ── Step navigation ───────────────────────────────
+function goStep(n){
+  for(var i=1;i<=3;i++){
+    var el=document.getElementById('step'+i);
+    el.classList.remove('active','done');
+    if(i<n) el.classList.add('done');
+    else if(i===n) el.classList.add('active');
   }
+  currentStep=n;
+}
 
+// ── Claude API call ───────────────────────────────
+async function claudeCall(system, user, maxTokens){
+  var s=getSettings();
+  var resp=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':s.claudeKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTokens||2000,system:system,messages:[{role:'user',content:user}]})
+  });
+  var data=await resp.json();
+  if(data.error) throw new Error(data.error.message);
+  return (data.content||[]).find(function(b){return b.type==='text';})?.text || '';
+}
+
+// ── ÉTAPE 1 : Générer FR ──────────────────────────
+async function generateFR(){
+  var desc=document.getElementById('desc').value.trim();
+  if(!desc){ showErr('err1','Décrivez l\'événement.'); return; }
+  if(!getSettings().claudeKey){ showErr('err1','Clé Claude manquante.'); return; }
+  setLoading('load1','btn1',true);
+  hideErr('err1');
+
+  var system = 'Tu es le rédacteur de la Lieutenance pour le Luxembourg de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem. Tu rédiges des actualités pour luxembourg.oessh.lu dans un registre solennel et élégant. Vocabulaire : Chevaliers et Dames, le Cardinal Grand Maître, la Lieutenance, les chrétiens de Terre Sainte.\n\nRéponds UNIQUEMENT en français avec ce format exact (balises ###CHAMP### et ###FIN###) :\n\n###TITRE###\n[titre complet de l\'article en français]\n###FIN###\n###TEASER###\n[1 ou 2 phrases de résumé, max 160 caractères]\n###FIN###\n###TEXTE###\n[paragraphe 1]\n\n[paragraphe 2]\n\n[paragraphe 3]\n###FIN###\n###LEGENDE###\n[Ville · Date · © Source si connue — format court, max 60 car.]\n###FIN###\n###LIEN1_LABEL###\n[intitulé descriptif du lien 1 — décrit la destination, ex: Grand Magistère de l\'Ordre — page Facebook officielle]\n###FIN###\n###LIEN1_URL###\n[https://...]\n###FIN###\n###LIEN2_LABEL###\n[intitulé descriptif du lien 2 — ou laisser vide si pas de 2e lien]\n###FIN###\n###LIEN2_URL###\n[https://... ou laisser vide]\n###FIN###\n###IMG###\n[nom-de-fichier-slug.jpg]\n###FIN###\n###BADGES###\nÀ la Une|[badge2 parmi: Investitures, Pèlerinage, Spiritualité, Conférence, Lieutenance, Centenaire, Diplomatie, Terre Sainte]\n###FIN###\n###DATE###\n[ex: 15 juin 2026]\n###FIN###\n###LIEU###\n[ville]\n###FIN###\n\nLiens plausibles : facebook.com/grandmagistere.oessj.fra, lpj.org, cathol.lu, oessh.va.';
+
+  try {
+    var txt = await claudeCall(system, desc, 2000);
+    var fr = parseFields(txt);
+    fillFRForm(fr);
+    goStep(2);
+  } catch(e){ showErr('err1','Erreur : '+e.message); }
+  setLoading('load1','btn1',false);
+}
+
+function parseFields(txt){
+  function get(name){
+    var open='###'+name+'###', close='###FIN###';
+    var s=txt.indexOf(open); if(s===-1) return '';
+    s+=open.length;
+    var e=txt.indexOf(close,s); if(e===-1) return txt.substring(s).trim();
+    return txt.substring(s,e).trim();
+  }
+  return {
+    titre: get('TITRE'),
+    teaser: get('TEASER'),
+    texte: get('TEXTE'),
+    legende: get('LEGENDE'),
+    lien1_label: get('LIEN1_LABEL'),
+    lien1_url: get('LIEN1_URL'),
+    lien2_label: get('LIEN2_LABEL'),
+    lien2_url: get('LIEN2_URL'),
+    img: get('IMG'),
+    badges: get('BADGES'),
+    date: get('DATE'),
+    lieu: get('LIEU')
+  };
+}
+
+function fillFRForm(fr){
+  document.getElementById('fr-titre').value = fr.titre;
+  document.getElementById('fr-teaser').value = fr.teaser;
+  document.getElementById('fr-texte').value = fr.texte;
+  document.getElementById('fr-legende').value = fr.legende;
+  // Liens
+  var container = document.getElementById('liens-edit');
+  container.innerHTML = '';
+  if(fr.lien1_url) addLienRow(fr.lien1_label, fr.lien1_url);
+  if(fr.lien2_url) addLienRow(fr.lien2_label, fr.lien2_url);
+  if(!fr.lien1_url) addLienRow('','');
+  // Store meta
+  document.getElementById('fr-titre').dataset.img = fr.img;
+  document.getElementById('fr-titre').dataset.badges = fr.badges;
+  document.getElementById('fr-titre').dataset.date = fr.date;
+  document.getElementById('fr-titre').dataset.lieu = fr.lieu;
+}
+
+function addLienRow(label, url){
+  label = label||''; url = url||'';
+  var container = document.getElementById('liens-edit');
+  var row = document.createElement('div');
+  row.className = 'lien-row';
+  row.innerHTML =
+    '<div><label>Intitulé descriptif</label><input type="text" class="lien-label" value="'+escHtml(label)+'"/></div>'+
+    '<div><label>URL</label><input type="text" class="lien-url" value="'+escHtml(url)+'"/></div>';
+  container.appendChild(row);
+}
+
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function getFRData(){
+  var liens=[];
+  document.querySelectorAll('#liens-edit .lien-row').forEach(function(row){
+    var label=row.querySelector('.lien-label').value.trim();
+    var url=row.querySelector('.lien-url').value.trim();
+    if(url) liens.push({label:label,url:url});
+  });
+  var tEl = document.getElementById('fr-titre');
+  return {
+    titre: document.getElementById('fr-titre').value.trim(),
+    teaser: document.getElementById('fr-teaser').value.trim(),
+    texte: document.getElementById('fr-texte').value.trim(),
+    legende: document.getElementById('fr-legende').value.trim(),
+    liens: liens,
+    img: tEl.dataset.img || '',
+    badges: tEl.dataset.badges || 'À la Une',
+    date: tEl.dataset.date || '',
+    lieu: tEl.dataset.lieu || ''
+  };
+}
+
+// ── ÉTAPE 2 : Traduire DE + EN ────────────────────
+async function translateDEEN(){
+  var fr = getFRData();
+  if(!fr.titre){ showErr('err2','Le titre français est vide.'); return; }
+  setLoading('load2','btn2',true);
+  hideErr('err2');
+
+  var liensText = fr.liens.map(function(l,i){ return 'Lien '+(i+1)+' — Intitulé FR: '+l.label+'\nLien '+(i+1)+' — URL: '+l.url; }).join('\n');
+
+  var system = 'Tu es traducteur officiel de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem. Tu traduis des articles de presse en allemand et en anglais en conservant le registre solennel et élégant. IMPORTANT pour les intitulés de liens : traduis le texte descriptif, ne le remplace pas par un verbe générique.\n\nRéponds UNIQUEMENT avec ce format (balises ###CHAMP### et ###FIN###) :';
+
+  var userPrompt = 'Traduis cet article en ALLEMAND et en ANGLAIS.\n\nTITRE FR: '+fr.titre+'\nTEASER FR: '+fr.teaser+'\nTEXTE FR:\n'+fr.texte+'\nLEGENDE FR: '+fr.legende+'\n'+liensText+'\n\nFormat de réponse :\n\n###DE_TITRE###\n[titre en allemand]\n###FIN###\n###DE_TEASER###\n[teaser en allemand]\n###FIN###\n###DE_TEXTE###\n[texte en allemand]\n###FIN###\n###DE_LEGENDE###\n[légende en allemand, même format court]\n###FIN###'+
+    fr.liens.map(function(l,i){ return '\n###DE_LIEN'+(i+1)+'_LABEL###\n[intitulé du lien '+(i+1)+' TRADUIT en allemand]\n###FIN###'; }).join('')+
+    '\n\n###EN_TITRE###\n[title in English]\n###FIN###\n###EN_TEASER###\n[teaser in English]\n###FIN###\n###EN_TEXTE###\n[text in English]\n###FIN###\n###EN_LEGENDE###\n[caption in English, same short format]\n###FIN###'+
+    fr.liens.map(function(l,i){ return '\n###EN_LIEN'+(i+1)+'_LABEL###\n[descriptive label of link '+(i+1)+' TRANSLATED in English]\n###FIN###'; }).join('');
+
+  try {
+    var txt = await claudeCall(system, userPrompt, 3000);
+
+    function get(name){
+      var open='###'+name+'###', close='###FIN###';
+      var s=txt.indexOf(open); if(s===-1) return '';
+      s+=open.length;
+      var e=txt.indexOf(close,s); if(e===-1) return txt.substring(s).trim();
+      return txt.substring(s,e).trim();
+    }
+
+    articleDE = {
+      titre: get('DE_TITRE'),
+      teaser: get('DE_TEASER'),
+      texte: get('DE_TEXTE'),
+      legende: get('DE_LEGENDE'),
+      liens: fr.liens.map(function(l,i){ return {label: get('DE_LIEN'+(i+1)+'_LABEL') || l.label, url: l.url}; })
+    };
+    articleEN = {
+      titre: get('EN_TITRE'),
+      teaser: get('EN_TEASER'),
+      texte: get('EN_TEXTE'),
+      legende: get('EN_LEGENDE'),
+      liens: fr.liens.map(function(l,i){ return {label: get('EN_LIEN'+(i+1)+'_LABEL') || l.label, url: l.url}; })
+    };
+
+    renderLangPanel('de', articleDE);
+    renderLangPanel('en', articleEN);
+    goStep(3);
+  } catch(e){ showErr('err2','Erreur : '+e.message); }
+  setLoading('load2','btn2',false);
+}
+
+function renderLangPanel(lang, art){
+  var liensHTML = art.liens.map(function(l){
+    return '<div class="link-prev">'+l.label+' <a href="'+l.url+'" target="_blank">'+l.url+'</a></div>';
+  }).join('');
   document.getElementById('panel-'+lang).innerHTML =
-    '<div class="preview-card">' +
-    '<div class="pv-row"><div class="pv-label">Titre</div><div class="pv-val big">' + d.titre + '</div></div>' +
-    '<div class="pv-row"><div class="pv-label">Teaser</div><div class="pv-val">' + d.teaser + '</div></div>' +
-    '<div class="pv-row"><div class="pv-label">Texte</div><div class="pv-val" style="font-size:13px">' +
-      '<p style="margin:0 0 6px">' + teaser230 + '</p>' + moreHTML +
-    '</div></div>' +
-    '<div class="pv-row"><div class="pv-label">Légende image</div><div class="pv-val">' + d.legende + '</div></div>' +
+    '<div class="preview-card">'+
+    '<div class="pv-row"><div class="pv-label">Titre</div><div class="pv-val big">'+art.titre+'</div></div>'+
+    '<div class="pv-row"><div class="pv-label">Teaser</div><div class="pv-val">'+art.teaser+'</div></div>'+
+    '<div class="pv-row"><div class="pv-label">Texte</div><div class="pv-val" style="white-space:pre-line;font-size:12px">'+art.texte.substring(0,400)+(art.texte.length>400?'…':'')+'</div></div>'+
+    '<div class="pv-row"><div class="pv-label">Légende</div><div class="pv-val">'+art.legende+'</div></div>'+
+    (liensHTML ? '<div class="pv-row"><div class="pv-label">Liens</div>'+liensHTML+'</div>' : '')+
     '</div>';
 }
+
 function switchLang(lang, btn){
-  document.querySelectorAll('.lang-tab').forEach(function(t){ t.classList.remove('active'); });
-  document.querySelectorAll('.lang-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.lang-tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.lang-panel').forEach(function(p){p.classList.remove('active');});
   btn.classList.add('active');
   document.getElementById('panel-'+lang).classList.add('active');
 }
 
-// ── Publish ───────────────────────────────────────────────
-function publish(){
-  if(!articleData) return;
+// ── ÉTAPE 3 : Publier ─────────────────────────────
+async function publish(){
+  var fr = getFRData();
   var s = getSettings();
-  if(!s.githubToken){ showPubStatus('Token GitHub manquant — cliquez sur ⚙ Clés API.','err'); return; }
+  if(!s.githubToken){ showPub('Token GitHub manquant.','err'); return; }
 
-  document.getElementById('pubBtn').disabled = true;
-  showPubStatus('Publication en cours…','ok');
+  document.getElementById('btn3').disabled = true;
+  showPub('Publication en cours…','ok');
 
-  var d = articleData;
-  var imgFilename = d.img_filename || 'actu-une.jpg';
+  var ext = imgOrigName ? imgOrigName.split('.').pop().toLowerCase() : 'jpg';
+  var slug = fr.titre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').substring(0,40);
+  var imgFilename = fr.img || ('actu-'+slug+'.'+ext);
+  if(imgOrigName) imgFilename = imgFilename.replace(/\.[^.]+$/, '.'+ext);
+
+  var buildLiens = function(art){
+    return art.liens.map(function(l){ return {label: l.label, url: l.url}; });
+  };
 
   var json = {
     version: 1,
     actu_une: {
-      id: imgFilename.replace(/\.[^.]+$/,''),
-      date_affichee: d.date_affichee,
-      lieu: d.lieu,
-      badges: d.badges,
+      id: slug,
+      date_affichee: fr.date,
+      lieu: fr.lieu,
+      badges: fr.badges.split('|').map(function(b){return b.trim();}),
       img_filename: imgFilename,
-      legende: { fr: d.fr.legende, de: d.de.legende, en: d.en.legende },
-      titre:   { fr: d.fr.titre,   de: d.de.titre,   en: d.en.titre   },
-      teaser:  { fr: d.fr.teaser,  de: d.de.teaser,  en: d.en.teaser  },
-      texte:   { fr: d.fr.texte,   de: d.de.texte,   en: d.en.texte   },
-      liens:   d.liens
+      legende: { fr: fr.legende, de: articleDE.legende, en: articleEN.legende },
+      titre:   { fr: fr.titre,   de: articleDE.titre,   en: articleEN.titre   },
+      teaser:  { fr: fr.teaser,  de: articleDE.teaser,  en: articleEN.teaser  },
+      texte:   { fr: fr.texte,   de: articleDE.texte,   en: articleEN.texte   },
+      liens: fr.liens.map(function(l,i){
+        return {
+          label: {
+            fr: l.label,
+            de: (articleDE.liens[i]||{}).label || l.label,
+            en: (articleEN.liens[i]||{}).label || l.label
+          },
+          url: l.url
+        };
+      })
     }
   };
 
-  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(json, null, 2))));
-
-  var steps = [];
-  if(imgBase64){
-    steps.push(function(){ return githubPut(s, 'assets/'+imgFilename, imgBase64, 'Admin: image '+imgFilename); });
-  }
-  steps.push(function(){ return githubPut(s, 'actualites.json', jsonB64, 'Admin: actualité "'+d.fr.titre.substring(0,50)+'"'); });
-
-  steps.reduce(function(p, fn){ return p.then(fn); }, Promise.resolve())
-    .then(function(){
-      showPubStatus('✓ Publié avec succès ! L\'article sera visible sur le site dans quelques secondes.','ok');
-    })
-    .catch(function(e){
-      showPubStatus('Erreur : ' + e.message, 'err');
-    })
-    .finally(function(){
-      document.getElementById('pubBtn').disabled = false;
-    });
+  try {
+    if(imgBase64) await githubPut(s, 'assets/'+imgFilename, imgBase64, 'Admin: image '+imgFilename);
+    var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(json,null,2))));
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: actualité "'+fr.titre.substring(0,50)+'"');
+    showPub('✓ Publié avec succès ! L\'article est en ligne.','ok');
+  } catch(e){ showPub('Erreur : '+e.message,'err'); }
+  document.getElementById('btn3').disabled = false;
 }
 
-function githubPut(s, path, b64content, message){
-  var url = 'https://api.github.com/repos/' + s.repo + '/contents/' + path;
-  return fetch(url, { headers:{ 'Authorization':'Bearer '+s.githubToken, 'Accept':'application/vnd.github+json' } })
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(existing){
-      var body = { message: message, content: b64content };
-      if(existing && existing.sha) body.sha = existing.sha;
-      return fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Bearer '+s.githubToken,
-          'Accept': 'application/vnd.github+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      });
-    })
-    .then(function(r){
-      if(!r.ok) return r.json().then(function(e){ throw new Error(e.message||r.statusText); });
-    });
+async function githubPut(s, path, b64, message){
+  var url='https://api.github.com/repos/'+s.repo+'/contents/'+path;
+  var sha;
+  try{
+    var r=await fetch(url,{headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
+    if(r.ok){ var d=await r.json(); sha=d.sha; }
+  }catch(e){}
+  var body={message:message,content:b64};
+  if(sha) body.sha=sha;
+  var r=await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok){ var e=await r.json(); throw new Error(e.message||r.statusText); }
 }
 
-function showGenErr(msg){
-  var el = document.getElementById('genErr');
-  el.textContent = msg; el.style.display='block';
-  document.getElementById('genBtn').disabled = false;
-  document.getElementById('loader').style.display = 'none';
+function setLoading(lid,bid,on){
+  document.getElementById(lid).style.display=on?'flex':'none';
+  document.getElementById(bid).disabled=on;
 }
-function showPubStatus(msg, type){
-  var el = document.getElementById('pubStatus');
-  el.textContent = msg;
-  el.className = 'pub-status ' + (type==='ok'?'pub-ok':'pub-err');
-  el.style.display = 'block';
-}
+function showErr(id,msg){ var e=document.getElementById(id); e.textContent=msg; e.style.display='block'; }
+function hideErr(id){ document.getElementById(id).style.display='none'; }
+function showPub(msg,type){ var e=document.getElementById('pubStatus'); e.textContent=msg; e.className='pub-status pub-'+(type==='ok'?'ok':'err'); e.style.display='block'; }
 </script>
 </body>
 </html>
