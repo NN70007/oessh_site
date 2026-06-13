@@ -311,7 +311,7 @@ function showSetup(){
 }
 
 // ── Google Auth ─────────────────────────────────────────
-var ALLOWED_EMAILS = ['jb.niedercorn@gmail.com', 's.niedercorn@gmail.com'];
+var ALLOWED_EMAILS = ['jb.niedercorn@gmail.com', 's.niedercorn@gmail.com', 'norbert.stors@gmail.com', 'secretariat@oessh.lu', 'lieutenant@oessh.lu'];
 
 function onGoogleLogin(response){
   var payload = JSON.parse(atob(response.credential.split('.')[1]));
@@ -419,19 +419,33 @@ function generate(){
     if(data.error) throw new Error(data.error.message);
     var raw = (data.content||[]).find(function(b){ return b.type==='text'; });
     if(!raw) throw new Error('Réponse vide');
-    // Parse XML response
+    // Parse XML response — robust multi-line tag extraction
     var xml = raw.text;
     function getTag(tag) {
-      var re = new RegExp('<' + tag + '>([\\s\\S]*?)<\/' + tag + '>');
-      var m = xml.match(re);
-      return m ? m[1].trim() : '';
+      var open = '<' + tag + '>';
+      var close = '</' + tag + '>';
+      var start = xml.indexOf(open);
+      if(start === -1) return '';
+      start += open.length;
+      var end = xml.indexOf(close, start);
+      if(end === -1) return '';
+      return xml.substring(start, end).trim();
     }
     var badges = getTag('badges').split('|').map(function(b){ return b.trim(); }).filter(Boolean);
-    var lien1url = getTag('lien1_url');
-    var lien2url = getTag('lien2_url');
     var liens = [];
-    if(lien1url) liens.push({ label:{ fr: getTag('lien1_fr')+' →', de: getTag('lien1_de')+' →', en: getTag('lien1_en')+' →' }, url: lien1url });
-    if(lien2url) liens.push({ label:{ fr: getTag('lien2_fr')+' →', de: getTag('lien2_de')+' →', en: getTag('lien2_en')+' →' }, url: lien2url });
+    for(var li = 1; li <= 3; li++) {
+      var lurl = getTag('lien'+li+'_url');
+      if(lurl) {
+        liens.push({
+          label: {
+            fr: (getTag('lien'+li+'_fr') || 'Voir') + ' →',
+            de: (getTag('lien'+li+'_de') || 'Ansehen') + ' →',
+            en: (getTag('lien'+li+'_en') || 'View') + ' →'
+          },
+          url: lurl
+        });
+      }
+    }
     articleData = {
       date_affichee: getTag('date_affichee'),
       lieu: getTag('lieu'),
@@ -464,11 +478,29 @@ function renderPreview(){
   }).join('') || '<div class="link-prev" style="color:var(--ink-mute)">Aucun lien suggéré</div>';
 }
 function renderPanel(lang, d){
+  var texte = d.texte || '';
+  var paras = texte.split(/\n\n+/).filter(Boolean);
+  var firstPara = paras[0] || '';
+  var teaser230 = firstPara.length > 230 ? firstPara.substring(0, 230) + '…' : firstPara;
+  var restParas = paras.slice(1);
+  var readMoreId = 'readmore-' + lang;
+
+  var moreHTML = '';
+  if(restParas.length > 0 || firstPara.length > 230) {
+    var fullText = paras.map(function(p){ return '<p style="margin:0 0 10px">' + p + '</p>'; }).join('');
+    moreHTML =
+      '<div id="' + readMoreId + '" style="display:none;margin-top:6px">' + fullText + '</div>' +
+      '<button onclick="var el=document.getElementById(\'' + readMoreId + '\');var open=el.style.display===\'block\';el.style.display=open?\'none\':\'block\';this.textContent=open?\'… Lire la suite\':\'Réduire ↑\';" ' +
+      'style="background:none;border:none;padding:0;font-size:12px;color:var(--ink-mute);cursor:pointer;margin-top:4px;text-transform:uppercase;letter-spacing:.08em;font-weight:500">… Lire la suite</button>';
+  }
+
   document.getElementById('panel-'+lang).innerHTML =
     '<div class="preview-card">' +
     '<div class="pv-row"><div class="pv-label">Titre</div><div class="pv-val big">' + d.titre + '</div></div>' +
     '<div class="pv-row"><div class="pv-label">Teaser</div><div class="pv-val">' + d.teaser + '</div></div>' +
-    '<div class="pv-row"><div class="pv-label">Texte complet</div><div class="pv-val" style="white-space:pre-line;font-size:13px">' + d.texte + '</div></div>' +
+    '<div class="pv-row"><div class="pv-label">Texte</div><div class="pv-val" style="font-size:13px">' +
+      '<p style="margin:0 0 6px">' + teaser230 + '</p>' + moreHTML +
+    '</div></div>' +
     '<div class="pv-row"><div class="pv-label">Légende image</div><div class="pv-val">' + d.legende + '</div></div>' +
     '</div>';
 }
