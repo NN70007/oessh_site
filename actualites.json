@@ -1,47 +1,47 @@
 {
   "version": 1,
   "actu_une": {
-    "id": "le-president-macron-remet-la-legion-d-ho",
-    "date_affichee": "juillet 2025",
-    "lieu": "Paris",
+    "id": "emmanuel-macron-remet-la-legion-d-honneu",
+    "date_affichee": "16 juin 2025",
+    "lieu": "Jérusalem",
     "badges": [
       "À la Une",
       "Terre Sainte"
     ],
-    "img_filename": "macron-pizzaballa-legion-honneur-jerusalem.jpg",
+    "img_filename": "cardinal-pizzaballa-legion-honneur-macron.jpg",
     "legende": {
-      "fr": "Paris · 2025 · © Élysée / E. Macron — Facebook",
-      "de": "Paris · 2025 · © Élysée / E. Macron — Facebook",
-      "en": "Paris · 2025 · © Élysée / E. Macron — Facebook"
+      "fr": "Jérusalem · juin 2026 · © Élysée / Facebook E. Macron",
+      "de": "Jerusalem · Juni 2026 · © Élysée / Facebook E. Macron",
+      "en": "Jerusalem · June 2026 · © Élysée / Facebook E. Macron"
     },
     "titre": {
-      "fr": "Le Président Macron remet la Légion d'honneur au Patriarche latin de Jérusalem",
-      "de": "Präsident Macron verleiht dem Lateinischen Patriarchen von Jerusalem die Ehrenlegion",
-      "en": "President Macron Awards the Legion of Honour to the Latin Patriarch of Jerusalem"
+      "fr": "Emmanuel Macron remet la Légion d'honneur au Patriarche latin de Jérusalem",
+      "de": "Emmanuel Macron verleiht dem Lateinischen Patriarchen von Jerusalem die Ehrenlegion",
+      "en": "Emmanuel Macron Presents the Legion of Honour to the Latin Patriarch of Jerusalem"
     },
     "teaser": {
-      "fr": "La France honore le Cardinal Pizzaballa pour son engagement courageux auprès des chrétiens de Terre Sainte et en faveur du dialogue interreligieux.",
-      "de": "Frankreich ehrt Kardinal Pizzaballa für sein mutiges Engagement zugunsten der Christen im Heiligen Land und für den interreligiösen Dialog.",
-      "en": "France honours Cardinal Pizzaballa for his courageous commitment to the Christians of the Holy Land and to interreligious dialogue."
+      "fr": "Emmanuel Macron a remis les insignes de la Légion d'honneur au Cardinal Pizzaballa, en hommage à son engagement pour les chrétiens de Terre Sainte.",
+      "de": "Emmanuel Macron hat Kardinal Pizzaballa die Insignien der Ehrenlegion überreicht – als Würdigung seines Einsatzes für die Christen im Heiligen Land.",
+      "en": "Emmanuel Macron has presented Cardinal Pizzaballa with the insignia of the Legion of Honour, in tribute to his commitment to the Christians of the Holy Land."
     },
     "texte": {
-      "fr": "C'est un geste d'une haute portée symbolique que le Président de la République française, Emmanuel Macron, a accompli en remettant en personne les insignes de la Légion d'honneur à Son Éminence le Cardinal Pierbattista Pizzaballa, Patriarche latin de Jérusalem. Par cette distinction, la France exprime sa reconnaissance envers celui qui, au cœur des tourments de la guerre, demeure un apôtre infatigable du dialogue interreligieux, de la justice et de la paix.\n\nLe Cardinal Pizzaballa, que les Chevaliers et Dames de l'Ordre Équestre du Saint-Sépulcre de Jérusalem connaissent bien comme l'un des plus éminents défenseurs des chrétiens de Terre Sainte, reçoit ainsi l'hommage d'une nation attachée de longue date à la protection des populations chrétiennes du Proche et du Moyen-Orient. Le Président Macron a également réaffirmé l'engagement indéfectible de la République française au respect du statu quo sur les Lieux Saints de Jérusalem, pierre angulaire d'une coexistence pacifique entre les traditions religieuses.\n\nLa Lieutenance pour le Luxembourg s'associe pleinement à cet hommage rendu à celui qui, par son courage et son humanité, incarne l'espérance pour toutes les populations civiles éprouvées par le conflit. Que cette distinction rappelle à chacun de nos membres la vocation première de notre Ordre : soutenir, par la prière et par l'action, nos frères chrétiens de Terre Sainte, et œuvrer sans relâche pour que tolérance et diversité religieuse ouvrent la voie à une paix durable en cette région du monde.",
-      "de": "Mit einer Geste von hoher symbolischer Bedeutung hat der Präsident der Französischen Republik, Emmanuel Macron, Seiner Eminenz Kardinal Pierbattista Pizzaballa, dem Lateinischen Patriarchen von Jerusalem, persönlich die Insignien der Ehrenlegion überreicht. Mit dieser Auszeichnung bringt Frankreich seine Anerkennung gegenüber jenem zum Ausdruck, der inmitten der Wirren des Krieges ein unermüdlicher Apostel des interreligiösen Dialogs, der Gerechtigkeit und des Friedens bleibt.\n\nKardinal Pizzaballa, der den Rittern und Damen des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem als einer der bedeutendsten Verteidiger der Christen im Heiligen Land wohlbekannt ist, empfängt damit die Huldigung einer Nation, die seit jeher der Schutzaufgabe gegenüber den christlichen Bevölkerungen im Nahen und Mittleren Osten verbunden ist. Präsident Macron bekräftigte zugleich das unerschütterliche Engagement der Französischen Republik für die Wahrung des Status quo an den Heiligen Stätten Jerusalems — den Eckpfeiler einer friedlichen Koexistenz zwischen den religiösen Traditionen.\n\nDie Statthalterei für Luxemburg schließt sich diesem Hommage an denjenigen vollumfänglich an, der durch seinen Mut und seine Menschlichkeit die Hoffnung für alle vom Konflikt heimgesuchten Zivilbevölkerungen verkörpert. Möge diese Auszeichnung jeden unserer Mitglieder an die ursprüngliche Berufung unseres Ordens erinnern: unsere christlichen Brüder und Schwestern im Heiligen Land durch Gebet und Tat zu unterstützen und unablässig dafür zu wirken, dass Toleranz und religiöse Vielfalt den Weg zu einem dauerhaften Frieden in dieser Region der Welt ebnen.",
-      "en": "In a gesture of profound symbolic significance, the President of the French Republic, Emmanuel Macron, personally presented the insignia of the Legion of Honour to His Eminence Cardinal Pierbattista Pizzaballa, Latin Patriarch of Jerusalem. Through this distinction, France expresses its gratitude towards one who, in the midst of the turmoil of war, remains a tireless apostle of interreligious dialogue, justice and peace.\n\nCardinal Pizzaballa, whom the Knights and Ladies of the Equestrian Order of the Holy Sepulchre of Jerusalem know well as one of the most eminent defenders of the Christians of the Holy Land, thus receives the tribute of a nation long committed to the protection of Christian populations in the Near and Middle East. President Macron also reaffirmed the unwavering commitment of the French Republic to upholding the status quo over the Holy Sites of Jerusalem — the cornerstone of peaceful coexistence among religious traditions.\n\nThe Lieutenancy for Luxembourg wholeheartedly joins in this homage to one who, through his courage and humanity, embodies hope for all civilian populations afflicted by the conflict. May this distinction remind each of our members of the foremost vocation of our Order: to support, through prayer and action, our Christian brothers and sisters in the Holy Land, and to strive unceasingly so that tolerance and religious diversity may open the way to a lasting peace in this region of the world."
+      "fr": "C'est un geste d'une haute portée symbolique que le Président de la République française, Emmanuel Macron, a accompli en remettant les insignes de la Légion d'honneur à Son Éminence le Cardinal Pierbattista Pizzaballa, Patriarche latin de Jérusalem. Par cette distinction, la France honore un prélat dont le courage et l'humanité rayonnent bien au-delà des frontières de la Terre Sainte, en des temps où les populations civiles, et parmi elles les chrétiens de Terre Sainte, sont éprouvées par les tourments de la guerre.\n\nLe Président Macron a tenu à saluer en le Cardinal Pizzaballa un apôtre infatigable du dialogue interreligieux, de la justice et de la paix. À cette occasion, il a réaffirmé l'attachement indéfectible de la France au respect du statu quo sur les Lieux Saints de Jérusalem, soulignant que seules la tolérance et la diversité religieuse peuvent ouvrir la voie à une paix durable dans cette région du monde si douloureusement éprouvée.\n\nLa Lieutenance pour le Luxembourg se réjouit de cet hommage rendu au Patriarche latin de Jérusalem, qui est également le Protecteur de l'Ordre Équestre du Saint-Sépulcre de Jérusalem. Les Chevaliers et Dames de notre Lieutenance s'unissent à la reconnaissance exprimée par la République française envers celui qui, sous l'autorité du Cardinal Grand Maître, guide et soutient sans relâche les chrétiens de Terre Sainte dans l'adversité.",
+      "de": "Es war eine Geste von hoher symbolischer Bedeutung, die der Präsident der Französischen Republik, Emmanuel Macron, vollzog, als er Seiner Eminenz Kardinal Pierbattista Pizzaballa, dem Lateinischen Patriarchen von Jerusalem, die Insignien der Ehrenlegion überreichte. Mit dieser Auszeichnung ehrt Frankreich einen Prälaten, dessen Mut und Menschlichkeit weit über die Grenzen des Heiligen Landes hinausstrahlen – in Zeiten, da die Zivilbevölkerung, und unter ihr die Christen im Heiligen Land, durch die Wirren des Krieges auf eine harte Probe gestellt wird.\n\nPräsident Macron würdigte in Kardinal Pizzaballa einen unermüdlichen Apostel des interreligiösen Dialogs, der Gerechtigkeit und des Friedens. Bei dieser Gelegenheit bekräftigte er erneut das unerschütterliche Bekenntnis Frankreichs zur Wahrung des Status quo an den Heiligen Stätten Jerusalems und unterstrich, dass allein Toleranz und religiöse Vielfalt den Weg zu einem dauerhaften Frieden in dieser so schwer geprüften Region der Welt ebnen können.\n\nDie Leutnantschaft für Luxemburg freut sich über diese Huldigung, die dem Lateinischen Patriarchen von Jerusalem zuteilgeworden ist – der zugleich der Protektor des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem ist. Die Ritter und Damen unserer Leutnantschaft schließen sich der Anerkennung an, die die Französische Republik jenem entgegenbringt, der unter der Autorität des Kardinal-Großmeisters die Christen im Heiligen Land in der Widerwärtigkeit unablässig führt und stützt.",
+      "en": "It was a gesture of the deepest symbolic significance that the President of the French Republic, Emmanuel Macron, performed in presenting the insignia of the Legion of Honour to His Eminence Cardinal Pierbattista Pizzaballa, Latin Patriarch of Jerusalem. Through this distinction, France honours a prelate whose courage and humanity shine far beyond the borders of the Holy Land, at a time when civilian populations — and among them the Christians of the Holy Land — are sorely tried by the torments of war.\n\nPresident Macron wished to acknowledge in Cardinal Pizzaballa a tireless apostle of interreligious dialogue, justice, and peace. On this occasion, he reaffirmed France's unwavering commitment to the respect of the status quo at the Holy Sites of Jerusalem, emphasising that only tolerance and religious diversity can open the way to a lasting peace in this region of the world so painfully afflicted.\n\nThe Lieutenancy for Luxembourg rejoices at this tribute paid to the Latin Patriarch of Jerusalem, who is likewise the Protector of the Equestrian Order of the Holy Sepulchre of Jerusalem. The Knights and Dames of our Lieutenancy unite in the recognition expressed by the French Republic towards him who, under the authority of the Cardinal Grand Master, guides and supports the Christians of the Holy Land without respite in the face of adversity."
     },
     "liens": [
       {
         "label": {
-          "fr": "Publication originale d'Emmanuel Macron sur Facebook",
-          "de": "Ursprüngliche Veröffentlichung von Emmanuel Macron auf Facebook",
-          "en": "Original post by Emmanuel Macron on Facebook"
+          "fr": "Publication originale d'Emmanuel Macron — page Facebook officielle",
+          "de": "Ursprüngliche Veröffentlichung von Emmanuel Macron – offizielle Facebook-Seite",
+          "en": "Original publication by Emmanuel Macron — official Facebook page"
         },
-        "url": "https://www.facebook.com/EmmanuelMacron"
+        "url": "https://www.facebook.com/emmanuelmacron"
       },
       {
         "label": {
           "fr": "Latin Patriarchate of Jerusalem — site officiel",
-          "de": "Lateinisches Patriarchat von Jerusalem — offizielle Website",
+          "de": "Lateinisches Patriarchat von Jerusalem – offizielle Website",
           "en": "Latin Patriarchate of Jerusalem — official website"
         },
         "url": "https://www.lpj.org"
