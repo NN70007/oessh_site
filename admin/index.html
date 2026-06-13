@@ -713,7 +713,7 @@ async function publishArticle(id){
   articlesData._sha = sha;
 
   try {
-    await githubPut(s, 'actualites.json', jsonB64, 'Admin: publication de l'article '+id);
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: publication article '+id);
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
