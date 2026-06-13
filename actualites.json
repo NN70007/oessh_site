@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "actu_une": {
+    "id": "pizzaballa-legion-honneur-2026",
+    "date_affichee": "juin 2026",
+    "lieu": "Paris",
+    "badges": ["À la Une", "Terre Sainte", "Diplomatie"],
+    "img_filename": "actu-pizzaballa-legion-honneur-2026.jpg",
+    "img_alt": {
+      "fr": "Le Président Emmanuel Macron remet les insignes de la Légion d'honneur au Cardinal Pierbattista Pizzaballa, Patriarche latin de Jérusalem — Paris, juin 2026",
+      "de": "Präsident Emmanuel Macron überreicht Kardinal Pierbattista Pizzaballa die Insignien der Ehrenlegion — Paris, Juni 2026",
+      "en": "President Emmanuel Macron presents the Legion of Honour to Cardinal Pierbattista Pizzaballa, Latin Patriarch of Jerusalem — Paris, June 2026"
+    },
+    "legende": {
+      "fr": "Paris · juin 2026 · © Élysée",
+      "de": "Paris · Juni 2026 · © Élysée",
+      "en": "Paris · June 2026 · © Élysée"
+    },
+    "titre": {
+      "fr": "La France honore le Cardinal Pizzaballa : la Légion d'honneur au Patriarche latin de Jérusalem",
+      "de": "Frankreich ehrt Kardinal Pizzaballa: Ehrenlegion für den Lateinischen Patriarchen von Jerusalem",
+      "en": "France honours Cardinal Pizzaballa: the Legion of Honour awarded to the Latin Patriarch of Jerusalem"
+    },
+    "teaser": {
+      "fr": "Le Président Emmanuel Macron a remis les insignes de la Légion d'honneur au Cardinal Pierbattista Pizzaballa, saluant son courage et son engagement inlassable au service des chrétiens de Terre Sainte.",
+      "de": "Präsident Emmanuel Macron hat Kardinal Pierbattista Pizzaballa die Insignien der Ehrenlegion überreicht und damit seinen Mut und unermüdlichen Einsatz für die Christen im Heiligen Land gewürdigt.",
+      "en": "President Emmanuel Macron has presented the Legion of Honour to Cardinal Pierbattista Pizzaballa, honouring his courage and tireless dedication to the Christians of the Holy Land."
+    },
+    "texte": {
+      "fr": "En un geste solennel et fraternel, le Président de la République française Emmanuel Macron a remis les insignes de chevalier de la Légion d'honneur au Cardinal Pierbattista Pizzaballa, Patriarche latin de Jérusalem, exprimant ainsi la reconnaissance de la France pour son action courageuse et inlassable au service de la paix, du dialogue interreligieux et des communautés chrétiennes de Terre Sainte.\n\nDans son allocution, le Président Macron a rendu hommage à cet « apôtre infatigable du dialogue interreligieux, de la justice et de la paix », dont le témoignage rayonne bien au-delà des frontières de l'Église. Alors que les populations civiles de Terre Sainte, et parmi elles les chrétiens, sont éprouvées par les tourments de la guerre, cette distinction vient souligner le rôle irremplaçable du Patriarche comme voix de l'espérance et artisan de réconciliation.\n\nÀ cette occasion, le Président Macron a réaffirmé l'attachement indéfectible de la France au respect du statu quo sur les lieux saints de Jérusalem, pierre angulaire d'une coexistence fragile mais essentielle entre les communautés religieuses. La France, fidèle à ses responsabilités historiques, réaffirme ainsi son engagement auprès des chrétiens d'Orient et de tous les peuples du Proche et Moyen-Orient.",
+      "de": "In einem feierlichen und brüderlichen Akt hat der französische Staatspräsident Emmanuel Macron Kardinal Pierbattista Pizzaballa, dem Lateinischen Patriarchen von Jerusalem, die Insignien des Ritters der Ehrenlegion überreicht und damit die Anerkennung Frankreichs für dessen mutigen und unermüdlichen Einsatz für Frieden, interreligiösen Dialog und die christlichen Gemeinschaften im Heiligen Land zum Ausdruck gebracht.\n\nIn seiner Ansprache würdigte Präsident Macron den Patriarchen als einen „unermüdlichen Apostel des interreligiösen Dialogs, der Gerechtigkeit und des Friedens\", dessen Zeugnis weit über die Grenzen der Kirche hinaus ausstrahlt. In einer Zeit, in der die Zivilbevölkerung des Heiligen Landes vom Leid des Krieges geplagt wird, unterstreicht diese Auszeichnung die unersetzliche Rolle des Patriarchen als Stimme der Hoffnung.\n\nBei diesem Anlass bekräftigte Präsident Macron das unerschütterliche Bekenntnis Frankreichs zur Achtung des Status quo an den heiligen Stätten Jerusalems. Frankreich bekräftigt damit sein Engagement für die Christen des Orients und alle Völker des Nahen und Mittleren Ostens.",
+      "en": "In a solemn and fraternal gesture, French President Emmanuel Macron presented Cardinal Pierbattista Pizzaballa, Latin Patriarch of Jerusalem, with the insignia of Knight of the Legion of Honour, expressing France's recognition of his courageous and tireless service to peace, interreligious dialogue, and the Christian communities of the Holy Land.\n\nIn his address, President Macron paid tribute to the Patriarch as a \"tireless apostle of interreligious dialogue, justice and peace\", whose witness radiates far beyond the boundaries of the Church. As the civilian population of the Holy Land endures the turmoil of war, this distinction underscores the irreplaceable role of the Patriarch as a voice of hope and an artisan of reconciliation.\n\nOn this occasion, President Macron reaffirmed France's unwavering commitment to the respect of the status quo over the holy sites of Jerusalem. France, faithful to its historic responsibilities, reaffirms its support for the Christians of the East and all the peoples of the Near and Middle East."
+    },
+    "liens": [
+      { "label": { "fr": "Publication d'Emmanuel Macron →", "de": "Beitrag von Emmanuel Macron →", "en": "Emmanuel Macron's post →" }, "url": "https://www.facebook.com/EmmanuelMacron" },
+      { "label": { "fr": "Patriarcat latin de Jérusalem →", "de": "Lateinisches Patriarchat Jerusalem →", "en": "Latin Patriarchate of Jerusalem →" }, "url": "https://www.lpj.org" }
+    ]
+  }
+}

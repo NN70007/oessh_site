@@ -275,11 +275,6 @@
     </div>
 
     <div class="news-grid">
-
-      <!-- ACTU UNE DYNAMIQUE : injectée depuis actualites.json -->
-      <div id="actu-une-slot"></div>
-      <!-- FIN ACTU UNE DYNAMIQUE -->
-
       <article class="news-card feature">
         <div class="thumb has-image">
           <img src="assets/actu-belgique-investitures.jpg" alt="Investitures de la Lieutenance de Belgique en l'église Notre-Dame des Victoires au Sablon, Bruxelles — 6 juin 2026" loading="lazy" decoding="async"/>
@@ -827,7 +822,7 @@
           <div class="order-info" hidden>
             <p class="summary" style="font-size:14px">
               <strong>Pour commander :</strong> écrire au secrétariat
-              (<a href="#" class="js-mail" data-u="Office" data-d="holysepulchre.be" onclick="(function(a){var u=a.dataset.u,d=a.dataset.d;window.location.href='mailto:'+u+'@'+d;})(this);return false;" style="color:var(--cardinal);text-decoration:underline;text-underline-offset:3px"><span class="js-mail-text"><span class="__cf_email__" data-cfemail="662900000f0503260e090a1f150316130a050e1403480403">[email&#160;protected]</span></span></a>).
+              (<a href="#" class="js-mail" data-u="Office" data-d="holysepulchre.be" onclick="(function(a){var u=a.dataset.u,d=a.dataset.d;window.location.href='mailto:'+u+'@'+d;})(this);return false;" style="color:var(--cardinal);text-decoration:underline;text-underline-offset:3px"><span class="js-mail-text">Office@holysepulchre.be</span></a>).
               Paiement sur le compte de l'ASBL « Association des membres belges de
               l'OESSJ » :
             </p>
@@ -1089,7 +1084,7 @@
   </div>
 </section>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 (function(){
   var d = new Date();
   var jours = ['DIMANCHE','LUNDI','MARDI','MERCREDI','JEUDI','VENDREDI','SAMEDI'];
@@ -1222,45 +1217,6 @@ function toggleMore(btn){
   var open = card.classList.toggle('is-open');
   btn.textContent = open ? btn.dataset.less : btn.dataset.more;
 }
-// Actu à la une dynamique — chargée depuis actualites.json
-(function(){
-  var lang = document.documentElement.lang || 'fr';
-  var slot = document.getElementById('actu-une-slot');
-  if (!slot) return;
-  fetch('actualites.json?v=' + Date.now())
-    .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
-    .then(function(data){
-      var a = data && data.actu_une;
-      if (!a) { slot.remove(); return; }
-      var pick = function(o){ return (o && (o[lang] || o.fr)) || ''; };
-      var liensHTML = (a.liens || []).map(function(lien){
-        return '<a class="read" href="' + lien.url + '" target="_blank" rel="noopener">' + pick(lien.label) + ' <span>→</span></a>';
-      }).join('');
-      var badgesHTML = (pick(a.badges) || a.badges || []);
-      badgesHTML = (Array.isArray(badgesHTML) ? badgesHTML : []).map(function(b, i){
-        return i === 0 ? '<span class="tag">' + b + '</span>' : '<span>' + b + '</span>';
-      }).join('');
-      var texteParas = pick(a.texte).split('\n\n').filter(Boolean)
-        .map(function(p){ return '<p>' + p + '</p>'; }).join('');
-      var moreL = lang === 'de' ? '… Weiterlesen' : lang === 'en' ? '… Read more' : '… Lire la suite';
-      var lessL = lang === 'de' ? 'Reduzieren ↑'  : lang === 'en' ? 'Collapse ↑'  : 'Réduire ↑';
-      var html =
-        '<article class="news-card feature">' +
-          '<div class="thumb has-image">' +
-            '<img src="assets/' + a.img_filename + '" alt="' + pick(a.img_alt) + '" loading="lazy" decoding="async"/>' +
-            (pick(a.legende) ? '<span class="thumb-label">' + pick(a.legende) + '</span>' : '') +
-          '</div>' +
-          '<div class="meta-line">' + badgesHTML + '</div>' +
-          '<h3>' + pick(a.titre) + '</h3>' +
-          '<p class="teaser">' + pick(a.teaser) + '</p>' +
-          (texteParas ? '<div class="more-text">' + texteParas + '</div>' +
-            '<button class="read-more" type="button" data-more="' + moreL + '" data-less="' + lessL + '" onclick="toggleMore(this)">' + moreL + '</button>' : '') +
-          (liensHTML ? '<div class="read-row">' + liensHTML + '</div>' : '') +
-        '</article>';
-      slot.innerHTML = html;
-    })
-    .catch(function(){ slot.remove(); });
-})();
 function toggleMobileMenu(){
   var m = document.getElementById('mobile-menu');
   var b = document.querySelector('.menu-btn');
@@ -1303,7 +1259,7 @@ document.querySelectorAll('.js-mail-full').forEach(function(el){
       Depuis votre messagerie :
     </p>
     <p style="margin:0 0 28px">
-      <a href="#" class="js-mail" data-u="secretariat.asbl" data-d="oessh.lu" onclick="(function(a){var u=a.dataset.u,d=a.dataset.d;window.location.href='mailto:'+u+'@'+d;})(this);return false;" style="font-family:var(--sans);font-size:16px;color:var(--cardinal);text-decoration:underline;text-underline-offset:3px"><span class="js-mail-text"><span class="__cf_email__" data-cfemail="1c6f797f6e79687d6e757d68327d6f7e705c73796f6f74327069">[email&#160;protected]</span></span></a>
+      <a href="#" class="js-mail" data-u="secretariat.asbl" data-d="oessh.lu" onclick="(function(a){var u=a.dataset.u,d=a.dataset.d;window.location.href='mailto:'+u+'@'+d;})(this);return false;" style="font-family:var(--sans);font-size:16px;color:var(--cardinal);text-decoration:underline;text-underline-offset:3px"><span class="js-mail-text">secretariat.asbl@oessh.lu</span></a>
     </p>
     <hr style="border:none;border-top:1px solid var(--line-soft);margin:0 0 24px"/>
     <p style="font-size:14px;color:var(--ink-soft);margin:0 0 14px">
@@ -1328,7 +1284,7 @@ document.querySelectorAll('.js-mail-full').forEach(function(el){
     </form>
   </div>
 </div>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 function openContactModal(){
   var m = document.getElementById('contact-modal');
   m.classList.add('is-open');
