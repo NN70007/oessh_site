@@ -2,46 +2,6 @@
   "version": 2,
   "articles": [
     {
-      "id": "investiture-a-notre-dame-de-paris-un-nou",
-      "date_affichee": "28 septembre 2025",
-      "lieu": "Paris",
-      "badges": [
-        "À la Une",
-        "Investitures"
-      ],
-      "img_filename": "investiture-notre-dame-paris-septembre-2025.jpg",
-      "legende": {
-        "fr": "Paris · 26-28 sept. 2025 © JBN",
-        "de": "Paris · 26.–28. Sept. 2025 © JBN",
-        "en": "Paris · 26–28 Sept. 2025 © JBN"
-      },
-      "titre": {
-        "fr": "Investiture à Notre-Dame de Paris : un nouveau Chevalier luxembourgeois reçoit l'insigne de l'Ordre",
-        "de": "Investitur in Notre-Dame de Paris: Ein neuer luxemburgischer Ritter empfängt die Insignien des Ordens",
-        "en": "Investiture at Notre-Dame de Paris: A New Luxembourgish Knight Receives the Insignia of the Order"
-      },
-      "teaser": {
-        "fr": "Carlo Mulbach a été investi Chevalier par le Cardinal Grand Maître Fernando Filoni à Notre-Dame de Paris, en présence d'une délégation luxembourgeoise de quinze membres.",
-        "de": "Carlo Mulbach wurde vom Kardinal-Großmeister Fernando Filoni in Notre-Dame de Paris zum Ritter investiert, in Anwesenheit einer luxemburgischen Delegation von fünfzehn Mitgliedern.",
-        "en": "Carlo Mulbach was invested as a Knight by Cardinal Grand Master Fernando Filoni at Notre-Dame de Paris, in the presence of a Luxembourgish delegation of fifteen members."
-      },
-      "texte": {
-        "fr": "C'est dans le cadre solennel et émouvant de la cathédrale Notre-Dame de Paris, magnifiquement restaurée après l'incendie de 2019, que s'est déroulée, du 26 au 28 septembre 2025, la cérémonie d'investiture organisée par la Lieutenance de France de l'Ordre Équestre du Saint-Sépulcre de Jérusalem. En ce lieu chargé de siècles de foi et d'histoire, Son Éminence le Cardinal Grand Maître Fernando Filoni a présidé les rites d'investiture avec la gravité et la ferveur qui conviennent à un tel moment de grâce.\n\nParmi les nouveaux membres accueillis en ce jour béni au sein de l'Ordre, la Lieutenance pour le Luxembourg a l'honneur d'annoncer l'investiture de Monsieur Carlo Mulbach. Revêtu désormais de la croix du Saint-Sépulcre, notre nouveau Chevalier a prononcé ses engagements devant Dieu et devant ses frères et sœurs de l'Ordre, s'unissant ainsi à la grande famille spirituelle qui œuvre sans relâche au soutien des chrétiens de Terre Sainte.\n\nLa Lieutenance pour le Luxembourg était représentée par une délégation de quinze Chevaliers et Dames, témoignant de la vitalité et de la ferveur de notre communauté. Que ce pèlerinage commun à Notre-Dame de Paris fortifie la foi de chacun et renouvelle notre engagement collectif envers les communautés chrétiennes de Terre Sainte, auxquelles notre Ordre consacre son service et sa prière.",
-        "de": "Im feierlichen und bewegenden Rahmen der Kathedrale Notre-Dame de Paris, die nach dem Brand von 2019 in neuem Glanz erstrahlt, fand vom 26. bis 28. September 2025 die Investiturzeremonie der Leutnantschaft Frankreich des Ritterordens vom Heiligen Grab zu Jerusalem statt. An diesem von Jahrhunderten des Glaubens und der Geschichte durchdrungenen Ort leitete Seine Eminenz Kardinal-Großmeister Fernando Filoni die Investiturrituale mit jener Würde und Inbrunst, die einem solchen Moment der Gnade gebühren.\n\nUnter den neuen Mitgliedern, die an diesem gesegneten Tag in den Orden aufgenommen wurden, hat die Leutnantschaft für Luxemburg die Ehre, die Investitur von Herrn Carlo Mulbach bekanntzugeben. Nunmehr mit dem Kreuz des Heiligen Grabes geschmückt, hat unser neuer Ritter seine Gelöbnisse vor Gott und vor seinen Brüdern und Schwestern im Orden abgelegt und sich damit der großen geistlichen Familie angeschlossen, die unablässig für die Unterstützung der Christen im Heiligen Land wirkt.\n\nDie Leutnantschaft für Luxemburg war durch eine Delegation von fünfzehn Rittern und Damen vertreten, was die Lebendigkeit und Glaubensfervor unserer Gemeinschaft eindrucksvoll bezeugt. Möge diese gemeinsame Pilgerschaft nach Notre-Dame de Paris den Glauben eines jeden stärken und unser gemeinsames Engagement für die christlichen Gemeinschaften im Heiligen Land erneuern, denen unser Orden seinen Dienst und sein Gebet widmet.",
-        "en": "Within the solemn and deeply moving setting of the Cathedral of Notre-Dame de Paris, magnificently restored following the fire of 2019, the investiture ceremony organised by the Lieutenancy of France of the Equestrian Order of the Holy Sepulchre of Jerusalem took place from 26 to 28 September 2025. In this place steeped in centuries of faith and history, His Eminence Cardinal Grand Master Fernando Filoni presided over the rites of investiture with the gravity and fervour befitting such a moment of grace.\n\nAmong the new members welcomed into the Order on this blessed day, the Lieutenancy for Luxembourg has the honour of announcing the investiture of Mr Carlo Mulbach. Now adorned with the Cross of the Holy Sepulchre, our new Knight pronounced his commitments before God and before his brothers and sisters of the Order, thereby joining the great spiritual family that labours ceaselessly in support of the Christians of the Holy Land.\n\nThe Lieutenancy for Luxembourg was represented by a delegation of fifteen Knights and Ladies, bearing witness to the vitality and fervour of our community. May this shared pilgrimage to Notre-Dame de Paris strengthen the faith of each member and renew our collective commitment to the Christian communities of the Holy Land, to whom our Order dedicates its service and its prayer."
-      },
-      "liens": [
-        {
-          "label": {
-            "fr": "Reportage complet de la cérémonie d'investiture à Notre-Dame de Paris — document officiel",
-            "de": "Vollständiger Bericht über die Investiturzeremonie in Notre-Dame de Paris — offizielles Dokument",
-            "en": "Full report of the investiture ceremony at Notre-Dame de Paris — official document"
-          },
-          "url": "https://drive.google.com/file/d/1F5qRuZcU-Ck4A6toILV2hd8JNiJhOVSz/view"
-        }
-      ]
-    },
-    {
       "id": "le-cardinal-pizzaballa-decore-de-la-legi",
       "date_affichee": "2025",
       "lieu": "Jérusalem",
@@ -78,6 +38,46 @@
             "en": "Original post by Emmanuel Macron – official Facebook page"
           },
           "url": "https://www.facebook.com/EmmanuelMacron"
+        }
+      ]
+    },
+    {
+      "id": "investiture-a-notre-dame-de-paris-un-nou",
+      "date_affichee": "28 septembre 2025",
+      "lieu": "Paris",
+      "badges": [
+        "À la Une",
+        "Investitures"
+      ],
+      "img_filename": "investiture-notre-dame-paris-septembre-2025.jpg",
+      "legende": {
+        "fr": "Paris · 26-28 sept. 2025 © JBN",
+        "de": "Paris · 26.–28. Sept. 2025 © JBN",
+        "en": "Paris · 26–28 Sept. 2025 © JBN"
+      },
+      "titre": {
+        "fr": "Investiture à Notre-Dame de Paris : un nouveau Chevalier luxembourgeois reçoit l'insigne de l'Ordre",
+        "de": "Investitur in Notre-Dame de Paris: Ein neuer luxemburgischer Ritter empfängt die Insignien des Ordens",
+        "en": "Investiture at Notre-Dame de Paris: A New Luxembourgish Knight Receives the Insignia of the Order"
+      },
+      "teaser": {
+        "fr": "Carlo Mulbach a été investi Chevalier par le Cardinal Grand Maître Fernando Filoni à Notre-Dame de Paris, en présence d'une délégation luxembourgeoise de quinze membres.",
+        "de": "Carlo Mulbach wurde vom Kardinal-Großmeister Fernando Filoni in Notre-Dame de Paris zum Ritter investiert, in Anwesenheit einer luxemburgischen Delegation von fünfzehn Mitgliedern.",
+        "en": "Carlo Mulbach was invested as a Knight by Cardinal Grand Master Fernando Filoni at Notre-Dame de Paris, in the presence of a Luxembourgish delegation of fifteen members."
+      },
+      "texte": {
+        "fr": "C'est dans le cadre solennel et émouvant de la cathédrale Notre-Dame de Paris, magnifiquement restaurée après l'incendie de 2019, que s'est déroulée, du 26 au 28 septembre 2025, la cérémonie d'investiture organisée par la Lieutenance de France de l'Ordre Équestre du Saint-Sépulcre de Jérusalem. En ce lieu chargé de siècles de foi et d'histoire, Son Éminence le Cardinal Grand Maître Fernando Filoni a présidé les rites d'investiture avec la gravité et la ferveur qui conviennent à un tel moment de grâce.\n\nParmi les nouveaux membres accueillis en ce jour béni au sein de l'Ordre, la Lieutenance pour le Luxembourg a l'honneur d'annoncer l'investiture de Monsieur Carlo Mulbach. Revêtu désormais de la croix du Saint-Sépulcre, notre nouveau Chevalier a prononcé ses engagements devant Dieu et devant ses frères et sœurs de l'Ordre, s'unissant ainsi à la grande famille spirituelle qui œuvre sans relâche au soutien des chrétiens de Terre Sainte.\n\nLa Lieutenance pour le Luxembourg était représentée par une délégation de quinze Chevaliers et Dames, témoignant de la vitalité et de la ferveur de notre communauté. Que ce pèlerinage commun à Notre-Dame de Paris fortifie la foi de chacun et renouvelle notre engagement collectif envers les communautés chrétiennes de Terre Sainte, auxquelles notre Ordre consacre son service et sa prière.",
+        "de": "Im feierlichen und bewegenden Rahmen der Kathedrale Notre-Dame de Paris, die nach dem Brand von 2019 in neuem Glanz erstrahlt, fand vom 26. bis 28. September 2025 die Investiturzeremonie der Leutnantschaft Frankreich des Ritterordens vom Heiligen Grab zu Jerusalem statt. An diesem von Jahrhunderten des Glaubens und der Geschichte durchdrungenen Ort leitete Seine Eminenz Kardinal-Großmeister Fernando Filoni die Investiturrituale mit jener Würde und Inbrunst, die einem solchen Moment der Gnade gebühren.\n\nUnter den neuen Mitgliedern, die an diesem gesegneten Tag in den Orden aufgenommen wurden, hat die Leutnantschaft für Luxemburg die Ehre, die Investitur von Herrn Carlo Mulbach bekanntzugeben. Nunmehr mit dem Kreuz des Heiligen Grabes geschmückt, hat unser neuer Ritter seine Gelöbnisse vor Gott und vor seinen Brüdern und Schwestern im Orden abgelegt und sich damit der großen geistlichen Familie angeschlossen, die unablässig für die Unterstützung der Christen im Heiligen Land wirkt.\n\nDie Leutnantschaft für Luxemburg war durch eine Delegation von fünfzehn Rittern und Damen vertreten, was die Lebendigkeit und Glaubensfervor unserer Gemeinschaft eindrucksvoll bezeugt. Möge diese gemeinsame Pilgerschaft nach Notre-Dame de Paris den Glauben eines jeden stärken und unser gemeinsames Engagement für die christlichen Gemeinschaften im Heiligen Land erneuern, denen unser Orden seinen Dienst und sein Gebet widmet.",
+        "en": "Within the solemn and deeply moving setting of the Cathedral of Notre-Dame de Paris, magnificently restored following the fire of 2019, the investiture ceremony organised by the Lieutenancy of France of the Equestrian Order of the Holy Sepulchre of Jerusalem took place from 26 to 28 September 2025. In this place steeped in centuries of faith and history, His Eminence Cardinal Grand Master Fernando Filoni presided over the rites of investiture with the gravity and fervour befitting such a moment of grace.\n\nAmong the new members welcomed into the Order on this blessed day, the Lieutenancy for Luxembourg has the honour of announcing the investiture of Mr Carlo Mulbach. Now adorned with the Cross of the Holy Sepulchre, our new Knight pronounced his commitments before God and before his brothers and sisters of the Order, thereby joining the great spiritual family that labours ceaselessly in support of the Christians of the Holy Land.\n\nThe Lieutenancy for Luxembourg was represented by a delegation of fifteen Knights and Ladies, bearing witness to the vitality and fervour of our community. May this shared pilgrimage to Notre-Dame de Paris strengthen the faith of each member and renew our collective commitment to the Christian communities of the Holy Land, to whom our Order dedicates its service and its prayer."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Reportage complet de la cérémonie d'investiture à Notre-Dame de Paris — document officiel",
+            "de": "Vollständiger Bericht über die Investiturzeremonie in Notre-Dame de Paris — offizielles Dokument",
+            "en": "Full report of the investiture ceremony at Notre-Dame de Paris — official document"
+          },
+          "url": "https://drive.google.com/file/d/1F5qRuZcU-Ck4A6toILV2hd8JNiJhOVSz/view"
         }
       ]
     },
