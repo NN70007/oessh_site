@@ -140,7 +140,8 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 .nav-tab.active{color:var(--cardinal);border-bottom-color:var(--cardinal)}
 .article-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px}
 .article-row.is-active{border-color:var(--cardinal);background:#fff8f8}
-.article-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#fde8e8;color:var(--cardinal);white-space:nowrap}
+.article-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#edfff4;color:#1a6e3a;white-space:nowrap}
+.article-badge-off{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#f0ede6;color:var(--ink-mute);white-space:nowrap}
 .article-info{flex:1;min-width:0}
 .article-titre{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .article-meta{font-size:12px;color:var(--ink-mute);margin-top:2px}
@@ -1098,17 +1099,12 @@ async function loadArticles(){
     var row = document.createElement('div');
     row.className = 'article-row' + (isActive ? ' is-active' : '');
     row.dataset.id = art.id;
-    var pubBtn = document.createElement('button');
-    pubBtn.className = 'btn-pub' + (isActive ? ' current' : '');
-    pubBtn.disabled = isActive;
-    pubBtn.textContent = isActive ? 'Publié ✓' : 'Publier';
-    if(!isActive){ pubBtn.onclick = (function(id){ return function(){ publishArticle(id); }; })(art.id); }
-    var unpubBtn = document.createElement('button');
-    unpubBtn.className = 'btn-unpub';
-    unpubBtn.title = 'Dépublier';
-    unpubBtn.textContent = '⊘';
-    unpubBtn.style.display = isActive ? 'inline-block' : 'none';
-    unpubBtn.onclick = (function(id){ return function(){ unpublishArticle(id); }; })(art.id);
+    // published: undefined/true = visible, false = hidden
+    var isPublished = art.published !== false;
+    var toggleBtn = document.createElement('button');
+    toggleBtn.className = isPublished ? 'btn-pub current' : 'btn-pub';
+    toggleBtn.textContent = isPublished ? '● Visible' : '○ Masqué';
+    toggleBtn.onclick = (function(a, pub){ return function(){ togglePublish(a.id, !pub); }; })(art, isPublished);
     var editBtn = document.createElement('button');
     editBtn.className = 'btn-edit';
     editBtn.title = 'Modifier';
@@ -1120,17 +1116,15 @@ async function loadArticles(){
     delBtn.textContent = '🗑';
     delBtn.onclick = (function(id){ return function(){ deleteArticle(id); }; })(art.id);
     var badge = document.createElement('span');
-    badge.className = isActive ? 'article-badge' : '';
-    badge.textContent = isActive ? '● Publié' : '';
-    badge.style.width = isActive ? '' : '60px';
+    badge.className = isPublished ? 'article-badge' : 'article-badge-off';
+    badge.textContent = isPublished ? '● Visible' : '○ Masqué';
     var info = document.createElement('div');
     info.className = 'article-info';
     var legende = (art.legende && (art.legende.fr || art.legende)) || [lieu, date].filter(Boolean).join(' · ');
     info.innerHTML = '<div class="article-titre">'+titre+'</div><div class="article-meta">'+legende+'</div>';
     var actions = document.createElement('div');
     actions.className = 'article-actions';
-    actions.appendChild(pubBtn);
-    actions.appendChild(unpubBtn);
+    actions.appendChild(toggleBtn);
     actions.appendChild(editBtn);
     actions.appendChild(delBtn);
     var moveUp = document.createElement('div');
@@ -1157,28 +1151,7 @@ async function loadArticles(){
   });
 }
 
-async function publishArticle(id){
-  var s = getSettings();
-  if(!articlesData) return;
 
-  // Update actu_une_id
-  if(articlesData.articles){
-    articlesData.actu_une_id = id;
-  } else {
-    // v1 format - nothing to change, only one article
-    return;
-  }
-
-  var sha = articlesData._sha;
-  delete articlesData._sha;
-  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(articlesData, null, 2))));
-  articlesData._sha = sha;
-
-  try {
-    await githubPut(s, 'actualites.json', jsonB64, 'Admin: publication article '+id);
-    loadArticles();
-  } catch(e){ alert('Erreur : '+e.message); }
-}
 
 async function moveArticle(id, direction){
   if(!articlesData || !articlesData.articles) return;
@@ -1219,23 +1192,25 @@ async function fetchActualites(s){
   } catch(e){ return null; }
 }
 
-async function unpublishArticle(id){
-  if(!articlesData) return;
+
+
+async function togglePublish(id, makeVisible){
   var s = getSettings();
-  var sha = articlesData._sha;
-  delete articlesData._sha;
-  // Move article to end of list
-  var arts = articlesData.articles || [];
-  var art = arts.find(function(a){ return a.id === id; });
-  if(art){
-    arts = arts.filter(function(a){ return a.id !== id; });
-    arts.push(art);
-    articlesData.articles = arts;
-  }
-  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(articlesData, null, 2))));
-  articlesData._sha = sha;
+  var freshData = await fetchActualites(s);
+  if(!freshData || !freshData.articles) return;
+  freshData.articles = freshData.articles.map(function(a){
+    if(a.id === id) a.published = makeVisible;
+    return a;
+  });
+  var sha = freshData._sha;
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    await githubPut(s, 'actualites.json', jsonB64, 'Admin: dépublication article '+id);
+    var url = 'https://api.github.com/repos/'+s.repo+'/contents/actualites.json';
+    var body = { message: 'Admin: '+(makeVisible?'publication':'masquage')+' '+id, content: jsonB64 };
+    if(sha) body.sha = sha;
+    var r = await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok){ var e=await r.json(); throw new Error(e.message); }
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
