@@ -267,37 +267,22 @@
       <div>
         <h2>Pilgrims of hope — recent highlights.</h2>
         <p class="lede">
-          From Rome to Luxembourg, the life of the Lieutenancy in recent months,
-          drawn from the Christmas 2025 newsletter.
+          From Rome to Luxembourg, the life of the Order and the Lieutenancy in recent months.
         </p>
       </div>
     </div>
 
     <div class="news-grid">
-      <article class="news-card feature">
-        <div class="thumb has-image">
-          <img src="assets/actu-belgique-investitures.jpg" alt="Investitures of the Lieutenancy for Belgium at the church of Notre-Dame des Victoires au Sablon, Brussels — 6 June 2026" loading="lazy" decoding="async"/>
-          <span class="thumb-label">Brussels · 5-6 June 2026 · © Grand Magisterium OESSH</span>
-        </div>
-        <div class="meta-line">
-          <span class="tag">Featured</span>
-          <span>Investitures · Centenary</span>
-        </div>
-        <h3>Centenary of the Lieutenancy for Belgium: investitures presided by Cardinal Filoni</h3>
-        <p class="teaser">On 5 and 6 June 2026, the Lieutenancy for Belgium of the Order of the Holy Sepulchre celebrated its investiture ceremonies at the church of Notre-Dame des Victoires au Sablon in Brussels, marking the centenary of its institution</p>
-        <div class="more-text">
-        <p>On 5 and 6 June 2026, the Lieutenancy for Belgium of the Equestrian Order of the Holy Sepulchre of Jerusalem celebrated its investiture ceremonies in the chapter church of Notre-Dame des Victoires au Sablon in Brussels, marking the centenary of its institution. The Friday prayer vigil and the Saturday investiture ceremony were presided over by His Eminence Cardinal Fernando Filoni, Grand Master of the Order.</p>
-        <p>In his homily at the vigil, Cardinal Filoni recalled the work accomplished over a hundred years by the Knights and Dames in the service of the Latin Patriarchal Church of Jerusalem, of peace, and of educational and humanitarian support in the Holy Land. He stressed that becoming a Knight or Dame of the Holy Sepulchre is a call to serve God and the Church in a spirit of recollection, joy and generosity. He also presented Jerusalem as the symbol of God's love for humanity and recalled the particular mission of the Order: to care for the Church of Jerusalem and its most vulnerable members.</p>
-        <p>At the investiture Mass of 6 June, celebrated in the presence notably of the representative of His Majesty King Philippe, the Apostolic Nuncio Mgr Franco Coppola, Mgr Guy Harpigny, Grand Prior of the Order in Belgium, and Mgr Bernardito Cleopas Auza, Apostolic Nuncio to the European Union, eleven new members were invested: nine Knights and two Dames.</p>
-        <p>In his homily, Cardinal Filoni recalled that the Order's fundamental mission remains to "guard" the Holy Sepulchre and to "support" the Church of Jerusalem. He insisted on the duty of solidarity towards the Christians of the Holy Land, particularly in the current context marked by conflict and tension. He invited the members of the Order to follow the example of Mary of Bethany by caring for the "living Body of Christ," present in the Church of Jerusalem, its faithful, its pilgrims, its poor and its refugees. Finally, he recalled that the true dignity of every Knight and Dame finds its source in baptism and is lived daily in fidelity to the risen Christ and in the service of the Church.</p>
-        </div>
-        <button class="read-more" type="button" data-more="… Read more" data-less="Show less ↑" onclick="toggleMore(this)">… Read more</button>
-        <div class="read-row">
-          <a class="read" href="https://www.facebook.com/grandmagistere.oessj.fra/posts/pfbid0koZPG1Y2ofcATgHLVp3oNtMDgRe5Qq7qRZgwmFWZHorH8zi3t85vVKGC7coZh86Fl" target="_blank" rel="noopener">View the publication <span>→</span></a>
-          <a class="read" href="assets/homelie-veillee-belgique-2026.pdf" target="_blank" rel="noopener">Vigil homily (FR) <span>→</span></a>
-          <a class="read" href="assets/homelie-investiture-belgique-2026.pdf" target="_blank" rel="noopener">Investiture homily (FR) <span>→</span></a>
-        </div>
-      </article>
+            <!-- ACTU UNE DYNAMIQUE -->
+      <div id="actu-une-slot">
+        <article class="news-card feature" style="opacity:.25;pointer-events:none">
+          <div class="thumb" style="aspect-ratio:5/4;background:var(--bg-soft)"></div>
+          <div class="meta-line" style="margin:18px 0 10px"><span class="tag">…</span></div>
+          <h3 style="height:48px;background:var(--bg-soft);border-radius:2px;margin-bottom:12px"></h3>
+          <p style="height:40px;background:var(--bg-soft);border-radius:2px"></p>
+        </article>
+      </div>
+      <!-- FIN ACTU UNE DYNAMIQUE -->
 
       <article class="news-card feature">
         <div class="thumb has-image">
@@ -1296,5 +1281,46 @@ document.addEventListener('keydown', function(e){
 });
 </script>
 
+<script>
+(function(){
+  var lang = document.documentElement.lang || 'fr';
+  var slot = document.getElementById('actu-une-slot');
+  if(!slot) return;
+  fetch('actualites.json?v=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var a = data.actu_une;
+      if(!a){ slot.innerHTML = ''; return; }
+      var liensHTML = (a.liens||[]).map(function(lien){
+        var label = (lien.label&&lien.label[lang]) || (lien.label&&lien.label.fr) || 'Lire';
+        return '<a class="read" href="'+lien.url+'" target="_blank" rel="noopener">'+label+' <span>→</span></a>';
+      }).join('');
+      var badgesHTML = (a.badges||[]).map(function(b,i){
+        return i===0?'<span class="tag">'+b+'</span>':'<span>'+b+'</span>';
+      }).join('');
+      var texte = (a.texte&&a.texte[lang]) || (a.texte&&a.texte.fr) || '';
+      var texteParas = texte.split('\n\n').filter(Boolean).map(function(p){return '<p>'+p+'</p>';}).join('');
+      var readMore = lang==='de'?'… Mehr lesen':lang==='en'?'… Read more':'… Lire la suite';
+      var readLess = lang==='de'?'Weniger ↑':lang==='en'?'Show less ↑':'Réduire ↑';
+      var titre = (a.titre&&a.titre[lang])||(a.titre&&a.titre.fr)||'';
+      var teaser = (a.teaser&&a.teaser[lang])||(a.teaser&&a.teaser.fr)||'';
+      var legende = (a.legende&&a.legende[lang])||(a.legende&&a.legende.fr)||'';
+      slot.innerHTML =
+        '<article class="news-card feature">'+
+          '<div class="thumb has-image">'+
+            '<img src="assets/'+a.img_filename+'" alt="'+legende+'" loading="lazy" decoding="async"/>'+
+            '<span class="thumb-label">'+legende+'</span>'+
+          '</div>'+
+          '<div class="meta-line">'+badgesHTML+'</div>'+
+          '<h3>'+titre+'</h3>'+
+          '<p class="teaser">'+teaser+'</p>'+
+          '<div class="more-text">'+texteParas+'</div>'+
+          '<button class="read-more" type="button" data-more="'+readMore+'" data-less="'+readLess+'" onclick="toggleMore(this)">'+readMore+'</button>'+
+          '<div class="read-row">'+liensHTML+'</div>'+
+        '</article>';
+    })
+    .catch(function(){ slot.innerHTML = ''; });
+})();
+</script>
 </body>
 </html>

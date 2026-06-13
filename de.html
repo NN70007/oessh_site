@@ -266,37 +266,22 @@
       <div>
         <h2>Pilger der Hoffnung — die jüngsten Höhepunkte.</h2>
         <p class="lede">
-          Von Rom bis Luxemburg: das Leben der Statthalterei in den
-          vergangenen Monaten. Ausgewählt aus dem Weihnachtsrundbrief 2025.
+          Von Rom bis Luxemburg: das Leben des Ordens und der Statthalterei in den vergangenen Monaten.
         </p>
       </div>
     </div>
 
     <div class="news-grid">
-      <article class="news-card feature">
-        <div class="thumb has-image">
-          <img src="assets/actu-belgique-investitures.jpg" alt="Investituren der Statthalterei Belgien in der Kirche Notre-Dame des Victoires au Sablon, Brüssel — 6. Juni 2026" loading="lazy" decoding="async"/>
-          <span class="thumb-label">Brüssel · 5.-6. Juni 2026 · © Großmagisterium OESSH</span>
-        </div>
-        <div class="meta-line">
-          <span class="tag">Im Fokus</span>
-          <span>Investituren · Hundertjahrfeier</span>
-        </div>
-        <h3>Hundertjahrfeier der Statthalterei Belgien: Investituren unter Vorsitz von Kardinal Filoni</h3>
-        <p class="teaser">Am 5. und 6. Juni 2026 feierte die Statthalterei Belgien des Ordens vom Heiligen Grab ihre Investiturfeiern in der Kirche Notre-Dame des Victoires au Sablon in Brüssel anlässlich ihres hundertjährigen Bestehens</p>
-        <div class="more-text">
-        <p>Am 5. und 6. Juni 2026 feierte die Statthalterei Belgien des Ritterordens vom Heiligen Grab zu Jerusalem ihre Investiturfeiern in der Kapitelkirche Notre-Dame des Victoires au Sablon in Brüssel anlässlich des hundertjährigen Bestehens ihrer Einsetzung. Die Gebetsvigil am Freitag und die Investiturfeier am Samstag wurden von Seiner Eminenz Kardinal Fernando Filoni, Großmeister des Ordens, geleitet.</p>
-        <p>In seiner Predigt zur Vigil erinnerte Kardinal Filoni an das Werk, das die Ritter und Damen seit hundert Jahren im Dienst der lateinischen Patriarchalkirche von Jerusalem, des Friedens sowie der erzieherischen und humanitären Unterstützung im Heiligen Land vollbracht haben. Er betonte, dass es ein Ruf sei, Ritter oder Dame vom Heiligen Grab zu werden, um Gott und der Kirche in einem Geist der Sammlung, der Freude und der Großzügigkeit zu dienen. Er stellte Jerusalem zugleich als Symbol der Liebe Gottes zur Menschheit dar und erinnerte an die besondere Sendung des Ordens: für die Kirche von Jerusalem und ihre schwächsten Glieder zu sorgen.</p>
-        <p>Bei der Investiturmesse am 6. Juni, gefeiert in Anwesenheit unter anderem des Vertreters Seiner Majestät König Philippe, des Apostolischen Nuntius Mgr Franco Coppola, von Mgr Guy Harpigny, Großprior des Ordens in Belgien, und von Mgr Bernardito Cleopas Auza, Apostolischer Nuntius bei der Europäischen Union, wurden elf neue Mitglieder investiert: neun Ritter und zwei Damen.</p>
-        <p>In seiner Predigt erinnerte Kardinal Filoni daran, dass die grundlegende Sendung des Ordens bleibt, das Heilige Grab zu „bewahren" und die Kirche von Jerusalem zu „stützen". Er betonte die Pflicht zur Solidarität mit den Christen des Heiligen Landes, besonders im gegenwärtigen, von Konflikten und Spannungen geprägten Kontext. Er lud die Mitglieder des Ordens ein, dem Beispiel der Maria von Betanien zu folgen und für den „lebendigen Leib Christi" zu sorgen, der in der Kirche von Jerusalem, ihren Gläubigen, ihren Pilgern, ihren Armen und ihren Flüchtlingen gegenwärtig ist. Schließlich erinnerte er daran, dass die wahre Würde jedes Ritters und jeder Dame ihren Ursprung in der Taufe findet und täglich in der Treue zum auferstandenen Christus und im Dienst an der Kirche gelebt wird.</p>
-        </div>
-        <button class="read-more" type="button" data-more="… Mehr lesen" data-less="Weniger anzeigen ↑" onclick="toggleMore(this)">… Mehr lesen</button>
-        <div class="read-row">
-          <a class="read" href="https://www.facebook.com/grandmagistere.oessj.fra/posts/pfbid0koZPG1Y2ofcATgHLVp3oNtMDgRe5Qq7qRZgwmFWZHorH8zi3t85vVKGC7coZh86Fl" target="_blank" rel="noopener">Veröffentlichung ansehen <span>→</span></a>
-          <a class="read" href="assets/homelie-veillee-belgique-2026.pdf" target="_blank" rel="noopener">Predigt der Vigil (FR) <span>→</span></a>
-          <a class="read" href="assets/homelie-investiture-belgique-2026.pdf" target="_blank" rel="noopener">Predigt der Investitur (FR) <span>→</span></a>
-        </div>
-      </article>
+            <!-- ACTU UNE DYNAMIQUE -->
+      <div id="actu-une-slot">
+        <article class="news-card feature" style="opacity:.25;pointer-events:none">
+          <div class="thumb" style="aspect-ratio:5/4;background:var(--bg-soft)"></div>
+          <div class="meta-line" style="margin:18px 0 10px"><span class="tag">…</span></div>
+          <h3 style="height:48px;background:var(--bg-soft);border-radius:2px;margin-bottom:12px"></h3>
+          <p style="height:40px;background:var(--bg-soft);border-radius:2px"></p>
+        </article>
+      </div>
+      <!-- FIN ACTU UNE DYNAMIQUE -->
 
       <article class="news-card feature">
         <div class="thumb has-image">
@@ -1307,5 +1292,46 @@ document.addEventListener('keydown', function(e){
 });
 </script>
 
+<script>
+(function(){
+  var lang = document.documentElement.lang || 'fr';
+  var slot = document.getElementById('actu-une-slot');
+  if(!slot) return;
+  fetch('actualites.json?v=' + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var a = data.actu_une;
+      if(!a){ slot.innerHTML = ''; return; }
+      var liensHTML = (a.liens||[]).map(function(lien){
+        var label = (lien.label&&lien.label[lang]) || (lien.label&&lien.label.fr) || 'Lire';
+        return '<a class="read" href="'+lien.url+'" target="_blank" rel="noopener">'+label+' <span>→</span></a>';
+      }).join('');
+      var badgesHTML = (a.badges||[]).map(function(b,i){
+        return i===0?'<span class="tag">'+b+'</span>':'<span>'+b+'</span>';
+      }).join('');
+      var texte = (a.texte&&a.texte[lang]) || (a.texte&&a.texte.fr) || '';
+      var texteParas = texte.split('\n\n').filter(Boolean).map(function(p){return '<p>'+p+'</p>';}).join('');
+      var readMore = lang==='de'?'… Mehr lesen':lang==='en'?'… Read more':'… Lire la suite';
+      var readLess = lang==='de'?'Weniger ↑':lang==='en'?'Show less ↑':'Réduire ↑';
+      var titre = (a.titre&&a.titre[lang])||(a.titre&&a.titre.fr)||'';
+      var teaser = (a.teaser&&a.teaser[lang])||(a.teaser&&a.teaser.fr)||'';
+      var legende = (a.legende&&a.legende[lang])||(a.legende&&a.legende.fr)||'';
+      slot.innerHTML =
+        '<article class="news-card feature">'+
+          '<div class="thumb has-image">'+
+            '<img src="assets/'+a.img_filename+'" alt="'+legende+'" loading="lazy" decoding="async"/>'+
+            '<span class="thumb-label">'+legende+'</span>'+
+          '</div>'+
+          '<div class="meta-line">'+badgesHTML+'</div>'+
+          '<h3>'+titre+'</h3>'+
+          '<p class="teaser">'+teaser+'</p>'+
+          '<div class="more-text">'+texteParas+'</div>'+
+          '<button class="read-more" type="button" data-more="'+readMore+'" data-less="'+readLess+'" onclick="toggleMore(this)">'+readMore+'</button>'+
+          '<div class="read-row">'+liensHTML+'</div>'+
+        '</article>';
+    })
+    .catch(function(){ slot.innerHTML = ''; });
+})();
+</script>
 </body>
 </html>
