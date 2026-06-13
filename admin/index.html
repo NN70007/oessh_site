@@ -653,7 +653,55 @@ function validateFR(){
   });
 
   if(pendingPDFs.length > 0){
-    // Build label form in step 2.5
+    // Show loading state and let Claude name the PDFs
+    document.getElementById('pdf-labels-container').innerHTML = '';
+    namePDFsWithClaude();
+  } else {
+    translateDEEN();
+  }
+}
+
+async function namePDFsWithClaude(){
+  goStep(25);
+  document.getElementById('btn25').disabled = true;
+  document.getElementById('load25').style.display = 'flex';
+  document.getElementById('err25').style.display = 'none';
+
+  var fr = getFRData();
+  var context = 'Article : ' + fr.titre + '\n';
+  if(fr.date) context += 'Date : ' + fr.date + '\n';
+
+  var pdfList = pendingPDFs.map(function(p, i){
+    return (i+1) + '. Fichier : ' + p.filename;
+  }).join('\n');
+
+  var prompt = context + '\nFichiers PDF joints à cet article :\n' + pdfList +
+    '\n\nPour chaque fichier PDF, propose un intitulé descriptif court en français, allemand et anglais.'+
+    '\nRéponds UNIQUEMENT avec ce format :\n\n' +
+    pendingPDFs.map(function(p, i){
+      return '###PDF'+(i+1)+'_FR###\n[intitulé en français]\n###FIN###\n'+
+             '###PDF'+(i+1)+'_DE###\n[intitulé en allemand]\n###FIN###\n'+
+             '###PDF'+(i+1)+'_EN###\n[intitulé en anglais]\n###FIN###';
+    }).join('\n');
+
+  var system = 'Tu proposes des intitulés courts et descriptifs pour des liens vers des documents PDF liés à des articles de l\'Ordre Equestre du Saint-Sepulcre de Jerusalem. Les intitulés doivent être concis (3-6 mots max), clairs et décrire le contenu du document.';
+
+  try {
+    var txt = await claudeCall(system, prompt, 500);
+    function getPdfField(name){
+      var open = '###'+name+'###', close = '###FIN###';
+      var s = txt.indexOf(open); if(s===-1) return '';
+      s += open.length;
+      var e = txt.indexOf(close, s); if(e===-1) return txt.substring(s).trim();
+      return txt.substring(s, e).trim();
+    }
+    pendingPDFs.forEach(function(pdf, i){
+      var n = i+1;
+      pdf.labelFr = getPdfField('PDF'+n+'_FR') || pdf.filename;
+      pdf.labelDe = getPdfField('PDF'+n+'_DE') || pdf.labelFr;
+      pdf.labelEn = getPdfField('PDF'+n+'_EN') || pdf.labelFr;
+    });
+    // Re-render form with Claude's suggestions (editable)
     var container = document.getElementById('pdf-labels-container');
     container.innerHTML = '';
     pendingPDFs.forEach(function(pdf, i){
@@ -662,35 +710,30 @@ function validateFR(){
       block.innerHTML =
         '<div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:10px">📄 '+pdf.filename+'</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
-          '<div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);font-weight:500">Français</label>'+
-            '<input type="text" class="pdf-lbl-fr" data-idx="'+i+'" value="'+pdf.labelFr+'" placeholder="ex: Homélie de la veillée" style="width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink)"/></div>'+
-          '<div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);font-weight:500">Deutsch</label>'+
-            '<input type="text" class="pdf-lbl-de" data-idx="'+i+'" value="'+pdf.labelDe+'" placeholder="ex: Predigt der Vigil" style="width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink)"/></div>'+
-          '<div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);font-weight:500">English</label>'+
-            '<input type="text" class="pdf-lbl-en" data-idx="'+i+'" value="'+pdf.labelEn+'" placeholder="ex: Vigil homily" style="width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink)"/></div>'+
+          makeField('Français','pdf-lbl-fr',i,pdf.labelFr)+
+          makeField('Deutsch','pdf-lbl-de',i,pdf.labelDe)+
+          makeField('English','pdf-lbl-en',i,pdf.labelEn)+
         '</div>';
       container.appendChild(block);
     });
-    goStep(25);
-  } else {
-    translateDEEN();
+  } catch(e){
+    showErr('err25', 'Erreur Claude : '+e.message);
   }
+  document.getElementById('load25').style.display = 'none';
+  document.getElementById('btn25').disabled = false;
 }
 
-function proceedToTranslate(){
-  // Collect PDF labels from step 2.5
-  document.querySelectorAll('.pdf-lbl-fr').forEach(function(el){
-    var i = parseInt(el.dataset.idx);
-    pendingPDFs[i].labelFr = el.value.trim();
-  });
-  document.querySelectorAll('.pdf-lbl-de').forEach(function(el){
-    var i = parseInt(el.dataset.idx);
-    pendingPDFs[i].labelDe = el.value.trim();
-  });
-  document.querySelectorAll('.pdf-lbl-en').forEach(function(el){
-    var i = parseInt(el.dataset.idx);
-    pendingPDFs[i].labelEn = el.value.trim();
-  });
+function makeField(langLabel, cls, idx, val){
+  return '<div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);font-weight:500;display:block;margin-bottom:4px">'+langLabel+'</label>'+
+    '<input type="text" class="'+cls+'" data-idx="'+idx+'" value="'+val.replace(/"/g,'&quot;')+'" '+
+    'style="width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink)"/></div>';
+}
+
+async function proceedToTranslate(){
+  // Collect edited labels from form
+  document.querySelectorAll('.pdf-lbl-fr').forEach(function(el){ pendingPDFs[parseInt(el.dataset.idx)].labelFr = el.value.trim(); });
+  document.querySelectorAll('.pdf-lbl-de').forEach(function(el){ pendingPDFs[parseInt(el.dataset.idx)].labelDe = el.value.trim(); });
+  document.querySelectorAll('.pdf-lbl-en').forEach(function(el){ pendingPDFs[parseInt(el.dataset.idx)].labelEn = el.value.trim(); });
   translateDEEN();
 }
 
