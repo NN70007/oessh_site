@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>OESSH Admin</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{
+  --cardinal:#b10103;
+  --ink:#1a1a1a;
+  --ink-soft:#444;
+  --ink-mute:#6e6e6e;
+  --bg:#f7f4ee;
+  --surface:#ffffff;
+  --border:rgba(26,26,26,.14);
+  --serif:"Georgia",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Inter","Helvetica Neue",Arial,sans-serif;
+  --radius:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px}
+
+/* Login */
+#login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:24px;padding:40px 20px}
+.login-logo{display:flex;align-items:center;gap:12px}
+.login-logo svg{width:36px;height:36px}
+.login-logo-text{font-family:var(--serif);font-size:18px;line-height:1.2}
+.login-logo-text span{display:block;font-size:12px;font-family:var(--sans);color:var(--ink-mute);letter-spacing:.05em;margin-top:2px}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:40px;max-width:400px;width:100%;text-align:center}
+.login-card h2{font-family:var(--serif);font-size:22px;font-weight:normal;margin-bottom:8px}
+.login-card p{font-size:13px;color:var(--ink-mute);margin-bottom:28px;line-height:1.5}
+#login-err{display:none;font-size:13px;color:var(--cardinal);margin-top:14px;padding:10px;background:#fff0f0;border-radius:6px}
+
+/* Setup screen */
+#setup-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px}
+.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:36px;max-width:480px;width:100%}
+.setup-card h2{font-family:var(--serif);font-size:22px;font-weight:normal;margin-bottom:6px}
+.setup-card p{font-size:13px;color:var(--ink-mute);margin-bottom:24px;line-height:1.5}
+.setup-row{margin-bottom:16px}
+.setup-row label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-mute);margin-bottom:6px;font-weight:500}
+.setup-row input{width:100%;font-size:13px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);background:#fff;color:var(--ink)}
+.setup-row input:focus{outline:none;border-color:rgba(177,1,3,.4)}
+.setup-hint{font-size:11px;color:var(--ink-mute);margin-top:4px}
+.btn-setup{width:100%;padding:12px;font-size:14px;font-weight:600;background:var(--cardinal);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;margin-top:8px}
+.btn-setup:hover{opacity:.88}
+#setup-err{display:none;font-size:13px;color:var(--cardinal);margin-top:12px;padding:10px;background:#fff0f0;border-radius:6px}
+
+/* App */
+#app{display:none;min-height:100vh}
+.topbar{background:var(--cardinal);color:#fff;padding:10px 28px;display:flex;align-items:center;justify-content:space-between}
+.topbar-brand{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;letter-spacing:.04em}
+.topbar-brand svg{width:22px;height:22px;opacity:.9}
+.topbar-right{display:flex;align-items:center;gap:12px;font-size:13px}
+.topbar-right img{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.4)}
+.btn-sm{background:rgba(255,255,255,.2);border:none;color:#fff;font-size:12px;padding:5px 12px;border-radius:4px;cursor:pointer}
+.btn-sm:hover{background:rgba(255,255,255,.3)}
+
+.main{max-width:820px;margin:0 auto;padding:40px 24px}
+h1.page-title{font-family:var(--serif);font-size:28px;font-weight:normal;margin-bottom:6px}
+.page-sub{font-size:13px;color:var(--ink-mute);margin-bottom:32px}
+
+.steps{display:flex;flex-direction:column;gap:16px}
+.step{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.step-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);background:#faf9f6}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--cardinal);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-size:14px;font-weight:600;color:var(--ink)}
+.step-body{padding:20px}
+
+label.lbl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-mute);margin-bottom:6px;font-weight:500}
+textarea{width:100%;font-family:var(--sans);font-size:14px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ink);resize:vertical;min-height:90px;line-height:1.55}
+textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
+
+.dropzone{border:1.5px dashed var(--border);border-radius:6px;padding:28px 20px;text-align:center;cursor:pointer;position:relative;transition:background .15s}
+.dropzone:hover{background:#f7f4ee}
+.dropzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dz-icon{font-size:28px;margin-bottom:8px;color:var(--ink-mute)}
+.dz-txt{font-size:13px;color:var(--ink-mute)}
+.dz-txt strong{color:var(--ink)}
+.img-preview{display:none;margin-top:12px;border-radius:6px;overflow:hidden;max-height:180px}
+.img-preview img{width:100%;height:180px;object-fit:cover}
+.img-fname{display:none;font-size:12px;color:var(--ink-mute);margin-top:6px}
+
+.btn-generate{width:100%;padding:14px;font-size:15px;font-weight:600;background:var(--cardinal);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;transition:opacity .15s}
+.btn-generate:hover{opacity:.88}
+.btn-generate:disabled{opacity:.4;cursor:not-allowed}
+
+.loader{display:none;align-items:center;gap:12px;padding:14px 16px;background:#f7f4ee;border-radius:6px;margin-top:12px;font-size:13px;color:var(--ink-mute)}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--cardinal);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err-box{display:none;padding:12px 14px;background:#fff0f0;border:1px solid #ffc0c0;border-radius:6px;font-size:13px;color:#a00;margin-top:10px}
+
+.preview-wrap{display:none;margin-top:20px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.badge{font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600}
+.badge-une{background:#fde8e8;color:#a00}
+.badge-other{background:#f0ede6;color:var(--ink-soft)}
+.lang-tabs{display:flex;gap:6px;margin-bottom:14px}
+.lang-tab{padding:6px 16px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:transparent;color:var(--ink-mute);letter-spacing:.04em;transition:all .15s}
+.lang-tab.active{background:var(--cardinal);color:#fff;border-color:var(--cardinal)}
+.lang-panel{display:none}
+.lang-panel.active{display:block}
+.preview-card{background:#faf9f6;border:1px solid var(--border);border-radius:6px;padding:16px}
+.pv-row{margin-bottom:12px}
+.pv-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-mute);margin-bottom:3px;font-weight:600}
+.pv-val{font-size:13px;color:var(--ink);line-height:1.55}
+.pv-val.big{font-size:15px;font-weight:500;font-family:var(--serif)}
+.links-preview{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.link-prev{font-size:12px;color:var(--ink-mute);padding:6px 10px;background:#fff;border:1px solid var(--border);border-radius:4px}
+.link-prev a{color:var(--cardinal);font-size:11px;word-break:break-all}
+
+.publish-bar{display:flex;gap:10px;margin-top:20px}
+.btn-publish{flex:1;padding:12px;font-size:14px;font-weight:600;background:var(--ink);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;transition:opacity .15s}
+.btn-publish:hover{opacity:.82}
+.btn-publish:disabled{opacity:.4;cursor:not-allowed}
+.btn-regen{padding:12px 18px;font-size:14px;border:1px solid var(--border);background:#fff;border-radius:var(--radius);cursor:pointer;color:var(--ink-soft)}
+.btn-regen:hover{background:#f0ede6}
+.pub-status{font-size:13px;padding:12px 14px;border-radius:6px;display:none;margin-top:10px;line-height:1.5}
+.pub-ok{background:#edfff4;border:1px solid #b0e8c4;color:#1a6e3a}
+.pub-err{background:#fff0f0;border:1px solid #ffc0c0;color:#a00}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-logo">
+    <svg viewBox="0 0 40 40" fill="none">
+      <g fill="#b10103">
+        <rect x="17" y="6" width="6" height="28"/>
+        <rect x="6" y="17" width="28" height="6"/>
+        <rect x="5" y="9" width="3" height="3"/>
+        <rect x="32" y="9" width="3" height="3"/>
+        <rect x="5" y="28" width="3" height="3"/>
+        <rect x="32" y="28" width="3" height="3"/>
+      </g>
+    </svg>
+    <div class="login-logo-text">
+      OESSH Luxembourg
+      <span>Interface d'administration</span>
+    </div>
+  </div>
+  <div class="login-card">
+    <h2>Connexion</h2>
+    <p>Accès réservé aux éditeurs autorisés de la Lieutenance pour le Luxembourg.</p>
+    <div id="g_id_onload"
+      data-client_id="52829295071-cer9p7voptd0lgdrmgk5a35furmtn256.apps.googleusercontent.com"
+      data-callback="onGoogleLogin"
+      data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+      data-type="standard"
+      data-size="large"
+      data-theme="outline"
+      data-text="sign_in_with"
+      data-shape="rectangular"
+      data-logo_alignment="left">
+    </div>
+    <div id="login-err">Accès refusé. Votre compte Google n'est pas autorisé.</div>
+  </div>
+</div>
+
+<!-- ── SETUP (première utilisation) ──────────────────── -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <h2>Configuration initiale</h2>
+    <p>Saisissez vos clés API. Elles seront stockées uniquement dans ce navigateur et n'apparaîtront jamais dans le code source.</p>
+    <div class="setup-row">
+      <label>Clé API Claude</label>
+      <input type="password" id="setup-claude" placeholder="sk-ant-api03-…"/>
+      <div class="setup-hint">console.anthropic.com → API Keys</div>
+    </div>
+    <div class="setup-row">
+      <label>GitHub Personal Access Token</label>
+      <input type="password" id="setup-github" placeholder="github_pat_…"/>
+      <div class="setup-hint">github.com → Settings → Developer settings → Fine-grained tokens</div>
+    </div>
+    <div class="setup-row">
+      <label>Repo GitHub</label>
+      <input type="text" id="setup-repo" value="NN70007/oessh_site"/>
+    </div>
+    <button class="btn-setup" onclick="saveSetup()">Enregistrer et continuer →</button>
+    <div id="setup-err">Veuillez remplir la clé Claude et le token GitHub.</div>
+  </div>
+</div>
+
+<!-- ── APP ────────────────────────────────────────────── -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <svg viewBox="0 0 40 40" fill="none">
+        <g fill="rgba(255,255,255,.9)">
+          <rect x="17" y="6" width="6" height="28"/>
+          <rect x="6" y="17" width="28" height="6"/>
+          <rect x="5" y="9" width="3" height="3"/>
+          <rect x="32" y="9" width="3" height="3"/>
+          <rect x="5" y="28" width="3" height="3"/>
+          <rect x="32" y="28" width="3" height="3"/>
+        </g>
+      </svg>
+      OESSH Admin
+    </div>
+    <div class="topbar-right">
+      <img id="user-avatar" src="" alt=""/>
+      <span id="user-name"></span>
+      <button class="btn-sm" onclick="showSetup()">⚙ Clés API</button>
+      <button class="btn-sm" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <h1 class="page-title">Nouvelle actualité « À la Une »</h1>
+    <p class="page-sub">Décrivez l'événement en quelques lignes — Claude rédige l'article complet en français, allemand et anglais.</p>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-head"><div class="step-num">1</div><div class="step-title">Décrivez l'événement</div></div>
+        <div class="step-body">
+          <label class="lbl">Lieu, date, personnes clés, ce qui s'est passé</label>
+          <textarea id="desc" placeholder="Ex : Le 15 juin 2026 à Luxembourg, le Cardinal Filoni a présidé la cérémonie d'investiture annuelle à la cathédrale Notre-Dame. Trois nouveaux membres ont été investis…"></textarea>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><div class="step-num">2</div><div class="step-title">Image de l'article</div></div>
+        <div class="step-body">
+          <div class="dropzone">
+            <input type="file" id="imgInput" accept="image/*" onchange="handleImage(this)"/>
+            <div class="dz-icon">📷</div>
+            <div class="dz-txt"><strong>Choisir une image</strong><br/>ou glisser-déposer · JPG, PNG, WebP</div>
+          </div>
+          <div class="img-preview" id="imgPreview"><img id="imgThumb" src="" alt=""/></div>
+          <div class="img-fname" id="imgFname"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><div class="step-num">3</div><div class="step-title">Génération &amp; publication</div></div>
+        <div class="step-body">
+          <button class="btn-generate" id="genBtn" onclick="generate()">✦ Générer l'article en 3 langues</button>
+          <div class="err-box" id="genErr"></div>
+          <div class="loader" id="loader">
+            <div class="spinner"></div>
+            Claude rédige l'article en français, allemand et anglais…
+          </div>
+
+          <div class="preview-wrap" id="previewWrap">
+            <div class="badges" id="badgesRow"></div>
+            <div class="lang-tabs">
+              <button class="lang-tab active" onclick="switchLang('fr',this)">🇫🇷 Français</button>
+              <button class="lang-tab" onclick="switchLang('de',this)">🇩🇪 Deutsch</button>
+              <button class="lang-tab" onclick="switchLang('en',this)">🇬🇧 English</button>
+            </div>
+            <div id="panel-fr" class="lang-panel active"></div>
+            <div id="panel-de" class="lang-panel"></div>
+            <div id="panel-en" class="lang-panel"></div>
+            <div style="margin-top:14px">
+              <div class="pv-label">Liens suggérés</div>
+              <div class="links-preview" id="linksPreview"></div>
+            </div>
+            <div class="publish-bar">
+              <button class="btn-regen" onclick="generate()">↺ Régénérer</button>
+              <button class="btn-publish" id="pubBtn" onclick="publish()">↑ Publier sur le site</button>
+            </div>
+            <div class="pub-status" id="pubStatus"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+var articleData = null;
+var imgBase64 = null;
+var imgMime = null;
+var imgOrigName = '';
+
+// ── Settings (localStorage uniquement) ──────────────────
+function getSettings(){
+  return {
+    claudeKey:   localStorage.getItem('oessh_claude_key') || '',
+    githubToken: localStorage.getItem('oessh_github_token') || '',
+    repo:        localStorage.getItem('oessh_repo') || 'NN70007/oessh_site'
+  };
+}
+function hasSettings(){
+  var s = getSettings();
+  return s.claudeKey && s.githubToken;
+}
+function saveSetup(){
+  var c = document.getElementById('setup-claude').value.trim();
+  var g = document.getElementById('setup-github').value.trim();
+  var r = document.getElementById('setup-repo').value.trim();
+  if(!c || !g){ document.getElementById('setup-err').style.display='block'; return; }
+  localStorage.setItem('oessh_claude_key', c);
+  localStorage.setItem('oessh_github_token', g);
+  localStorage.setItem('oessh_repo', r || 'NN70007/oessh_site');
+  document.getElementById('setup-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+}
+function showSetup(){
+  var s = getSettings();
+  document.getElementById('setup-claude').value = s.claudeKey;
+  document.getElementById('setup-github').value = s.githubToken;
+  document.getElementById('setup-repo').value = s.repo;
+  document.getElementById('app').style.display='none';
+  document.getElementById('setup-screen').style.display='flex';
+}
+
+// ── Google Auth ─────────────────────────────────────────
+function onGoogleLogin(response){
+  var payload = JSON.parse(atob(response.credential.split('.')[1]));
+  document.getElementById('user-name').textContent = payload.name;
+  document.getElementById('user-avatar').src = payload.picture;
+  document.getElementById('login-screen').style.display='none';
+  if(hasSettings()){
+    document.getElementById('app').style.display='block';
+  } else {
+    document.getElementById('setup-screen').style.display='flex';
+  }
+}
+function logout(){
+  google.accounts.id.disableAutoSelect();
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+}
+
+// ── Image ────────────────────────────────────────────────
+function handleImage(input){
+  var file = input.files[0];
+  if(!file) return;
+  imgOrigName = file.name;
+  imgMime = file.type;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    imgBase64 = e.target.result.split(',')[1];
+    document.getElementById('imgPreview').style.display='block';
+    document.getElementById('imgThumb').src = e.target.result;
+    document.getElementById('imgFname').style.display='block';
+    document.getElementById('imgFname').textContent = '✓ ' + file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Generate ─────────────────────────────────────────────
+function generate(){
+  var desc = document.getElementById('desc').value.trim();
+  if(!desc){ showGenErr('Décrivez l\'événement avant de générer.'); return; }
+  var s = getSettings();
+  if(!s.claudeKey){ showGenErr('Clé API Claude manquante — cliquez sur ⚙ Clés API.'); return; }
+
+  document.getElementById('genBtn').disabled = true;
+  document.getElementById('loader').style.display = 'flex';
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('genErr').style.display = 'none';
+
+  var system = 'Tu es le rédacteur de la Lieutenance pour le Luxembourg de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH). Tu rédiges des actualités pour le site luxembourg.oessh.lu dans un registre solennel, catholique et élégant. Vocabulaire : "Chevaliers et Dames", "le Cardinal Grand Maître", "la Lieutenance", "les chrétiens de Terre Sainte". Réponds UNIQUEMENT avec le JSON brut sans backticks ni commentaires :\n{"date_affichee":"...","lieu":"...","badges":["À la Une","..."],"img_filename":"actu-[lieu]-[annee].jpg","fr":{"titre":"...","teaser":"1-2 phrases","texte":"para1\\n\\npara2\\n\\npara3","legende":"Lieu · Date · © source"},"de":{"titre":"...","teaser":"...","texte":"...","legende":"..."},"en":{"titre":"...","teaser":"...","texte":"...","legende":"..."},"liens":[{"label":{"fr":"... →","de":"... →","en":"... →"},"url":"https://..."}]}\nRègles badges : toujours "À la Une" + 1-2 parmi Investitures, Pèlerinage, Spiritualité, Conférence, Lieutenance, Centenaire, Diplomatie, Terre Sainte. Liens : 1-3 liens plausibles (Facebook Grand Magistère, lpj.org, cathol.lu, oessh.va…).';
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': s.claudeKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1500,
+      system: system,
+      messages: [{ role: 'user', content: desc }]
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(data.error) throw new Error(data.error.message);
+    var raw = (data.content||[]).find(function(b){ return b.type==='text'; });
+    if(!raw) throw new Error('Réponse vide');
+    articleData = JSON.parse(raw.text.replace(/```json|```/g,'').trim());
+    renderPreview();
+    document.getElementById('previewWrap').style.display = 'block';
+  })
+  .catch(function(e){ showGenErr('Erreur : ' + e.message); })
+  .finally(function(){
+    document.getElementById('genBtn').disabled = false;
+    document.getElementById('loader').style.display = 'none';
+  });
+}
+
+function renderPreview(){
+  var d = articleData;
+  document.getElementById('badgesRow').innerHTML = (d.badges||[]).map(function(b){
+    return '<span class="badge ' + (b==='À la Une'?'badge-une':'badge-other') + '">' + b + '</span>';
+  }).join('');
+  ['fr','de','en'].forEach(function(l){ renderPanel(l, d[l]); });
+  document.getElementById('linksPreview').innerHTML = (d.liens||[]).map(function(l){
+    return '<div class="link-prev">' + l.label.fr + ' <a href="' + l.url + '" target="_blank">' + l.url + '</a></div>';
+  }).join('') || '<div class="link-prev" style="color:var(--ink-mute)">Aucun lien suggéré</div>';
+}
+function renderPanel(lang, d){
+  document.getElementById('panel-'+lang).innerHTML =
+    '<div class="preview-card">' +
+    '<div class="pv-row"><div class="pv-label">Titre</div><div class="pv-val big">' + d.titre + '</div></div>' +
+    '<div class="pv-row"><div class="pv-label">Teaser</div><div class="pv-val">' + d.teaser + '</div></div>' +
+    '<div class="pv-row"><div class="pv-label">Texte complet</div><div class="pv-val" style="white-space:pre-line;font-size:13px">' + d.texte + '</div></div>' +
+    '<div class="pv-row"><div class="pv-label">Légende image</div><div class="pv-val">' + d.legende + '</div></div>' +
+    '</div>';
+}
+function switchLang(lang, btn){
+  document.querySelectorAll('.lang-tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.lang-panel').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('panel-'+lang).classList.add('active');
+}
+
+// ── Publish ───────────────────────────────────────────────
+function publish(){
+  if(!articleData) return;
+  var s = getSettings();
+  if(!s.githubToken){ showPubStatus('Token GitHub manquant — cliquez sur ⚙ Clés API.','err'); return; }
+
+  document.getElementById('pubBtn').disabled = true;
+  showPubStatus('Publication en cours…','ok');
+
+  var d = articleData;
+  var imgFilename = d.img_filename || 'actu-une.jpg';
+
+  var json = {
+    version: 1,
+    actu_une: {
+      id: imgFilename.replace(/\.[^.]+$/,''),
+      date_affichee: d.date_affichee,
+      lieu: d.lieu,
+      badges: d.badges,
+      img_filename: imgFilename,
+      legende: { fr: d.fr.legende, de: d.de.legende, en: d.en.legende },
+      titre:   { fr: d.fr.titre,   de: d.de.titre,   en: d.en.titre   },
+      teaser:  { fr: d.fr.teaser,  de: d.de.teaser,  en: d.en.teaser  },
+      texte:   { fr: d.fr.texte,   de: d.de.texte,   en: d.en.texte   },
+      liens:   d.liens
+    }
+  };
+
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(json, null, 2))));
+
+  var steps = [];
+  if(imgBase64){
+    steps.push(function(){ return githubPut(s, 'assets/'+imgFilename, imgBase64, 'Admin: image '+imgFilename); });
+  }
+  steps.push(function(){ return githubPut(s, 'actualites.json', jsonB64, 'Admin: actualité "'+d.fr.titre.substring(0,50)+'"'); });
+
+  steps.reduce(function(p, fn){ return p.then(fn); }, Promise.resolve())
+    .then(function(){
+      showPubStatus('✓ Publié avec succès ! L\'article sera visible sur le site dans quelques secondes.','ok');
+    })
+    .catch(function(e){
+      showPubStatus('Erreur : ' + e.message, 'err');
+    })
+    .finally(function(){
+      document.getElementById('pubBtn').disabled = false;
+    });
+}
+
+function githubPut(s, path, b64content, message){
+  var url = 'https://api.github.com/repos/' + s.repo + '/contents/' + path;
+  return fetch(url, { headers:{ 'Authorization':'Bearer '+s.githubToken, 'Accept':'application/vnd.github+json' } })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(existing){
+      var body = { message: message, content: b64content };
+      if(existing && existing.sha) body.sha = existing.sha;
+      return fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer '+s.githubToken,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+    })
+    .then(function(r){
+      if(!r.ok) return r.json().then(function(e){ throw new Error(e.message||r.statusText); });
+    });
+}
+
+function showGenErr(msg){
+  var el = document.getElementById('genErr');
+  el.textContent = msg; el.style.display='block';
+  document.getElementById('genBtn').disabled = false;
+  document.getElementById('loader').style.display = 'none';
+}
+function showPubStatus(msg, type){
+  var el = document.getElementById('pubStatus');
+  el.textContent = msg;
+  el.className = 'pub-status ' + (type==='ok'?'pub-ok':'pub-err');
+  el.style.display = 'block';
+}
+</script>
+</body>
+</html>
