@@ -25,8 +25,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:24px;padding:40px 20px}
 .login-logo{display:flex;align-items:center;gap:12px}
 .login-logo svg{width:36px;height:36px}
-.login-logo-text{font-family:var(--serif);font-size:18px;line-height:1.2}
-.login-logo-text span{display:block;font-size:12px;font-family:var(--sans);color:var(--ink-mute);letter-spacing:.05em;margin-top:2px}
+.login-logo-text{line-height:1.2;text-align:left}
 .login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:40px;max-width:400px;width:100%;text-align:center}
 .login-card h2{font-family:var(--serif);font-size:22px;font-weight:normal;margin-bottom:8px}
 .login-card p{font-size:13px;color:var(--ink-mute);margin-bottom:28px;line-height:1.5}
@@ -125,23 +124,14 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 <!-- ── LOGIN ─────────────────────────────────────────── -->
 <div id="login-screen">
   <div class="login-logo">
-    <svg viewBox="0 0 40 40" fill="none">
-      <g fill="#b10103">
-        <rect x="17" y="6" width="6" height="28"/>
-        <rect x="6" y="17" width="28" height="6"/>
-        <rect x="5" y="9" width="3" height="3"/>
-        <rect x="32" y="9" width="3" height="3"/>
-        <rect x="5" y="28" width="3" height="3"/>
-        <rect x="32" y="28" width="3" height="3"/>
-      </g>
-    </svg>
+    <img src="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem.svg" alt="Croix de Jérusalem" style="width:48px;height:48px"/>
     <div class="login-logo-text">
-      OESSH Luxembourg
-      <span>Interface d'administration</span>
+      <span style="font-family:Georgia,serif;font-size:20px;color:#b10103;font-weight:normal;display:block">Ordre Équestre du Saint-Sépulcre de Jérusalem</span>
+      <span style="font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#6e6e6e;display:block;margin-top:3px">Lieutenance pour le Luxembourg</span>
     </div>
   </div>
   <div class="login-card">
-    <h2>Connexion</h2>
+    <h2>Administration</h2>
     <p>Accès réservé aux éditeurs autorisés de la Lieutenance pour le Luxembourg.</p>
     <div id="g_id_onload"
       data-client_id="52829295071-cer9p7voptd0lgdrmgk5a35furmtn256.apps.googleusercontent.com"
@@ -188,17 +178,8 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 <div id="app">
   <div class="topbar">
     <div class="topbar-brand">
-      <svg viewBox="0 0 40 40" fill="none">
-        <g fill="rgba(255,255,255,.9)">
-          <rect x="17" y="6" width="6" height="28"/>
-          <rect x="6" y="17" width="28" height="6"/>
-          <rect x="5" y="9" width="3" height="3"/>
-          <rect x="32" y="9" width="3" height="3"/>
-          <rect x="5" y="28" width="3" height="3"/>
-          <rect x="32" y="28" width="3" height="3"/>
-        </g>
-      </svg>
-      OESSH Admin
+      <img src="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem.svg" alt="Croix de Jérusalem" style="width:24px;height:24px;filter:brightness(0) invert(1);opacity:.9"/>
+      Ordre Équestre du Saint-Sépulcre · Admin
     </div>
     <div class="topbar-right">
       <img id="user-avatar" src="" alt=""/>
@@ -363,41 +344,7 @@ function generate(){
   document.getElementById('previewWrap').style.display = 'none';
   document.getElementById('genErr').style.display = 'none';
 
-  var system = [
-    'Tu es le redacteur de la Lieutenance pour le Luxembourg de l Ordre Equestre du Saint-Sepulcre de Jerusalem.',
-    'Tu rediges des actualites pour luxembourg.oessh.lu dans un registre solennel et elegant.',
-    '',
-    'Reponds avec un bloc XML <article>. Pas de JSON. Format exact :',
-    '<article>',
-    '<date_affichee>15 juin 2026</date_affichee>',
-    '<lieu>Paris</lieu>',
-    '<badges>A la Une|Diplomatie</badges>',
-    '<img_filename>actu-paris-2026.jpg</img_filename>',
-    '<fr_titre>Titre francais</fr_titre>',
-    '<fr_teaser>Teaser francais 1-2 phrases</fr_teaser>',
-    '<fr_texte>Para 1.\n\nPara 2.\n\nPara 3.</fr_texte>',
-    '<fr_legende>Paris - juin 2026 - source</fr_legende>',
-    '<de_titre>Titel Deutsch</de_titre>',
-    '<de_teaser>Zusammenfassung</de_teaser>',
-    '<de_texte>Absatz 1.\n\nAbsatz 2.\n\nAbsatz 3.</de_texte>',
-    '<de_legende>Paris - Juni 2026 - Quelle</de_legende>',
-    '<en_titre>English title</en_titre>',
-    '<en_teaser>English teaser</en_teaser>',
-    '<en_texte>Para 1.\n\nPara 2.\n\nPara 3.</en_texte>',
-    '<en_legende>Paris - June 2026 - source</en_legende>',
-    '<lien1_fr>Libelle lien 1</lien1_fr>',
-    '<lien1_de>Bezeichnung Link 1</lien1_de>',
-    '<lien1_en>Link 1 label</lien1_en>',
-    '<lien1_url>https://www.lpj.org</lien1_url>',
-    '<lien2_fr>Libelle lien 2 facultatif</lien2_fr>',
-    '<lien2_de>Link 2 optional</lien2_de>',
-    '<lien2_en>Link 2 optional</lien2_en>',
-    '<lien2_url>https://www.facebook.com/grandmagistere.oessj.fra</lien2_url>',
-    '</article>',
-    '',
-    'Badges separes par |, toujours commencer par A la Une puis 1-2 parmi : Investitures, Pelerinage, Spiritualite, Conference, Lieutenance, Centenaire, Diplomatie, Terre Sainte.',
-    'Si pas de 2eme lien laisser vide. Liens : lpj.org, facebook grandmagistere, cathol.lu, oessh.va.'
-  ].join('\n');
+  var system = 'Tu es le redacteur de la Lieutenance pour le Luxembourg de l Ordre Equestre du Saint-Sepulcre de Jerusalem. Tu rediges des actualites pour luxembourg.oessh.lu, registre solennel et elegant.\n\nReponds avec UNIQUEMENT ce format, en remplissant chaque champ. Ne jamais omettre un champ meme s il est court :\n\n###DATE###\n15 juin 2026\n###FIN###\n###LIEU###\nParis\n###FIN###\n###BADGES###\nA la Une|Diplomatie\n###FIN###\n###IMG###\nactu-paris-2026.jpg\n###FIN###\n###FR_TITRE###\nLe titre complet en francais\n###FIN###\n###FR_TEASER###\nTeaser en francais, 1 ou 2 phrases maximum.\n###FIN###\n###FR_TEXTE###\nPremier paragraphe en francais.\n\nDeuxieme paragraphe en francais.\n\nTroisieme paragraphe en francais.\n###FIN###\n###FR_LEGENDE###\nParis - juin 2026 - source\n###FIN###\n###DE_TITRE###\nDer vollstandige Titel auf Deutsch\n###FIN###\n###DE_TEASER###\nZusammenfassung auf Deutsch, 1 oder 2 Satze.\n###FIN###\n###DE_TEXTE###\nErster Absatz auf Deutsch.\n\nZweiter Absatz auf Deutsch.\n\nDritter Absatz auf Deutsch.\n###FIN###\n###DE_LEGENDE###\nParis - Juni 2026 - Quelle\n###FIN###\n###EN_TITRE###\nThe complete title in English\n###FIN###\n###EN_TEASER###\nTeaser in English, 1 or 2 sentences.\n###FIN###\n###EN_TEXTE###\nFirst paragraph in English.\n\nSecond paragraph in English.\n\nThird paragraph in English.\n###FIN###\n###EN_LEGENDE###\nParis - June 2026 - source\n###FIN###\n###LIEN1_URL###\nhttps://www.lpj.org\n###FIN###\n###LIEN1_FR###\nPatriarcat latin de Jerusalem\n###FIN###\n###LIEN1_DE###\nLateinisches Patriarchat Jerusalem\n###FIN###\n###LIEN1_EN###\nLatin Patriarchate of Jerusalem\n###FIN###\n###LIEN2_URL###\nhttps://www.facebook.com/grandmagistere.oessj.fra\n###FIN###\n###LIEN2_FR###\nPublication du Grand Magistere\n###FIN###\n###LIEN2_DE###\nBeitrag des Grossmagisteriums\n###FIN###\n###LIEN2_EN###\nGrand Magisterium post\n###FIN###\n\nREGLES : badges separes par |, toujours commencer par A la Une + 1-2 parmi Investitures, Pelerinage, Spiritualite, Conference, Lieutenance, Centenaire, Diplomatie, Terre Sainte. Si pas de 2eme lien laisser les champs LIEN2 vides. Liens plausibles selon contexte : lpj.org, facebook grandmagistere, cathol.lu, oessh.va. IMPORTANT : chaque section doit etre complete et non tronquee.';
 
   fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -419,44 +366,56 @@ function generate(){
     if(data.error) throw new Error(data.error.message);
     var raw = (data.content||[]).find(function(b){ return b.type==='text'; });
     if(!raw) throw new Error('Réponse vide');
-    // Parse XML response — robust multi-line tag extraction
-    var xml = raw.text;
-    function getTag(tag) {
-      var open = '<' + tag + '>';
-      var close = '</' + tag + '>';
-      var start = xml.indexOf(open);
+    // Parse ### marker response
+    var txt = raw.text;
+    function getField(name) {
+      var open = '###' + name + '###';
+      var close = '###FIN###';
+      var start = txt.indexOf(open);
       if(start === -1) return '';
       start += open.length;
-      var end = xml.indexOf(close, start);
-      if(end === -1) return '';
-      return xml.substring(start, end).trim();
+      var end = txt.indexOf(close, start);
+      if(end === -1) return txt.substring(start).trim();
+      return txt.substring(start, end).trim();
     }
-    var badges = getTag('badges').split('|').map(function(b){ return b.trim(); }).filter(Boolean);
+    var badges = getField('BADGES').split('|').map(function(b){ return b.trim(); }).filter(Boolean);
     var liens = [];
     for(var li = 1; li <= 3; li++) {
-      var lurl = getTag('lien'+li+'_url');
+      var lurl = getField('LIEN'+li+'_URL');
       if(lurl) {
         liens.push({
           label: {
-            fr: (getTag('lien'+li+'_fr') || 'Voir') + ' →',
-            de: (getTag('lien'+li+'_de') || 'Ansehen') + ' →',
-            en: (getTag('lien'+li+'_en') || 'View') + ' →'
+            fr: (getField('LIEN'+li+'_FR') || 'Voir') + ' →',
+            de: (getField('LIEN'+li+'_DE') || 'Ansehen') + ' →',
+            en: (getField('LIEN'+li+'_EN') || 'View') + ' →'
           },
           url: lurl
         });
       }
     }
+    // Rename image with slug based on title
+    var rawImg = getField('IMG');
+    var slug = getField('FR_TITRE')
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-z0-9]+/g,'-')
+      .replace(/^-+|-+$/g,'')
+      .substring(0, 40);
+    var ext = imgOrigName ? imgOrigName.split('.').pop().toLowerCase() : 'jpg';
+    var imgFilename = rawImg || ('actu-' + slug + '.' + ext);
+    if(imgOrigName && ext) imgFilename = imgFilename.replace(/\.[^.]+$/, '.' + ext);
+
     articleData = {
-      date_affichee: getTag('date_affichee'),
-      lieu: getTag('lieu'),
+      date_affichee: getField('DATE'),
+      lieu: getField('LIEU'),
       badges: badges,
-      img_filename: getTag('img_filename'),
-      fr: { titre: getTag('fr_titre'), teaser: getTag('fr_teaser'), texte: getTag('fr_texte'), legende: getTag('fr_legende') },
-      de: { titre: getTag('de_titre'), teaser: getTag('de_teaser'), texte: getTag('de_texte'), legende: getTag('de_legende') },
-      en: { titre: getTag('en_titre'), teaser: getTag('en_teaser'), texte: getTag('en_texte'), legende: getTag('en_legende') },
+      img_filename: imgFilename,
+      fr: { titre: getField('FR_TITRE'), teaser: getField('FR_TEASER'), texte: getField('FR_TEXTE'), legende: getField('FR_LEGENDE') },
+      de: { titre: getField('DE_TITRE'), teaser: getField('DE_TEASER'), texte: getField('DE_TEXTE'), legende: getField('DE_LEGENDE') },
+      en: { titre: getField('EN_TITRE'), teaser: getField('EN_TEASER'), texte: getField('EN_TEXTE'), legende: getField('EN_LEGENDE') },
       liens: liens
     };
-    if(!articleData.fr.titre) throw new Error('Réponse XML invalide ou incomplète');
+    if(!articleData.fr.titre) throw new Error('Réponse invalide ou incomplète — relancez la génération');
     renderPreview();
     document.getElementById('previewWrap').style.display = 'block';
   })
