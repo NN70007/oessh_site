@@ -311,8 +311,14 @@ function showSetup(){
 }
 
 // ── Google Auth ─────────────────────────────────────────
+var ALLOWED_EMAILS = ['jb.niedercorn@gmail.com', 's.niedercorn@gmail.com'];
+
 function onGoogleLogin(response){
   var payload = JSON.parse(atob(response.credential.split('.')[1]));
+  if(ALLOWED_EMAILS.indexOf(payload.email) === -1){
+    document.getElementById('login-err').style.display = 'block';
+    return;
+  }
   document.getElementById('user-name').textContent = payload.name;
   document.getElementById('user-avatar').src = payload.picture;
   document.getElementById('login-screen').style.display='none';
@@ -357,7 +363,7 @@ function generate(){
   document.getElementById('previewWrap').style.display = 'none';
   document.getElementById('genErr').style.display = 'none';
 
-  var system = 'Tu es le rédacteur de la Lieutenance pour le Luxembourg de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH). Tu rédiges des actualités pour le site luxembourg.oessh.lu dans un registre solennel, catholique et élégant. Vocabulaire : "Chevaliers et Dames", "le Cardinal Grand Maître", "la Lieutenance", "les chrétiens de Terre Sainte". Réponds UNIQUEMENT avec le JSON brut sans backticks ni commentaires :\n{"date_affichee":"...","lieu":"...","badges":["À la Une","..."],"img_filename":"actu-[lieu]-[annee].jpg","fr":{"titre":"...","teaser":"1-2 phrases","texte":"para1\\n\\npara2\\n\\npara3","legende":"Lieu · Date · © source"},"de":{"titre":"...","teaser":"...","texte":"...","legende":"..."},"en":{"titre":"...","teaser":"...","texte":"...","legende":"..."},"liens":[{"label":{"fr":"... →","de":"... →","en":"... →"},"url":"https://..."}]}\nRègles badges : toujours "À la Une" + 1-2 parmi Investitures, Pèlerinage, Spiritualité, Conférence, Lieutenance, Centenaire, Diplomatie, Terre Sainte. Liens : 1-3 liens plausibles (Facebook Grand Magistère, lpj.org, cathol.lu, oessh.va…).';
+  var system = 'Tu es le rédacteur de la Lieutenance pour le Luxembourg de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH). Tu rédiges des actualités pour le site luxembourg.oessh.lu dans un registre solennel, catholique et élégant. Vocabulaire : Chevaliers et Dames, le Cardinal Grand Maitre, la Lieutenance, les chretiens de Terre Sainte.\n\nREGLE ABSOLUE : Reponds UNIQUEMENT avec du JSON valide. INTERDIT : guillemets droits dans les valeurs texte, apostrophes dans les valeurs. Remplace les guillemets dans le texte par des guillemets typographiques (« »). Les sauts de paragraphe dans "texte" sont separes par \\n\\n (deux backslash-n).\n\nStructure exacte :\n{"date_affichee":"ex: 15 juin 2026","lieu":"ex: Luxembourg","badges":["A la Une","badge2"],"img_filename":"actu-lieu-annee.jpg","fr":{"titre":"...","teaser":"1-2 phrases max 150 caracteres","texte":"paragraphe 1\\n\\nparagraphe 2\\n\\nparagraphe 3","legende":"Lieu · Date · source"},"de":{"titre":"...","teaser":"...","texte":"...","legende":"..."},"en":{"titre":"...","teaser":"...","texte":"...","legende":"..."},"liens":[{"label":{"fr":"Libelle →","de":"...","en":"..."},"url":"https://..."}]}\n\nRègles badges : toujours "A la Une" + 1-2 parmi : Investitures, Pelerinage, Spiritualite, Conference, Lieutenance, Centenaire, Diplomatie, Terre Sainte.\nLiens : 1-3 liens plausibles selon contexte (https://www.facebook.com/grandmagistere.oessj.fra, https://www.lpj.org, https://www.cathol.lu, https://www.oessh.va).';
 
   fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -379,7 +385,12 @@ function generate(){
     if(data.error) throw new Error(data.error.message);
     var raw = (data.content||[]).find(function(b){ return b.type==='text'; });
     if(!raw) throw new Error('Réponse vide');
-    articleData = JSON.parse(raw.text.replace(/```json|```/g,'').trim());
+    var cleaned = raw.text.replace(/```json|```/g,'').trim();
+    var f = cleaned.indexOf('{'), l = cleaned.lastIndexOf('}');
+    if(f===-1||l===-1) throw new Error('Format invalide');
+    cleaned = cleaned.substring(f, l+1);
+    try { articleData = JSON.parse(cleaned); }
+    catch(e2) { cleaned = cleaned.replace(/\u2018|\u2019/g,"'").replace(/\u201C|\u201D/g,''); articleData = JSON.parse(cleaned); }
     renderPreview();
     document.getElementById('previewWrap').style.display = 'block';
   })
