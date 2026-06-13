@@ -1293,7 +1293,7 @@ document.addEventListener('keydown', function(e){
       if(!a){ slot.innerHTML = ''; return; }
       var liensHTML = (a.liens||[]).map(function(lien){
         var label = (lien.label&&lien.label[lang]) || (lien.label&&lien.label.fr) || (lang==='en'?'View the publication':lang==='de'?'Veröffentlichung ansehen':'Voir la publication');
-        return '<a class="read" href="'+lien.url+'" target="_blank" rel="noopener">'+label+' <span>→</span></a>';
+        return '<a class="read" href="'+lien.url+'" target="_blank" rel="noopener">'+label+'</a>';
       }).join('');
       var badgesHTML = (a.badges||[]).map(function(b,i){
         return i===0?'<span class="tag">'+b+'</span>':'<span>'+b+'</span>';
