@@ -2,6 +2,46 @@
   "version": 2,
   "articles": [
     {
+      "id": "le-cardinal-pizzaballa-decore-de-la-legi",
+      "date_affichee": "2025",
+      "lieu": "Jérusalem",
+      "badges": [
+        "À la Une",
+        "Terre Sainte"
+      ],
+      "img_filename": "cardinal-pizzaballa-legion-honneur-macron.jpg",
+      "legende": {
+        "fr": "Jérusalem · 2025 · © Élysée / Facebook E. Macron",
+        "de": "Jerusalem · 2025 · © Élysée / Facebook E. Macron",
+        "en": "Jerusalem · 2025 · © Élysée / Facebook E. Macron"
+      },
+      "titre": {
+        "fr": "Le Cardinal Pizzaballa décoré de la Légion d'honneur",
+        "de": "Kardinal Pizzaballa mit der Ehrenlegion ausgezeichnet",
+        "en": "Cardinal Pizzaballa Awarded the Légion d'honneur"
+      },
+      "teaser": {
+        "fr": "Emmanuel Macron a remis les insignes de la Légion d'honneur au Cardinal Patriarche latin de Jérusalem, en hommage à son engagement pour la paix.",
+        "de": "Emmanuel Macron hat Kardinal Pierbattista Pizzaballa, dem Lateinischen Patriarchen von Jerusalem, die Insignien der Ehrenlegion verliehen – als Anerkennung seines unermüdlichen Einsatzes für den Frieden.",
+        "en": "Emmanuel Macron presented the insignia of the Légion d'honneur to Cardinal Pierbattista Pizzaballa, Latin Patriarch of Jerusalem, in recognition of his tireless commitment to peace."
+      },
+      "texte": {
+        "fr": "C'est un geste d'une haute portée symbolique que le Président de la République française, Emmanuel Macron, a accompli en remettant les insignes de la Légion d'honneur à Son Éminence le Cardinal Pierbattista Pizzaballa, Patriarche latin de Jérusalem et Grand Maître de l'Ordre Équestre du Saint-Sépulcre de Jérusalem. Cette distinction, l'une des plus éminentes que la France puisse conférer, vient couronner l'action inlassable du Cardinal en faveur du dialogue interreligieux, de la justice et de la paix au Proche-Orient.\n\nLe Chef de l'État français a tenu à souligner, par ce geste solennel, la reconnaissance de la République pour le courage et l'humanité dont le Cardinal Pizzaballa fait preuve au quotidien, alors même que les populations civiles de Terre Sainte — et parmi elles les chrétiens, dont notre Ordre a la vocation de soutenir la présence — se trouvent éprouvées par les tourments de la guerre. La France, fidèle à ses responsabilités historiques, a réaffirmé à cette occasion son attachement indéfectible au respect du statu quo sur les Lieux Saints de Jérusalem.\n\nLa Lieutenance pour le Luxembourg s'associe pleinement à cet hommage rendu à celui qui est à la fois notre Patriarche et notre Cardinal Grand Maître. Que cette distinction vienne rappeler à tous les Chevaliers et Dames de l'Ordre la noblesse de la mission qui nous est confiée : demeurer, par notre prière et notre action, des soutiens fidèles des chrétiens de Terre Sainte, gardiens vivants d'une présence deux fois millénaire sur la terre du Christ.",
+        "de": "Es war eine Geste von hoher symbolischer Bedeutung, die der Präsident der Französischen Republik, Emmanuel Macron, vollzog, als er Seiner Eminenz Kardinal Pierbattista Pizzaballa, dem Lateinischen Patriarchen von Jerusalem und Großmeister des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem, die Insignien der Ehrenlegion überreichte. Diese Auszeichnung, eine der höchsten Ehrungen, die Frankreich verleihen kann, krönt das unablässige Wirken des Kardinals für den interreligiösen Dialog, die Gerechtigkeit und den Frieden im Nahen Osten.\n\nDer französische Staatschef wollte durch diese feierliche Geste die Anerkennung der Republik für den Mut und die Menschlichkeit zum Ausdruck bringen, die Kardinal Pizzaballa täglich unter Beweis stellt – zu einer Zeit, da die Zivilbevölkerung im Heiligen Land – und unter ihr die Christen, deren Präsenz zu stärken die Berufung unseres Ordens ist – durch die Wirren des Krieges auf das Schwerste geprüft wird. Frankreich, seiner historischen Verantwortung treu, bekräftigte bei diesem Anlass aufs Neue sein unerschütterliches Bekenntnis zur Achtung des Status quo an den Heiligen Stätten Jerusalems.\n\nDie Leutnantschaft für Luxemburg schließt sich vollumfänglich dieser Hommage an denjenigen an, der zugleich unser Patriarch und unser Kardinal-Großmeister ist. Möge diese Auszeichnung alle Ritter und Damen des Ordens daran erinnern, wie erhaben die uns anvertraute Sendung ist: durch unser Gebet und unser Handeln treue Stützen der Christen im Heiligen Land zu bleiben – lebendige Hüter einer zweitausendjährigen Gegenwart auf der Erde Christi.",
+        "en": "It was a gesture of profound symbolic significance that the President of the French Republic, Emmanuel Macron, performed in presenting the insignia of the Légion d'honneur to His Eminence Cardinal Pierbattista Pizzaballa, Latin Patriarch of Jerusalem and Grand Master of the Equestrian Order of the Holy Sepulchre of Jerusalem. This distinction, one of the most eminent honours France can bestow, crowns the Cardinal's tireless action in favour of interreligious dialogue, justice and peace in the Middle East.\n\nThe French Head of State wished to convey, through this solemn gesture, the Republic's recognition of the courage and humanity that Cardinal Pizzaballa demonstrates day after day, at a time when the civilian populations of the Holy Land — and among them the Christians whose presence our Order is called to uphold — are sorely tried by the ordeals of war. France, faithful to its historic responsibilities, reaffirmed on this occasion its unwavering commitment to the respect of the status quo at the Holy Sites of Jerusalem.\n\nThe Lieutenancy for Luxembourg fully associates itself with this tribute paid to one who is at once our Patriarch and our Cardinal Grand Master. May this distinction remind all Knights and Ladies of the Order of the nobility of the mission entrusted to us: to remain, through our prayer and our action, faithful supporters of the Christians of the Holy Land — living guardians of a two-thousand-year-old presence on the soil of Christ."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Publication originale d'Emmanuel Macron — page Facebook officielle",
+            "de": "Ursprüngliche Veröffentlichung von Emmanuel Macron – offizielle Facebook-Seite",
+            "en": "Original post by Emmanuel Macron – official Facebook page"
+          },
+          "url": "https://www.facebook.com/EmmanuelMacron"
+        }
+      ]
+    },
+    {
       "id": "centenaire-de-la-lieutenance-pour-la-bel",
       "date_affichee": "6 juin 2026",
       "lieu": "Bruxelles",
