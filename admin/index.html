@@ -272,6 +272,25 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
         <div class="wstep-head"><div class="wstep-num">2</div><div class="wstep-title">Relire et corriger le français</div></div>
         <div class="wstep-body">
           <p style="font-size:13px;color:var(--ink-mute);margin-bottom:14px">Modifiez librement le texte et les liens ci-dessous avant de valider.</p>
+
+          <!-- Photo & PDFs — visibles en mode edit -->
+          <div id="step2-media" style="display:none;margin-bottom:20px;padding:16px;background:#faf9f6;border:1px solid var(--border);border-radius:var(--radius)">
+            <div style="margin-bottom:14px">
+              <label class="lbl">Modifier la photo</label>
+              <div class="dropzone" style="padding:16px">
+                <input type="file" id="imgInput2" accept="image/*" onchange="handleImage2(this)"/>
+                <div class="dz-icon" style="font-size:20px">📷</div>
+                <div class="dz-txt" id="img2-txt"><strong>Choisir une nouvelle photo</strong> ou glisser — laisser vide pour conserver l'actuelle</div>
+              </div>
+              <div class="img-preview" id="imgPreview2" style="display:none;margin-top:8px"><img id="imgThumb2" src="" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:6px"/></div>
+            </div>
+            <div>
+              <label class="lbl">Ajouter des PDFs (homélie, article…)</label>
+              <div id="pdf-list2" style="display:flex;flex-direction:column;gap:8px"></div>
+              <button type="button" class="btn-add-lien" onclick="addPDFRow2()" style="margin-top:6px">+ Ajouter un PDF</button>
+            </div>
+          </div>
+
           <div class="fr-edit" id="frEdit" style="display:block">
             <div class="field-edit"><label>Titre</label><input type="text" id="fr-titre"/></div>
             <div class="field-edit"><label>Teaser (1-2 phrases)</label><textarea id="fr-teaser" rows="2"></textarea></div>
@@ -285,10 +304,25 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
           </div>
           <div class="action-bar">
             <button class="btn-secondary" onclick="goStep(1)">← Retour</button>
-            <button class="btn-action" id="btn2" onclick="translateDEEN()">Valider le français et traduire →</button>
+            <button class="btn-action" id="btn2" onclick="validateFR()">Valider le français →</button>
           </div>
           <div class="loader" id="load2"><div class="spinner"></div>Claude traduit en allemand et anglais…</div>
           <div class="err-box" id="err2"></div>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 2.5 : Intitulés PDFs -->
+      <div class="wstep" id="step25">
+        <div class="wstep-head"><div class="wstep-num">2.5</div><div class="wstep-title">Nommer les liens PDF dans les 3 langues</div></div>
+        <div class="wstep-body">
+          <p style="font-size:13px;color:var(--ink-mute);margin-bottom:16px">Donnez un intitulé descriptif à chaque PDF dans les 3 langues.</p>
+          <div id="pdf-labels-container"></div>
+          <div class="action-bar">
+            <button class="btn-secondary" onclick="goStep(2)">← Retour</button>
+            <button class="btn-action" id="btn25" onclick="proceedToTranslate()">Traduire en DE et EN →</button>
+          </div>
+          <div class="loader" id="load25"><div class="spinner"></div>Claude traduit…</div>
+          <div class="err-box" id="err25"></div>
         </div>
       </div>
 
@@ -376,6 +410,45 @@ function logout(){
 }
 
 // ── Image ─────────────────────────────────────────
+function handleImage2(input){
+  var file = input.files[0]; if(!file) return;
+  imgOrigName = file.name; imgMime = file.type;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    imgBase64 = e.target.result.split(',')[1];
+    document.getElementById('imgPreview2').style.display = 'block';
+    document.getElementById('imgThumb2').src = e.target.result;
+    document.getElementById('img2-txt').textContent = '✓ Nouvelle photo : '+file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function addPDFRow2(){
+  var container = document.getElementById('pdf-list2');
+  var row = document.createElement('div');
+  row.className = 'pdf-row pdf-row2';
+  row.dataset.filename = '';
+  row.dataset.base64 = '';
+  row.innerHTML =
+    '<div><label>Fichier PDF</label>'+
+      '<input type="file" accept=".pdf" onchange="handlePDF2(this,this.closest(\'.pdf-row2\'))"/>'+
+      '<div class="pdf-info"></div></div>'+
+    '<button class="btn-rm" onclick="this.closest(\'.pdf-row2\').remove()" title="Supprimer">✕</button>';
+  container.appendChild(row);
+}
+
+function handlePDF2(input, row){
+  var file = input.files[0]; if(!file) return;
+  var fname = file.name.replace(/\s+/g,'-').toLowerCase();
+  row.dataset.filename = fname;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    row.dataset.base64 = e.target.result.split(',')[1];
+    row.querySelector('.pdf-info').textContent = '✓ '+fname;
+  };
+  reader.readAsDataURL(file);
+}
+
 function handleImage(input){
   var file=input.files[0]; if(!file) return;
   imgOrigName=file.name; imgMime=file.type;
@@ -392,13 +465,19 @@ function handleImage(input){
 
 // ── Step navigation ───────────────────────────────
 function goStep(n){
-  for(var i=1;i<=3;i++){
-    var el=document.getElementById('step'+i);
+  var steps = [1, 2, 25, 3];
+  var order = {'1':0,'2':1,'25':2,'3':3};
+  var nOrder = order[String(n)];
+  steps.forEach(function(s){
+    var el = document.getElementById('step'+s);
+    if(!el) return;
     el.classList.remove('active','done');
-    if(i<n) el.classList.add('done');
-    else if(i===n) el.classList.add('active');
-  }
-  currentStep=n;
+    var sOrder = order[String(s)];
+    if(sOrder < nOrder) el.classList.add('done');
+    else if(s === n) el.classList.add('active');
+  });
+  currentStep = n;
+  window.scrollTo(0,0);
 }
 
 // ── Claude API call ───────────────────────────────
@@ -550,6 +629,71 @@ function getFRData(){
 }
 
 // ── ÉTAPE 2 : Traduire DE + EN ────────────────────
+var pendingPDFs = []; // PDFs from step 2 that need labels
+
+function validateFR(){
+  var fr = getFRData();
+  if(!fr.titre){ showErr('err2','Le titre français est vide.'); return; }
+
+  // Collect PDFs from step2-media
+  pendingPDFs = [];
+  document.querySelectorAll('#pdf-list2 .pdf-row2').forEach(function(row){
+    var fname = row.dataset.filename || '';
+    var b64 = row.dataset.base64 || null;
+    if(fname){
+      pendingPDFs.push({ filename: fname, base64: b64, labelFr: '', labelDe: '', labelEn: '' });
+    }
+  });
+
+  // Also collect PDFs from step1 pdf-list
+  pdfFiles.filter(Boolean).forEach(function(p){
+    if(p.filename){
+      pendingPDFs.push({ filename: p.filename, base64: p.base64, labelFr: p.label||'', labelDe: '', labelEn: '' });
+    }
+  });
+
+  if(pendingPDFs.length > 0){
+    // Build label form in step 2.5
+    var container = document.getElementById('pdf-labels-container');
+    container.innerHTML = '';
+    pendingPDFs.forEach(function(pdf, i){
+      var block = document.createElement('div');
+      block.style.cssText = 'background:#faf9f6;border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px';
+      block.innerHTML =
+        '<div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:10px">📄 '+pdf.filename+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
+          '<div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);font-weight:500">Français</label>'+
+            '<input type="text" class="pdf-lbl-fr" data-idx="'+i+'" value="'+pdf.labelFr+'" placeholder="ex: Homélie de la veillée" style="width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink)"/></div>'+
+          '<div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);font-weight:500">Deutsch</label>'+
+            '<input type="text" class="pdf-lbl-de" data-idx="'+i+'" value="'+pdf.labelDe+'" placeholder="ex: Predigt der Vigil" style="width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink)"/></div>'+
+          '<div><label style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);font-weight:500">English</label>'+
+            '<input type="text" class="pdf-lbl-en" data-idx="'+i+'" value="'+pdf.labelEn+'" placeholder="ex: Vigil homily" style="width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink)"/></div>'+
+        '</div>';
+      container.appendChild(block);
+    });
+    goStep(25);
+  } else {
+    translateDEEN();
+  }
+}
+
+function proceedToTranslate(){
+  // Collect PDF labels from step 2.5
+  document.querySelectorAll('.pdf-lbl-fr').forEach(function(el){
+    var i = parseInt(el.dataset.idx);
+    pendingPDFs[i].labelFr = el.value.trim();
+  });
+  document.querySelectorAll('.pdf-lbl-de').forEach(function(el){
+    var i = parseInt(el.dataset.idx);
+    pendingPDFs[i].labelDe = el.value.trim();
+  });
+  document.querySelectorAll('.pdf-lbl-en').forEach(function(el){
+    var i = parseInt(el.dataset.idx);
+    pendingPDFs[i].labelEn = el.value.trim();
+  });
+  translateDEEN();
+}
+
 async function translateDEEN(){
   var fr = getFRData();
   if(!fr.titre){ showErr('err2','Le titre français est vide.'); return; }
@@ -689,22 +833,23 @@ async function publish(){
 
   try {
     if(imgBase64) await githubPut(s, 'assets/'+imgFilename, imgBase64, 'Admin: image '+imgFilename);
-    // Upload PDFs and add as liens
+    // Upload PDFs from step1 pdfFiles
     var pdfLiens = [];
     for(var pi=0; pi<pdfFiles.length; pi++){
       var pdf = pdfFiles[pi];
       if(!pdf) continue;
-      if(pdf.base64 && pdf.filename){
-        await githubPut(s, 'assets/'+pdf.filename, pdf.base64, 'Admin: PDF '+pdf.filename);
-      }
-      if(pdf.filename && pdf.label){
-        pdfLiens.push({
-          label: { fr: pdf.label, de: pdf.label, en: pdf.label },
-          url: 'assets/'+pdf.filename
-        });
-      }
+      if(pdf.base64 && pdf.filename) await githubPut(s, 'assets/'+pdf.filename, pdf.base64, 'Admin: PDF '+pdf.filename);
+      if(pdf.filename && pdf.label) pdfLiens.push({ label:{fr:pdf.label,de:pdf.label,en:pdf.label}, url:'assets/'+pdf.filename });
     }
-    // Merge PDF liens with regular liens
+    // Upload PDFs from step 2.5 pendingPDFs
+    for(var pi2=0; pi2<pendingPDFs.length; pi2++){
+      var ppdf = pendingPDFs[pi2];
+      if(ppdf.base64 && ppdf.filename) await githubPut(s, 'assets/'+ppdf.filename, ppdf.base64, 'Admin: PDF '+ppdf.filename);
+      if(ppdf.filename) pdfLiens.push({
+        label: { fr: ppdf.labelFr||ppdf.filename, de: ppdf.labelDe||ppdf.labelFr||ppdf.filename, en: ppdf.labelEn||ppdf.labelFr||ppdf.filename },
+        url: 'assets/'+ppdf.filename
+      });
+    }
     newArticle.liens = newArticle.liens.concat(pdfLiens);
     var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(json,null,2))));
     await githubPut(s, 'actualites.json', jsonB64, 'Admin: actualité "'+fr.titre.substring(0,50)+'"');
@@ -817,6 +962,7 @@ function editArticle(art){
     thumb.style.display = 'block';
   }
 
+  document.getElementById('step2-media').style.display = 'block';
   goStep(2);
   window.scrollTo(0, 0);
 }
