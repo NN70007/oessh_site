@@ -1282,44 +1282,64 @@ document.addEventListener('keydown', function(e){
 </script>
 
 <script>
+// Actualités dynamiques — chargées depuis actualites.json
 (function(){
   var lang = document.documentElement.lang || 'fr';
   var slot = document.getElementById('actu-une-slot');
-  if(!slot) return;
+  if (!slot) return;
+
+  function pick(o){
+    if (!o) return '';
+    if (typeof o === 'string') return o;
+    return o[lang] || o.fr || '';
+  }
+
+  function buildCard(a, isFeature){
+    var liensHTML = (a.liens || []).map(function(lien){
+      var label = pick(lien.label) || pick(lien.label);
+      return '<a class="read" href="' + lien.url + '" target="_blank" rel="noopener">' + label + ' <span>\u2192</span></a>';
+    }).join('');
+    var badgesHTML = (Array.isArray(a.badges) ? a.badges : []).map(function(b, i){
+      return i === 0 ? '<span class="tag">' + b + '</span>' : '<span>' + b + '</span>';
+    }).join('');
+    var texteParas = pick(a.texte).split('\n\n').filter(Boolean)
+      .map(function(p){ return '<p>' + p + '</p>'; }).join('');
+    var moreL = lang==='de' ? '\u2026 Mehr lesen'  : lang==='en' ? '\u2026 Read more'  : '\u2026 Lire la suite';
+    var lessL = lang==='de' ? 'Weniger \u2191'     : lang==='en' ? 'Collapse \u2191'   : 'R\u00e9duire \u2191';
+    var cls = isFeature ? 'news-card feature' : 'news-card';
+    return '<article class="' + cls + '">' +
+      '<div class="thumb has-image">' +
+        '<img src="assets/' + a.img_filename + '" alt="' + pick(a.legende) + '" loading="lazy" decoding="async"/>' +
+        (pick(a.legende) ? '<span class="thumb-label">' + pick(a.legende) + '</span>' : '') +
+      '</div>' +
+      '<div class="meta-line">' + badgesHTML + '</div>' +
+      '<h3>' + pick(a.titre) + '</h3>' +
+      '<p class="' + (isFeature ? 'teaser' : '') + '">' + pick(a.teaser) + '</p>' +
+      (texteParas ? '<div class="more-text">' + texteParas + '</div>' +
+        '<button class="read-more" type="button" data-more="' + moreL + '" data-less="' + lessL + '" onclick="toggleMore(this)">' + moreL + '</button>' : '') +
+      (liensHTML ? '<div class="read-row">' + liensHTML + '</div>' : '') +
+    '</article>';
+  }
+
   fetch('actualites.json?v=' + Date.now())
-    .then(function(r){ return r.json(); })
+    .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
     .then(function(data){
-      var a = data.actu_une;
-      if(!a){ slot.innerHTML = ''; return; }
-      var liensHTML = (a.liens||[]).map(function(lien){
-        var label = (lien.label&&lien.label[lang]) || (lien.label&&lien.label.fr) || (lang==='en'?'View the publication':lang==='de'?'Veröffentlichung ansehen':'Voir la publication');
-        return '<a class="read" href="'+lien.url+'" target="_blank" rel="noopener">'+label+'</a>';
-      }).join('');
-      var badgesHTML = (a.badges||[]).map(function(b,i){
-        return i===0?'<span class="tag">'+b+'</span>':'<span>'+b+'</span>';
-      }).join('');
-      var texte = (a.texte&&a.texte[lang]) || (a.texte&&a.texte.fr) || '';
-      var texteParas = texte.split('\n\n').filter(Boolean).map(function(p){return '<p>'+p+'</p>';}).join('');
-      var readMore = lang==='de'?'… Mehr lesen':lang==='en'?'… Read more':'… Lire la suite';
-      var readLess = lang==='de'?'Weniger ↑':lang==='en'?'Show less ↑':'Réduire ↑';
-      var titre = (a.titre&&a.titre[lang])||(a.titre&&a.titre.fr)||'';
-      var teaser = (a.teaser&&a.teaser[lang])||(a.teaser&&a.teaser.fr)||'';
-      var legende = (a.legende&&a.legende[lang])||(a.legende&&a.legende.fr)||'';
-      slot.innerHTML =
-        '<article class="news-card feature">'+
-          '<div class="thumb has-image">'+
-            '<img src="assets/'+a.img_filename+'" alt="'+legende+'" loading="lazy" decoding="async"/>'+
-            '<span class="thumb-label">'+legende+'</span>'+
-          '</div>'+
-          '<div class="meta-line">'+badgesHTML+'</div>'+
-          '<h3>'+titre+'</h3>'+
-          '<p class="teaser">'+teaser+'</p>'+
-          '<div class="more-text">'+texteParas+'</div>'+
-          '<button class="read-more" type="button" data-more="'+readMore+'" data-less="'+readLess+'" onclick="toggleMore(this)">'+readMore+'</button>'+
-          '<div class="read-row">'+liensHTML+'</div>'+
-        '</article>';
+      // Support v1 and v2
+      var articles = [];
+      if (data.version === 2 && Array.isArray(data.articles)) {
+        articles = data.articles;
+      } else if (data.actu_une) {
+        articles = [data.actu_une];
+      }
+      if (!articles.length) { slot.remove(); return; }
+
+      var html = '';
+      articles.forEach(function(a, i){
+        html += buildCard(a, i === 0);
+      });
+      slot.innerHTML = html;
     })
-    .catch(function(){ slot.innerHTML = ''; });
+    .catch(function(){ slot.remove(); });
 })();
 </script>
 </body>

@@ -575,29 +575,53 @@ async function publish(){
     return art.liens.map(function(l){ return {label: l.label, url: l.url}; });
   };
 
-  var json = {
-    version: 1,
-    actu_une: {
-      id: slug,
-      date_affichee: fr.date,
-      lieu: fr.lieu,
-      badges: fr.badges.split('|').map(function(b){return b.trim();}),
-      img_filename: imgFilename,
-      legende: { fr: fr.legende, de: articleDE.legende, en: articleEN.legende },
-      titre:   { fr: fr.titre,   de: articleDE.titre,   en: articleEN.titre   },
-      teaser:  { fr: fr.teaser,  de: articleDE.teaser,  en: articleEN.teaser  },
-      texte:   { fr: fr.texte,   de: articleDE.texte,   en: articleEN.texte   },
-      liens: fr.liens.map(function(l,i){
-        return {
-          label: {
-            fr: l.label,
-            de: (articleDE.liens[i]||{}).label || l.label,
-            en: (articleEN.liens[i]||{}).label || l.label
-          },
-          url: l.url
-        };
-      })
+  // Build new article object
+  var newArticle = {
+    id: slug,
+    date_affichee: fr.date,
+    lieu: fr.lieu,
+    badges: fr.badges.split('|').map(function(b){return b.trim();}),
+    img_filename: imgFilename,
+    legende: { fr: fr.legende, de: articleDE.legende, en: articleEN.legende },
+    titre:   { fr: fr.titre,   de: articleDE.titre,   en: articleEN.titre   },
+    teaser:  { fr: fr.teaser,  de: articleDE.teaser,  en: articleEN.teaser  },
+    texte:   { fr: fr.texte,   de: articleDE.texte,   en: articleEN.texte   },
+    liens: fr.liens.map(function(l,i){
+      return {
+        label: {
+          fr: l.label,
+          de: (articleDE.liens[i]||{}).label || l.label,
+          en: (articleEN.liens[i]||{}).label || l.label
+        },
+        url: l.url
+      };
+    })
+  };
+
+  // Load existing actualites.json to prepend new article
+  var existingArticles = [];
+  try {
+    var existingUrl = 'https://api.github.com/repos/'+s.repo+'/contents/actualites.json';
+    var existingResp = await fetch(existingUrl, {headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
+    if(existingResp.ok){
+      var existingFile = await existingResp.json();
+      var existingDecoded = decodeURIComponent(escape(atob(existingFile.content.replace(/\n/g,''))));
+      var existingData = JSON.parse(existingDecoded);
+      if(existingData.version === 2 && Array.isArray(existingData.articles)){
+        existingArticles = existingData.articles;
+      } else if(existingData.actu_une){
+        existingArticles = [existingData.actu_une];
+      }
     }
+  } catch(e2){}
+
+  // Remove article with same id if exists, then prepend new one
+  existingArticles = existingArticles.filter(function(a){ return a.id !== newArticle.id; });
+  existingArticles.unshift(newArticle);
+
+  var json = {
+    version: 2,
+    articles: existingArticles
   };
 
   try {
