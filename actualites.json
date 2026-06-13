@@ -1,39 +1,44 @@
 {
   "version": 1,
   "actu_une": {
-    "id": "pizzaballa-legion-honneur-2026",
-    "date_affichee": "juin 2026",
-    "lieu": "Paris",
-    "badges": ["À la Une", "Terre Sainte", "Diplomatie"],
-    "img_filename": "actu-pizzaballa-legion-honneur-2026.jpg",
-    "img_alt": {
-      "fr": "Le Président Emmanuel Macron remet les insignes de la Légion d'honneur au Cardinal Pierbattista Pizzaballa, Patriarche latin de Jérusalem — Paris, juin 2026",
-      "de": "Präsident Emmanuel Macron überreicht Kardinal Pierbattista Pizzaballa die Insignien der Ehrenlegion — Paris, Juni 2026",
-      "en": "President Emmanuel Macron presents the Legion of Honour to Cardinal Pierbattista Pizzaballa, Latin Patriarch of Jerusalem — Paris, June 2026"
-    },
+    "id": "investitures-suisse-liechtenstein-2026",
+    "date_affichee": "31 mai 2026",
+    "lieu": "Coire / Vaduz",
+    "badges": [
+      "A la Une",
+      "Investitures",
+      "Lieutenance"
+    ],
+    "img_filename": "investitures-suisse-liechtenstein-2026.jpg",
     "legende": {
-      "fr": "Paris · juin 2026 · © Élysée",
-      "de": "Paris · Juni 2026 · © Élysée",
-      "en": "Paris · June 2026 · © Élysée"
+      "fr": "Cérémonie d'investiture dans la cathédrale de Coire, en présence du Cardinal Grand Maître Fernando Filoni et des autorités de l'Ordre, mai 2026.",
+      "de": "Investiturzeremonie im Dom zu Chur in Anwesenheit von Kardinal-Großmeister Fernando Filoni und den Ordensoberen, Mai 2026.",
+      "en": "Investiture ceremony at the Cathedral of Chur, in the presence of Cardinal Grand Master Fernando Filoni and the Order's authorities, May 2026."
     },
     "titre": {
-      "fr": "La France honore le Cardinal Pizzaballa : la Légion d'honneur au Patriarche latin de Jérusalem",
-      "de": "Frankreich ehrt Kardinal Pizzaballa: Ehrenlegion für den Lateinischen Patriarchen von Jerusalem",
-      "en": "France honours Cardinal Pizzaballa: the Legion of Honour awarded to the Latin Patriarch of Jerusalem"
+      "fr": "Investitures solennelles à Coire et Vaduz : dix nouveaux membres accueillis au sein de l'Ordre du Saint-Sépulcre",
+      "de": "Feierliche Investituren in Chur und Vaduz: Zehn neue Mitglieder in den Orden vom Heiligen Grab aufgenommen",
+      "en": "Solemn Investitures in Chur and Vaduz: Ten New Members Welcomed into the Order of the Holy Sepulchre"
     },
     "teaser": {
-      "fr": "Le Président Emmanuel Macron a remis les insignes de la Légion d'honneur au Cardinal Pierbattista Pizzaballa, saluant son courage et son engagement inlassable au service des chrétiens de Terre Sainte.",
-      "de": "Präsident Emmanuel Macron hat Kardinal Pierbattista Pizzaballa die Insignien der Ehrenlegion überreicht und damit seinen Mut und unermüdlichen Einsatz für die Christen im Heiligen Land gewürdigt.",
-      "en": "President Emmanuel Macron has presented the Legion of Honour to Cardinal Pierbattista Pizzaballa, honouring his courage and tireless dedication to the Christians of the Holy Land."
+      "fr": "Du 29 au 31 mai 2026, la Lieutenance pour la Suisse et le Liechtenstein a célébré ses investitures dans la cathédrale de Coire et lors de la messe dominicale à la cathédrale de Vaduz. Dix nouveaux membres, dont l'Abbé de l'Abbaye territoriale de Saint-Maurice, ont été admis en présence du Cardinal Grand Maître Fernando Filoni.",
+      "de": "Vom 29. bis 31. Mai 2026 feierte die Lieutenance für die Schweiz und Liechtenstein ihre Investituren im Dom zu Chur sowie beim Sonntagsgottesdienst im Dom zu Vaduz im Fürstentum Liechtenstein. Zehn neue Mitglieder, darunter der Abt der Territorialabtei Saint-Maurice, wurden in Anwesenheit von Kardinal-Großmeister Fernando Filoni in den Orden aufgenommen.",
+      "en": "From 29 to 31 May 2026, the Lieutenancy for Switzerland and Liechtenstein celebrated its investiture ceremonies at the Cathedral of Chur and during Sunday Mass at the Cathedral of Vaduz, in the Principality of Liechtenstein. Ten new members, including the Abbot of the Territorial Abbey of Saint-Maurice, were admitted in the presence of Cardinal Grand Master Fernando Filoni."
     },
     "texte": {
-      "fr": "En un geste solennel et fraternel, le Président de la République française Emmanuel Macron a remis les insignes de chevalier de la Légion d'honneur au Cardinal Pierbattista Pizzaballa, Patriarche latin de Jérusalem, exprimant ainsi la reconnaissance de la France pour son action courageuse et inlassable au service de la paix, du dialogue interreligieux et des communautés chrétiennes de Terre Sainte.\n\nDans son allocution, le Président Macron a rendu hommage à cet « apôtre infatigable du dialogue interreligieux, de la justice et de la paix », dont le témoignage rayonne bien au-delà des frontières de l'Église. Alors que les populations civiles de Terre Sainte, et parmi elles les chrétiens, sont éprouvées par les tourments de la guerre, cette distinction vient souligner le rôle irremplaçable du Patriarche comme voix de l'espérance et artisan de réconciliation.\n\nÀ cette occasion, le Président Macron a réaffirmé l'attachement indéfectible de la France au respect du statu quo sur les lieux saints de Jérusalem, pierre angulaire d'une coexistence fragile mais essentielle entre les communautés religieuses. La France, fidèle à ses responsabilités historiques, réaffirme ainsi son engagement auprès des chrétiens d'Orient et de tous les peuples du Proche et Moyen-Orient.",
-      "de": "In einem feierlichen und brüderlichen Akt hat der französische Staatspräsident Emmanuel Macron Kardinal Pierbattista Pizzaballa, dem Lateinischen Patriarchen von Jerusalem, die Insignien des Ritters der Ehrenlegion überreicht und damit die Anerkennung Frankreichs für dessen mutigen und unermüdlichen Einsatz für Frieden, interreligiösen Dialog und die christlichen Gemeinschaften im Heiligen Land zum Ausdruck gebracht.\n\nIn seiner Ansprache würdigte Präsident Macron den Patriarchen als einen „unermüdlichen Apostel des interreligiösen Dialogs, der Gerechtigkeit und des Friedens\", dessen Zeugnis weit über die Grenzen der Kirche hinaus ausstrahlt. In einer Zeit, in der die Zivilbevölkerung des Heiligen Landes vom Leid des Krieges geplagt wird, unterstreicht diese Auszeichnung die unersetzliche Rolle des Patriarchen als Stimme der Hoffnung.\n\nBei diesem Anlass bekräftigte Präsident Macron das unerschütterliche Bekenntnis Frankreichs zur Achtung des Status quo an den heiligen Stätten Jerusalems. Frankreich bekräftigt damit sein Engagement für die Christen des Orients und alle Völker des Nahen und Mittleren Ostens.",
-      "en": "In a solemn and fraternal gesture, French President Emmanuel Macron presented Cardinal Pierbattista Pizzaballa, Latin Patriarch of Jerusalem, with the insignia of Knight of the Legion of Honour, expressing France's recognition of his courageous and tireless service to peace, interreligious dialogue, and the Christian communities of the Holy Land.\n\nIn his address, President Macron paid tribute to the Patriarch as a \"tireless apostle of interreligious dialogue, justice and peace\", whose witness radiates far beyond the boundaries of the Church. As the civilian population of the Holy Land endures the turmoil of war, this distinction underscores the irreplaceable role of the Patriarch as a voice of hope and an artisan of reconciliation.\n\nOn this occasion, President Macron reaffirmed France's unwavering commitment to the respect of the status quo over the holy sites of Jerusalem. France, faithful to its historic responsibilities, reaffirms its support for the Christians of the East and all the peoples of the Near and Middle East."
+      "fr": "Du 29 au 31 mai 2026, la Lieutenance pour la Suisse et le Liechtenstein a vécu des journées de grâce exceptionnelles, marquées par la célébration des investitures dans la cathédrale de Coire, puis lors de la messe dominicale à la cathédrale de Vaduz, en Principauté de Liechtenstein. Présidées par le Cardinal Grand Maître Fernando Filoni, ces cérémonies ont accueilli dix nouveaux membres au sein de l'Ordre Équestre du Saint-Sépulcre de Jérusalem, parmi lesquels l'Abbé de l'Abbaye territoriale de Saint-Maurice en Valais, signe éloquent du lien profond unissant l'Ordre à la vie monastique et spirituelle de la région.\n\nLa solennité de ces journées fut rehaussée par la présence du Gouverneur Général de l'Ordre, Leonardo Visconti di Modrone, des deux Vice-Gouverneurs Généraux, Jean-Pierre de Glutz-Ruchti et Enric Mas, ainsi que des Lieutenants et représentants de douze Lieutenances partenaires. Six évêques venus de Suisse, du Liechtenstein, de France et de Jérusalem, des représentants de l'Ordre de Malte et des personnalités politiques du canton des Grisons témoignaient de l'ancrage à la fois ecclésial et civil de cette Lieutenance dans le tissu de la société.\n\nCes cérémonies ont également été l'occasion de transitions importantes au sein de la Lieutenance. Après huit années de service exemplaire, Donata Krethlow-Benziger a remis ses fonctions au nouveau Lieutenant André Zumthurm-Nünlist. De même, Monseigneur Charles Morerod, OP, évêque de Lausanne, Genève et Fribourg, a passé la charge de Grand Prieur à Monseigneur Felix Gmür, évêque de Bâle, après huit années d'un engagement fidèle et fécond au service de l'Ordre. La Lieutenance pour le Luxembourg s'associe à la joie de sa Lieutenance sœur et adresse ses vœux fraternels aux nouveaux membres, au nouveau Lieutenant et au nouveau Grand Prieur.",
+      "de": "Vom 29. bis 31. Mai 2026 erlebte die Lieutenance für die Schweiz und Liechtenstein außergewöhnliche Tage der Gnade, geprägt von der Feier der Investituren im Dom zu Chur sowie beim Sonntagsgottesdienst im Dom zu Vaduz im Fürstentum Liechtenstein. Unter dem Vorsitz von Kardinal-Großmeister Fernando Filoni wurden zehn neue Mitglieder in den Ritterlichen Orden vom Heiligen Grab zu Jerusalem aufgenommen, darunter der Abt der Territorialabtei Saint-Maurice im Wallis – ein beredtes Zeichen der tiefen Verbundenheit des Ordens mit dem monastischen und geistlichen Leben der Region.\n\nDie Feierlichkeit dieser Tage wurde durch die Anwesenheit des Generalgouverneurs des Ordens, Leonardo Visconti di Modrone, der beiden Vize-Generalgouverneure Jean-Pierre de Glutz-Ruchti und Enric Mas sowie der Lieutenants und Vertreter von zwölf Partnerlieutenancen bereichert. Sechs Bischöfe aus der Schweiz, Liechtenstein, Frankreich und Jerusalem, Vertreter des Malteserordens und politische Persönlichkeiten des Kantons Graubünden unterstrichen die kirchliche wie gesellschaftliche Verwurzelung dieser Lieutenance.\n\nDiese Zeremonien waren zugleich Anlass für bedeutende Übergaben innerhalb der Lieutenance. Nach acht Jahren beispielhaften Dienstes übergab Donata Krethlow-Benziger ihr Amt an den neuen Lieutenant André Zumthurm-Nünlist. Ebenso übergab Bischof Charles Morerod OP, Bischof von Lausanne, Genf und Freiburg, nach acht Jahren treuen und fruchtbaren Engagements das Amt des Großpriors an Bischof Felix Gmür, Bischof von Basel. Die Lieutenance für Luxemburg schließt sich der Freude ihrer Schwesterlieutenance an und richtet herzliche Glückwünsche an die neuen Mitglieder, den neuen Lieutenant und den neuen Großprior.",
+      "en": "From 29 to 31 May 2026, the Lieutenancy for Switzerland and Liechtenstein experienced exceptional days of grace, marked by the celebration of investiture ceremonies at the Cathedral of Chur and during Sunday Mass at the Cathedral of Vaduz, in the Principality of Liechtenstein. Presided over by Cardinal Grand Master Fernando Filoni, these ceremonies welcomed ten new members into the Equestrian Order of the Holy Sepulchre of Jerusalem, among them the Abbot of the Territorial Abbey of Saint-Maurice in the canton of Valais — an eloquent sign of the deep bond uniting the Order with the monastic and spiritual life of the region.\n\nThe solemnity of these days was further enhanced by the presence of the Governor General of the Order, Leonardo Visconti di Modrone, the two Vice-Governors General, Jean-Pierre de Glutz-Ruchti and Enric Mas, as well as the Lieutenants and representatives of twelve partner Lieutenancies. Six bishops from Switzerland, Liechtenstein, France and Jerusalem, representatives of the Order of Malta, and political figures from the canton of Graubünden all bore witness to the ecclesial and civic roots of this Lieutenancy within the fabric of society.\n\nThese ceremonies were also the occasion for significant transitions within the Lieutenancy. After eight years of exemplary service, Donata Krethlow-Benziger handed over her responsibilities to the new Lieutenant André Zumthurm-Nünlist. Likewise, Bishop Charles Morerod OP, Bishop of Lausanne, Geneva and Fribourg, passed the office of Grand Prior to Bishop Felix Gmür, Bishop of Basel, after eight years of faithful and fruitful commitment to the Order. The Lieutenancy for Luxembourg joins in the joy of its sister Lieutenancy and extends its warmest fraternal congratulations to the new members, the new Lieutenant and the new Grand Prior."
     },
     "liens": [
-      { "label": { "fr": "Publication d'Emmanuel Macron →", "de": "Beitrag von Emmanuel Macron →", "en": "Emmanuel Macron's post →" }, "url": "https://www.facebook.com/EmmanuelMacron" },
-      { "label": { "fr": "Patriarcat latin de Jérusalem →", "de": "Lateinisches Patriarchat Jerusalem →", "en": "Latin Patriarchate of Jerusalem →" }, "url": "https://www.lpj.org" }
+      {
+        "label": {
+          "fr": "Grand Magistère de l'Ordre – Page officielle Facebook →",
+          "de": "Großmagisterium des Ordens – Offizielle Facebook-Seite →",
+          "en": "View →"
+        },
+        "url": "https://www.facebook.com/grandmagisterium.eohsj.eng/"
+      }
     ]
   }
 }
