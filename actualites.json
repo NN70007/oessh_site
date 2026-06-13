@@ -100,54 +100,6 @@
       ]
     },
     {
-      "id": "le-cardinal-jean-claude-hollerich-instal",
-      "date_affichee": "9 juillet 2025",
-      "lieu": "Luxembourg",
-      "badges": [
-        "À la Une",
-        "Investitures"
-      ],
-      "img_filename": "cardinal-hollerich-grand-prieur-luxembourg-2025.jpeg",
-      "legende": {
-        "fr": "Luxembourg · 9 juillet 2025 · © V. Fischbach",
-        "de": "Luxemburg · 9. Juli 2025 · © V. Fischbach",
-        "en": "Luxembourg · 9 July 2025 · © V. Fischbach"
-      },
-      "titre": {
-        "fr": "Le Cardinal Jean-Claude Hollerich installé Grand Prieur de l'Ordre du Saint-Sépulcre de Jérusalem au Luxembourg",
-        "de": "Kardinal Jean-Claude Hollerich als Großprior des Ordens vom Heiligen Grab zu Jerusalem in Luxemburg installiert",
-        "en": "Cardinal Jean-Claude Hollerich Installed as Grand Prior of the Order of the Holy Sepulchre of Jerusalem in Luxembourg"
-      },
-      "teaser": {
-        "fr": "Trente ans après Mgr Fernand Franck, l'Archevêque de Luxembourg reçoit l'étole de l'Ordre lors d'une cérémonie solennelle présidée en la capitale.",
-        "de": "Dreißig Jahre nach Msgr. Fernand Franck empfängt der Erzbischof von Luxemburg die Stola des Ordens bei einer feierlichen Zeremonie in der Hauptstadt.",
-        "en": "Thirty years after Mgr Fernand Franck, the Archbishop of Luxembourg receives the stole of the Order during a solemn ceremony held in the capital."
-      },
-      "texte": {
-        "fr": "C'est un moment d'une rare solennité que la Lieutenance pour le Luxembourg a eu le privilège de vivre le 9 juillet 2025. En la présence des Chevaliers et Dames réunis en la capitale du Grand-Duché, Son Éminence le Cardinal Jean-Claude Hollerich, Archevêque de Luxembourg, a reçu l'étole ornée de la croix potencée, insigne distinctif de la charge de Grand Prieur de l'Ordre Équestre du Saint-Sépulcre de Jérusalem.\n\nCette installation revêt une signification toute particulière : c'est en effet la première fois depuis trente ans qu'un Archevêque de Luxembourg accède à cette haute dignité au sein de l'Ordre. Son prédécesseur, Mgr Fernand Franck, avait été le dernier à porter ce titre, inscrivant ainsi cette cérémonie dans la continuité d'une tradition spirituelle et chevaleresque profondément enracinée dans la vie de l'Église luxembourgeoise.\n\nLa Lieutenance pour le Luxembourg se réjouit de cette investiture et place de grands espoirs dans le magistère spirituel du Cardinal Hollerich auprès des membres de l'Ordre. Sous sa conduite bienveillante, Chevaliers et Dames renouvelleront leur engagement au service des chrétiens de Terre Sainte, fidèles à la vocation première que leur a confiée le Cardinal Grand Maître depuis le Grand Magistère de Rome.",
-        "de": "Ein Moment von seltener Feierlichkeit war es, den die Lieutenance für Luxemburg am 9. Juli 2025 erleben durfte. In Anwesenheit der versammelten Ritter und Damen in der Hauptstadt des Großherzogtums empfing Seine Eminenz Kardinal Jean-Claude Hollerich, Erzbischof von Luxemburg, die mit dem Kreuz potencé geschmückte Stola – das kennzeichnende Abzeichen des Amtes des Großpriors des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem.\n\nDiese Investitur ist von ganz besonderer Bedeutung: Es ist tatsächlich das erste Mal seit dreißig Jahren, dass ein Erzbischof von Luxemburg zu dieser hohen Würde innerhalb des Ordens erhoben wird. Sein Vorgänger, Msgr. Fernand Franck, war der letzte Träger dieses Titels gewesen, womit diese Zeremonie in die Kontinuität einer geistlichen und ritterlichen Tradition eingeschrieben wird, die tief im Leben der luxemburgischen Kirche verwurzelt ist.\n\nDie Lieutenance für Luxemburg freut sich über diese Investitur und setzt große Hoffnungen in das geistliche Lehramt von Kardinal Hollerich an der Seite der Ordensmitglieder. Unter seiner wohlwollenden Führung werden Ritter und Damen ihr Engagement im Dienste der Christen im Heiligen Land erneuern, getreu der ursprünglichen Berufung, die ihnen der Kardinalgrossmeister vom Großmagisterium in Rom anvertraut hat.",
-        "en": "It was a moment of rare solemnity that the Lieutenancy for Luxembourg had the privilege of witnessing on 9 July 2025. In the presence of the Knights and Ladies gathered in the capital of the Grand Duchy, His Eminence Cardinal Jean-Claude Hollerich, Archbishop of Luxembourg, received the stole adorned with the cross potent — the distinctive insignia of the office of Grand Prior of the Equestrian Order of the Holy Sepulchre of Jerusalem.\n\nThis installation carries a significance of particular weight: it is indeed the first time in thirty years that an Archbishop of Luxembourg has acceded to this high dignity within the Order. His predecessor, Mgr Fernand Franck, had been the last to bear this title, thus inscribing the present ceremony within the continuity of a spiritual and chivalric tradition deeply rooted in the life of the Church in Luxembourg.\n\nThe Lieutenancy for Luxembourg rejoices at this investiture and places great hope in the spiritual guidance of Cardinal Hollerich among the members of the Order. Under his benevolent leadership, Knights and Ladies will renew their commitment to the service of the Christians of the Holy Land, faithful to the founding vocation entrusted to them by the Cardinal Grand Master from the Grand Magisterium in Rome."
-      },
-      "liens": [
-        {
-          "label": {
-            "fr": "Grand Magistère de l'Ordre du Saint-Sépulcre de Jérusalem — site officiel",
-            "de": "Großmagisterium des Ordens vom Heiligen Grab zu Jerusalem – offizielle Website",
-            "en": "Grand Magisterium of the Order of the Holy Sepulchre of Jerusalem — official website"
-          },
-          "url": "https://oessh.va"
-        },
-        {
-          "label": {
-            "fr": "Archidiocèse de Luxembourg — site officiel",
-            "de": "Erzbistum Luxemburg – offizielle Website",
-            "en": "Archdiocese of Luxembourg — official website"
-          },
-          "url": "https://cathol.lu"
-        }
-      ]
-    },
-    {
       "id": "le-pape-leon-xiv-renouvelle-la-mission-d",
       "date_affichee": "2025",
       "lieu": "Rome",
@@ -192,6 +144,54 @@
             "en": "Œuvre d'Orient — in support of Christians in the Holy Land"
           },
           "url": "https://www.lpj.org"
+        }
+      ]
+    },
+    {
+      "id": "le-cardinal-jean-claude-hollerich-instal",
+      "date_affichee": "9 juillet 2025",
+      "lieu": "Luxembourg",
+      "badges": [
+        "À la Une",
+        "Investitures"
+      ],
+      "img_filename": "cardinal-hollerich-grand-prieur-luxembourg-2025.jpeg",
+      "legende": {
+        "fr": "Luxembourg · 9 juillet 2025 · © V. Fischbach",
+        "de": "Luxemburg · 9. Juli 2025 · © V. Fischbach",
+        "en": "Luxembourg · 9 July 2025 · © V. Fischbach"
+      },
+      "titre": {
+        "fr": "Le Cardinal Jean-Claude Hollerich installé Grand Prieur de l'Ordre du Saint-Sépulcre de Jérusalem au Luxembourg",
+        "de": "Kardinal Jean-Claude Hollerich als Großprior des Ordens vom Heiligen Grab zu Jerusalem in Luxemburg installiert",
+        "en": "Cardinal Jean-Claude Hollerich Installed as Grand Prior of the Order of the Holy Sepulchre of Jerusalem in Luxembourg"
+      },
+      "teaser": {
+        "fr": "Trente ans après Mgr Fernand Franck, l'Archevêque de Luxembourg reçoit l'étole de l'Ordre lors d'une cérémonie solennelle présidée en la capitale.",
+        "de": "Dreißig Jahre nach Msgr. Fernand Franck empfängt der Erzbischof von Luxemburg die Stola des Ordens bei einer feierlichen Zeremonie in der Hauptstadt.",
+        "en": "Thirty years after Mgr Fernand Franck, the Archbishop of Luxembourg receives the stole of the Order during a solemn ceremony held in the capital."
+      },
+      "texte": {
+        "fr": "C'est un moment d'une rare solennité que la Lieutenance pour le Luxembourg a eu le privilège de vivre le 9 juillet 2025. En la présence des Chevaliers et Dames réunis en la capitale du Grand-Duché, Son Éminence le Cardinal Jean-Claude Hollerich, Archevêque de Luxembourg, a reçu l'étole ornée de la croix potencée, insigne distinctif de la charge de Grand Prieur de l'Ordre Équestre du Saint-Sépulcre de Jérusalem.\n\nCette installation revêt une signification toute particulière : c'est en effet la première fois depuis trente ans qu'un Archevêque de Luxembourg accède à cette haute dignité au sein de l'Ordre. Son prédécesseur, Mgr Fernand Franck, avait été le dernier à porter ce titre, inscrivant ainsi cette cérémonie dans la continuité d'une tradition spirituelle et chevaleresque profondément enracinée dans la vie de l'Église luxembourgeoise.\n\nLa Lieutenance pour le Luxembourg se réjouit de cette investiture et place de grands espoirs dans le magistère spirituel du Cardinal Hollerich auprès des membres de l'Ordre. Sous sa conduite bienveillante, Chevaliers et Dames renouvelleront leur engagement au service des chrétiens de Terre Sainte, fidèles à la vocation première que leur a confiée le Cardinal Grand Maître depuis le Grand Magistère de Rome.",
+        "de": "Ein Moment von seltener Feierlichkeit war es, den die Lieutenance für Luxemburg am 9. Juli 2025 erleben durfte. In Anwesenheit der versammelten Ritter und Damen in der Hauptstadt des Großherzogtums empfing Seine Eminenz Kardinal Jean-Claude Hollerich, Erzbischof von Luxemburg, die mit dem Kreuz potencé geschmückte Stola – das kennzeichnende Abzeichen des Amtes des Großpriors des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem.\n\nDiese Investitur ist von ganz besonderer Bedeutung: Es ist tatsächlich das erste Mal seit dreißig Jahren, dass ein Erzbischof von Luxemburg zu dieser hohen Würde innerhalb des Ordens erhoben wird. Sein Vorgänger, Msgr. Fernand Franck, war der letzte Träger dieses Titels gewesen, womit diese Zeremonie in die Kontinuität einer geistlichen und ritterlichen Tradition eingeschrieben wird, die tief im Leben der luxemburgischen Kirche verwurzelt ist.\n\nDie Lieutenance für Luxemburg freut sich über diese Investitur und setzt große Hoffnungen in das geistliche Lehramt von Kardinal Hollerich an der Seite der Ordensmitglieder. Unter seiner wohlwollenden Führung werden Ritter und Damen ihr Engagement im Dienste der Christen im Heiligen Land erneuern, getreu der ursprünglichen Berufung, die ihnen der Kardinalgrossmeister vom Großmagisterium in Rom anvertraut hat.",
+        "en": "It was a moment of rare solemnity that the Lieutenancy for Luxembourg had the privilege of witnessing on 9 July 2025. In the presence of the Knights and Ladies gathered in the capital of the Grand Duchy, His Eminence Cardinal Jean-Claude Hollerich, Archbishop of Luxembourg, received the stole adorned with the cross potent — the distinctive insignia of the office of Grand Prior of the Equestrian Order of the Holy Sepulchre of Jerusalem.\n\nThis installation carries a significance of particular weight: it is indeed the first time in thirty years that an Archbishop of Luxembourg has acceded to this high dignity within the Order. His predecessor, Mgr Fernand Franck, had been the last to bear this title, thus inscribing the present ceremony within the continuity of a spiritual and chivalric tradition deeply rooted in the life of the Church in Luxembourg.\n\nThe Lieutenancy for Luxembourg rejoices at this investiture and places great hope in the spiritual guidance of Cardinal Hollerich among the members of the Order. Under his benevolent leadership, Knights and Ladies will renew their commitment to the service of the Christians of the Holy Land, faithful to the founding vocation entrusted to them by the Cardinal Grand Master from the Grand Magisterium in Rome."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Grand Magistère de l'Ordre du Saint-Sépulcre de Jérusalem — site officiel",
+            "de": "Großmagisterium des Ordens vom Heiligen Grab zu Jerusalem – offizielle Website",
+            "en": "Grand Magisterium of the Order of the Holy Sepulchre of Jerusalem — official website"
+          },
+          "url": "https://oessh.va"
+        },
+        {
+          "label": {
+            "fr": "Archidiocèse de Luxembourg — site officiel",
+            "de": "Erzbistum Luxemburg – offizielle Website",
+            "en": "Archdiocese of Luxembourg — official website"
+          },
+          "url": "https://cathol.lu"
         }
       ]
     },
