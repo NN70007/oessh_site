@@ -1233,7 +1233,7 @@ function toggleMore(btn){
       if (!a) { slot.remove(); return; }
       var pick = function(o){ return (o && (o[lang] || o.fr)) || (lang==='en'?'View the publication':lang==='de'?'Veröffentlichung ansehen':'Voir la publication'); };
       var liensHTML = (a.liens || []).map(function(lien){
-        return '<a class="read" href="' + lien.url + '" target="_blank" rel="noopener">' + pick(lien.label) + '</a>';
+        return '<a class="read" href="' + lien.url + '" target="_blank" rel="noopener">' + pick(lien.label) + ' <span>→</span></a>';
       }).join('');
       var badgesHTML = (pick(a.badges) || a.badges || []);
       badgesHTML = (Array.isArray(badgesHTML) ? badgesHTML : []).map(function(b, i){
