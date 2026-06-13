@@ -1097,7 +1097,7 @@ async function loadArticles(){
     var lieu = art.lieu || '';
 
     var row = document.createElement('div');
-    row.className = 'article-row' + (isActive ? ' is-active' : '');
+    row.className = 'article-row' + (isPublished ? ' is-active' : '');
     row.dataset.id = art.id;
     // published: undefined/true = visible, false = hidden
     var isPublished = art.published !== false;
