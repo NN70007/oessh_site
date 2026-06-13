@@ -1019,13 +1019,8 @@ async function loadArticles(){
   listEl.innerHTML = '<div class="drag-hint">Utilisez ↑ ↓ pour changer l’ordre d’affichage</div>';
 
   try {
-    var url = 'https://api.github.com/repos/'+s.repo+'/contents/actualites.json';
-    var resp = await fetch(url, {headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
-    if(!resp.ok) throw new Error('Fichier actualites.json introuvable');
-    var fileData = await resp.json();
-    var decoded = decodeURIComponent(escape(atob(fileData.content.replace(/\n/g,''))));
-    articlesData = JSON.parse(decoded);
-    articlesData._sha = fileData.sha;
+    articlesData = await fetchActualites(s);
+    if(!articlesData) throw new Error('Fichier actualites.json introuvable');
   } catch(e) {
     loadEl.textContent = 'Erreur : ' + e.message;
     return;
@@ -1141,14 +1136,33 @@ async function moveArticle(id, direction){
   var tmp = arts[idx];
   arts[idx] = arts[newIdx];
   arts[newIdx] = tmp;
-  var sha = articlesData._sha;
-  delete articlesData._sha;
-  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(articlesData, null, 2))));
-  articlesData._sha = sha;
+  // Always fetch fresh SHA before writing
+  var freshData = await fetchActualites(s);
+  var freshSha = freshData ? freshData._sha : articlesData._sha;
+  var toSave = JSON.parse(JSON.stringify(articlesData));
+  delete toSave._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(toSave, null, 2))));
   try {
-    await githubPut(s, 'actualites.json', jsonB64, 'Admin: reorder articles');
+    var url = 'https://api.github.com/repos/'+s.repo+'/contents/actualites.json';
+    var body = { message: 'Admin: reorder articles', content: jsonB64 };
+    if(freshSha) body.sha = freshSha;
+    var r = await fetch(url, { method:'PUT', headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json','Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if(!r.ok){ var e=await r.json(); throw new Error(e.message||r.statusText); }
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function fetchActualites(s){
+  try {
+    var url = 'https://api.github.com/repos/'+s.repo+'/contents/actualites.json';
+    var r = await fetch(url, {headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
+    if(!r.ok) return null;
+    var d = await r.json();
+    var decoded = decodeURIComponent(escape(atob(d.content.replace(/\n/g,''))));
+    var data = JSON.parse(decoded);
+    data._sha = d.sha;
+    return data;
+  } catch(e){ return null; }
 }
 
 async function unpublishArticle(id){
