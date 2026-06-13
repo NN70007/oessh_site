@@ -344,7 +344,7 @@ function generate(){
   document.getElementById('previewWrap').style.display = 'none';
   document.getElementById('genErr').style.display = 'none';
 
-  var system = 'Tu es le redacteur de la Lieutenance pour le Luxembourg de l Ordre Equestre du Saint-Sepulcre de Jerusalem. Tu rediges des actualites pour luxembourg.oessh.lu, registre solennel et elegant.\n\nReponds avec UNIQUEMENT ce format, en remplissant chaque champ. Ne jamais omettre un champ meme s il est court :\n\n###DATE###\n15 juin 2026\n###FIN###\n###LIEU###\nParis\n###FIN###\n###BADGES###\nA la Une|Diplomatie\n###FIN###\n###IMG###\nactu-paris-2026.jpg\n###FIN###\n###FR_TITRE###\nLe titre complet en francais\n###FIN###\n###FR_TEASER###\nTeaser en francais, 1 ou 2 phrases maximum.\n###FIN###\n###FR_TEXTE###\nPremier paragraphe en francais.\n\nDeuxieme paragraphe en francais.\n\nTroisieme paragraphe en francais.\n###FIN###\n###FR_LEGENDE###\nParis - juin 2026 - source\n###FIN###\n###DE_TITRE###\nDer vollstandige Titel auf Deutsch\n###FIN###\n###DE_TEASER###\nZusammenfassung auf Deutsch, 1 oder 2 Satze.\n###FIN###\n###DE_TEXTE###\nErster Absatz auf Deutsch.\n\nZweiter Absatz auf Deutsch.\n\nDritter Absatz auf Deutsch.\n###FIN###\n###DE_LEGENDE###\nParis - Juni 2026 - Quelle\n###FIN###\n###EN_TITRE###\nThe complete title in English\n###FIN###\n###EN_TEASER###\nTeaser in English, 1 or 2 sentences.\n###FIN###\n###EN_TEXTE###\nFirst paragraph in English.\n\nSecond paragraph in English.\n\nThird paragraph in English.\n###FIN###\n###EN_LEGENDE###\nParis - June 2026 - source\n###FIN###\n###LIEN1_URL###\nhttps://www.lpj.org\n###FIN###\n###LIEN1_FR###\nPatriarcat latin de Jerusalem\n###FIN###\n###LIEN1_DE###\nLateinisches Patriarchat Jerusalem\n###FIN###\n###LIEN1_EN###\nLatin Patriarchate of Jerusalem\n###FIN###\n###LIEN2_URL###\nhttps://www.facebook.com/grandmagistere.oessj.fra\n###FIN###\n###LIEN2_FR###\nPublication du Grand Magistere\n###FIN###\n###LIEN2_DE###\nBeitrag des Grossmagisteriums\n###FIN###\n###LIEN2_EN###\nGrand Magisterium post\n###FIN###\n\nREGLES : badges separes par |, toujours commencer par A la Une + 1-2 parmi Investitures, Pelerinage, Spiritualite, Conference, Lieutenance, Centenaire, Diplomatie, Terre Sainte. Si pas de 2eme lien laisser les champs LIEN2 vides. Liens plausibles selon contexte : lpj.org, facebook grandmagistere, cathol.lu, oessh.va. IMPORTANT : chaque section doit etre complete et non tronquee.';
+  var system = 'Tu es le redacteur de la Lieutenance pour le Luxembourg de l Ordre Equestre du Saint-Sepulcre de Jerusalem. Tu rediges des actualites pour luxembourg.oessh.lu, registre solennel et elegant.\n\nReponds en utilisant EXACTEMENT ces marqueurs dans cet ordre. Chaque section commence par ###NOM### et se termine par ###FIN###. Ne pas changer les noms des marqueurs.\n\n###DATE###\n[date ex: 15 juin 2026]\n###FIN###\n###LIEU###\n[ville]\n###FIN###\n###BADGES###\n[A la Une|Badge2]\n###FIN###\n###IMG###\n[actu-slug-2026.jpg]\n###FIN###\n###FR_TITRE###\n[titre complet en FRANCAIS]\n###FIN###\n###FR_TEASER###\n[teaser en FRANCAIS 1-2 phrases]\n###FIN###\n###FR_TEXTE###\n[texte complet en FRANCAIS 3 paragraphes]\n###FIN###\n###FR_LEGENDE###\n[legende en FRANCAIS]\n###FIN###\n###DE_TITRE###\n[titel vollstandig AUF DEUTSCH]\n###FIN###\n###DE_TEASER###\n[teaser AUF DEUTSCH]\n###FIN###\n###DE_TEXTE###\n[text vollstandig AUF DEUTSCH 3 absatze]\n###FIN###\n###DE_LEGENDE###\n[legende AUF DEUTSCH]\n###FIN###\n###EN_TITRE###\n[full title IN ENGLISH]\n###FIN###\n###EN_TEASER###\n[teaser IN ENGLISH]\n###FIN###\n###EN_TEXTE###\n[full text IN ENGLISH 3 paragraphs]\n###FIN###\n###EN_LEGENDE###\n[legend IN ENGLISH]\n###FIN###\n###LIEN1_URL###\n[https://...]\n###FIN###\n###LIEN1_FR###\n[libelle lien 1 en francais]\n###FIN###\n###LIEN1_DE###\n[bezeichnung link 1 auf deutsch]\n###FIN###\n###LIEN1_EN###\n[link 1 label in english]\n###FIN###\n###LIEN2_URL###\n[https://... ou laisser vide]\n###FIN###\n###LIEN2_FR###\n[libelle lien 2 ou vide]\n###FIN###\n###LIEN2_DE###\n[bezeichnung link 2 oder leer]\n###FIN###\n###LIEN2_EN###\n[link 2 label or empty]\n###FIN###\n\nREGLES : badges separes par |, toujours commencer par A la Une + 1-2 parmi Investitures, Pelerinage, Spiritualite, Conference, Lieutenance, Centenaire, Diplomatie, Terre Sainte. Liens plausibles : lpj.org, facebook.com/grandmagistere.oessj.fra, cathol.lu, oessh.va. IMPORTANT : remplir OBLIGATOIREMENT toutes les sections FR, DE et EN en entier.';
 
   fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -369,14 +369,34 @@ function generate(){
     // Parse ### marker response
     var txt = raw.text;
     function getField(name) {
-      var open = '###' + name + '###';
-      var close = '###FIN###';
-      var start = txt.indexOf(open);
-      if(start === -1) return '';
-      start += open.length;
-      var end = txt.indexOf(close, start);
-      if(end === -1) return txt.substring(start).trim();
-      return txt.substring(start, end).trim();
+      // Try exact name first, then common English variants
+      var variants = [name];
+      if(name === 'EN_TITRE')   variants.push('EN_TITLE');
+      if(name === 'EN_TEASER')  variants.push('EN_TEASER');
+      if(name === 'EN_TEXTE')   variants.push('EN_TEXT', 'EN_TEXTE');
+      if(name === 'EN_LEGENDE') variants.push('EN_LEGEND', 'EN_LEGENDE');
+      if(name === 'DE_TITRE')   variants.push('DE_TITLE');
+      if(name === 'DE_TEXTE')   variants.push('DE_TEXT');
+      if(name === 'DE_LEGENDE') variants.push('DE_LEGEND');
+      if(name === 'FR_TITRE')   variants.push('FR_TITLE');
+      if(name === 'FR_TEXTE')   variants.push('FR_TEXT');
+      if(name === 'FR_LEGENDE') variants.push('FR_LEGEND');
+      // Also try END as closing marker variant
+      var closes = ['###FIN###', '###END###', '###ENDE###'];
+      for(var vi = 0; vi < variants.length; vi++) {
+        var open = '###' + variants[vi] + '###';
+        var start = txt.indexOf(open);
+        if(start === -1) continue;
+        start += open.length;
+        var end = -1;
+        for(var ci = 0; ci < closes.length; ci++) {
+          var e = txt.indexOf(closes[ci], start);
+          if(e !== -1 && (end === -1 || e < end)) end = e;
+        }
+        if(end === -1) return txt.substring(start).trim();
+        return txt.substring(start, end).trim();
+      }
+      return '';
     }
     var badges = getField('BADGES').split('|').map(function(b){ return b.trim(); }).filter(Boolean);
     var liens = [];
