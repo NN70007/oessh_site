@@ -298,7 +298,7 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 
           <div class="fr-edit" id="frEdit" style="display:block">
             <div class="field-edit"><label>Titre</label><input type="text" id="fr-titre"/></div>
-            <div class="field-edit"><label>Teaser (2-3 phrases — cœur spirituel ET factuel, pas un simple résumé)</label><textarea id="fr-teaser" rows="3"></textarea></div>
+            <div class="field-edit"><label>Teaser (1-2 phrases)</label><textarea id="fr-teaser" rows="2"></textarea></div>
             <div class="field-edit"><label>Texte complet</label><textarea id="fr-texte" rows="6"></textarea></div>
             <div class="field-edit"><label>Légende image (courte : Ville · Date · © Source)</label><input type="text" id="fr-legende"/></div>
             <div class="field-edit">
@@ -573,98 +573,10 @@ async function generateFR(){
   setLoading('load1','btn1',true);
   hideErr('err1');
 
-  // ── PROMPT STYLE OESSH (issu du skill oessh-style §7) ──────────────────
-  var system = [
-    'Tu rédiges un article pour la newsletter et le site de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg.',
-    '',
-    'TON : solennel et chaleureux, français soutenu, jamais bureaucratique ni familier.',
-    'La Lieutenance parle à la première personne du pluriel (« notre Lieutenance », « nous »).',
-    '',
-    'VOCABULAIRE OBLIGATOIRE :',
-    '- « Chevaliers et Dames » (majuscules, toujours ensemble)',
-    '- « Terre Sainte » (majuscules)',
-    '- « confrères et consœurs » pour désigner les membres',
-    '- Titres ecclésiastiques complets à la première mention (ex : Son Éminence le Cardinal Grand Maître Fernando Filoni)',
-    '- « le Cardinal Grand Maître », « la Lieutenance pour le Luxembourg », « le Patriarcat latin de Jérusalem »',
-    '',
-    'CHAMP LEXICAL À PRIVILÉGIER :',
-    '- « engagement », « dévouement », « fidélité », « témoignage », « recueillement », « fraternité »',
-    '- « pierres vivantes », « chrétiens de Terre Sainte », « soutien spirituel et matériel »',
-    '- Formules d\'ouverture selon le type :',
-    '  événement heureux → « C\'est dans la joie et le recueillement que… »',
-    '  pèlerinage → « Du [date] au [date], la Lieutenance pour le Luxembourg a pris part à… »',
-    '  in memoriam → « C\'est avec une profonde tristesse que la Lieutenance pour le Luxembourg fait mémoire de… »',
-    '',
-    'STRUCTURE SELON LE TYPE D\'ARTICLE :',
-    '- Événement/investiture/pèlerinage : ouverture contextuelle (date, lieu, contexte spirituel) → chronologie des moments clés → citations de l\'homélie ou du discours → clôture fraternelle',
-    '- Méditation/message spirituel : salutation « Chers Confrères et Consœurs, Chers Amis de la Terre Sainte, » → ancrage dans le temps liturgique → lien avec la mission de l\'Ordre → appel → signature (prénom Nom + titre)',
-    '- In memoriam : annonce (« C\'est avec une profonde tristesse… ») → biographie condensée (adoubement, grade, rôle) → qualités humaines → condoléances → « Requiescat in pace. »',
-    '- Projet humanitaire : contexte géographique et institution bénéficiaire → objectifs chiffrés → financement → appel aux dons (IBAN si fourni)',
-    '',
-    'RÈGLES TYPOGRAPHIQUES :',
-    '- Guillemets français uniquement : « »',
-    '- Dates en toutes lettres dans le corps du texte : « le 15 juin 2026 »',
-    '- Références bibliques entre parenthèses compactes : (Lc 2,11)',
-    '- Montants : 50 000 € (avec espace)',
-    '- Titres complets à la première mention, abrégés ensuite : « Son Éminence le Cardinal Hollerich » → « le Cardinal Hollerich »',
-    '',
-    'INTERDICTIONS :',
-    '- Pas de superlatifs marketing (« incroyable », « exceptionnel » à outrance)',
-    '- Pas d\'anglicismes ni de jargon managérial',
-    '- Pas de bullet points dans le récit narratif (uniquement pour projets humanitaires et listes factuelles)',
-    '- Ne pas commencer l\'article par le nom complet de l\'Ordre — commencer par le contexte',
-    '- Pas de répétition du même mot dans le même paragraphe',
-    '',
-    'DIMENSION LUXEMBOURGEOISE (si pertinent) :',
-    '- Notre-Dame Consolatrice des Affligés (Tréischterin am Leed), Saint Willibrord',
-    '- La Maison Grand-Ducale (S.A.R. le Grand-Duc Guillaume)',
-    '- Lieux : cathédrale de Luxembourg, église Saint-Michel, Manternach, Walferdange, Grevenmacher',
-    '',
-    'Réponds UNIQUEMENT en français avec ce format exact (balises ###CHAMP### et ###FIN###) :',
-    '',
-    '###TITRE###',
-    '[titre complet de l\'article en français]',
-    '###FIN###',
-    '###TEASER###',
-    '[2-3 phrases donnant envie de lire — cœur spirituel ET factuel, jamais un simple résumé informatif, max 200 caractères]',
-    '###FIN###',
-    '###TEXTE###',
-    '[paragraphe 1]\n\n[paragraphe 2]\n\n[paragraphe 3]',
-    '###FIN###',
-    '###LEGENDE###',
-    '[Ville · Date · © Source si connue — format court, max 60 car.]',
-    '###FIN###',
-    '###LIEN1_LABEL###',
-    '[intitulé descriptif du lien 1 — décrit la destination, ex: Patriarcat latin de Jérusalem — site officiel]',
-    '###FIN###',
-    '###LIEN1_URL###',
-    '[https://...]',
-    '###FIN###',
-    '###LIEN2_LABEL###',
-    '[intitulé descriptif du lien 2 — ou laisser vide si pas de 2e lien]',
-    '###FIN###',
-    '###LIEN2_URL###',
-    '[https://... ou laisser vide]',
-    '###FIN###',
-    '###IMG###',
-    '[nom-de-fichier-slug.jpg]',
-    '###FIN###',
-    '###BADGES###',
-    'À la Une|[badge2 parmi: Investitures, Pèlerinage, Spiritualité, Conférence, Lieutenance, Centenaire, Diplomatie, Terre Sainte]',
-    '###FIN###',
-    '###DATE###',
-    '[ex: 15 juin 2026]',
-    '###FIN###',
-    '###LIEU###',
-    '[ville]',
-    '###FIN###',
-    '',
-    'Liens plausibles : lpj.org, oessh.va, cathol.lu, facebook.com/grandmagistere.oessj.fra'
-  ].join('\n');
-  // ── FIN PROMPT STYLE OESSH ─────────────────────────────────────────────
+  var system = 'Tu es le rédacteur de la Lieutenance pour le Luxembourg de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem. Tu rédiges des actualités pour luxembourg.oessh.lu dans un registre solennel et élégant. Vocabulaire : Chevaliers et Dames, le Cardinal Grand Maître, la Lieutenance, les chrétiens de Terre Sainte.\n\nRéponds UNIQUEMENT en français avec ce format exact (balises ###CHAMP### et ###FIN###) :\n\n###TITRE###\n[titre complet de l\'article en français]\n###FIN###\n###TEASER###\n[1 ou 2 phrases de résumé, max 160 caractères]\n###FIN###\n###TEXTE###\n[paragraphe 1]\n\n[paragraphe 2]\n\n[paragraphe 3]\n###FIN###\n###LEGENDE###\n[Ville · Date · © Source si connue — format court, max 60 car.]\n###FIN###\n###LIEN1_LABEL###\n[intitulé descriptif du lien 1 — décrit la destination, ex: Grand Magistère de l\'Ordre — page Facebook officielle]\n###FIN###\n###LIEN1_URL###\n[https://...]\n###FIN###\n###LIEN2_LABEL###\n[intitulé descriptif du lien 2 — ou laisser vide si pas de 2e lien]\n###FIN###\n###LIEN2_URL###\n[https://... ou laisser vide]\n###FIN###\n###IMG###\n[nom-de-fichier-slug.jpg]\n###FIN###\n###BADGES###\nÀ la Une|[badge2 parmi: Investitures, Pèlerinage, Spiritualité, Conférence, Lieutenance, Centenaire, Diplomatie, Terre Sainte]\n###FIN###\n###DATE###\n[ex: 15 juin 2026]\n###FIN###\n###LIEU###\n[ville]\n###FIN###\n\nLiens plausibles : facebook.com/grandmagistere.oessj.fra, lpj.org, cathol.lu, oessh.va.';
 
   try {
-    var txt = await claudeCall(system, desc, 2500);
+    var txt = await claudeCall(system, desc, 2000);
     var fr = parseFields(txt);
     fillFRForm(fr);
     // Auto-name PDFs from step1 if any (creation mode)
@@ -1158,7 +1070,7 @@ async function loadArticles(){
   var loadEl = document.getElementById('articles-loading');
   loadEl.style.display = 'block';
   listEl.innerHTML = '';
-  listEl.innerHTML = '<div class="drag-hint">Utilisez ↑ ↓ pour changer l'ordre d'affichage</div>';
+  listEl.innerHTML = '<div class="drag-hint">Utilisez ↑ ↓ pour changer l’ordre d’affichage</div>';
 
   try {
     articlesData = await fetchActualites(s);
