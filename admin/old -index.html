@@ -66,8 +66,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
   color:var(--ink-soft);
 }
 .topbar-inner{
-  max-width:var(--maxw); margin:0 auto;
-  padding:10px 32px;
+  max-width:860px; margin:0 auto;
+  padding:12px var(--gutter);
   display:grid; grid-template-columns:1fr auto; align-items:center; gap:24px;
 }
 .tb-left{display:flex; align-items:center; gap:10px; justify-self:start}
@@ -93,17 +93,17 @@ header.site{
 }
 .nav{
   display:grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: auto 1fr auto;
   grid-template-rows: auto auto;
   column-gap:32px; row-gap:0;
   align-items:center;
-  padding:14px var(--gutter) 0;
-  max-width:var(--maxw); margin:0 auto;
+  padding:20px var(--gutter) 20px;
+  max-width:860px; margin:0 auto;
 }
-.brand{justify-self:start}
-.nav-cta{justify-self:end}
-.brand{display:flex; align-items:center; gap:18px; flex:0 0 auto; grid-row:1; grid-column:1; text-decoration:none; justify-self:start}
-.nav-cta{display:flex; gap:8px; align-items:center; flex:0 0 auto; grid-row:1; grid-column:3; justify-self:end}
+.brand{grid-column:1; grid-row:1}
+.nav-cta{grid-column:3; grid-row:1; justify-self:end}
+.brand{display:flex; align-items:center; gap:18px; flex:0 0 auto; text-decoration:none}
+.nav-cta{display:flex; gap:8px; align-items:center; flex:0 0 auto}
 .brand .cross{width:84px;height:84px;flex:0 0 auto;display:block; background:transparent}
 .brand-text{display:flex; flex-direction:column; line-height:1.2; gap:5px; max-width:none; min-width:0; white-space:nowrap}
 .brand-text .l1{font-family:var(--serif); font-size:28px; letter-spacing:.005em; color:var(--cardinal); line-height:1.1; font-weight:500; white-space:nowrap}
@@ -120,7 +120,7 @@ header.site{
   display:flex; flex-wrap:nowrap;
   grid-row:2; grid-column:1 / -1;
   justify-content:flex-start;
-  padding:0; margin:14px calc(var(--gutter) * -1) 0;
+  padding:0; margin:0 calc(var(--gutter) * -1) 0;
   border-top:1px solid var(--line);
   border-bottom:1px solid var(--line);
   overflow-x:auto;
@@ -179,8 +179,8 @@ header.site{
 
 
 /* ── Layout principal ── */
-.main{max-width:860px;margin:0 auto;padding:48px 0}
-.page-title{font-family:var(--serif);font-size:36px;font-weight:500;color:var(--ink);margin:0 0 8px;letter-spacing:-.01em;line-height:1.1}
+.main{max-width:860px;margin:0 auto;padding:48px var(--gutter)}
+.page-title{font-family:var(--serif);font-size:36px;font-weight:500;color:var(--ink);margin:24px 0 8px;letter-spacing:-.01em;line-height:1.1}
 .page-sub{font-size:14px;color:var(--ink-mute);margin:0 0 36px;line-height:1.65}
 
 /* ── Liste articles ── */
@@ -362,6 +362,13 @@ textarea.wfield, input.wfield, select.wfield,
   .menu-btn{display:inline-flex !important}
   .mobile-menu{display:flex}
   .admin-controls{display:none}
+  .nav-cta{padding-right:8px}
+}
+
+
+@media(max-width:600px){
+  .main{padding:24px 12px}
+  .article-row, .book-row, .export-item{margin-left:0;margin-right:0}
 }
 
 </style>
@@ -601,7 +608,7 @@ textarea.wfield, input.wfield, select.wfield,
   <!-- TAB: ARTICLES -->
   <div id="tab-articles-content" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <h1 class="page-title" style="margin:0">Articles stockés</h1>
+      <h1 class="page-title">Articles stockés</h1>
       <button class="btn-gen" style="width:auto;padding:10px 20px;margin:0" onclick="showTab('new')">+ Ajouter un article</button>
     </div>
     <p class="page-sub">Gérez les articles du stock dynamique.</p>
@@ -615,7 +622,7 @@ textarea.wfield, input.wfield, select.wfield,
     <!-- Vue liste -->
     <div id="livres-view">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <h1 class="page-title" style="margin:0">Lectures — ouvrages recommandés</h1>
+        <h1 class="page-title">Lectures — ouvrages recommandés</h1>
         <button class="btn-gen" id="btn-new-livre" onclick="startLivreWorkflow(null)" style="width:auto;padding:10px 20px;margin:0">+ Ajouter un ouvrage</button>
       </div>
       <p class="page-sub">Gérez les ouvrages affichés dans la section Lectures du site.</p>
