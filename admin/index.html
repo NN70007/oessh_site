@@ -1488,6 +1488,75 @@ function editArticle(art){
   window.scrollTo(0, 0);
 }
 
+
+function renderArticles(){
+  var listEl = document.getElementById('articles-list');
+  var loadEl = document.getElementById('articles-loading');
+  if(!articlesData) return;
+  loadEl.style.display = 'none';
+  listEl.innerHTML = "<div class='drag-hint'>Utilisez ↑ ↓ pour changer l’ordre d’affichage</div>";
+  var articles = articlesData.articles || [];
+  articles.forEach(function(art, idx){
+    var isActive = art.id === activeId || (articles.length === 1);
+    var titre = (art.titre && art.titre.fr) || art.titre || '(sans titre)';
+    var date = art.date_affichee || '';
+    var lieu = art.lieu || '';
+
+    // published: undefined/true = visible, false = hidden
+    var isPublished = art.published !== false;
+    var row = document.createElement('div');
+    row.className = 'article-row' + (isPublished ? ' is-active' : '');
+    row.dataset.id = art.id;
+    var toggleBtn = document.createElement('button');
+    toggleBtn.className = isPublished ? 'btn-pub current' : 'btn-pub';
+    toggleBtn.textContent = isPublished ? '● Visible' : '○ Masqué';
+    toggleBtn.onclick = (function(a, pub){ return function(){ togglePublish(a.id, !pub); }; })(art, isPublished);
+    var editBtn = document.createElement('button');
+    editBtn.className = 'btn-edit';
+    editBtn.title = 'Modifier';
+    editBtn.textContent = '✏️';
+    editBtn.onclick = (function(a){ return function(){ editArticle(a); }; })(art);
+    var delBtn = document.createElement('button');
+    delBtn.className = 'btn-del';
+    delBtn.title = 'Supprimer';
+    delBtn.textContent = '🗑';
+    delBtn.onclick = (function(id){ return function(){ deleteArticle(id); }; })(art.id);
+    var badge = document.createElement('span');
+    badge.className = isPublished ? 'article-badge' : 'article-badge-off';
+    badge.textContent = isPublished ? '● Visible' : '○ Masqué';
+    var info = document.createElement('div');
+    info.className = 'article-info';
+    var legende = (art.legende && (art.legende.fr || art.legende)) || [lieu, date].filter(Boolean).join(' · ');
+    info.innerHTML = '<div class="article-titre">'+titre+'</div><div class="article-meta">'+legende+'</div>';
+    var actions = document.createElement('div');
+    actions.className = 'article-actions';
+    actions.appendChild(toggleBtn);
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+    var moveUp = document.createElement('div');
+    moveUp.style.cssText = 'display:flex;flex-direction:column;gap:3px;flex-shrink:0';
+    var btnUp = document.createElement('button');
+    btnUp.className = 'btn-move';
+    btnUp.textContent = '↑';
+    btnUp.title = 'Monter';
+    btnUp.disabled = (idx === 0);
+    btnUp.onclick = (function(id){ return function(){ moveArticle(id, -1); }; })(art.id);
+    var btnDn = document.createElement('button');
+    btnDn.className = 'btn-move';
+    btnDn.textContent = '↓';
+    btnDn.title = 'Descendre';
+    btnDn.disabled = (idx === articles.length - 1);
+    btnDn.onclick = (function(id){ return function(){ moveArticle(id, 1); }; })(art.id);
+    moveUp.appendChild(btnUp);
+    moveUp.appendChild(btnDn);
+    row.appendChild(moveUp);
+    row.appendChild(badge);
+    row.appendChild(info);
+    row.appendChild(actions);
+    listEl.appendChild(row);
+  });
+}
+
 async function loadArticles(){
   var s = getSettings();
   var listEl = document.getElementById('articles-list');
@@ -1510,6 +1579,8 @@ async function loadArticles(){
     return;
   }
   loadEl.style.display = 'none';
+  renderArticles();
+  return;
 
   // Support both v1 (actu_une) and v2 (articles array)
   var articles = articlesData.articles || (articlesData.actu_une ? [articlesData.actu_une] : []);
@@ -1803,12 +1874,117 @@ async function fetchLectures(s){
   }catch(e){ return null; }
 }
 
+
+function renderLivres(){
+  var listEl = document.getElementById('livres-list');
+  var loadEl = document.getElementById('livres-loading');
+  if(!livresData) return;
+  loadEl.style.display = 'none';
+  listEl.innerHTML = "<div class='drag-hint'>Utilisez ↑ ↓ pour réordonner les ouvrages</div>";
+  var ouvrages = livresData.ouvrages || [];
+  ouvrages.forEach(function(ouvrage,idx){
+    var isPublished=ouvrage.published!==false;
+    var titre=(ouvrage.titre&&(ouvrage.titre.fr||ouvrage.titre))||'(sans titre)';
+    var auteur=(ouvrage.auteur&&(ouvrage.auteur.fr||ouvrage.auteur))||'';
+    var row=document.createElement('div'); row.className='book-row'+(isPublished?'':' is-hidden'); row.dataset.id=ouvrage.id;
+    if(ouvrage.img_filename){
+      var thumb=document.createElement('img'); thumb.className='book-thumb';
+      thumb.src='https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/'+ouvrage.img_filename; thumb.alt=titre; row.appendChild(thumb);
+    }else{ var ph=document.createElement('div'); ph.className='book-thumb-placeholder'; ph.textContent='📖'; row.appendChild(ph); }
+    var info=document.createElement('div'); info.className='book-info';
+    info.innerHTML='<div class="book-titre">'+escLivre(titre)+'</div><div class="book-meta">'+escLivre(auteur)+'</div>'; row.appendChild(info);
+    var badge=document.createElement('span'); badge.className=isPublished?'article-badge':'article-badge-off';
+    badge.textContent=isPublished?'● Visible':'○ Masqué'; row.appendChild(badge);
+    var actions=document.createElement('div'); actions.className='book-actions';
+    var toggleBtn=document.createElement('button'); toggleBtn.className=isPublished?'btn-pub current':'btn-pub';
+    toggleBtn.textContent=isPublished?'● Visible':'○ Masqué';
+    toggleBtn.onclick=(function(id,pub){return function(){toggleLivrePublish(id,!pub);};})(ouvrage.id,isPublished);
+    var editBtn=document.createElement('button'); editBtn.className='btn-edit'; editBtn.title='Modifier'; editBtn.textContent='✏️';
+    editBtn.onclick=(function(o){return function(){startLivreWorkflow(o);};})(ouvrage);
+    var delBtn=document.createElement('button'); delBtn.className='btn-del'; delBtn.title='Supprimer'; delBtn.textContent='🗑';
+    delBtn.onclick=(function(id){return function(){deleteLivre(id);};})(ouvrage.id);
+    var moveDiv=document.createElement('div'); moveDiv.style.cssText='display:flex;flex-direction:column;gap:3px;flex-shrink:0';
+    var btnUp=document.createElement('button'); btnUp.className='btn-move'; btnUp.textContent='↑'; btnUp.disabled=(idx===0);
+    btnUp.onclick=(function(id){return function(){moveLivre(id,-1);};})(ouvrage.id);
+    var btnDn=document.createElement('button'); btnDn.className='btn-move'; btnDn.textContent='↓'; btnDn.disabled=(idx===ouvrages.length-1);
+    btnDn.onclick=(function(id){return function(){moveLivre(id,1);};})(ouvrage.id);
+    moveDiv.appendChild(btnUp); moveDiv.appendChild(btnDn);
+    actions.appendChild(toggleBtn); actions.appendChild(editBtn); actions.appendChild(delBtn);
+    row.appendChild(moveDiv); row.appendChild(actions); listEl.appendChild(row);
+  });
+}
+
+function startLivreWorkflow(ouvrage){
+  livreEditingId = ouvrage ? ouvrage.id : null;
+  livreEditingData = ouvrage || null;
+  livreImgBase64 = null; livreImgMime = null; livreImgOrigName = '';
+  livreDE = {}; livreEN = {};
+  document.getElementById('livres-view').style.display = 'none';
+  document.getElementById('livres-workflow').style.display = 'block';
+  document.getElementById('livre-workflow-title').textContent = ouvrage ? 'Modifier l’ouvrage' : 'Nouvel ouvrage';
+  document.getElementById('livre-pub-status').style.display = 'none';
+  document.getElementById('livre-desc').value = '';
+  document.getElementById('lf-titre').value = '';
+  document.getElementById('lf-auteur').value = '';
+  document.getElementById('lf-categorie').value = '';
+  document.getElementById('lf-resume').value = '';
+  document.getElementById('lf-citation').value = '';
+  document.getElementById('lf-citation-source').value = '';
+  document.getElementById('lf-liens-list').innerHTML = '';
+  document.getElementById('lf-meta-list').innerHTML = '';
+  document.getElementById('livre-preview-de').innerHTML = '';
+  document.getElementById('livre-preview-en').innerHTML = '';
+
+  if(ouvrage){
+    function g(f){ return (f && (f.fr || f)) || ''; }
+    // Pre-fill FR fields directly for edit mode
+    document.getElementById('lf-titre').value = g(ouvrage.titre);
+    document.getElementById('lf-auteur').value = g(ouvrage.auteur);
+    document.getElementById('lf-categorie').value = g(ouvrage.categorie);
+    document.getElementById('lf-resume').value = g(ouvrage.resume);
+    document.getElementById('lf-citation').value = g(ouvrage.citation);
+    document.getElementById('lf-citation-source').value = ouvrage.citation_source || '';
+    (ouvrage.liens||[]).forEach(function(l){ addLienLivreRow2(g(l.label), l.url, l.muted||false); });
+    (ouvrage.meta||[]).forEach(function(m){ addMetaLivreRow2(g(m.label), m.valeur); });
+    if(ouvrage.img_filename){
+      document.getElementById('livre-img-preview-wrap').style.display = 'block';
+      document.getElementById('livre-img-preview').src = 'https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/'+ouvrage.img_filename;
+      document.getElementById('livre-img-fname').textContent = ouvrage.img_filename + ' — choisir pour remplacer';
+    }
+    goLStep(2); // Edit mode: go straight to step 2
+  } else {
+    addLienLivreRow2('','',false);
+    goLStep(1);
+  }
+  window.scrollTo(0,0);
+}
+
+function goLStep(n){
+  [1,2,3].forEach(function(s){
+    var el = document.getElementById('lstep'+s);
+    if(!el) return;
+    el.classList.remove('active','done');
+    if(s < n) el.classList.add('done');
+    else if(s === n) el.classList.add('active');
+  });
+}
+
 async function loadLivres(){
   var s=getSettings();
   var loadEl=document.getElementById('livres-loading');
   var listEl=document.getElementById('livres-list');
   loadEl.style.display='block'; loadEl.textContent='Chargement…'; listEl.innerHTML='';
   livresData=await fetchLectures(s); loadEl.style.display='none';
+  renderLivres();
+}
+
+
+function renderLivres(){
+  var listEl=document.getElementById('livres-list');
+  var loadEl=document.getElementById('livres-loading');
+  if(!livresData) return;
+  loadEl.style.display='none';
+  listEl.innerHTML='';
   if(!livresData||!livresData.ouvrages||!livresData.ouvrages.length){
     listEl.innerHTML='<div class="empty-state">Aucun ouvrage — cliquez « Ajouter » pour commencer.</div>'; return;
   }
@@ -2277,7 +2453,8 @@ async function toggleLivrePublish(id, makeVisible){
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
     await githubPut(s, 'lectures.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' ouvrage '+id, knownSha);
-    loadLivres();
+    livresData = freshData; livresData._sha = knownSha;
+    renderLivres();
   } catch(e){ alert('Erreur : '+e.message); }
 }
 
@@ -2296,7 +2473,8 @@ async function moveLivre(id, direction){
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
     await githubPut(s, 'lectures.json', jsonB64, 'Admin: reorder ouvrages', knownSha);
-    loadLivres();
+    livresData = freshData; livresData._sha = knownSha;
+    renderLivres();
   } catch(e){ alert('Erreur : '+e.message); }
 }
 
@@ -2311,7 +2489,8 @@ async function deleteLivre(id){
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
     await githubPut(s, 'lectures.json', jsonB64, 'Admin: suppression ouvrage '+id, knownSha);
-    loadLivres();
+    livresData = freshData; livresData._sha = knownSha;
+    renderLivres();
   } catch(e){ alert('Erreur : '+e.message); }
 }
 </script>
