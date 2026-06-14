@@ -2,6 +2,54 @@
   "version": 2,
   "articles": [
     {
+      "id": "test-de-publication-validation-de-l-inte",
+      "date_affichee": "2025",
+      "lieu": "Luxembourg",
+      "badges": [
+        "À la Une",
+        "Lieutenance"
+      ],
+      "img_filename": "test-publication-interface-lieutenance-luxembourg.jpg",
+      "legende": {
+        "fr": "Luxembourg · 2025 · © Lieutenance pour le Luxembourg",
+        "de": "Luxemburg · 2025 · © Leutnantschaft für Luxemburg",
+        "en": "Luxembourg · 2025 · © Lieutenancy for Luxembourg"
+      },
+      "titre": {
+        "fr": "Test de publication — Validation de l'interface de rédaction assistée par intelligence artificielle",
+        "de": "Veröffentlichungstest — Validierung der KI-gestützten Redaktionsschnittstelle",
+        "en": "Publication Test — Validation of the AI-Assisted Editorial Interface"
+      },
+      "teaser": {
+        "fr": "Notre Lieutenance franchit une nouvelle étape dans le service de sa mission : l'interface de rédaction assistée est désormais opérationnelle, au service de la diffusion de notre témoignage.",
+        "de": "Unsere Leutnantschaft vollzieht einen neuen Schritt im Dienst an ihrer Mission: Die KI-gestützte Redaktionsschnittstelle ist nunmehr in Betrieb und steht der Verbreitung unseres Zeugnisses zur Verfügung.",
+        "en": "Our Lieutenancy takes a new step in the service of its mission: the AI-assisted editorial interface is now operational, in service of the dissemination of our witness."
+      },
+      "texte": {
+        "fr": "C'est dans un esprit de fidélité à notre mission de communication et de rayonnement que la Lieutenance pour le Luxembourg procède, en ce jour, à la validation technique de son interface de rédaction assistée. Cet outil, fruit d'un travail attentif, est destiné à faciliter la publication des articles de notre newsletter et de notre site, afin que le témoignage de nos Chevaliers et Dames parvienne plus promptement à l'ensemble de nos confrères et consœurs, ainsi qu'à tous les amis de la Terre Sainte.\n\nLa fluidité de la communication au sein de notre Lieutenance n'est pas une fin en soi : elle est au service d'une cause plus haute, celle du soutien spirituel et matériel aux chrétiens de Terre Sainte, ces pierres vivantes dont la présence témoigne, siècle après siècle, de l'enracinement de la foi en ces lieux bénis. Rendre compte avec célérité et exactitude des activités de notre Ordre, c'est aussi honorer l'engagement de chacun de nos membres.\n\nLa Lieutenance pour le Luxembourg se réjouit de voir cet outil entrer en service. Elle remercie chaleureusement ceux qui ont œuvré à sa mise en place et invite l'ensemble des confrères et consœurs à demeurer attentifs aux publications à venir, riches des événements, pèlerinages et témoignages qui font la vie de notre fraternité au service du Patriarcat latin de Jérusalem.",
+        "de": "Im Geiste der Treue zu unserer Missions- und Kommunikationsaufgabe nimmt die Leutnantschaft für Luxemburg an diesem Tag die technische Validierung ihrer KI-gestützten Redaktionsschnittstelle vor. Dieses Werkzeug, das Ergebnis sorgfältiger Arbeit, soll die Veröffentlichung von Beiträgen in unserem Newsletter und auf unserer Website erleichtern, damit das Zeugnis unserer Ritter und Damen alle unsere Mitbrüder und Mitschwestern sowie alle Freunde des Heiligen Landes rasch erreicht.\n\nDie Flüssigkeit der Kommunikation innerhalb unserer Leutnantschaft ist kein Selbstzweck: Sie steht im Dienst einer höheren Sache, nämlich der geistlichen und materiellen Unterstützung der Christen im Heiligen Land — jener lebendigen Steine, deren Gegenwart Jahrhundert für Jahrhundert das tiefe Verwurzeltsein des Glaubens an diesen gesegneten Stätten bezeugt. Die Aktivitäten unseres Ordens mit Sorgfalt und Genauigkeit zu berichten bedeutet auch, den Einsatz jedes einzelnen unserer Mitglieder zu ehren.\n\nDie Leutnantschaft für Luxemburg freut sich, dieses Werkzeug in Betrieb nehmen zu können. Sie dankt herzlich allen, die an seiner Einrichtung mitgewirkt haben, und lädt alle Mitbrüder und Mitschwestern ein, den künftigen Veröffentlichungen aufmerksam zu folgen — reich an Ereignissen, Pilgerfahrten und Zeugnissen, die das Leben unserer Bruderschaft im Dienst des Lateinischen Patriarchats von Jerusalem ausmachen.",
+        "en": "In a spirit of fidelity to our mission of communication and outreach, the Lieutenancy for Luxembourg proceeds today with the technical validation of its AI-assisted editorial interface. This tool, the fruit of careful and dedicated work, is intended to facilitate the publication of articles in our newsletter and on our website, so that the witness of our Knights and Ladies may reach all our brothers and sisters in the Order, as well as all friends of the Holy Land, with greater promptness.\n\nThe fluidity of communication within our Lieutenancy is not an end in itself: it is at the service of a higher cause — that of the spiritual and material support of the Christians of the Holy Land, those living stones whose presence bears witness, century after century, to the deep rootedness of the faith in these blessed places. To report the activities of our Order with diligence and accuracy is also to honour the commitment of each of our members.\n\nThe Lieutenancy for Luxembourg rejoices to see this tool enter into service. It extends its warm gratitude to all those who worked to bring it about, and invites all brothers and sisters in the Order to remain attentive to forthcoming publications, rich with the events, pilgrimages and testimonies that give life to our fraternity in service of the Latin Patriarchate of Jerusalem."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Ordre Équestre du Saint-Sépulcre de Jérusalem — site officiel du Grand Magistère",
+            "de": "Ritterorden vom Heiligen Grab zu Jerusalem — offizielle Website des Großmagisteriums",
+            "en": "Equestrian Order of the Holy Sepulchre of Jerusalem — official website of the Grand Magisterium"
+          },
+          "url": "https://www.oessh.va"
+        },
+        {
+          "label": {
+            "fr": "Patriarcat latin de Jérusalem — site officiel",
+            "de": "Lateinisches Patriarchat von Jerusalem — offizielle Website",
+            "en": "Latin Patriarchate of Jerusalem — official website"
+          },
+          "url": "https://www.lpj.org"
+        }
+      ]
+    },
+    {
       "id": "centenaire-de-la-lieutenance-pour-la-bel",
       "date_affichee": "6 juin 2026",
       "lieu": "Bruxelles",
