@@ -2,6 +2,54 @@
   "version": 2,
   "articles": [
     {
+      "id": "le-pape-leon-xiv-renouvelle-la-mission-d",
+      "date_affichee": "2025",
+      "lieu": "Rome",
+      "badges": [
+        "À la Une",
+        "Pèlerinage"
+      ],
+      "img_filename": "pape-leon-xiv-audience-ordre-saint-sepulcre-jubile-rome-2025.webp",
+      "legende": {
+        "fr": "Vatican · 23 Oct. 2025 © JBN",
+        "de": "Vatikan · 23. Okt. 2025 © JBN",
+        "en": "Vatican · 23 Oct. 2025 © JBN"
+      },
+      "titre": {
+        "fr": "Le Pape Léon XIV renouvelle la mission de l'Ordre du Saint-Sépulcre",
+        "de": "Papst Leo XIV. erneuert die Sendung des Ordens vom Heiligen Grab",
+        "en": "Pope Leo XIV Renews the Mission of the Order of the Holy Sepulchre"
+      },
+      "teaser": {
+        "fr": "Plus de 3 600 Chevaliers et Dames reçus en audience pontificale à Rome, dont la délégation luxembourgeoise conduite par le Lieutenant Jacques Klein.",
+        "de": "Mehr als 3 600 Ritter und Damen wurden in Rom zu einer päpstlichen Audienz empfangen, darunter die luxemburgische Delegation unter Führung von Leutnant Jacques Klein.",
+        "en": "More than 3,600 Knights and Ladies were received in papal audience in Rome, including the Luxembourg delegation led by Lieutenant Jacques Klein."
+      },
+      "texte": {
+        "fr": "C'est dans la splendeur de la Ville Éternelle que s'est achevé le pèlerinage jubilaire de l'Ordre Équestre du Saint-Sépulcre de Jérusalem. Plus de trois mille six cents Chevaliers et Dames, venus des quatre coins du monde, ont eu le privilège insigne d'être reçus en audience par Sa Sainteté le Pape Léon XIV, successeur de Pierre et Protecteur suprême de l'Ordre.\n\nLa délégation de la Lieutenance pour le Luxembourg, conduite par son Lieutenant Jacques Klein, participait pleinement à cette rencontre historique. En renouvelant solennellement la mission de l'Ordre, le Saint-Père a rappelé avec force la vocation première de ses membres : soutenir la présence chrétienne en Terre Sainte et demeurer, par leur engagement spirituel et leurs œuvres, un rempart de charité au service des chrétiens de Terre Sainte.\n\nCet événement exceptionnel, qui marque d'une pierre blanche l'histoire de notre Lieutenance, constitue un appel renouvelé à l'ardeur apostolique de chaque Chevalier et Dame du Luxembourg. Forts de la bénédiction pontificale reçue en ce jour, ils sont invités à poursuivre avec une générosité redoublée leur mission au service de l'Église et des communautés chrétiennes de la Terre où le Christ a vécu, souffert et est ressuscité.",
+        "de": "Im Glanz der Ewigen Stadt fand die Jubiläumswallfahrt des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem ihren feierlichen Abschluss. Mehr als dreitausendsechshundert Ritter und Damen aus allen Teilen der Welt empfingen das außerordentliche Vorrecht, von Seiner Heiligkeit Papst Leo XIV., dem Nachfolger Petri und obersten Protektor des Ordens, in Audienz empfangen zu werden.\n\nDie Delegation der Leutnantschaft für Luxemburg, angeführt von ihrem Leutnant Jacques Klein, nahm vollständig an dieser historischen Begegnung teil. Indem der Heilige Vater die Sendung des Ordens feierlich erneuerte, rief er mit Nachdruck die ursprüngliche Berufung seiner Mitglieder in Erinnerung: die christliche Präsenz im Heiligen Land zu unterstützen und durch ihr geistliches Engagement und ihre Werke ein Bollwerk der Nächstenliebe im Dienst der Christen des Heiligen Landes zu bleiben.\n\nDieses außergewöhnliche Ereignis, das die Geschichte unserer Leutnantschaft mit einem weißen Stein zeichnet, stellt einen erneuerten Ruf zum apostolischen Eifer eines jeden Ritters und jeder Dame aus Luxemburg dar. Gestärkt durch den an diesem Tag empfangenen päpstlichen Segen sind sie eingeladen, mit verdoppelter Großherzigkeit ihre Sendung im Dienst der Kirche und der christlichen Gemeinschaften des Landes fortzuführen, in dem Christus gelebt hat, gelitten hat und auferstanden ist.",
+        "en": "It was amid the splendour of the Eternal City that the jubilee pilgrimage of the Equestrian Order of the Holy Sepulchre of Jerusalem drew to its close. More than three thousand six hundred Knights and Ladies, gathered from every corner of the world, were granted the singular privilege of being received in audience by His Holiness Pope Leo XIV, Successor of Peter and Supreme Protector of the Order.\n\nThe delegation of the Lieutenancy for Luxembourg, led by its Lieutenant Jacques Klein, took full part in this historic encounter. In solemnly renewing the mission of the Order, the Holy Father recalled with conviction the primary vocation of its members: to sustain the Christian presence in the Holy Land and to remain, through their spiritual commitment and their works, a bulwark of charity in the service of the Christians of the Holy Land.\n\nThis exceptional event, which marks a milestone in the history of our Lieutenancy, constitutes a renewed call to the apostolic fervour of every Knight and Lady of Luxembourg. Fortified by the pontifical blessing received on this day, they are invited to pursue with redoubled generosity their mission in the service of the Church and of the Christian communities of the Land where Christ lived, suffered, and rose from the dead."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Grand Magistère de l'Ordre du Saint-Sépulcre — site officiel du Vatican",
+            "de": "Großmagistrerium des Ordens vom Heiligen Grab — offizielle Website des Vatikans",
+            "en": "Grand Magisterium of the Order of the Holy Sepulchre — official Vatican website"
+          },
+          "url": "https://www.oessh.va"
+        },
+        {
+          "label": {
+            "fr": "Œuvre d'Orient — en soutien aux chrétiens de Terre Sainte",
+            "de": "Œuvre d'Orient — zur Unterstützung der Christen im Heiligen Land",
+            "en": "Œuvre d'Orient — in support of Christians in the Holy Land"
+          },
+          "url": "https://www.lpj.org"
+        }
+      ]
+    },
+    {
       "id": "centenaire-de-la-lieutenance-pour-la-bel",
       "date_affichee": "6 juin 2026",
       "lieu": "Bruxelles",
@@ -137,54 +185,6 @@
             "en": "Cathol.lu — Full article"
           },
           "url": "https://www.cathol.lu/fr/news-fr-1/le-statu-quo-dans-les-sanctuaires-chretiens-de-palestine"
-        }
-      ]
-    },
-    {
-      "id": "le-pape-leon-xiv-renouvelle-la-mission-d",
-      "date_affichee": "2025",
-      "lieu": "Rome",
-      "badges": [
-        "À la Une",
-        "Pèlerinage"
-      ],
-      "img_filename": "pape-leon-xiv-audience-ordre-saint-sepulcre-jubile-rome-2025.webp",
-      "legende": {
-        "fr": "Vatican · 23 Oct. 2025",
-        "de": "Vatikan · 23. Okt. 2025",
-        "en": "Vatican · 23 Oct. 2025"
-      },
-      "titre": {
-        "fr": "Le Pape Léon XIV renouvelle la mission de l'Ordre du Saint-Sépulcre",
-        "de": "Papst Leo XIV. erneuert den Auftrag des Ordens vom Heiligen Grab",
-        "en": "Pope Leo XIV Renews the Mission of the Order of the Holy Sepulchre"
-      },
-      "teaser": {
-        "fr": "Plus de 3 600 Chevaliers et Dames reçus en audience pontificale à Rome, dont la délégation luxembourgeoise conduite par le Lieutenant Jacques Klein.",
-        "de": "Mehr als 3 600 Ritter und Damen wurden in Rom zu einer päpstlichen Audienz empfangen, darunter die luxemburgische Delegation unter der Leitung von Leutnant Jacques Klein.",
-        "en": "More than 3,600 Knights and Ladies were received in papal audience in Rome, including the Luxembourg delegation led by Lieutenant Jacques Klein."
-      },
-      "texte": {
-        "fr": "C'est dans la splendeur de la Ville Éternelle que s'est achevé le pèlerinage jubilaire de l'Ordre Équestre du Saint-Sépulcre de Jérusalem. Plus de trois mille six cents Chevaliers et Dames, venus des quatre coins du monde, ont eu le privilège insigne d'être reçus en audience par Sa Sainteté le Pape Léon XIV, successeur de Pierre et Protecteur suprême de l'Ordre.\n\nLa délégation de la Lieutenance pour le Luxembourg, conduite par son Lieutenant Jacques Klein, participait pleinement à cette rencontre historique. En renouvelant solennellement la mission de l'Ordre, le Saint-Père a rappelé avec force la vocation première de ses membres : soutenir la présence chrétienne en Terre Sainte et demeurer, par leur engagement spirituel et leurs œuvres, un rempart de charité au service des chrétiens de Terre Sainte.\n\nCet événement exceptionnel, qui marque d'une pierre blanche l'histoire de notre Lieutenance, constitue un appel renouvelé à l'ardeur apostolique de chaque Chevalier et Dame du Luxembourg. Forts de la bénédiction pontificale reçue en ce jour, ils sont invités à poursuivre avec une générosité redoublée leur mission au service de l'Église et des communautés chrétiennes de la Terre où le Christ a vécu, souffert et est ressuscité.",
-        "de": "Im Glanz der Ewigen Stadt fand die Jubiläumswallfahrt des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem ihren feierlichen Abschluss. Mehr als dreitausendsechshundert Ritter und Damen aus allen Teilen der Welt kamen in den Genuss des hohen Vorrechts, von Seiner Heiligkeit Papst Leo XIV., dem Nachfolger Petri und obersten Protektor des Ordens, in Audienz empfangen zu werden.\n\nDie Delegation der Statthalterei für Luxemburg, angeführt von ihrem Statthalter Jacques Klein, nahm in vollem Umfang an dieser historischen Begegnung teil. Bei der feierlichen Erneuerung des Auftrags des Ordens rief der Heilige Vater mit Nachdruck die vorrangige Berufung seiner Mitglieder in Erinnerung: die christliche Präsenz im Heiligen Land zu stützen und durch ihr geistliches Engagement und ihre Werke ein Bollwerk der Nächstenliebe im Dienst der Christen des Heiligen Landes zu sein.\n\nDieses außergewöhnliche Ereignis, das die Geschichte unserer Statthalterei mit einem weißen Stein markiert, stellt einen erneuerten Ruf zu apostolischem Eifer für jeden Ritter und jede Dame aus Luxemburg dar. Gestärkt durch den an diesem Tag empfangenen päpstlichen Segen sind sie eingeladen, mit verdoppelter Großherzigkeit ihren Dienst an der Kirche und den christlichen Gemeinschaften des Landes fortzusetzen, wo Christus gelebt hat, gelitten hat und auferstanden ist.",
-        "en": "It was in the splendour of the Eternal City that the jubilee pilgrimage of the Equestrian Order of the Holy Sepulchre of Jerusalem drew to its close. More than three thousand six hundred Knights and Ladies, gathered from the four corners of the world, were granted the singular privilege of being received in audience by His Holiness Pope Leo XIV, Successor of Peter and Supreme Protector of the Order.\n\nThe delegation of the Lieutenancy for Luxembourg, led by its Lieutenant Jacques Klein, took full part in this historic gathering. In solemnly renewing the mission of the Order, the Holy Father recalled with conviction the primary vocation of its members: to sustain the Christian presence in the Holy Land and to remain, through their spiritual commitment and their works, a bulwark of charity in the service of the Christians of the Holy Land.\n\nThis exceptional event, which marks a milestone in the history of our Lieutenancy, constitutes a renewed call to apostolic fervour for every Knight and Lady of Luxembourg. Strengthened by the pontifical blessing received on this day, they are invited to pursue with redoubled generosity their mission in the service of the Church and the Christian communities of the Land where Christ lived, suffered and rose from the dead."
-      },
-      "liens": [
-        {
-          "label": {
-            "fr": "Grand Magistère de l'Ordre du Saint-Sépulcre — site officiel du Vatican",
-            "de": "Großmagisterium des Ordens vom Heiligen Grab — offizielle Website des Vatikans",
-            "en": "Grand Magisterium of the Order of the Holy Sepulchre — official Vatican website"
-          },
-          "url": "https://www.oessh.va"
-        },
-        {
-          "label": {
-            "fr": "Œuvre d'Orient — en soutien aux chrétiens de Terre Sainte",
-            "de": "Œuvre d'Orient — zur Unterstützung der Christen im Heiligen Land",
-            "en": "Œuvre d'Orient — in support of Christians in the Holy Land"
-          },
-          "url": "https://www.lpj.org"
         }
       ]
     },
