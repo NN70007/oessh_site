@@ -109,6 +109,90 @@ header.site{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);bo
 .livre-pub-status{font-size:13px;padding:10px 14px;border-radius:6px;display:none;margin-top:12px;line-height:1.5}
 .livre-pub-ok{background:#edfff4;border:1px solid #b0e8c4;color:#1a6e3a}
 .livre-pub-err{background:#fff0f0;border:1px solid #ffc0c0;color:#a00}
+
+/* ── Layout principal ── */
+.main{max-width:900px;margin:0 auto;padding:32px 28px}
+.page-title{font-family:var(--serif);font-size:28px;font-weight:500;color:var(--ink);margin:0 0 4px}
+.page-sub{font-size:13px;color:var(--ink-mute);margin:0 0 24px}
+
+/* ── Liste articles ── */
+.article-row{background:#fff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.article-row.is-active{border-color:var(--cardinal);background:#fff8f8}
+.article-thumb{width:56px;height:42px;object-fit:cover;border-radius:4px;flex-shrink:0}
+.article-info{flex:1;min-width:0}
+.article-info strong{font-size:14px;font-weight:500;color:var(--ink);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.article-info span{font-size:12px;color:var(--ink-mute)}
+.article-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#edfff4;color:#1a6e3a;white-space:nowrap}
+.article-badge-off{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#f3f4f6;color:var(--ink-mute);white-space:nowrap}
+.article-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.btn-pub{font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;border:1px solid;cursor:pointer;white-space:nowrap}
+.btn-pub.current{background:#edfff4;color:#1a6e3a;border-color:#b0e8c4}
+.btn-pub:not(.current){background:#f9fafb;color:var(--ink-mute);border-color:var(--border)}
+.btn-edit{background:none;border:1px solid var(--border);border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.btn-del{background:none;border:1px solid #ffc0c0;border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:14px;color:#c00;display:flex;align-items:center;justify-content:center}
+.btn-del:hover{background:#fff0f0}
+.btn-move{background:none;border:1px solid var(--border);border-radius:4px;width:24px;height:24px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;padding:0}
+.btn-move:disabled{opacity:.3;cursor:default}
+.move-col{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+
+/* ── Workflow steps ── */
+.workflow{display:flex;flex-direction:column;gap:0}
+.step{background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.step-head{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--cardinal);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-num.done{background:#22c55e}
+.step-title{font-weight:500;font-size:15px;color:var(--ink)}
+.step-body{padding:0 20px 20px;display:none}
+.step-body.open{display:block}
+.step-hint{font-size:12px;color:var(--ink-mute);margin-bottom:16px}
+label.field-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-mute);font-weight:500;margin-bottom:5px;margin-top:14px}
+textarea.field,input.field,select.field{width:100%;font-size:13px;padding:9px 11px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);color:var(--ink);background:#fff;resize:vertical}
+textarea.field:focus,input.field:focus{outline:none;border-color:var(--cardinal)}
+.btn-gen{display:block;width:100%;padding:12px;background:var(--cardinal);color:#fff;border:none;border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;margin-top:16px;font-family:var(--sans)}
+.btn-gen:hover{background:#8f0102}
+.btn-gen:disabled{background:#ccc;cursor:default}
+.step-err{background:#fff0f0;border:1px solid #ffc0c0;color:#a00;padding:8px 12px;border-radius:6px;font-size:13px;margin-top:10px;display:none}
+.btn-secondary{padding:10px 18px;border:1px solid var(--border);border-radius:7px;background:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans);color:var(--ink)}
+.btn-secondary:hover{background:#f7f4ee}
+.step-bar{display:flex;gap:10px;margin-top:14px;align-items:center}
+.pub-status{font-size:13px;padding:10px 14px;border-radius:6px;display:none;margin-top:12px;line-height:1.5}
+.pub-ok{background:#edfff4;border:1px solid #b0e8c4;color:#1a6e3a}
+.pub-err{background:#fff0f0;border:1px solid #ffc0c0;color:#a00}
+.lang-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.lang-tab{padding:7px 16px;font-size:12px;font-weight:500;color:var(--ink-mute);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--sans)}
+.lang-tab.active{color:var(--cardinal);border-bottom-color:var(--cardinal)}
+.loading-dots{display:none;align-items:center;gap:6px;font-size:13px;color:var(--ink-mute)}
+.loading-dots span{width:6px;height:6px;border-radius:50%;background:var(--cardinal);animation:blink 1.2s infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+/* ── Lien / PDF rows ── */
+.lien-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px}
+.lien-row input{font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink)}
+.btn-rm{background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:18px}
+.btn-rm:hover{color:var(--cardinal)}
+.btn-add-lien{background:none;border:1px dashed var(--border);border-radius:6px;padding:6px 12px;font-size:12px;color:var(--ink-mute);cursor:pointer;font-family:var(--sans);margin-top:4px}
+.btn-add-lien:hover{border-color:var(--cardinal);color:var(--cardinal)}
+
+/* ── PDF upload ── */
+.pdf-row{display:flex;align-items:center;gap:8px;background:#faf9f6;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:6px;font-size:13px}
+.pdf-row .btn-rm{font-size:16px}
+
+/* ── Livre list ── */
+.book-row{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.book-thumb{width:44px;height:60px;object-fit:cover;border-radius:3px;flex-shrink:0;border:1px solid var(--border)}
+.book-info{flex:1;min-width:0}
+.book-titre{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book-meta{font-size:12px;color:var(--ink-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+/* ── Export ── */
+.export-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;background:#fff}
+.export-item input[type=checkbox]{margin-top:2px;flex-shrink:0}
+.export-item-info strong{font-size:14px;font-weight:500;display:block}
+.export-item-info span{font-size:12px;color:var(--ink-mute)}
+
 </style>
 </head>
 <body>
@@ -1918,9 +2002,10 @@ async function sessionStart(email, name){
   _currentUserEmail = email;
   _currentUserName = name;
   await sessionWrite();
+  // Read immediately after write so we see our own connection
+  setTimeout(sessionRead, 1000);
   _heartbeatTimer = setInterval(sessionWrite, 30000);
   _sessionCheckTimer = setInterval(sessionRead, 15000);
-  sessionRead();
 }
 
 async function sessionWrite(){
@@ -1956,6 +2041,14 @@ async function sessionRead(){
     var txt = document.getElementById('session-text');
     if(!el) return;
     el.style.display = 'flex'; el.style.gap = '6px';
+    // If ts=0 it's an empty/cleared session
+    if(!data.ts || data.ts === 0){
+      dot.style.background = '#d1d5db';
+      txt.style.color = 'var(--ink-mute)';
+      txt.style.fontWeight = 'normal';
+      txt.textContent = 'Aucune session récente';
+      return;
+    }
     var age = Date.now() - data.ts;
     var isSelf = data.email === _currentUserEmail;
     var isActive = age < 90000; // 90s = missed 3 heartbeats
