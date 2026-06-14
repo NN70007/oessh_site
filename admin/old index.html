@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
+<link rel="icon" href="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem.svg" type="image/svg+xml"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>OESSH Admin</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -167,6 +168,42 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 .pdf-row .btn-rm{background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:16px;padding:4px}
 .pdf-row .btn-rm:hover{color:var(--cardinal)}
 .pdf-info{font-size:11px;color:#1a7a3c;margin-top:2px}
+
+/* ═══════════ LECTURES ═══════════ */
+.book-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.book-row.is-hidden{opacity:.55}
+.book-thumb{width:48px;height:64px;object-fit:cover;border-radius:4px;flex-shrink:0;background:#f0ede6}
+.book-thumb-placeholder{width:48px;height:64px;border-radius:4px;flex-shrink:0;background:#f0ede6;display:flex;align-items:center;justify-content:center;font-size:22px}
+.book-info{flex:1;min-width:0}
+.book-titre{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book-meta{font-size:12px;color:var(--ink-mute);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.livre-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px}
+.livre-form h2{font-family:var(--serif);font-size:20px;font-weight:normal;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-mute);margin-bottom:5px;font-weight:500}
+.field input[type=text]{width:100%;font-size:14px;padding:9px 11px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);color:var(--ink);background:#fff}
+.field input:focus,.field textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
+.field textarea{width:100%;font-family:var(--sans);font-size:13px;padding:9px 11px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ink);resize:vertical;line-height:1.5}
+.lang-tabs-sm{display:flex;gap:4px;margin-bottom:10px}
+.lang-tab-sm{padding:3px 12px;font-size:11px;font-weight:600;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:transparent;color:var(--ink-mute)}
+.lang-tab-sm.active{background:var(--cardinal);color:#fff;border-color:var(--cardinal)}
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-mute);font-weight:600;margin:20px 0 12px;padding-top:16px;border-top:1px solid var(--border)}
+.lien-livre-row{display:grid;grid-template-columns:2fr 3fr auto auto;gap:8px;align-items:end;padding:10px;background:#faf9f6;border:1px solid var(--border);border-radius:6px;margin-bottom:8px}
+.lien-livre-row label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);margin-bottom:4px;display:block;font-weight:500}
+.lien-livre-row input[type=text]{width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink);background:#fff}
+.lien-livre-row .btn-rm{background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:18px;align-self:center}
+.lien-livre-row .btn-rm:hover{color:var(--cardinal)}
+.meta-livre-row{display:grid;grid-template-columns:2fr 2fr auto;gap:8px;align-items:end;padding:8px 10px;background:#faf9f6;border:1px solid var(--border);border-radius:6px;margin-bottom:8px}
+.meta-livre-row label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-mute);margin-bottom:4px;display:block;font-weight:500}
+.meta-livre-row input{width:100%;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink);background:#fff}
+.meta-livre-row .btn-rm{background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:18px;align-self:center}
+.meta-livre-row .btn-rm:hover{color:var(--cardinal)}
+.livre-save-bar{display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.img-livre-preview{width:80px;height:110px;object-fit:cover;border-radius:4px;border:1px solid var(--border);display:block;margin-top:8px}
+.livre-pub-status{font-size:13px;padding:10px 14px;border-radius:6px;display:none;margin-top:12px;line-height:1.5}
+.livre-pub-ok{background:#edfff4;border:1px solid #b0e8c4;color:#1a6e3a}
+.livre-pub-err{background:#fff0f0;border:1px solid #ffc0c0;color:#a00}
 </style>
 </head>
 <body>
@@ -228,8 +265,8 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
   </div>
 
   <div class="nav-tabs-bar" style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:0">
-    <button class="nav-tab active" id="tab-new" onclick="showTab('new')">✦ Nouvel article</button>
-    <button class="nav-tab" id="tab-articles" onclick="showTab('articles')">📂 Articles</button>
+    <button class="nav-tab active" id="tab-articles" onclick="showTab('articles')">📂 Articles</button>
+    <button class="nav-tab" id="tab-lectures" onclick="showTab('lectures')">📚 Lectures</button>
     <button class="nav-tab" id="tab-export" onclick="showTab('export')">📤 Export</button>
   </div>
 
@@ -381,10 +418,114 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 
   <!-- TAB: ARTICLES -->
   <div id="tab-articles-content" style="display:none">
-    <h1 class="page-title">Articles stockés</h1>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h1 class="page-title" style="margin:0">Articles stockés</h1>
+      <button class="btn-gen" style="width:auto;padding:10px 20px;margin:0" onclick="showTab('new')">+ Ajouter un article</button>
+    </div>
     <p class="page-sub">Gérez les articles du stock dynamique.</p>
     <div id="articles-loading" style="font-size:13px;color:var(--ink-mute);padding:20px 0">Chargement…</div>
     <div id="articles-list"></div>
+  </div>
+
+  <!-- TAB: LECTURES ════════════════════════════════════════════════ -->
+  <div id="tab-lectures-content" style="display:none">
+
+    <!-- Vue liste -->
+    <div id="livres-view">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h1 class="page-title" style="margin:0">Lectures — ouvrages recommandés</h1>
+        <button class="btn-gen" id="btn-new-livre" onclick="startLivreWorkflow(null)" style="width:auto;padding:10px 20px;margin:0">+ Ajouter un ouvrage</button>
+      </div>
+      <p class="page-sub">Gérez les ouvrages affichés dans la section Lectures du site.</p>
+      <div id="livres-loading" style="font-size:13px;color:var(--ink-mute);padding:20px 0">Chargement…</div>
+      <div id="livres-list"></div>
+    </div>
+
+    <!-- Vue workflow (3 étapes) -->
+    <div id="livres-workflow" style="display:none">
+      <h1 class="page-title" id="livre-workflow-title">Nouvel ouvrage</h1>
+      <p class="page-sub">Claude rédige la fiche en français — vous validez — il traduit.</p>
+
+      <div class="workflow">
+
+        <!-- ÉTAPE L1 : Description + image -->
+        <div class="wstep active" id="lstep1">
+          <div class="wstep-head"><div class="wstep-num">1</div><div class="wstep-title">Décrivez l'ouvrage + couverture</div></div>
+          <div class="wstep-body">
+            <label class="lbl">Description libre — titre, auteur, thème, pourquoi le recommander</label>
+            <textarea id="livre-desc" rows="4" placeholder="Ex : Le Grand Maître Fernando Filoni a publié un ouvrage sur la mission de l'Ordre intitulé « La Terre Sainte, notre patrie »…"></textarea>
+            <div style="margin-top:12px">
+              <label class="lbl">Image de couverture</label>
+              <div class="dropzone">
+                <input type="file" id="livre-img-input" accept="image/*" onchange="handleLivreImg(this)"/>
+                <div class="dz-icon">📖</div>
+                <div class="dz-txt"><strong>Choisir l’image de couverture</strong> ou glisser-déposer</div>
+              </div>
+              <div style="display:none;margin-top:8px" id="livre-img-preview-wrap">
+                <img id="livre-img-preview" src="" alt="" style="width:80px;height:110px;object-fit:cover;border-radius:4px;border:1px solid var(--border)"/>
+                <span id="livre-img-fname" style="font-size:12px;color:var(--ink-mute);margin-left:10px;vertical-align:top"></span>
+              </div>
+            </div>
+            <div style="margin-top:14px">
+              <button class="btn-gen" id="btn-lgen" onclick="generateLivreFR()">✦ Générer la fiche en français</button>
+              <div class="err-box" id="err-lgen"></div>
+              <div class="loader" id="load-lgen"><div class="spinner"></div>Claude rédige la fiche…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ÉTAPE L2 : Relecture FR -->
+        <div class="wstep" id="lstep2">
+          <div class="wstep-head"><div class="wstep-num">2</div><div class="wstep-title">Relire et corriger le français</div></div>
+          <div class="wstep-body">
+            <p style="font-size:13px;color:var(--ink-mute);margin-bottom:16px">Modifiez librement tous les champs avant de valider.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+              <div class="field-edit"><label>Catégorie</label><input type="text" id="lf-categorie" placeholder="Ex : Spiritualité de l’Ordre"/></div>
+              <div class="field-edit"><label>Auteur</label><input type="text" id="lf-auteur" placeholder="Ex : Cardinal Fernando Filoni"/></div>
+            </div>
+            <div class="field-edit"><label>Titre</label><input type="text" id="lf-titre"/></div>
+            <div class="field-edit"><label>Résumé</label><textarea id="lf-resume" rows="5"></textarea></div>
+            <div class="field-edit"><label>Citation (optionnel)</label><textarea id="lf-citation" rows="2"></textarea></div>
+            <div class="field-edit"><label>Source de la citation (optionnel)</label><input type="text" id="lf-citation-source"/></div>
+            <div class="field-edit">
+              <label>Liens (achat, éditeur…)</label>
+              <div id="lf-liens-list" style="display:flex;flex-direction:column;gap:8px"></div>
+              <button class="btn-add-lien" onclick="addLienLivreRow2()" style="margin-top:6px">+ Ajouter un lien</button>
+            </div>
+            <div class="field-edit">
+              <label>Métadonnées (éditeur, ISBN, format…)</label>
+              <div id="lf-meta-list" style="display:flex;flex-direction:column;gap:8px"></div>
+              <button class="btn-add-lien" onclick="addMetaLivreRow2()" style="margin-top:6px">+ Ajouter une métadonnée</button>
+            </div>
+            <div class="action-bar">
+              <button class="btn-secondary" onclick="goLStep(1)">← Retour</button>
+              <button class="btn-action" id="btn-ltranslate" onclick="translateLivre2()">Valider et traduire →</button>
+            </div>
+            <div class="loader" id="load-ltranslate"><div class="spinner"></div>Claude traduit en DE et EN…</div>
+            <div class="err-box" id="err-ltranslate"></div>
+          </div>
+        </div>
+
+        <!-- ÉTAPE L3 : Validation + publication -->
+        <div class="wstep" id="lstep3">
+          <div class="wstep-head"><div class="wstep-num">3</div><div class="wstep-title">Vérifier et publier</div></div>
+          <div class="wstep-body">
+            <div class="lang-tabs">
+              <button class="lang-tab active" onclick="switchLivrePreviewTab('de',this)">🇩🇪 Deutsch</button>
+              <button class="lang-tab" onclick="switchLivrePreviewTab('en',this)">🇬🇧 English</button>
+            </div>
+            <div id="livre-preview-de" class="lang-panel active"></div>
+            <div id="livre-preview-en" class="lang-panel"></div>
+            <div class="action-bar" style="margin-top:16px">
+              <button class="btn-secondary" onclick="goLStep(2)">← Corriger le français</button>
+              <button class="btn-action" id="btn-lsave" onclick="saveLivre2()">↑ Publier sur le site</button>
+            </div>
+            <div class="livre-pub-status" id="livre-pub-status"></div>
+          </div>
+        </div>
+
+      </div><!-- end workflow -->
+    </div><!-- end livres-workflow -->
   </div>
 
   </div><!-- end main -->
@@ -433,7 +574,8 @@ function onGoogleLogin(r){
   document.getElementById('user-name').textContent=p.name;
   document.getElementById('user-avatar').src=p.picture;
   document.getElementById('login-screen').style.display='none';
-  hasSettings() ? document.getElementById('app').style.display='block' : document.getElementById('setup-screen').style.display='flex';
+  if(hasSettings()){ document.getElementById('app').style.display='block'; showTab('articles'); }
+  else { document.getElementById('setup-screen').style.display='flex'; }
 }
 function logout(){
   google.accounts.id.disableAutoSelect();
@@ -759,43 +901,34 @@ function getFRData(){
 }
 
 // ── ÉTAPE 2 : Traduire DE + EN ────────────────────
-var pendingPDFs = []; // PDFs from step 2 that need labels
+var pendingPDFs = []; // source de vérité unique pour tous les PDFs
 
 function validateFR(){
   var fr = getFRData();
   if(!fr.titre){ showErr('err2','Le titre français est vide.'); return; }
 
-  // Collect PDFs from step2-media
+  // Construire pendingPDFs = source unique (PDFs étape 1 + PDFs ajoutés en mode edit étape 2)
   pendingPDFs = [];
+
+  // PDFs de l'étape 1 (mode création - pas en mode édition)
+  if(!editingId){
+    pdfFiles.filter(Boolean).forEach(function(p){
+      if(p.filename) pendingPDFs.push({ filename: p.filename, base64: p.base64, labelFr: p.label||'', labelDe: '', labelEn: '' });
+    });
+  }
+
+  // Nouveaux PDFs ajoutés en mode édition (step2-media)
   document.querySelectorAll('#pdf-list2 .pdf-row2').forEach(function(row){
     var fname = row.dataset.filename || '';
     var b64 = row.dataset.base64 || null;
-    if(fname){
-      pendingPDFs.push({ filename: fname, base64: b64, labelFr: '', labelDe: '', labelEn: '' });
-    }
+    if(fname) pendingPDFs.push({ filename: fname, base64: b64, labelFr: '', labelDe: '', labelEn: '' });
   });
 
-  // Also collect PDFs from step1 pdf-list
-  pdfFiles.filter(Boolean).forEach(function(p){
-    if(p.filename){
-      pendingPDFs.push({ filename: p.filename, base64: p.base64, labelFr: p.label||'', labelDe: '', labelEn: '' });
-    }
-  });
-
-  if(editingId && pendingPDFs.length > 0){
-    // Edit mode with new PDFs → step 2.5 to name them
+  // Toujours passer par l'étape 2.5 si des PDFs sont présents (création OU édition)
+  if(pendingPDFs.length > 0){
     document.getElementById('pdf-labels-container').innerHTML = '';
     namePDFsWithClaude();
   } else {
-    // Creation mode (PDF labels already in step2 form) or no PDFs → translate directly
-    // For creation mode, collect PDF labels from step1 pdf-list inputs
-    pdfFiles.filter(Boolean).forEach(function(p){
-      if(p.filename && !p.label){
-        // Try to read label from input if present
-        var inputs = document.querySelectorAll('#pdf-list .pdf-label');
-        inputs.forEach(function(inp){ if(inp.closest('[data-idx]')) p.label = inp.value.trim(); });
-      }
-    });
     translateDEEN();
   }
 }
@@ -844,15 +977,24 @@ async function namePDFsWithClaude(){
     var container = document.getElementById('pdf-labels-container');
     container.innerHTML = '';
     pendingPDFs.forEach(function(pdf, i){
+      if(!pdf) return;
       var block = document.createElement('div');
-      block.style.cssText = 'background:#faf9f6;border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px';
+      block.style.cssText = 'background:#faf9f6;border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px;position:relative';
       block.innerHTML =
-        '<div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:10px">📄 '+pdf.filename+'</div>'+
+        '<div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:10px;padding-right:30px">📄 '+pdf.filename+(pdf.existing?' <span style="font-size:10px;color:var(--ink-mute)">(existant)</span>':'')+'</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'+
           makeField('Français','pdf-lbl-fr',i,pdf.labelFr)+
           makeField('Deutsch','pdf-lbl-de',i,pdf.labelDe)+
           makeField('English','pdf-lbl-en',i,pdf.labelEn)+
         '</div>';
+      var delBtn = document.createElement('button');
+      delBtn.style.cssText = 'position:absolute;top:10px;right:10px;background:none;border:1px solid var(--border);color:var(--ink-mute);font-size:13px;padding:2px 8px;border-radius:4px;cursor:pointer';
+      delBtn.textContent = '✕ Supprimer';
+      delBtn.onclick = (function(idx, b){ return function(){
+        pendingPDFs[idx] = null;
+        b.remove();
+      }; })(i, block);
+      block.appendChild(delBtn);
       container.appendChild(block);
     });
   } catch(e){
@@ -870,9 +1012,9 @@ function makeField(langLabel, cls, idx, val){
 
 async function proceedToTranslate(){
   // Collect edited labels from form
-  document.querySelectorAll('.pdf-lbl-fr').forEach(function(el){ pendingPDFs[parseInt(el.dataset.idx)].labelFr = el.value.trim(); });
-  document.querySelectorAll('.pdf-lbl-de').forEach(function(el){ pendingPDFs[parseInt(el.dataset.idx)].labelDe = el.value.trim(); });
-  document.querySelectorAll('.pdf-lbl-en').forEach(function(el){ pendingPDFs[parseInt(el.dataset.idx)].labelEn = el.value.trim(); });
+  document.querySelectorAll('.pdf-lbl-fr').forEach(function(el){ var p=pendingPDFs[parseInt(el.dataset.idx)]; if(p) p.labelFr = el.value.trim(); });
+  document.querySelectorAll('.pdf-lbl-de').forEach(function(el){ var p=pendingPDFs[parseInt(el.dataset.idx)]; if(p) p.labelDe = el.value.trim(); });
+  document.querySelectorAll('.pdf-lbl-en').forEach(function(el){ var p=pendingPDFs[parseInt(el.dataset.idx)]; if(p) p.labelEn = el.value.trim(); });
   translateDEEN();
 }
 
@@ -1015,20 +1157,17 @@ async function publish(){
 
   try {
     if(imgBase64) await githubPut(s, 'assets/'+imgFilename, imgBase64, 'Admin: image '+imgFilename);
-    // Upload PDFs from step1 pdfFiles
+    // Upload PDFs — source unique : pendingPDFs (déjà consolidé dans validateFR)
     var pdfLiens = [];
-    for(var pi=0; pi<pdfFiles.length; pi++){
-      var pdf = pdfFiles[pi];
-      if(!pdf) continue;
-      if(pdf.base64 && pdf.filename) await githubPut(s, 'assets/'+pdf.filename, pdf.base64, 'Admin: PDF '+pdf.filename);
-      if(pdf.filename && pdf.label) pdfLiens.push({ label:{fr:pdf.label,de:pdf.label,en:pdf.label}, url:'assets/'+pdf.filename });
-    }
-    // Upload PDFs from step 2.5 pendingPDFs
-    for(var pi2=0; pi2<pendingPDFs.length; pi2++){
-      var ppdf = pendingPDFs[pi2];
+    for(var pi=0; pi<pendingPDFs.length; pi++){
+      var ppdf = pendingPDFs[pi];
       if(ppdf.base64 && ppdf.filename) await githubPut(s, 'assets/'+ppdf.filename, ppdf.base64, 'Admin: PDF '+ppdf.filename);
       if(ppdf.filename) pdfLiens.push({
-        label: { fr: ppdf.labelFr||ppdf.filename, de: ppdf.labelDe||ppdf.labelFr||ppdf.filename, en: ppdf.labelEn||ppdf.labelFr||ppdf.filename },
+        label: {
+          fr: ppdf.labelFr || ppdf.filename,
+          de: ppdf.labelDe || ppdf.labelFr || ppdf.filename,
+          en: ppdf.labelEn || ppdf.labelFr || ppdf.filename
+        },
         url: 'assets/'+ppdf.filename
       });
     }
@@ -1051,7 +1190,7 @@ async function publish(){
       imgBase64 = null; imgMime = null; imgOrigName = ''; editingId = null; pdfFiles = []; document.getElementById('pdf-list').innerHTML = '';
       articleDE = {}; articleEN = {};
       addLienRow('','');
-      goStep(1);
+      showTab('articles');
     }, 2000);
   } catch(e){ showPub('Erreur : '+e.message,'err'); }
   document.getElementById('btn3').disabled = false;
@@ -1080,14 +1219,15 @@ function showPub(msg,type){ var e=document.getElementById('pubStatus'); e.textCo
 
 // ── Tabs ──────────────────────────────────────────
 function showTab(tab){
-  document.getElementById('tab-new-content').style.display = tab==='new' ? 'block' : 'none';
-  document.getElementById('tab-articles-content').style.display = tab==='articles' ? 'block' : 'none';
-  document.getElementById('tab-export-content').style.display = tab==='export' ? 'block' : 'none';
-  document.getElementById('tab-new').classList.toggle('active', tab==='new');
-  document.getElementById('tab-articles').classList.toggle('active', tab==='articles');
-  document.getElementById('tab-export').classList.toggle('active', tab==='export');
+  ['new','articles','lectures','export'].forEach(function(t){
+    var c = document.getElementById('tab-'+t+'-content');
+    if(c) c.style.display = tab===t ? 'block' : 'none';
+    var b = document.getElementById('tab-'+t);
+    if(b) b.classList.toggle('active', tab===t);
+  });
   if(tab==='articles') loadArticles();
   if(tab==='export') loadExportList();
+  if(tab==='lectures') loadLivres();
 }
 
 // ── Articles management ───────────────────────────
@@ -1099,7 +1239,7 @@ function editArticle(art){
   editingId = art.id;
 
   // Helper: extract FR value from multilingual field
-  function fr(field){ return (field && (field.fr || field)) || ''; }
+  function fr(field, lang){ var l = lang||'fr'; return (field && (field[l] || field.fr || field)) || ''; }
 
   // Step 1 description (informational only)
   var descParts = [];
@@ -1124,17 +1264,17 @@ function editArticle(art){
   container.innerHTML = '';
   document.getElementById('pdf-list').innerHTML = '';
   pdfFiles = [];
+  pendingPDFs = []; // reset — existing PDFs will show in step 2.5
   (art.liens || []).forEach(function(l){
     var label = fr(l.label);
-    // PDF liens start with assets/ and end with .pdf
     if(l.url && l.url.match(/\.pdf$/i)){
-      var fname = l.url.replace(/^assets\//,'');
-      addPDFRow(label, fname);
+      // Existing PDF: put in pendingPDFs directly (no base64, will be kept as-is)
+      pendingPDFs.push({ filename: l.url.replace(/^assets\//,''), base64: null, labelFr: label, labelDe: fr(l.label, 'de'), labelEn: fr(l.label, 'en'), existing: true });
     } else {
       addLienRow(label, l.url);
     }
   });
-  if(!(art.liens && art.liens.filter(function(l){ return !l.url.match(/\.pdf$/i); }).length)) addLienRow('','');
+  if(!(art.liens && art.liens.filter(function(l){ return l.url && !l.url.match(/\.pdf$/i); }).length)) addLienRow('','');
 
   // Show current image info
   if(art.img_filename){
@@ -1158,7 +1298,7 @@ async function loadArticles(){
   var loadEl = document.getElementById('articles-loading');
   loadEl.style.display = 'block';
   listEl.innerHTML = '';
-  listEl.innerHTML = '<div class="drag-hint">Utilisez ↑ ↓ pour changer l'ordre d'affichage</div>';
+  listEl.innerHTML = '<div class="drag-hint">Utilisez ↑ ↓ pour changer l’ordre d’affichage</div>';
 
   try {
     articlesData = await fetchActualites(s);
@@ -1434,6 +1574,391 @@ async function doExport(){
   }
   document.getElementById('btn-export').disabled = false;
   document.getElementById('export-loader').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════
+// LECTURES — gestion des ouvrages
+// ═══════════════════════════════════════════════════════
+var livresData = null;
+var livreEditingId = null;
+var livreEditingData = null;
+var livreDE = {}, livreEN = {};
+var livreImgBase64 = null, livreImgMime = null, livreImgOrigName = '';
+
+function escLivre(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+async function fetchLectures(s){
+  try{
+    var url='https://api.github.com/repos/'+s.repo+'/contents/lectures.json';
+    var r=await fetch(url,{headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
+    if(!r.ok) return null;
+    var d=await r.json();
+    var decoded=decodeURIComponent(escape(atob(d.content.replace(/\n/g,''))));
+    var data=JSON.parse(decoded); data._sha=d.sha; return data;
+  }catch(e){ return null; }
+}
+
+async function loadLivres(){
+  var s=getSettings();
+  var loadEl=document.getElementById('livres-loading');
+  var listEl=document.getElementById('livres-list');
+  loadEl.style.display='block'; loadEl.textContent='Chargement…'; listEl.innerHTML='';
+  livresData=await fetchLectures(s); loadEl.style.display='none';
+  if(!livresData||!livresData.ouvrages||!livresData.ouvrages.length){
+    listEl.innerHTML='<div class="empty-state">Aucun ouvrage — cliquez « Ajouter » pour commencer.</div>'; return;
+  }
+  var ouvrages=livresData.ouvrages;
+  listEl.innerHTML='<div class="drag-hint" style="margin-bottom:10px">Utilisez ↑ ↓ pour réordonner les ouvrages</div>';
+  ouvrages.forEach(function(ouvrage,idx){
+    var isPublished=ouvrage.published!==false;
+    var titre=(ouvrage.titre&&(ouvrage.titre.fr||ouvrage.titre))||'(sans titre)';
+    var auteur=(ouvrage.auteur&&(ouvrage.auteur.fr||ouvrage.auteur))||'';
+    var row=document.createElement('div'); row.className='book-row'+(isPublished?'':' is-hidden'); row.dataset.id=ouvrage.id;
+    if(ouvrage.img_filename){
+      var thumb=document.createElement('img'); thumb.className='book-thumb';
+      thumb.src='https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/'+ouvrage.img_filename; thumb.alt=titre; row.appendChild(thumb);
+    }else{ var ph=document.createElement('div'); ph.className='book-thumb-placeholder'; ph.textContent='📖'; row.appendChild(ph); }
+    var info=document.createElement('div'); info.className='book-info';
+    info.innerHTML='<div class="book-titre">'+escLivre(titre)+'</div><div class="book-meta">'+escLivre(auteur)+'</div>'; row.appendChild(info);
+    var badge=document.createElement('span'); badge.className=isPublished?'article-badge':'article-badge-off';
+    badge.textContent=isPublished?'● Visible':'○ Masqué'; row.appendChild(badge);
+    var actions=document.createElement('div'); actions.className='book-actions';
+    var toggleBtn=document.createElement('button'); toggleBtn.className=isPublished?'btn-pub current':'btn-pub';
+    toggleBtn.textContent=isPublished?'● Visible':'○ Masqué';
+    toggleBtn.onclick=(function(id,pub){return function(){toggleLivrePublish(id,!pub);};})(ouvrage.id,isPublished);
+    var editBtn=document.createElement('button'); editBtn.className='btn-edit'; editBtn.title='Modifier'; editBtn.textContent='✏️';
+    editBtn.onclick=(function(o){return function(){startLivreWorkflow(o);};})(ouvrage);
+    var delBtn=document.createElement('button'); delBtn.className='btn-del'; delBtn.title='Supprimer'; delBtn.textContent='🗑';
+    delBtn.onclick=(function(id){return function(){deleteLivre(id);};})(ouvrage.id);
+    var moveDiv=document.createElement('div'); moveDiv.style.cssText='display:flex;flex-direction:column;gap:3px;flex-shrink:0';
+    var btnUp=document.createElement('button'); btnUp.className='btn-move'; btnUp.textContent='↑'; btnUp.disabled=(idx===0);
+    btnUp.onclick=(function(id){return function(){moveLivre(id,-1);};})(ouvrage.id);
+    var btnDn=document.createElement('button'); btnDn.className='btn-move'; btnDn.textContent='↓'; btnDn.disabled=(idx===ouvrages.length-1);
+    btnDn.onclick=(function(id){return function(){moveLivre(id,1);};})(ouvrage.id);
+    moveDiv.appendChild(btnUp); moveDiv.appendChild(btnDn);
+    actions.appendChild(toggleBtn); actions.appendChild(editBtn); actions.appendChild(delBtn);
+    row.appendChild(moveDiv); row.appendChild(actions); listEl.appendChild(row);
+  });
+}
+
+function startLivreWorkflow(ouvrage){
+  livreEditingId = ouvrage ? ouvrage.id : null;
+  livreEditingData = ouvrage || null;
+  livreImgBase64 = null; livreImgMime = null; livreImgOrigName = '';
+  livreDE = {}; livreEN = {};
+  document.getElementById('livres-view').style.display = 'none';
+  document.getElementById('livres-workflow').style.display = 'block';
+  document.getElementById('livre-workflow-title').textContent = ouvrage ? 'Modifier l’ouvrage' : 'Nouvel ouvrage';
+  document.getElementById('livre-pub-status').style.display = 'none';
+  document.getElementById('livre-desc').value = '';
+  document.getElementById('lf-titre').value = '';
+  document.getElementById('lf-auteur').value = '';
+  document.getElementById('lf-categorie').value = '';
+  document.getElementById('lf-resume').value = '';
+  document.getElementById('lf-citation').value = '';
+  document.getElementById('lf-citation-source').value = '';
+  document.getElementById('lf-liens-list').innerHTML = '';
+  document.getElementById('lf-meta-list').innerHTML = '';
+  document.getElementById('livre-preview-de').innerHTML = '';
+  document.getElementById('livre-preview-en').innerHTML = '';
+
+  if(ouvrage){
+    function g(f){ return (f && (f.fr || f)) || ''; }
+    // Pre-fill FR fields directly for edit mode
+    document.getElementById('lf-titre').value = g(ouvrage.titre);
+    document.getElementById('lf-auteur').value = g(ouvrage.auteur);
+    document.getElementById('lf-categorie').value = g(ouvrage.categorie);
+    document.getElementById('lf-resume').value = g(ouvrage.resume);
+    document.getElementById('lf-citation').value = g(ouvrage.citation);
+    document.getElementById('lf-citation-source').value = ouvrage.citation_source || '';
+    (ouvrage.liens||[]).forEach(function(l){ addLienLivreRow2(g(l.label), l.url, l.muted||false); });
+    (ouvrage.meta||[]).forEach(function(m){ addMetaLivreRow2(g(m.label), m.valeur); });
+    if(ouvrage.img_filename){
+      document.getElementById('livre-img-preview-wrap').style.display = 'block';
+      document.getElementById('livre-img-preview').src = 'https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/'+ouvrage.img_filename;
+      document.getElementById('livre-img-fname').textContent = ouvrage.img_filename + ' — choisir pour remplacer';
+    }
+    goLStep(2); // Edit mode: go straight to step 2
+  } else {
+    addLienLivreRow2('','',false);
+    goLStep(1);
+  }
+  window.scrollTo(0,0);
+}
+
+function goLStep(n){
+  [1,2,3].forEach(function(s){
+    var el = document.getElementById('lstep'+s);
+    if(!el) return;
+    el.classList.remove('active','done');
+    if(s < n) el.classList.add('done');
+    else if(s === n) el.classList.add('active');
+  });
+  window.scrollTo(0,0);
+}
+
+function cancelLivreWorkflow(){
+  document.getElementById('livres-workflow').style.display = 'none';
+  document.getElementById('livres-view').style.display = 'block';
+  livreEditingId = null; livreEditingData = null;
+}
+
+function handleLivreImg(input){
+  var file = input.files[0]; if(!file) return;
+  livreImgOrigName = file.name; livreImgMime = file.type;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    livreImgBase64 = e.target.result.split(',')[1];
+    document.getElementById('livre-img-preview-wrap').style.display = 'block';
+    document.getElementById('livre-img-preview').src = e.target.result;
+    document.getElementById('livre-img-fname').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function generateLivreFR(){
+  var desc = document.getElementById('livre-desc').value.trim();
+  if(!desc){ var e=document.getElementById('err-lgen'); e.textContent='Décrivez l’ouvrage.'; e.style.display='block'; return; }
+  if(!getSettings().claudeKey){ var e=document.getElementById('err-lgen'); e.textContent='Clé Claude manquante.'; e.style.display='block'; return; }
+  document.getElementById('err-lgen').style.display = 'none';
+  document.getElementById('load-lgen').style.display = 'flex';
+  document.getElementById('btn-lgen').disabled = true;
+
+  var system = "Tu es le rédacteur de la Lieutenance pour le Luxembourg de l'Ordre Equestre du Saint-Sepulcre de Jerusalem. Tu rédiges des fiches de présentation d'ouvrages recommandés pour le site luxembourg.oessh.lu. Réponds UNIQUEMENT avec ce format :\n\n###TITRE###\n[titre exact de l'ouvrage]\n###FIN###\n###AUTEUR###\n[nom complet de l'auteur avec titre]\n###FIN###\n###CATEGORIE###\n[catégorie courte, ex: Spiritualité de l'Ordre]\n###FIN###\n###RESUME###\n[présentation de l'ouvrage en 2-3 paragraphes]\n###FIN###\n###CITATION###\n[extrait marquant ou laisser vide]\n###FIN###\n###CITATION_SOURCE###\n[source de la citation ou laisser vide]\n###FIN###\n###LIEN1_LABEL###\n[intitulé du lien, ex: Commander sur Amazon]\n###FIN###\n###LIEN1_URL###\n[https://...]\n###FIN###\n###META1_LABEL###\n[ex: Editeur]\n###FIN###\n###META1_VALEUR###\n[valeur]\n###FIN###\n###META2_LABEL###\n[ex: Année]\n###FIN###\n###META2_VALEUR###\n[valeur]\n###FIN###";
+
+  try {
+    var txt = await claudeCall(system, desc, 2000);
+    function get(n){ var o='###'+n+'###',c='###FIN###'; var s=txt.indexOf(o); if(s===-1) return ''; s+=o.length; var e=txt.indexOf(c,s); return e===-1?txt.substring(s).trim():txt.substring(s,e).trim(); }
+    document.getElementById('lf-titre').value = get('TITRE');
+    document.getElementById('lf-auteur').value = get('AUTEUR');
+    document.getElementById('lf-categorie').value = get('CATEGORIE');
+    document.getElementById('lf-resume').value = get('RESUME');
+    document.getElementById('lf-citation').value = get('CITATION');
+    document.getElementById('lf-citation-source').value = get('CITATION_SOURCE');
+    document.getElementById('lf-liens-list').innerHTML = '';
+    document.getElementById('lf-meta-list').innerHTML = '';
+    if(get('LIEN1_URL')) addLienLivreRow2(get('LIEN1_LABEL'), get('LIEN1_URL'), false);
+    else addLienLivreRow2('','',false);
+    if(get('META1_LABEL')) addMetaLivreRow2(get('META1_LABEL'), get('META1_VALEUR'));
+    if(get('META2_LABEL')) addMetaLivreRow2(get('META2_LABEL'), get('META2_VALEUR'));
+    goLStep(2);
+  } catch(e){ var el=document.getElementById('err-lgen'); el.textContent='Erreur Claude : '+e.message; el.style.display='block'; }
+  document.getElementById('load-lgen').style.display = 'none';
+  document.getElementById('btn-lgen').disabled = false;
+}
+
+function addLienLivreRow2(label, url, muted){
+  label=label||''; url=url||''; muted=muted||false;
+  var row = document.createElement('div'); row.className='lien-livre-row';
+  var d1=document.createElement('div');
+  d1.innerHTML='<label>Intitulé</label><input type="text" class="lien-livre-label" value="'+escLivre(label)+'"/>';
+  var d2=document.createElement('div');
+  d2.innerHTML='<label>URL</label><input type="text" class="lien-livre-url" value="'+escLivre(url)+'"/>';
+  var d3=document.createElement('div');
+  d3.innerHTML='<label>Discret</label><input type="checkbox" class="lien-livre-muted"'+(muted?' checked':'')+'  style="margin-top:10px"/>';
+  row.appendChild(d1); row.appendChild(d2); row.appendChild(d3);
+  var btn=document.createElement('button'); btn.className='btn-rm'; btn.textContent='\u2715';
+  btn.onclick=function(){ this.closest('.lien-livre-row').remove(); };
+  row.appendChild(btn)
+  document.getElementById('lf-liens-list').appendChild(row);
+}
+
+function addMetaLivreRow2(label, val){
+  label=label||''; val=val||'';
+  var row = document.createElement('div'); row.className='meta-livre-row';
+  var dm1=document.createElement('div');
+  dm1.innerHTML='<label>Label (ex: Éditeur)</label><input type="text" class="meta-label" value="'+escLivre(label)+'"/>';
+  var dm2=document.createElement('div');
+  dm2.innerHTML='<label>Valeur</label><input type="text" class="meta-valeur" value="'+escLivre(val)+'"/>';
+  row.appendChild(dm1); row.appendChild(dm2);
+  var mbtn=document.createElement('button'); mbtn.className='btn-rm'; mbtn.textContent='\u2715';
+  mbtn.onclick=function(){ this.closest('.meta-livre-row').remove(); };
+  row.appendChild(mbtn)
+  document.getElementById('lf-meta-list').appendChild(row);
+}
+
+function getLivreFRData(){
+  function val(id){ return document.getElementById(id).value.trim(); }
+  var liens=[], metas=[];
+  document.querySelectorAll('#lf-liens-list .lien-livre-row').forEach(function(row){
+    var l=row.querySelector('.lien-livre-label').value.trim();
+    var u=row.querySelector('.lien-livre-url').value.trim();
+    var m=row.querySelector('.lien-livre-muted').checked;
+    if(u) liens.push({label:l, url:u, muted:m});
+  });
+  document.querySelectorAll('#lf-meta-list .meta-livre-row').forEach(function(row){
+    var l=row.querySelector('.meta-label').value.trim();
+    var v=row.querySelector('.meta-valeur').value.trim();
+    if(l) metas.push({label:l, valeur:v});
+  });
+  return { titre:val('lf-titre'), auteur:val('lf-auteur'), categorie:val('lf-categorie'),
+           resume:val('lf-resume'), citation:val('lf-citation'), citation_source:val('lf-citation-source'),
+           liens:liens, metas:metas };
+}
+
+async function translateLivre2(){
+  var fr = getLivreFRData();
+  if(!fr.titre){ var e=document.getElementById('err-ltranslate'); e.textContent='Le titre est vide.'; e.style.display='block'; return; }
+  document.getElementById('err-ltranslate').style.display='none';
+  document.getElementById('load-ltranslate').style.display='flex';
+  document.getElementById('btn-ltranslate').disabled=true;
+
+  var liensText = fr.liens.map(function(l,i){ return 'Lien '+(i+1)+' FR: '+l.label; }).join('\n');
+  var metasText = fr.metas.map(function(m,i){ return 'Meta '+(i+1)+': '+m.label+' = '+m.valeur; }).join('\n');
+
+  var system = "Tu traduis des fiches d'ouvrages de l'Ordre Equestre du Saint-Sepulcre de Jerusalem en allemand et en anglais, en conservant le registre solennel. IMPORTANT: traduis aussi les intitules de liens.";
+  var prompt = 'Traduis en ALLEMAND et ANGLAIS:\n\nTITRE: '+fr.titre+'\nAUTEUR: '+fr.auteur+'\nCATEGORIE: '+fr.categorie+'\nRESUME:\n'+fr.resume+(fr.citation?'\nCITATION: '+fr.citation:'')+(liensText?'\n'+liensText:'')+'\n\n'+
+    '###DE_TITRE###\n[titre DE]\n###FIN###\n###DE_AUTEUR###\n[auteur DE]\n###FIN###\n###DE_CATEGORIE###\n[catégorie DE]\n###FIN###\n###DE_RESUME###\n[résumé DE]\n###FIN###'+(fr.citation?'\n###DE_CITATION###\n[citation DE]\n###FIN###':'')+
+    fr.liens.map(function(l,i){ return '\n###DE_LIEN'+(i+1)+'_LABEL###\n[intitulé lien '+(i+1)+' DE]\n###FIN###'; }).join('')+
+    '\n\n###EN_TITRE###\n[title EN]\n###FIN###\n###EN_AUTEUR###\n[author EN]\n###FIN###\n###EN_CATEGORIE###\n[category EN]\n###FIN###\n###EN_RESUME###\n[summary EN]\n###FIN###'+(fr.citation?'\n###EN_CITATION###\n[quote EN]\n###FIN###':'')+
+    fr.liens.map(function(l,i){ return '\n###EN_LIEN'+(i+1)+'_LABEL###\n[link '+(i+1)+' label EN]\n###FIN###'; }).join('');
+
+  try {
+    var txt = await claudeCall(system, prompt, 2500);
+    function get(n){ var o='###'+n+'###',c='###FIN###'; var s=txt.indexOf(o); if(s===-1) return ''; s+=o.length; var e=txt.indexOf(c,s); return e===-1?txt.substring(s).trim():txt.substring(s,e).trim(); }
+    livreDE = { titre:get('DE_TITRE'), auteur:get('DE_AUTEUR'), categorie:get('DE_CATEGORIE'), resume:get('DE_RESUME'), citation:get('DE_CITATION'),
+                liens:fr.liens.map(function(l,i){ return {label:get('DE_LIEN'+(i+1)+'_LABEL')||l.label, url:l.url, muted:l.muted}; }) };
+    livreEN = { titre:get('EN_TITRE'), auteur:get('EN_AUTEUR'), categorie:get('EN_CATEGORIE'), resume:get('EN_RESUME'), citation:get('EN_CITATION'),
+                liens:fr.liens.map(function(l,i){ return {label:get('EN_LIEN'+(i+1)+'_LABEL')||l.label, url:l.url, muted:l.muted}; }) };
+
+    function renderPreview(lang, art, fr){
+      var liensHtml = art.liens.map(function(l){ return '<div class="link-prev">'+escLivre(l.label)+' <a href="'+l.url+'" target="_blank">'+l.url+'</a></div>'; }).join('');
+      return '<div class="preview-card">'+
+        '<div class="pv-row"><div class="pv-label">Titre</div><div class="pv-val big">'+art.titre+'</div></div>'+
+        '<div class="pv-row"><div class="pv-label">Auteur</div><div class="pv-val">'+art.auteur+'</div></div>'+
+        '<div class="pv-row"><div class="pv-label">Catégorie</div><div class="pv-val">'+art.categorie+'</div></div>'+
+        '<div class="pv-row"><div class="pv-label">Résumé</div><div class="pv-val" style="font-size:12px;white-space:pre-line">'+art.resume.substring(0,300)+(art.resume.length>300?'…':'')+'</div></div>'+
+        (art.citation?'<div class="pv-row"><div class="pv-label">Citation</div><div class="pv-val" style="font-style:italic">'+art.citation+'</div></div>':'')+
+        (liensHtml?'<div class="pv-row"><div class="pv-label">Liens</div>'+liensHtml+'</div>':'')+
+        '</div>';
+    }
+    document.getElementById('livre-preview-de').innerHTML = renderPreview('de', livreDE, fr);
+    document.getElementById('livre-preview-en').innerHTML = renderPreview('en', livreEN, fr);
+    goLStep(3);
+  } catch(e){ var el=document.getElementById('err-ltranslate'); el.textContent='Erreur Claude : '+e.message; el.style.display='block'; }
+  document.getElementById('load-ltranslate').style.display='none';
+  document.getElementById('btn-ltranslate').disabled=false;
+}
+
+function switchLivrePreviewTab(lang, btn){
+  document.querySelectorAll('.lang-tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('#lstep3 .lang-panel').forEach(function(p){p.classList.remove('active');});
+  btn.classList.add('active');
+  document.getElementById('livre-preview-'+lang).classList.add('active');
+}
+
+async function saveLivre2(){
+  var s = getSettings();
+  var fr = getLivreFRData();
+  if(!fr.titre){ showLivrePub('Le titre français est obligatoire.','err'); return; }
+  document.getElementById('btn-lsave').disabled=true;
+  showLivrePub('Publication en cours…','ok');
+
+  var slug = livreEditingId || fr.titre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').substring(0,40);
+  var imgFilename = (livreEditingData && livreEditingData.img_filename) || '';
+
+  if(livreImgBase64 && livreImgOrigName){
+    var ext=livreImgOrigName.split('.').pop().toLowerCase();
+    imgFilename='livre-'+slug+'.'+ext;
+    try{ await githubPut(s,'assets/'+imgFilename,livreImgBase64,'Admin: couverture '+imgFilename); }
+    catch(e){ showLivrePub('Erreur upload image : '+e.message,'err'); document.getElementById('btn-lsave').disabled=false; return; }
+  }
+
+  function buildLabel(fr, de, en){ return {fr:fr, de:de||fr, en:en||fr}; }
+  var ouvrage = {
+    id:slug, published:true,
+    categorie:buildLabel(fr.categorie, livreDE.categorie, livreEN.categorie),
+    titre:buildLabel(fr.titre, livreDE.titre, livreEN.titre),
+    auteur:buildLabel(fr.auteur, livreDE.auteur, livreEN.auteur),
+    resume:buildLabel(fr.resume, livreDE.resume, livreEN.resume),
+    citation:fr.citation?buildLabel(fr.citation, livreDE.citation, livreEN.citation):null,
+    citation_source:fr.citation_source||null,
+    img_filename:imgFilename,
+    meta:fr.metas.map(function(m){ return {label:{fr:m.label,de:m.label,en:m.label},valeur:m.valeur}; }),
+    liens:fr.liens.map(function(l,i){
+      var de=livreDE.liens&&livreDE.liens[i]; var en=livreEN.liens&&livreEN.liens[i];
+      return {label:buildLabel(l.label,(de&&de.label)||l.label,(en&&en.label)||l.label), url:l.url, muted:l.muted||false};
+    })
+  };
+
+  var freshData = await fetchLectures(s);
+  var ouvrages = (freshData&&freshData.ouvrages)||[];
+  var idx = ouvrages.findIndex(function(o){ return o.id===slug; });
+  if(idx>=0){ ouvrage.published=ouvrages[idx].published!==false; ouvrages[idx]=ouvrage; }
+  else{ ouvrages.push(ouvrage); }
+
+  var jsonB64=btoa(unescape(encodeURIComponent(JSON.stringify({version:1,ouvrages:ouvrages},null,2))));
+  try{
+    await githubPut(s,'lectures.json',jsonB64,'Admin: ouvrage "'+fr.titre.substring(0,40)+'"');
+    showLivrePub('✓ Publié avec succès !','ok');
+    setTimeout(function(){
+      document.getElementById('livres-workflow').style.display='none';
+      document.getElementById('livres-view').style.display='block';
+      livreEditingId=null; livreEditingData=null; livreDE={}; livreEN={};
+      loadLivres();
+      showTab('lectures');
+    },1500);
+  }catch(e){ showLivrePub('Erreur : '+e.message,'err'); }
+  document.getElementById('btn-lsave').disabled=false;
+}
+
+function showLivrePub(msg,type){
+  var e=document.getElementById('livre-pub-status');
+  e.textContent=msg; e.className='livre-pub-status '+(type==='ok'?'livre-pub-ok':'livre-pub-err'); e.style.display='block';
+}
+
+function cancelLivreForm(){ cancelLivreWorkflow(); }
+function switchLivreTab(lang,btn){ /* legacy - no-op */ }
+function addMetaLivreRow(l,v){ addMetaLivreRow2(l,v); }
+function addLienLivreRow(l,u,m){ addLienLivreRow2(l,u,m); }
+
+// ── Lectures management functions ────────────────
+async function toggleLivrePublish(id, makeVisible){
+  var s = getSettings();
+  var freshData = await fetchLectures(s);
+  if(!freshData || !freshData.ouvrages) return;
+  freshData.ouvrages = freshData.ouvrages.map(function(o){
+    if(o.id === id) o.published = makeVisible;
+    return o;
+  });
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
+  try {
+    await githubPut(s, 'lectures.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' ouvrage '+id);
+    loadLivres();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function moveLivre(id, direction){
+  var s = getSettings();
+  var freshData = await fetchLectures(s);
+  if(!freshData || !freshData.ouvrages) return;
+  var ouvrages = freshData.ouvrages;
+  var idx = ouvrages.findIndex(function(o){ return o.id === id; });
+  var newIdx = idx + direction;
+  if(idx === -1 || newIdx < 0 || newIdx >= ouvrages.length) return;
+  var tmp = ouvrages[idx]; ouvrages[idx] = ouvrages[newIdx]; ouvrages[newIdx] = tmp;
+  freshData.ouvrages = ouvrages;
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
+  try {
+    await githubPut(s, 'lectures.json', jsonB64, 'Admin: reorder ouvrages');
+    loadLivres();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function deleteLivre(id){
+  if(!confirm('Supprimer définitivement cet ouvrage ?')) return;
+  var s = getSettings();
+  var freshData = await fetchLectures(s);
+  if(!freshData || !freshData.ouvrages) return;
+  freshData.ouvrages = freshData.ouvrages.filter(function(o){ return o.id !== id; });
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
+  try {
+    await githubPut(s, 'lectures.json', jsonB64, 'Admin: suppression ouvrage '+id);
+    loadLivres();
+  } catch(e){ alert('Erreur : '+e.message); }
 }
 </script>
 </body>
