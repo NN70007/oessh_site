@@ -3,7 +3,7 @@
   "ouvrages": [
     {
       "id": "filoni-parfum",
-      "published": false,
+      "published": true,
       "categorie": {
         "fr": "Spiritualité de l'Ordre",
         "de": "Spiritualität des Ordens",
