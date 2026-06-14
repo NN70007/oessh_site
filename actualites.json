@@ -2,6 +2,64 @@
   "version": 2,
   "articles": [
     {
+      "id": "centenaire-de-la-lieutenance-pour-la-bel",
+      "date_affichee": "6 juin 2026",
+      "lieu": "Bruxelles",
+      "badges": [
+        "À la Une",
+        "Centenaire",
+        "Investitures",
+        "Lieutenance"
+      ],
+      "img_filename": "centenaire-lieutenance-belgique-sablon-2026.jpg",
+      "legende": {
+        "fr": "Bruxelles · 6 juin 2026 · © Grand Magistère OESSJ",
+        "de": "Brüssel · 6. Juni 2026 · © Großmagisterium OESSJ",
+        "en": "Brussels · 6 June 2026 · © Grand Magisterium OESSJ"
+      },
+      "titre": {
+        "fr": "Centenaire de la Lieutenance pour la Belgique : une célébration solennelle présidée par le Cardinal Grand Maître",
+        "de": "Hundertjahrfeier der Statthalterei für Belgien: eine feierliche Begegnung unter dem Vorsitz des Kardinal-Großmeisters",
+        "en": "Centenary of the Lieutenancy for Belgium: a solemn celebration presided over by the Cardinal Grand Master"
+      },
+      "teaser": {
+        "fr": "Le 6 juin 2026, la Lieutenance pour la Belgique célébrait son centième anniversaire en l'église Notre-Dame des Victoires au Sablon, en présence du Cardinal Filoni.",
+        "de": "Am 6. Juni 2026 beging die Statthalterei für Belgien ihr hundertjähriges Bestehen in der Kirche Notre-Dame des Victoires au Sablon, in Anwesenheit von Kardinal Filoni.",
+        "en": "On 6 June 2026, the Lieutenancy for Belgium celebrated its hundredth anniversary at the Church of Notre-Dame des Victoires au Sablon, in the presence of Cardinal Filoni."
+      },
+      "texte": {
+        "fr": "Le 6 juin 2026, la Lieutenance pour la Belgique de l'Ordre Équestre du Saint-Sépulcre de Jérusalem célébrait avec faste et recueillement le centième anniversaire de sa fondation. C'est en l'église capitulaire de Notre-Dame des Victoires au Sablon, à Bruxelles, que le Cardinal Fernando Filoni, Grand Maître de l'Ordre, a présidé la cérémonie d'investiture de onze nouveaux Chevaliers et Dames, accueillis solennellement au sein de notre fraternité au service des chrétiens de Terre Sainte.\n\nLa dimension diplomatique et royale de cet anniversaire fut soulignée par la présence du Représentant de Sa Majesté le Roi Philippe, rappelant que le Souverain et Sa Majesté la Reine Mathilde sont eux-mêmes membres de l'Ordre. Le Cardinal Grand Maître était entouré de Son Excellence Mgr Franco Coppola, Nonce apostolique pour la Belgique et le Luxembourg, et de Son Excellence Mgr Bernardito Auza, Nonce apostolique pour l'Union Européenne. Plusieurs éminentes personnalités du Grand Magistère avaient également fait le déplacement, parmi lesquelles le Vice-Gouverneur Général pour l'Europe, Jean-Pierre de Glutz-Ruchti, représentant le Gouverneur Général, le Chancelier de l'Ordre, Alfredo Bastianelli, ainsi que le Vice-Gouverneur Général d'Honneur, Giorgio Moroni Stampa.\n\nLa Lieutenance pour le Grand-Duché de Luxembourg était représentée parmi les nombreuses Lieutenances venues en fraternité témoigner leur attachement à cet anniversaire exceptionnel, aux côtés des délégations de Malte, du Portugal, d'Italie septentrionale, de Hollande, de Norvège, de France, d'Autriche, de Suisse et du Liechtenstein. Cette assemblée nombreuse et priante a rappelé avec éloquence la vitalité de l'Ordre et sa vocation universelle au service de la Terre Sainte.",
+        "de": "Am 6. Juni 2026 beging die Statthalterei für Belgien des Ritterlichen Ordens vom Heiligen Grab zu Jerusalem mit Glanz und Andacht das hundertjährige Jubiläum ihrer Gründung. In der Kapitelskirche Notre-Dame des Victoires au Sablon in Brüssel leitete Kardinal Fernando Filoni, Großmeister des Ordens, die Investiturfeier für elf neue Ritter und Damen, die feierlich in unsere Bruderschaft im Dienst der Christen des Heiligen Landes aufgenommen wurden.\n\nDie diplomatische und königliche Dimension dieses Jubiläums wurde durch die Anwesenheit des Vertreters Seiner Majestät König Philippe unterstrichen, der daran erinnerte, dass der Souverän und Ihre Majestät Königin Mathilde selbst Mitglieder des Ordens sind. Der Kardinal-Großmeister war umgeben von Seiner Exzellenz Msgr. Franco Coppola, Apostolischer Nuntius für Belgien und Luxemburg, sowie von Seiner Exzellenz Msgr. Bernardito Auza, Apostolischer Nuntius bei der Europäischen Union. Mehrere herausragende Persönlichkeiten des Großmagisteriums hatten sich ebenfalls auf den Weg gemacht, darunter der Vizegeneralgouverneur für Europa, Jean-Pierre de Glutz-Ruchti, in Vertretung des Generalgouverneurs, der Kanzler des Ordens, Alfredo Bastianelli, sowie der Ehrenvizegeneralgouverneur, Giorgio Moroni Stampa.\n\nDie Statthalterei für das Großherzogtum Luxemburg war unter den zahlreichen Statthalterein vertreten, die in brüderlicher Verbundenheit erschienen waren, um ihre Verbundenheit mit diesem außergewöhnlichen Jubiläum zu bezeugen – gemeinsam mit den Delegationen aus Malta, Portugal, Norditalien, Holland, Norwegen, Frankreich, Österreich, der Schweiz und Liechtenstein. Diese zahlreiche und betende Versammlung rief mit beredter Überzeugung die Lebendigkeit des Ordens und seine universale Berufung in den Dienst des Heiligen Landes in Erinnerung.",
+        "en": "On 6 June 2026, the Lieutenancy for Belgium of the Equestrian Order of the Holy Sepulchre of Jerusalem celebrated with solemnity and devotion the hundredth anniversary of its foundation. It was in the capitular church of Notre-Dame des Victoires au Sablon, in Brussels, that Cardinal Fernando Filoni, Grand Master of the Order, presided over the investiture ceremony of eleven new Knights and Ladies, solemnly welcomed into our brotherhood in the service of the Christians of the Holy Land.\n\nThe diplomatic and royal dimension of this anniversary was underscored by the presence of the Representative of His Majesty King Philippe, a reminder that the Sovereign and Her Majesty Queen Mathilde are themselves members of the Order. The Cardinal Grand Master was accompanied by His Excellency Msgr. Franco Coppola, Apostolic Nuncio for Belgium and Luxembourg, and by His Excellency Msgr. Bernardito Auza, Apostolic Nuncio to the European Union. Several eminent personalities of the Grand Magisterium had also made the journey, among them the Vice Governor General for Europe, Jean-Pierre de Glutz-Ruchti, representing the Governor General, the Chancellor of the Order, Alfredo Bastianelli, as well as the Honorary Vice Governor General, Giorgio Moroni Stampa.\n\nThe Lieutenancy for the Grand Duchy of Luxembourg was represented among the many Lieutenancies that came in fraternal solidarity to bear witness to their attachment to this exceptional anniversary, alongside delegations from Malta, Portugal, Northern Italy, Holland, Norway, France, Austria, Switzerland and Liechtenstein. This large and prayerful assembly eloquently recalled the vitality of the Order and its universal vocation in the service of the Holy Land."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Grand Magistère de l'Ordre — page Facebook officielle",
+            "de": "Großmagisterium des Ordens — offizielle Facebook-Seite",
+            "en": "Grand Magisterium of the Order — official Facebook page"
+          },
+          "url": "https://www.facebook.com/grandmagistere.oessj.fra/"
+        },
+        {
+          "label": {
+            "fr": "fra omelia investitura belgio 2026 def",
+            "de": "fra omelia investitura belgio 2026 def",
+            "en": "fra omelia investitura belgio 2026 def"
+          },
+          "url": "assets/fra_omelia-investitura_belgio-2026_def.pdf"
+        },
+        {
+          "label": {
+            "fr": "fra_omelia-investitura_belgio-2026_def.pdf",
+            "de": "fra_omelia-investitura_belgio-2026_def.pdf",
+            "en": "fra_omelia-investitura_belgio-2026_def.pdf"
+          },
+          "url": "assets/fra_omelia-investitura_belgio-2026_def.pdf"
+        }
+      ]
+    },
+    {
       "id": "le-cardinal-pizzaballa-decore-de-la-legi",
       "date_affichee": "2025",
       "lieu": "Jérusalem",
