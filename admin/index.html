@@ -338,6 +338,23 @@ textarea.wfield, input.wfield, select.wfield,
 .pub-ok{background:#edfff4;border:1px solid #b0e8c4;color:#1a6e3a}
 .pub-err{background:#fff0f0;border:1px solid #ffc0c0;color:#a00}
 
+
+/* ── Mobile responsive (identique site) ── */
+.menu-btn{display:none;width:44px;height:44px;padding:0;background:#fff;border:1px solid var(--line);cursor:pointer;align-items:center;justify-content:center;border-radius:0}
+.menu-btn .bars{display:flex;flex-direction:column;gap:5px;width:18px}
+.menu-btn .bars span{display:block;height:2px;background:var(--ink);border-radius:2px;transition:transform .25s ease,opacity .2s ease}
+.menu-btn[aria-expanded="true"] .bars span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.menu-btn[aria-expanded="true"] .bars span:nth-child(2){opacity:0}
+.menu-btn[aria-expanded="true"] .bars span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-menu{display:none;position:fixed;top:0;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);padding:80px 24px 28px;z-index:40;flex-direction:column;gap:4px;box-shadow:0 20px 40px -20px rgba(0,0,0,.15);transform:translateY(-100%);transition:transform .28s ease}
+.mobile-menu:not(.is-open){visibility:hidden !important;pointer-events:none}
+.mobile-menu.is-open{visibility:visible;transform:translateY(0)}
+@media(max-width:960px){
+  .nav-links{display:none}
+  .menu-btn{display:inline-flex}
+  .mobile-menu{display:flex}
+}
+
 </style>
 </head>
 <body>
@@ -394,8 +411,7 @@ textarea.wfield, input.wfield, select.wfield,
     </div>
     <div style="display:flex;align-items:center;gap:16px">
       <div style="display:flex;align-items:center;gap:8px">
-        <img id="user-avatar" src="" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;display:none"/>
-        <span id="user-name" style="font-size:11px;letter-spacing:.1em;text-transform:uppercase"></span>
+        
       </div>
       <button class="btn-sm" onclick="showSetup()">Clés API</button>
       <button class="btn-sm" onclick="logout()">Déconnexion</button>
@@ -407,24 +423,28 @@ textarea.wfield, input.wfield, select.wfield,
   <nav class="nav" aria-label="Navigation principale">
     <a href="#" class="brand" onclick="reloadCurrentTab();return false;">
       <img class="cross" src="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem.svg" alt="Croix de Jérusalem" decoding="async"/>
-      <span class="brand-text"><span class="l1"><span class="w">Ordre Équestre</span> <span class="w">du Saint-Sépulcre</span> <span class="w">de Jérusalem</span></span><span class="l2">Lieutenance pour le Luxembourg</span></span></a>
+      <span class="brand-text"><span class="l1">Admin · OESSH</span><span class="l2">Lieutenance pour le Luxembourg</span></span>
+    </a>
     <div class="nav-links">
       <button class="nav-tab active" id="tab-articles" onclick="showTab('articles')">Articles</button>
       <button class="nav-tab" id="tab-lectures" onclick="showTab('lectures')">Lectures</button>
       <button class="nav-tab" id="tab-export" onclick="showTab('export')">Export newsletter</button>
     </div>
-    </nav>
-  <div id="mobile-menu" class="mobile-menu" aria-hidden="true">
-    <a href="#mission" onclick="closeMobileMenu()">Notre Ordre</a>
-    <a href="#actualites" onclick="closeMobileMenu()">Actualités</a>
-    <a href="#oeuvres" onclick="closeMobileMenu()">Œuvres</a>
-    <a href="#publications" onclick="closeMobileMenu()">Publications</a>
-    <a href="#lectures" onclick="closeMobileMenu()">Lectures</a>
-    <a href="#" onclick="closeMobileMenu();openContactModal();return false;">Contact</a>
-    <a href="de.html" onclick="closeMobileMenu()">Deutsch ↗</a>
-    <a href="en.html" onclick="closeMobileMenu()">English ↗</a>
-  </div>
+    <div class="nav-cta">
+      <div style="display:flex;align-items:center;gap:8px">
+        
+      </div>
+      <button class="menu-btn" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu" onclick="toggleMobileMenu()">
+        <span class="bars"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+  </nav>
 </header>
+<div id="mobile-menu" class="mobile-menu" aria-hidden="true">
+  <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('articles');closeMobileMenu()">Articles</button>
+  <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('lectures');closeMobileMenu()">Lectures</button>
+  <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('export');closeMobileMenu()">Export newsletter</button>
+</div>
 
   <div class="main">
 
@@ -1387,6 +1407,7 @@ function showTab(tab){
   if(tab==='articles') loadArticles();
   if(tab==='export') loadExportList();
   if(tab==='lectures') loadLivres();
+  closeMobileMenu();
 }
 
 // ── Articles management ───────────────────────────
@@ -2077,6 +2098,23 @@ function cancelLivreForm(){ cancelLivreWorkflow(); }
 function switchLivreTab(lang,btn){ /* legacy - no-op */ }
 function addMetaLivreRow(l,v){ addMetaLivreRow2(l,v); }
 function addLienLivreRow(l,u,m){ addLienLivreRow2(l,u,m); }
+
+function toggleMobileMenu(){
+  var m=document.getElementById('mobile-menu');
+  var b=document.querySelector('.menu-btn');
+  var open=m.classList.toggle('is-open');
+  b.setAttribute('aria-expanded',open?'true':'false');
+  m.setAttribute('aria-hidden',open?'false':'true');
+  document.body.style.overflow=open?'hidden':'';
+}
+function closeMobileMenu(){
+  var m=document.getElementById('mobile-menu');
+  var b=document.querySelector('.menu-btn');
+  m.classList.remove('is-open');
+  b.setAttribute('aria-expanded','false');
+  m.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
 
 // ── Session heartbeat ─────────────────────────────
 var SESSION_FILE = 'admin-session.json';
