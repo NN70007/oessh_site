@@ -264,8 +264,7 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
   </div>
 
   <div class="nav-tabs-bar" style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:0">
-    <button class="nav-tab active" id="tab-new" onclick="showTab('new')">✦ Nouvel article</button>
-    <button class="nav-tab" id="tab-articles" onclick="showTab('articles')">📂 Articles</button>
+    <button class="nav-tab active" id="tab-articles" onclick="showTab('articles')">📂 Articles</button>
     <button class="nav-tab" id="tab-lectures" onclick="showTab('lectures')">📚 Lectures</button>
     <button class="nav-tab" id="tab-export" onclick="showTab('export')">📤 Export</button>
   </div>
@@ -418,7 +417,10 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 
   <!-- TAB: ARTICLES -->
   <div id="tab-articles-content" style="display:none">
-    <h1 class="page-title">Articles stockés</h1>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h1 class="page-title" style="margin:0">Articles stockés</h1>
+      <button class="btn-gen" style="width:auto;padding:10px 20px;margin:0" onclick="showTab('new')">+ Ajouter un article</button>
+    </div>
     <p class="page-sub">Gérez les articles du stock dynamique.</p>
     <div id="articles-loading" style="font-size:13px;color:var(--ink-mute);padding:20px 0">Chargement…</div>
     <div id="articles-list"></div>
@@ -429,11 +431,13 @@ textarea:focus{outline:none;border-color:rgba(177,1,3,.4)}
 
     <!-- Vue liste -->
     <div id="livres-view">
-      <h1 class="page-title">Lectures — ouvrages recommandés</h1>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h1 class="page-title" style="margin:0">Lectures — ouvrages recommandés</h1>
+        <button class="btn-gen" id="btn-new-livre" onclick="startLivreWorkflow(null)" style="width:auto;padding:10px 20px;margin:0">+ Ajouter un ouvrage</button>
+      </div>
       <p class="page-sub">Gérez les ouvrages affichés dans la section Lectures du site.</p>
       <div id="livres-loading" style="font-size:13px;color:var(--ink-mute);padding:20px 0">Chargement…</div>
       <div id="livres-list"></div>
-      <button class="btn-gen" id="btn-new-livre" onclick="startLivreWorkflow(null)" style="margin-top:8px;background:var(--ink)">+ Ajouter un ouvrage</button>
     </div>
 
     <!-- Vue workflow (3 étapes) -->
@@ -569,7 +573,8 @@ function onGoogleLogin(r){
   document.getElementById('user-name').textContent=p.name;
   document.getElementById('user-avatar').src=p.picture;
   document.getElementById('login-screen').style.display='none';
-  hasSettings() ? document.getElementById('app').style.display='block' : document.getElementById('setup-screen').style.display='flex';
+  if(hasSettings()){ document.getElementById('app').style.display='block'; showTab('articles'); }
+  else { document.getElementById('setup-screen').style.display='flex'; }
 }
 function logout(){
   google.accounts.id.disableAutoSelect();
@@ -1177,7 +1182,7 @@ async function publish(){
       imgBase64 = null; imgMime = null; imgOrigName = ''; editingId = null; pdfFiles = []; document.getElementById('pdf-list').innerHTML = '';
       articleDE = {}; articleEN = {};
       addLienRow('','');
-      goStep(1);
+      showTab('articles');
     }, 2000);
   } catch(e){ showPub('Erreur : '+e.message,'err'); }
   document.getElementById('btn3').disabled = false;
@@ -1885,6 +1890,7 @@ async function saveLivre2(){
       document.getElementById('livres-view').style.display='block';
       livreEditingId=null; livreEditingData=null; livreDE={}; livreEN={};
       loadLivres();
+      showTab('lectures');
     },1500);
   }catch(e){ showLivrePub('Erreur : '+e.message,'err'); }
   document.getElementById('btn-lsave').disabled=false;
