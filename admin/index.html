@@ -1389,13 +1389,15 @@ async function publish(){
   document.getElementById('btn3').disabled = false;
 }
 
-async function githubPut(s, path, b64, message){
+async function githubPut(s, path, b64, message, knownSha){
   var url='https://api.github.com/repos/'+s.repo+'/contents/'+path;
-  var sha;
-  try{
-    var rGet=await fetch(url,{headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
-    if(rGet.ok){ var d=await rGet.json(); sha=d.sha; }
-  }catch(e){}
+  var sha=knownSha;
+  if(!sha){
+    try{
+      var rGet=await fetch(url,{headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
+      if(rGet.ok){ var d=await rGet.json(); sha=d.sha; }
+    }catch(e){}
+  }
   var body={message:message,content:b64};
   if(sha) body.sha=sha;
   var rPut=await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -1601,10 +1603,11 @@ async function moveArticle(id, direction){
   if(fi === -1 || newFi < 0 || newFi >= freshArts.length) return;
   var tmp2 = freshArts[fi]; freshArts[fi] = freshArts[newFi]; freshArts[newFi] = tmp2;
   freshData.articles = freshArts;
+  var knownSha = freshData._sha;
   delete freshData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    await githubPut(s, 'actualites.json', jsonB64, 'Admin: reorder articles');
+    await githubPutX(s, 'actualites.json', jsonB64, 'Admin: reorder articles');
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
@@ -1632,10 +1635,11 @@ async function togglePublish(id, makeVisible){
     if(a.id === id) a.published = makeVisible;
     return a;
   });
+  var knownSha = freshData._sha;
   delete freshData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    await githubPut(s, 'actualites.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' '+id);
+    await githubPutX(s, 'actualites.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' '+id);
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
@@ -2264,6 +2268,7 @@ async function toggleLivrePublish(id, makeVisible){
   var s = getSettings();
   var freshData = await fetchLectures(s);
   if(!freshData || !freshData.ouvrages) return;
+  var knownSha = freshData._sha;
   freshData.ouvrages = freshData.ouvrages.map(function(o){
     if(o.id === id) o.published = makeVisible;
     return o;
@@ -2271,7 +2276,7 @@ async function toggleLivrePublish(id, makeVisible){
   delete freshData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    await githubPut(s, 'lectures.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' ouvrage '+id);
+    await githubPut(s, 'lectures.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' ouvrage '+id, knownSha);
     loadLivres();
   } catch(e){ alert('Erreur : '+e.message); }
 }
@@ -2285,11 +2290,12 @@ async function moveLivre(id, direction){
   var newIdx = idx + direction;
   if(idx === -1 || newIdx < 0 || newIdx >= ouvrages.length) return;
   var tmp = ouvrages[idx]; ouvrages[idx] = ouvrages[newIdx]; ouvrages[newIdx] = tmp;
+  var knownSha = freshData._sha;
   freshData.ouvrages = ouvrages;
   delete freshData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    await githubPut(s, 'lectures.json', jsonB64, 'Admin: reorder ouvrages');
+    await githubPut(s, 'lectures.json', jsonB64, 'Admin: reorder ouvrages', knownSha);
     loadLivres();
   } catch(e){ alert('Erreur : '+e.message); }
 }
@@ -2299,11 +2305,12 @@ async function deleteLivre(id){
   var s = getSettings();
   var freshData = await fetchLectures(s);
   if(!freshData || !freshData.ouvrages) return;
+  var knownSha = freshData._sha;
   freshData.ouvrages = freshData.ouvrages.filter(function(o){ return o.id !== id; });
   delete freshData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    await githubPut(s, 'lectures.json', jsonB64, 'Admin: suppression ouvrage '+id);
+    await githubPut(s, 'lectures.json', jsonB64, 'Admin: suppression ouvrage '+id, knownSha);
     loadLivres();
   } catch(e){ alert('Erreur : '+e.message); }
 }
