@@ -87,88 +87,6 @@
       ]
     },
     {
-      "id": "laudate-jerusalem",
-      "published": true,
-      "categorie": {
-        "fr": "Terre Sainte · Histoire & diplomatie",
-        "de": "Heiliges Land · Geschichte & Diplomatie",
-        "en": "Holy Land · History & diplomacy"
-      },
-      "titre": {
-        "fr": "Laudate Jerusalem — La présence chrétienne en Terre sainte",
-        "de": "Laudate Jerusalem — Die christliche Präsenz im Heiligen Land",
-        "en": "Laudate Jerusalem — The Christian presence in the Holy Land"
-      },
-      "auteur": {
-        "fr": "Sous la direction de William Lindsay Simpson — Président de la Conférence Saint-Yves",
-        "de": "Herausgegeben von William Lindsay Simpson — Präsident der Konferenz Saint-Yves",
-        "en": "Edited by William Lindsay Simpson — President of the Conférence Saint-Yves"
-      },
-      "resume": {
-        "fr": "« Laudate Jerusalem », « Glorifiez Jérusalem ! », est un ouvrage à la croisée de l'histoire des Églises chrétiennes, de la diplomatie et du droit international. Un travail collectif rassemblant les retranscriptions de sept conférences sur la présence chrétienne en Terre sainte, organisées par la Conférence Saint-Yves de 2016 à 2021 avec le soutien d'organisations diplomatiques, ecclésiastiques et associatives.\n\nLe lecteur découvre la signification de Jérusalem dans la tradition juive — dont le sens va bien au-delà de « ville de la paix » — puis chemine à travers les siècles avec les chrétiens orthodoxes, protestants, catholiques et coptes. L'ouvrage s'achève par une réflexion sur le statut de Jérusalem en droit international et un entretien avec le Ministre des Affaires Étrangères du Grand-Duché de Luxembourg sur la Terre sainte.",
-        "de": "„Laudate Jerusalem\", „Preiset Jerusalem!\" ist ein Werk an der Schnittstelle von Geschichte der christlichen Kirchen, Diplomatie und Völkerrecht. Eine Gemeinschaftsarbeit, die die Niederschriften von sieben Konferenzen über die christliche Präsenz im Heiligen Land zusammenfasst, organisiert von der Conférence Saint-Yves von 2016 bis 2021.\n\nDer Leser entdeckt die Bedeutung Jerusalems in der jüdischen Tradition — deren Sinn weit über „Stadt des Friedens\" hinausgeht — und wandert dann durch die Jahrhunderte mit orthodoxen, protestantischen, katholischen und koptischen Christen.",
-        "en": "\"Laudate Jerusalem\", \"Praise Jerusalem!\", is a work at the crossroads of the history of Christian Churches, diplomacy and international law. A collective work gathering the transcripts of seven conferences on the Christian presence in the Holy Land, organised by the Conférence Saint-Yves from 2016 to 2021.\n\nThe reader discovers the significance of Jerusalem in Jewish tradition — whose meaning goes far beyond \"city of peace\" — then journeys through the centuries with Orthodox, Protestant, Catholic and Coptic Christians."
-      },
-      "citation": {
-        "fr": "Les différents articles sont des outils pédagogiques offerts au lecteur pour lui permettre de comprendre les défis que doivent relever les populations chrétiennes vivant actuellement en Terre sainte.",
-        "de": "Die verschiedenen Artikel sind pädagogische Instrumente, die dem Leser angeboten werden, um die Herausforderungen zu verstehen, mit denen die christlichen Bevölkerungen im heutigen Heiligen Land konfrontiert sind.",
-        "en": "The various articles are pedagogical tools offered to the reader to help understand the challenges facing Christian populations currently living in the Holy Land."
-      },
-      "citation_source": "+ Jean-Claude Cardinal Hollerich",
-      "img_filename": "livre-laudate-jerusalem.jpg",
-      "cover_note": null,
-      "meta": [
-        {
-          "label": {
-            "fr": "Éditeur",
-            "de": "Verlag",
-            "en": "Publisher"
-          },
-          "valeur": "Parole et Silence"
-        },
-        {
-          "label": {
-            "fr": "Coordination",
-            "de": "Koordination",
-            "en": "Coordination"
-          },
-          "valeur": "Conférence Saint-Yves"
-        },
-        {
-          "label": {
-            "fr": "Langue",
-            "de": "Sprache",
-            "en": "Language"
-          },
-          "valeur": {
-            "fr": "Français",
-            "de": "Französisch",
-            "en": "French"
-          }
-        }
-      ],
-      "liens": [
-        {
-          "label": {
-            "fr": "Se procurer l'ouvrage",
-            "de": "Buch bestellen",
-            "en": "Get the book"
-          },
-          "url": "https://www.amazon.fr/Laudate-Jerusalem-William-Lindsay-Simpson/dp/2889594246",
-          "muted": false
-        },
-        {
-          "label": {
-            "fr": "Conférences en ligne",
-            "de": "Online-Konferenzen",
-            "en": "Online conferences"
-          },
-          "url": "https://web.cathol.lu/1/mouvements/conference-saint-yves/conference-christianisme-foi-religion/presence-chretienne-en-terre-sainte",
-          "muted": true
-        }
-      ]
-    },
-    {
       "id": "evrard-approfondir",
       "published": true,
       "categorie": {
@@ -247,6 +165,88 @@
             "email": "Office@holysepulchre.be",
             "iban": "BE23 6300 1228 3491"
           }
+        }
+      ]
+    },
+    {
+      "id": "laudate-jerusalem",
+      "published": true,
+      "categorie": {
+        "fr": "Terre Sainte · Histoire & diplomatie",
+        "de": "Heiliges Land · Geschichte & Diplomatie",
+        "en": "Holy Land · History & diplomacy"
+      },
+      "titre": {
+        "fr": "Laudate Jerusalem — La présence chrétienne en Terre sainte",
+        "de": "Laudate Jerusalem — Die christliche Präsenz im Heiligen Land",
+        "en": "Laudate Jerusalem — The Christian presence in the Holy Land"
+      },
+      "auteur": {
+        "fr": "Sous la direction de William Lindsay Simpson — Président de la Conférence Saint-Yves",
+        "de": "Herausgegeben von William Lindsay Simpson — Präsident der Konferenz Saint-Yves",
+        "en": "Edited by William Lindsay Simpson — President of the Conférence Saint-Yves"
+      },
+      "resume": {
+        "fr": "« Laudate Jerusalem », « Glorifiez Jérusalem ! », est un ouvrage à la croisée de l'histoire des Églises chrétiennes, de la diplomatie et du droit international. Un travail collectif rassemblant les retranscriptions de sept conférences sur la présence chrétienne en Terre sainte, organisées par la Conférence Saint-Yves de 2016 à 2021 avec le soutien d'organisations diplomatiques, ecclésiastiques et associatives.\n\nLe lecteur découvre la signification de Jérusalem dans la tradition juive — dont le sens va bien au-delà de « ville de la paix » — puis chemine à travers les siècles avec les chrétiens orthodoxes, protestants, catholiques et coptes. L'ouvrage s'achève par une réflexion sur le statut de Jérusalem en droit international et un entretien avec le Ministre des Affaires Étrangères du Grand-Duché de Luxembourg sur la Terre sainte.",
+        "de": "„Laudate Jerusalem\", „Preiset Jerusalem!\" ist ein Werk an der Schnittstelle von Geschichte der christlichen Kirchen, Diplomatie und Völkerrecht. Eine Gemeinschaftsarbeit, die die Niederschriften von sieben Konferenzen über die christliche Präsenz im Heiligen Land zusammenfasst, organisiert von der Conférence Saint-Yves von 2016 bis 2021.\n\nDer Leser entdeckt die Bedeutung Jerusalems in der jüdischen Tradition — deren Sinn weit über „Stadt des Friedens\" hinausgeht — und wandert dann durch die Jahrhunderte mit orthodoxen, protestantischen, katholischen und koptischen Christen.",
+        "en": "\"Laudate Jerusalem\", \"Praise Jerusalem!\", is a work at the crossroads of the history of Christian Churches, diplomacy and international law. A collective work gathering the transcripts of seven conferences on the Christian presence in the Holy Land, organised by the Conférence Saint-Yves from 2016 to 2021.\n\nThe reader discovers the significance of Jerusalem in Jewish tradition — whose meaning goes far beyond \"city of peace\" — then journeys through the centuries with Orthodox, Protestant, Catholic and Coptic Christians."
+      },
+      "citation": {
+        "fr": "Les différents articles sont des outils pédagogiques offerts au lecteur pour lui permettre de comprendre les défis que doivent relever les populations chrétiennes vivant actuellement en Terre sainte.",
+        "de": "Die verschiedenen Artikel sind pädagogische Instrumente, die dem Leser angeboten werden, um die Herausforderungen zu verstehen, mit denen die christlichen Bevölkerungen im heutigen Heiligen Land konfrontiert sind.",
+        "en": "The various articles are pedagogical tools offered to the reader to help understand the challenges facing Christian populations currently living in the Holy Land."
+      },
+      "citation_source": "+ Jean-Claude Cardinal Hollerich",
+      "img_filename": "livre-laudate-jerusalem.jpg",
+      "cover_note": null,
+      "meta": [
+        {
+          "label": {
+            "fr": "Éditeur",
+            "de": "Verlag",
+            "en": "Publisher"
+          },
+          "valeur": "Parole et Silence"
+        },
+        {
+          "label": {
+            "fr": "Coordination",
+            "de": "Koordination",
+            "en": "Coordination"
+          },
+          "valeur": "Conférence Saint-Yves"
+        },
+        {
+          "label": {
+            "fr": "Langue",
+            "de": "Sprache",
+            "en": "Language"
+          },
+          "valeur": {
+            "fr": "Français",
+            "de": "Französisch",
+            "en": "French"
+          }
+        }
+      ],
+      "liens": [
+        {
+          "label": {
+            "fr": "Se procurer l'ouvrage",
+            "de": "Buch bestellen",
+            "en": "Get the book"
+          },
+          "url": "https://www.amazon.fr/Laudate-Jerusalem-William-Lindsay-Simpson/dp/2889594246",
+          "muted": false
+        },
+        {
+          "label": {
+            "fr": "Conférences en ligne",
+            "de": "Online-Konferenzen",
+            "en": "Online conferences"
+          },
+          "url": "https://web.cathol.lu/1/mouvements/conference-saint-yves/conference-christianisme-foi-religion/presence-chretienne-en-terre-sainte",
+          "muted": true
         }
       ]
     },
