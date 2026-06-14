@@ -97,7 +97,7 @@ header.site{
   grid-template-rows: auto auto;
   column-gap:32px; row-gap:0;
   align-items:center;
-  padding:20px var(--gutter) 20px;
+  padding:15px var(--gutter) 15px;
   max-width:860px; margin:0 auto;
 }
 .brand{grid-column:1; grid-row:1}
@@ -120,7 +120,7 @@ header.site{
   display:flex; flex-wrap:nowrap;
   grid-row:2; grid-column:1 / -1;
   justify-content:flex-start;
-  padding:0; margin:0 calc(var(--gutter) * -1) 0;
+  padding:0; margin:14px calc(var(--gutter) * -1) 0;
   border-top:1px solid var(--line);
   border-bottom:1px solid var(--line);
   overflow-x:auto;
@@ -608,7 +608,7 @@ textarea.wfield, input.wfield, select.wfield,
   <!-- TAB: ARTICLES -->
   <div id="tab-articles-content" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <h1 class="page-title">Articles stockés</h1>
+      <h1 class="page-title" style="margin:0">Articles stockés</h1>
       <button class="btn-gen" style="width:auto;padding:10px 20px;margin:0" onclick="showTab('new')">+ Ajouter un article</button>
     </div>
     <p class="page-sub">Gérez les articles du stock dynamique.</p>
@@ -622,7 +622,7 @@ textarea.wfield, input.wfield, select.wfield,
     <!-- Vue liste -->
     <div id="livres-view">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <h1 class="page-title">Lectures — ouvrages recommandés</h1>
+        <h1 class="page-title" style="margin:0">Lectures — ouvrages recommandés</h1>
         <button class="btn-gen" id="btn-new-livre" onclick="startLivreWorkflow(null)" style="width:auto;padding:10px 20px;margin:0">+ Ajouter un ouvrage</button>
       </div>
       <p class="page-sub">Gérez les ouvrages affichés dans la section Lectures du site.</p>
