@@ -1412,11 +1412,11 @@ async function loadArticles(){
     var date = art.date_affichee || '';
     var lieu = art.lieu || '';
 
+    // published: undefined/true = visible, false = hidden
+    var isPublished = art.published !== false;
     var row = document.createElement('div');
     row.className = 'article-row' + (isPublished ? ' is-active' : '');
     row.dataset.id = art.id;
-    // published: undefined/true = visible, false = hidden
-    var isPublished = art.published !== false;
     var toggleBtn = document.createElement('button');
     toggleBtn.className = isPublished ? 'btn-pub current' : 'btn-pub';
     toggleBtn.textContent = isPublished ? '● Visible' : '○ Masqué';
