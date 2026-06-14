@@ -87,88 +87,6 @@
       ]
     },
     {
-      "id": "evrard-approfondir",
-      "published": true,
-      "categorie": {
-        "fr": "Spiritualité & engagement",
-        "de": "Spiritualität & Engagement",
-        "en": "Spirituality & commitment"
-      },
-      "titre": {
-        "fr": "Approfondir sa foi et servir ?",
-        "de": "Den Glauben vertiefen und dienen?",
-        "en": "Deepening one's faith and serving?"
-      },
-      "auteur": {
-        "fr": "Père Albert Evrard, sj — Ce qu'offre l'Ordre équestre du Saint-Sépulcre de Jérusalem",
-        "de": "Pater Albert Evrard, sj — Was der Ritterliche Orden vom Heiligen Grab zu Jerusalem bietet",
-        "en": "Father Albert Evrard, sj — What the Equestrian Order of the Holy Sepulchre of Jerusalem offers"
-      },
-      "resume": {
-        "fr": "Fruit d'un important travail de synthèse — près de 290 pages et une centaine de références — cet ouvrage « entend faire réfléchir chacun pour progresser sur son propre chemin, en essayant de dégager des spécificités découlant de l'appartenance à l'Ordre ou de ce qu'il offre à toute personne de bonne volonté ».\n\nPour ce cheminement, l'auteur s'appuie sur les « cinq doigts de la main » : les nouveaux Statuts, les nouveaux Rituels, le livre du Cardinal Grand Maître Filoni, le nouveau Règlement Général et le nouveau document sur la Formation spirituelle des membres — auxquels s'ajoutent les interventions des Papes lors des audiences accordées à l'Ordre ainsi que les publications du Grand Magistère.",
-        "de": "Frucht einer bedeutenden Synthesearbeit — rund 290 Seiten und etwa hundert Referenzen — will dieses Werk „jeden zum Nachdenken bringen, um auf seinem eigenen Weg voranzuschreiten, indem es versucht, die Besonderheiten herauszuarbeiten, die sich aus der Zugehörigkeit zum Orden ergeben.\"\n\nFür diesen Weg stützt sich der Autor auf die „fünf Finger der Hand\": die neuen Statuten, die neuen Rituale, das Buch des Kardinal-Großmeisters Filoni, das neue Allgemeine Reglement und das neue Dokument zur geistlichen Formation der Mitglieder.",
-        "en": "The fruit of significant synthesis work — nearly 290 pages and about a hundred references — this work \"intends to make everyone reflect in order to progress on their own path, by trying to identify the specificities arising from membership in the Order.\"\n\nFor this journey, the author draws on the \"five fingers of the hand\": the new Statutes, the new Rituals, Cardinal Grand Master Filoni's book, the new General Regulations and the new document on the spiritual formation of members."
-      },
-      "citation": {
-        "fr": "Il s'agit de se poser, en Dame ou Chevalier, des questions relatives à l'homme intérieur habitant en chacun de nous… sur la place que l'engagement dans l'Ordre a dans sa vie, dans ses différentes dimensions physique, mentale, sociale et spirituelle.",
-        "de": "Es geht darum, sich als Dame oder Ritter Fragen über den inneren Menschen zu stellen, der in jedem von uns wohnt… über den Platz, den das Engagement im Orden in seinem Leben einnimmt, in seinen verschiedenen physischen, mentalen, sozialen und spirituellen Dimensionen.",
-        "en": "It is about asking oneself, as a Lady or Knight, questions relating to the inner person dwelling in each of us… about the place that commitment to the Order has in one's life, in its different physical, mental, social and spiritual dimensions."
-      },
-      "img_filename": "livre-evrard-approfondir.png",
-      "cover_note": {
-        "fr": "Visuel de couverture à titre illustratif.",
-        "de": "Umschlagbild zur Illustration.",
-        "en": "Cover image for illustration purposes."
-      },
-      "meta": [
-        {
-          "label": {
-            "fr": "Auteur",
-            "de": "Autor",
-            "en": "Author"
-          },
-          "valeur": "Père Albert Evrard, sj"
-        },
-        {
-          "label": {
-            "fr": "Pages",
-            "de": "Seiten",
-            "en": "Pages"
-          },
-          "valeur": "≈ 290"
-        },
-        {
-          "label": {
-            "fr": "Prix",
-            "de": "Preis",
-            "en": "Price"
-          },
-          "valeur": "25 € (hors port)"
-        }
-      ],
-      "liens": [
-        {
-          "label": {
-            "fr": "Se procurer l'ouvrage",
-            "de": "Buch bestellen",
-            "en": "Get the book"
-          },
-          "url": "#order-evrard",
-          "muted": false,
-          "reveal_order": true,
-          "order_info": {
-            "text": {
-              "fr": "Pour commander : écrire au secrétariat. Paiement sur le compte de l'ASBL « Association des membres belges de l'OESSJ »",
-              "de": "Zum Bestellen: an das Sekretariat schreiben.",
-              "en": "To order: write to the secretariat."
-            },
-            "email": "Office@holysepulchre.be",
-            "iban": "BE23 6300 1228 3491"
-          }
-        }
-      ]
-    },
-    {
       "id": "laudate-jerusalem",
       "published": true,
       "categorie": {
@@ -247,6 +165,88 @@
           },
           "url": "https://web.cathol.lu/1/mouvements/conference-saint-yves/conference-christianisme-foi-religion/presence-chretienne-en-terre-sainte",
           "muted": true
+        }
+      ]
+    },
+    {
+      "id": "evrard-approfondir",
+      "published": true,
+      "categorie": {
+        "fr": "Spiritualité & engagement",
+        "de": "Spiritualität & Engagement",
+        "en": "Spirituality & commitment"
+      },
+      "titre": {
+        "fr": "Approfondir sa foi et servir ?",
+        "de": "Den Glauben vertiefen und dienen?",
+        "en": "Deepening one's faith and serving?"
+      },
+      "auteur": {
+        "fr": "Père Albert Evrard, sj — Ce qu'offre l'Ordre équestre du Saint-Sépulcre de Jérusalem",
+        "de": "Pater Albert Evrard, sj — Was der Ritterliche Orden vom Heiligen Grab zu Jerusalem bietet",
+        "en": "Father Albert Evrard, sj — What the Equestrian Order of the Holy Sepulchre of Jerusalem offers"
+      },
+      "resume": {
+        "fr": "Fruit d'un important travail de synthèse — près de 290 pages et une centaine de références — cet ouvrage « entend faire réfléchir chacun pour progresser sur son propre chemin, en essayant de dégager des spécificités découlant de l'appartenance à l'Ordre ou de ce qu'il offre à toute personne de bonne volonté ».\n\nPour ce cheminement, l'auteur s'appuie sur les « cinq doigts de la main » : les nouveaux Statuts, les nouveaux Rituels, le livre du Cardinal Grand Maître Filoni, le nouveau Règlement Général et le nouveau document sur la Formation spirituelle des membres — auxquels s'ajoutent les interventions des Papes lors des audiences accordées à l'Ordre ainsi que les publications du Grand Magistère.",
+        "de": "Frucht einer bedeutenden Synthesearbeit — rund 290 Seiten und etwa hundert Referenzen — will dieses Werk „jeden zum Nachdenken bringen, um auf seinem eigenen Weg voranzuschreiten, indem es versucht, die Besonderheiten herauszuarbeiten, die sich aus der Zugehörigkeit zum Orden ergeben.\"\n\nFür diesen Weg stützt sich der Autor auf die „fünf Finger der Hand\": die neuen Statuten, die neuen Rituale, das Buch des Kardinal-Großmeisters Filoni, das neue Allgemeine Reglement und das neue Dokument zur geistlichen Formation der Mitglieder.",
+        "en": "The fruit of significant synthesis work — nearly 290 pages and about a hundred references — this work \"intends to make everyone reflect in order to progress on their own path, by trying to identify the specificities arising from membership in the Order.\"\n\nFor this journey, the author draws on the \"five fingers of the hand\": the new Statutes, the new Rituals, Cardinal Grand Master Filoni's book, the new General Regulations and the new document on the spiritual formation of members."
+      },
+      "citation": {
+        "fr": "Il s'agit de se poser, en Dame ou Chevalier, des questions relatives à l'homme intérieur habitant en chacun de nous… sur la place que l'engagement dans l'Ordre a dans sa vie, dans ses différentes dimensions physique, mentale, sociale et spirituelle.",
+        "de": "Es geht darum, sich als Dame oder Ritter Fragen über den inneren Menschen zu stellen, der in jedem von uns wohnt… über den Platz, den das Engagement im Orden in seinem Leben einnimmt, in seinen verschiedenen physischen, mentalen, sozialen und spirituellen Dimensionen.",
+        "en": "It is about asking oneself, as a Lady or Knight, questions relating to the inner person dwelling in each of us… about the place that commitment to the Order has in one's life, in its different physical, mental, social and spiritual dimensions."
+      },
+      "img_filename": "livre-evrard-approfondir.png",
+      "cover_note": {
+        "fr": "Visuel de couverture à titre illustratif.",
+        "de": "Umschlagbild zur Illustration.",
+        "en": "Cover image for illustration purposes."
+      },
+      "meta": [
+        {
+          "label": {
+            "fr": "Auteur",
+            "de": "Autor",
+            "en": "Author"
+          },
+          "valeur": "Père Albert Evrard, sj"
+        },
+        {
+          "label": {
+            "fr": "Pages",
+            "de": "Seiten",
+            "en": "Pages"
+          },
+          "valeur": "≈ 290"
+        },
+        {
+          "label": {
+            "fr": "Prix",
+            "de": "Preis",
+            "en": "Price"
+          },
+          "valeur": "25 € (hors port)"
+        }
+      ],
+      "liens": [
+        {
+          "label": {
+            "fr": "Se procurer l'ouvrage",
+            "de": "Buch bestellen",
+            "en": "Get the book"
+          },
+          "url": "#order-evrard",
+          "muted": false,
+          "reveal_order": true,
+          "order_info": {
+            "text": {
+              "fr": "Pour commander : écrire au secrétariat. Paiement sur le compte de l'ASBL « Association des membres belges de l'OESSJ »",
+              "de": "Zum Bestellen: an das Sekretariat schreiben.",
+              "en": "To order: write to the secretariat."
+            },
+            "email": "Office@holysepulchre.be",
+            "iban": "BE23 6300 1228 3491"
+          }
         }
       ]
     },
