@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
+<link rel="icon" href="https://oessh.lu/favicon.ico" type="image/x-icon"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>OESSH Admin</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1211,14 +1212,12 @@ function showPub(msg,type){ var e=document.getElementById('pubStatus'); e.textCo
 
 // ── Tabs ──────────────────────────────────────────
 function showTab(tab){
-  document.getElementById('tab-new-content').style.display = tab==='new' ? 'block' : 'none';
-  document.getElementById('tab-articles-content').style.display = tab==='articles' ? 'block' : 'none';
-  document.getElementById('tab-lectures-content').style.display = tab==='lectures' ? 'block' : 'none';
-  document.getElementById('tab-export-content').style.display = tab==='export' ? 'block' : 'none';
-  document.getElementById('tab-new').classList.toggle('active', tab==='new');
-  document.getElementById('tab-articles').classList.toggle('active', tab==='articles');
-  document.getElementById('tab-lectures').classList.toggle('active', tab==='lectures');
-  document.getElementById('tab-export').classList.toggle('active', tab==='export');
+  ['new','articles','lectures','export'].forEach(function(t){
+    var c = document.getElementById('tab-'+t+'-content');
+    if(c) c.style.display = tab===t ? 'block' : 'none';
+    var b = document.getElementById('tab-'+t);
+    if(b) b.classList.toggle('active', tab===t);
+  });
   if(tab==='articles') loadArticles();
   if(tab==='export') loadExportList();
   if(tab==='lectures') loadLivres();
