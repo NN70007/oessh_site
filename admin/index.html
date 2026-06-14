@@ -713,6 +713,7 @@ function saveSetup(){
   localStorage.setItem('oessh_repo',r||'NN70007/oessh_site');
   document.getElementById('setup-screen').style.display='none';
   document.getElementById('app').style.display='block';
+  showTab('articles');
 }
 function showSetup(){
   var s=getSettings();
@@ -1459,22 +1460,29 @@ async function loadArticles(){
   listEl.innerHTML = "<div class='drag-hint'>Utilisez ↑ ↓ pour changer l’ordre d’affichage</div>";
 
   try {
+    loadEl.textContent = 'Connexion GitHub…';
+    loadEl.style.display = 'block';
+    if(!s.githubToken){ throw new Error('Token GitHub manquant — vérifiez Clés API'); }
     articlesData = await fetchActualites(s);
-    if(!articlesData) throw new Error('Fichier actualites.json introuvable');
+    if(!articlesData) throw new Error('actualites.json inaccessible (token invalide ?)');
   } catch(e) {
-    loadEl.textContent = 'Erreur : ' + e.message;
+    loadEl.style.display = 'block';
+    loadEl.style.color = '#b00';
+    loadEl.style.fontWeight = '600';
+    loadEl.textContent = '⚠ ' + e.message;
     return;
   }
   loadEl.style.display = 'none';
 
   // Support both v1 (actu_une) and v2 (articles array)
   var articles = articlesData.articles || (articlesData.actu_une ? [articlesData.actu_une] : []);
-  var activeId = articlesData.actu_une_id || (articlesData.actu_une ? articlesData.actu_une.id : null);
-
-  if(articles.length === 0){
-    listEl.innerHTML = '<div class="empty-state">Aucun article dans le stock dynamique.</div>';
+  if(!articles || articles.length === 0){
+    loadEl.style.display = 'block';
+    loadEl.style.color = '#888';
+    loadEl.textContent = 'Aucun article trouvé dans actualites.json';
     return;
   }
+  var activeId = articlesData.actu_une_id || (articlesData.actu_une ? articlesData.actu_une.id : null);
 
   articles.forEach(function(art, idx){
     var isActive = art.id === activeId || (articles.length === 1);
