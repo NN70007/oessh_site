@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "ouvrages": [
+    {
+      "id": "filoni-parfum",
+      "published": true,
+      "categorie": {
+        "fr": "Spiritualité de l'Ordre",
+        "de": "Spiritualität des Ordens",
+        "en": "Spirituality of the Order"
+      },
+      "titre": {
+        "fr": "Et toute la maison fut remplie de l'odeur du parfum",
+        "de": "Und das ganze Haus füllte sich mit dem Duft des Salböls",
+        "en": "And the whole house was filled with the fragrance of the ointment"
+      },
+      "auteur": {
+        "fr": "Cardinal Fernando Filoni — Grand Maître de l'Ordre",
+        "de": "Kardinal Fernando Filoni — Großmeister des Ordens",
+        "en": "Cardinal Fernando Filoni — Grand Master of the Order"
+      },
+      "resume": {
+        "fr": "Dans cet ouvrage, le cardinal Filoni propose une méditation sur la spiritualité propre des chevaliers et des dames du Saint-Sépulcre. À partir de la scène évangélique du parfum répandu sur les pieds du Christ (Jn 12, 3), il invite chaque membre à interroger son projet de vie, ses convictions et ses choix à la lumière de l'appel à la sainteté.\n\nReprenant les paroles du pape François à la Consulta de 2018, le Grand Maître rappelle que le succès des œuvres en Terre Sainte passe d'abord par la formation religieuse de chaque chevalier et de chaque dame : la prière, la méditation de l'Écriture et l'approfondissement de la doctrine de l'Église. Un texte de référence pour la formation spirituelle des membres de l'Ordre.",
+        "de": "In diesem Werk bietet Kardinal Filoni eine Meditation über die eigene Spiritualität der Ritter und Damen des Heiligen Grabes an. Ausgehend von der evangelischen Szene des auf die Füße Christi gegossenen Salböls (Joh 12,3) lädt er jedes Mitglied ein, sein Lebensprojekt, seine Überzeugungen und Entscheidungen im Licht des Rufes zur Heiligkeit zu hinterfragen.\n\nIn Anlehnung an die Worte von Papst Franziskus auf der Consulta 2018 erinnert der Großmeister daran, dass der Erfolg der Werke im Heiligen Land in erster Linie von der religiösen Bildung jedes Ritters und jeder Dame abhängt.",
+        "en": "In this work, Cardinal Filoni offers a meditation on the spirituality proper to the knights and ladies of the Holy Sepulchre. Starting from the evangelical scene of the perfume poured on the feet of Christ (Jn 12:3), he invites each member to examine their life project, convictions and choices in the light of the call to holiness.\n\nTaking up the words of Pope Francis at the 2018 Consulta, the Grand Master recalls that the success of the works in the Holy Land depends first and foremost on the religious formation of each knight and lady."
+      },
+      "citation": {
+        "fr": "L'Ordre lui-même accorde une importance primordiale à la vocation à la sainteté de ses membres et aspire à être un instrument de développement et d'approfondissement du progrès spirituel de chacun.",
+        "de": "Der Orden selbst misst der Berufung zur Heiligkeit seiner Mitglieder höchste Bedeutung bei und strebt danach, ein Instrument der Entwicklung und Vertiefung des geistlichen Fortschritts jedes Einzelnen zu sein.",
+        "en": "The Order itself attaches the utmost importance to the vocation to holiness of its members and aspires to be an instrument for the development and deepening of the spiritual progress of each one."
+      },
+      "img_filename": "livre-filoni-parfum.png",
+      "cover_note": null,
+      "meta": [
+        { "label": { "fr": "Éditeur", "de": "Verlag", "en": "Publisher" }, "valeur": "Salvator" },
+        { "label": { "fr": "Format", "de": "Format", "en": "Format" }, "valeur": { "fr": "Broché", "de": "Broschiert", "en": "Paperback" } },
+        { "label": { "fr": "Langue", "de": "Sprache", "en": "Language" }, "valeur": { "fr": "Français", "de": "Französisch", "en": "French" } }
+      ],
+      "liens": [
+        {
+          "label": { "fr": "Se procurer l'ouvrage", "de": "Buch bestellen", "en": "Get the book" },
+          "url": "https://www.amazon.fr/toute-maison-remplie-lodeur-parfum/dp/2706720743",
+          "muted": false
+        },
+        {
+          "label": { "fr": "Éditions Salvator", "de": "Éditions Salvator", "en": "Éditions Salvator" },
+          "url": "https://www.editions-salvator.com/",
+          "muted": true
+        }
+      ]
+    },
+    {
+      "id": "evrard-approfondir",
+      "published": true,
+      "categorie": {
+        "fr": "Spiritualité & engagement",
+        "de": "Spiritualität & Engagement",
+        "en": "Spirituality & commitment"
+      },
+      "titre": {
+        "fr": "Approfondir sa foi et servir ?",
+        "de": "Den Glauben vertiefen und dienen?",
+        "en": "Deepening one's faith and serving?"
+      },
+      "auteur": {
+        "fr": "Père Albert Evrard, sj — Ce qu'offre l'Ordre équestre du Saint-Sépulcre de Jérusalem",
+        "de": "Pater Albert Evrard, sj — Was der Ritterliche Orden vom Heiligen Grab zu Jerusalem bietet",
+        "en": "Father Albert Evrard, sj — What the Equestrian Order of the Holy Sepulchre of Jerusalem offers"
+      },
+      "resume": {
+        "fr": "Fruit d'un important travail de synthèse — près de 290 pages et une centaine de références — cet ouvrage « entend faire réfléchir chacun pour progresser sur son propre chemin, en essayant de dégager des spécificités découlant de l'appartenance à l'Ordre ou de ce qu'il offre à toute personne de bonne volonté ».\n\nPour ce cheminement, l'auteur s'appuie sur les « cinq doigts de la main » : les nouveaux Statuts, les nouveaux Rituels, le livre du Cardinal Grand Maître Filoni, le nouveau Règlement Général et le nouveau document sur la Formation spirituelle des membres — auxquels s'ajoutent les interventions des Papes lors des audiences accordées à l'Ordre ainsi que les publications du Grand Magistère.",
+        "de": "Frucht einer bedeutenden Synthesearbeit — rund 290 Seiten und etwa hundert Referenzen — will dieses Werk „jeden zum Nachdenken bringen, um auf seinem eigenen Weg voranzuschreiten, indem es versucht, die Besonderheiten herauszuarbeiten, die sich aus der Zugehörigkeit zum Orden ergeben.\"\n\nFür diesen Weg stützt sich der Autor auf die „fünf Finger der Hand": die neuen Statuten, die neuen Rituale, das Buch des Kardinal-Großmeisters Filoni, das neue Allgemeine Reglement und das neue Dokument zur geistlichen Formation der Mitglieder.",
+        "en": "The fruit of significant synthesis work — nearly 290 pages and about a hundred references — this work \"intends to make everyone reflect in order to progress on their own path, by trying to identify the specificities arising from membership in the Order.\"\n\nFor this journey, the author draws on the \"five fingers of the hand\": the new Statutes, the new Rituals, Cardinal Grand Master Filoni's book, the new General Regulations and the new document on the spiritual formation of members."
+      },
+      "citation": {
+        "fr": "Il s'agit de se poser, en Dame ou Chevalier, des questions relatives à l'homme intérieur habitant en chacun de nous… sur la place que l'engagement dans l'Ordre a dans sa vie, dans ses différentes dimensions physique, mentale, sociale et spirituelle.",
+        "de": "Es geht darum, sich als Dame oder Ritter Fragen über den inneren Menschen zu stellen, der in jedem von uns wohnt… über den Platz, den das Engagement im Orden in seinem Leben einnimmt, in seinen verschiedenen physischen, mentalen, sozialen und spirituellen Dimensionen.",
+        "en": "It is about asking oneself, as a Lady or Knight, questions relating to the inner person dwelling in each of us… about the place that commitment to the Order has in one's life, in its different physical, mental, social and spiritual dimensions."
+      },
+      "img_filename": "livre-evrard-approfondir.png",
+      "cover_note": {
+        "fr": "Visuel de couverture à titre illustratif.",
+        "de": "Umschlagbild zur Illustration.",
+        "en": "Cover image for illustration purposes."
+      },
+      "meta": [
+        { "label": { "fr": "Auteur", "de": "Autor", "en": "Author" }, "valeur": "Père Albert Evrard, sj" },
+        { "label": { "fr": "Pages", "de": "Seiten", "en": "Pages" }, "valeur": "≈ 290" },
+        { "label": { "fr": "Prix", "de": "Preis", "en": "Price" }, "valeur": "25 € (hors port)" }
+      ],
+      "liens": [
+        {
+          "label": { "fr": "Se procurer l'ouvrage", "de": "Buch bestellen", "en": "Get the book" },
+          "url": "#order-evrard",
+          "muted": false,
+          "reveal_order": true,
+          "order_info": {
+            "text": { "fr": "Pour commander : écrire au secrétariat. Paiement sur le compte de l'ASBL « Association des membres belges de l'OESSJ »", "de": "Zum Bestellen: an das Sekretariat schreiben.", "en": "To order: write to the secretariat." },
+            "email": "Office@holysepulchre.be",
+            "iban": "BE23 6300 1228 3491"
+          }
+        }
+      ]
+    },
+    {
+      "id": "laudate-jerusalem",
+      "published": true,
+      "categorie": {
+        "fr": "Terre Sainte · Histoire & diplomatie",
+        "de": "Heiliges Land · Geschichte & Diplomatie",
+        "en": "Holy Land · History & diplomacy"
+      },
+      "titre": {
+        "fr": "Laudate Jerusalem — La présence chrétienne en Terre sainte",
+        "de": "Laudate Jerusalem — Die christliche Präsenz im Heiligen Land",
+        "en": "Laudate Jerusalem — The Christian presence in the Holy Land"
+      },
+      "auteur": {
+        "fr": "Sous la direction de William Lindsay Simpson — Président de la Conférence Saint-Yves",
+        "de": "Herausgegeben von William Lindsay Simpson — Präsident der Konferenz Saint-Yves",
+        "en": "Edited by William Lindsay Simpson — President of the Conférence Saint-Yves"
+      },
+      "resume": {
+        "fr": "« Laudate Jerusalem », « Glorifiez Jérusalem ! », est un ouvrage à la croisée de l'histoire des Églises chrétiennes, de la diplomatie et du droit international. Un travail collectif rassemblant les retranscriptions de sept conférences sur la présence chrétienne en Terre sainte, organisées par la Conférence Saint-Yves de 2016 à 2021 avec le soutien d'organisations diplomatiques, ecclésiastiques et associatives.\n\nLe lecteur découvre la signification de Jérusalem dans la tradition juive — dont le sens va bien au-delà de « ville de la paix » — puis chemine à travers les siècles avec les chrétiens orthodoxes, protestants, catholiques et coptes. L'ouvrage s'achève par une réflexion sur le statut de Jérusalem en droit international et un entretien avec le Ministre des Affaires Étrangères du Grand-Duché de Luxembourg sur la Terre sainte.",
+        "de": "„Laudate Jerusalem", „Preiset Jerusalem!", ist ein Werk an der Schnittstelle von Geschichte der christlichen Kirchen, Diplomatie und Völkerrecht. Eine Gemeinschaftsarbeit, die die Niederschriften von sieben Konferenzen über die christliche Präsenz im Heiligen Land zusammenfasst, organisiert von der Conférence Saint-Yves von 2016 bis 2021.\n\nDer Leser entdeckt die Bedeutung Jerusalems in der jüdischen Tradition — deren Sinn weit über „Stadt des Friedens" hinausgeht — und wandert dann durch die Jahrhunderte mit orthodoxen, protestantischen, katholischen und koptischen Christen.",
+        "en": "\"Laudate Jerusalem\", \"Praise Jerusalem!\", is a work at the crossroads of the history of Christian Churches, diplomacy and international law. A collective work gathering the transcripts of seven conferences on the Christian presence in the Holy Land, organised by the Conférence Saint-Yves from 2016 to 2021.\n\nThe reader discovers the significance of Jerusalem in Jewish tradition — whose meaning goes far beyond \"city of peace\" — then journeys through the centuries with Orthodox, Protestant, Catholic and Coptic Christians."
+      },
+      "citation": {
+        "fr": "Les différents articles sont des outils pédagogiques offerts au lecteur pour lui permettre de comprendre les défis que doivent relever les populations chrétiennes vivant actuellement en Terre sainte.",
+        "de": "Die verschiedenen Artikel sind pädagogische Instrumente, die dem Leser angeboten werden, um die Herausforderungen zu verstehen, mit denen die christlichen Bevölkerungen im heutigen Heiligen Land konfrontiert sind.",
+        "en": "The various articles are pedagogical tools offered to the reader to help understand the challenges facing Christian populations currently living in the Holy Land."
+      },
+      "citation_source": "+ Jean-Claude Cardinal Hollerich",
+      "img_filename": "livre-laudate-jerusalem.jpg",
+      "cover_note": null,
+      "meta": [
+        { "label": { "fr": "Éditeur", "de": "Verlag", "en": "Publisher" }, "valeur": "Parole et Silence" },
+        { "label": { "fr": "Coordination", "de": "Koordination", "en": "Coordination" }, "valeur": "Conférence Saint-Yves" },
+        { "label": { "fr": "Langue", "de": "Sprache", "en": "Language" }, "valeur": { "fr": "Français", "de": "Französisch", "en": "French" } }
+      ],
+      "liens": [
+        {
+          "label": { "fr": "Se procurer l'ouvrage", "de": "Buch bestellen", "en": "Get the book" },
+          "url": "https://www.amazon.fr/Laudate-Jerusalem-William-Lindsay-Simpson/dp/2889594246",
+          "muted": false
+        },
+        {
+          "label": { "fr": "Conférences en ligne", "de": "Online-Konferenzen", "en": "Online conferences" },
+          "url": "https://web.cathol.lu/1/mouvements/conference-saint-yves/conference-christianisme-foi-religion/presence-chretienne-en-terre-sainte",
+          "muted": true
+        }
+      ]
+    },
+    {
+      "id": "pizzaballa-gerusalemme",
+      "published": true,
+      "categorie": {
+        "fr": "Terre Sainte · Spiritualité · En italien",
+        "de": "Heiliges Land · Spiritualität · Auf Italienisch",
+        "en": "Holy Land · Spirituality · In Italian"
+      },
+      "titre": {
+        "fr": "« Tornarono a Gerusalemme con grande gioia »",
+        "de": "« Tornarono a Gerusalemme con grande gioia »",
+        "en": "« Tornarono a Gerusalemme con grande gioia »"
+      },
+      "auteur": {
+        "fr": "Cardinal Pierbattista Pizzaballa — Patriarche latin de Jérusalem",
+        "de": "Kardinal Pierbattista Pizzaballa — Lateinischer Patriarch von Jerusalem",
+        "en": "Cardinal Pierbattista Pizzaballa — Latin Patriarch of Jerusalem"
+      },
+      "resume": {
+        "fr": "Une réflexion d'une grande actualité sur les chrétiens du Moyen-Orient d'aujourd'hui, marqué par les conflits, les guerres et les tensions continuelles. Unissant la finesse du discernement, une réelle compétence biblique et une spiritualité d'une profondeur incontestable, l'auteur propose aussi une voie concrète pour les chrétiens de tout temps et de tout lieu.\n\nS'appuyant sur le livre de l'Apocalypse, le Patriarche de Jérusalem explique pourquoi, même face au mal subi, le chrétien ne doit pas se replier sur lui-même, mais demeurer ouvert à la rencontre de l'autre. Des pages on ne peut plus actuelles pour chaque croyant, et éloquentes pour tout lecteur.",
+        "de": "Eine höchst aktuelle Reflexion über die Christen des heutigen Nahen Ostens, geprägt von Konflikten, Kriegen und ständigen Spannungen. Der Autor verbindet Feingefühl beim Unterscheiden, echte biblische Kompetenz und eine Spiritualität von unbestreitbarer Tiefe und schlägt auch einen konkreten Weg für Christen aller Zeiten und Orte vor.\n\nGestützt auf das Buch der Offenbarung erklärt der Patriarch von Jerusalem, warum der Christ trotz erlittenen Bösen nicht in sich selbst zurückziehen darf, sondern offen für die Begegnung mit dem anderen bleiben muss.",
+        "en": "A highly relevant reflection on the Christians of today's Middle East, marked by conflicts, wars and continuous tensions. Combining discernment, genuine biblical expertise and spirituality of undeniable depth, the author also proposes a concrete path for Christians of all times and places.\n\nDrawing on the Book of Revelation, the Patriarch of Jerusalem explains why, even in the face of evil suffered, the Christian must not withdraw into themselves, but remain open to encounter with the other."
+      },
+      "citation": null,
+      "img_filename": "livre-pizzaballa-gerusalemme.jpg",
+      "cover_note": null,
+      "meta": [
+        { "label": { "fr": "Éditeur", "de": "Verlag", "en": "Publisher" }, "valeur": "Libreria Editrice Vaticana" },
+        { "label": { "fr": "Parution", "de": "Erscheinungsdatum", "en": "Publication" }, "valeur": "11 mai 2026" },
+        { "label": { "fr": "Langue", "de": "Sprache", "en": "Language" }, "valeur": { "fr": "Italien", "de": "Italienisch", "en": "Italian" } }
+      ],
+      "liens": [
+        {
+          "label": { "fr": "Se procurer l'ouvrage", "de": "Buch bestellen", "en": "Get the book" },
+          "url": "https://www.amazon.it/-/en/Pierbattista-Pizzaballa/dp/8826610940/",
+          "muted": false
+        }
+      ]
+    }
+  ]
+}
