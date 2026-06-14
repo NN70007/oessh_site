@@ -169,6 +169,74 @@
       ]
     },
     {
+      "id": "pizzaballa-gerusalemme",
+      "published": true,
+      "categorie": {
+        "fr": "Terre Sainte · Spiritualité · En italien",
+        "de": "Heiliges Land · Spiritualität · Auf Italienisch",
+        "en": "Holy Land · Spirituality · In Italian"
+      },
+      "titre": {
+        "fr": "« Tornarono a Gerusalemme con grande gioia »",
+        "de": "« Tornarono a Gerusalemme con grande gioia »",
+        "en": "« Tornarono a Gerusalemme con grande gioia »"
+      },
+      "auteur": {
+        "fr": "Cardinal Pierbattista Pizzaballa — Patriarche latin de Jérusalem",
+        "de": "Kardinal Pierbattista Pizzaballa — Lateinischer Patriarch von Jerusalem",
+        "en": "Cardinal Pierbattista Pizzaballa — Latin Patriarch of Jerusalem"
+      },
+      "resume": {
+        "fr": "Une réflexion d'une grande actualité sur les chrétiens du Moyen-Orient d'aujourd'hui, marqué par les conflits, les guerres et les tensions continuelles. Unissant la finesse du discernement, une réelle compétence biblique et une spiritualité d'une profondeur incontestable, l'auteur propose aussi une voie concrète pour les chrétiens de tout temps et de tout lieu.\n\nS'appuyant sur le livre de l'Apocalypse, le Patriarche de Jérusalem explique pourquoi, même face au mal subi, le chrétien ne doit pas se replier sur lui-même, mais demeurer ouvert à la rencontre de l'autre. Des pages on ne peut plus actuelles pour chaque croyant, et éloquentes pour tout lecteur.",
+        "de": "Eine höchst aktuelle Reflexion über die Christen des heutigen Nahen Ostens, geprägt von Konflikten, Kriegen und ständigen Spannungen. Der Autor verbindet Feingefühl beim Unterscheiden, echte biblische Kompetenz und eine Spiritualität von unbestreitbarer Tiefe und schlägt auch einen konkreten Weg für Christen aller Zeiten und Orte vor.\n\nGestützt auf das Buch der Offenbarung erklärt der Patriarch von Jerusalem, warum der Christ trotz erlittenen Bösen nicht in sich selbst zurückziehen darf, sondern offen für die Begegnung mit dem anderen bleiben muss.",
+        "en": "A highly relevant reflection on the Christians of today's Middle East, marked by conflicts, wars and continuous tensions. Combining discernment, genuine biblical expertise and spirituality of undeniable depth, the author also proposes a concrete path for Christians of all times and places.\n\nDrawing on the Book of Revelation, the Patriarch of Jerusalem explains why, even in the face of evil suffered, the Christian must not withdraw into themselves, but remain open to encounter with the other."
+      },
+      "citation": null,
+      "img_filename": "livre-pizzaballa-gerusalemme.jpg",
+      "cover_note": null,
+      "meta": [
+        {
+          "label": {
+            "fr": "Éditeur",
+            "de": "Verlag",
+            "en": "Publisher"
+          },
+          "valeur": "Libreria Editrice Vaticana"
+        },
+        {
+          "label": {
+            "fr": "Parution",
+            "de": "Erscheinungsdatum",
+            "en": "Publication"
+          },
+          "valeur": "11 mai 2026"
+        },
+        {
+          "label": {
+            "fr": "Langue",
+            "de": "Sprache",
+            "en": "Language"
+          },
+          "valeur": {
+            "fr": "Italien",
+            "de": "Italienisch",
+            "en": "Italian"
+          }
+        }
+      ],
+      "liens": [
+        {
+          "label": {
+            "fr": "Se procurer l'ouvrage",
+            "de": "Buch bestellen",
+            "en": "Get the book"
+          },
+          "url": "https://www.amazon.it/-/en/Pierbattista-Pizzaballa/dp/8826610940/",
+          "muted": false
+        }
+      ]
+    },
+    {
       "id": "evrard-approfondir",
       "published": true,
       "categorie": {
@@ -247,74 +315,6 @@
             "email": "Office@holysepulchre.be",
             "iban": "BE23 6300 1228 3491"
           }
-        }
-      ]
-    },
-    {
-      "id": "pizzaballa-gerusalemme",
-      "published": true,
-      "categorie": {
-        "fr": "Terre Sainte · Spiritualité · En italien",
-        "de": "Heiliges Land · Spiritualität · Auf Italienisch",
-        "en": "Holy Land · Spirituality · In Italian"
-      },
-      "titre": {
-        "fr": "« Tornarono a Gerusalemme con grande gioia »",
-        "de": "« Tornarono a Gerusalemme con grande gioia »",
-        "en": "« Tornarono a Gerusalemme con grande gioia »"
-      },
-      "auteur": {
-        "fr": "Cardinal Pierbattista Pizzaballa — Patriarche latin de Jérusalem",
-        "de": "Kardinal Pierbattista Pizzaballa — Lateinischer Patriarch von Jerusalem",
-        "en": "Cardinal Pierbattista Pizzaballa — Latin Patriarch of Jerusalem"
-      },
-      "resume": {
-        "fr": "Une réflexion d'une grande actualité sur les chrétiens du Moyen-Orient d'aujourd'hui, marqué par les conflits, les guerres et les tensions continuelles. Unissant la finesse du discernement, une réelle compétence biblique et une spiritualité d'une profondeur incontestable, l'auteur propose aussi une voie concrète pour les chrétiens de tout temps et de tout lieu.\n\nS'appuyant sur le livre de l'Apocalypse, le Patriarche de Jérusalem explique pourquoi, même face au mal subi, le chrétien ne doit pas se replier sur lui-même, mais demeurer ouvert à la rencontre de l'autre. Des pages on ne peut plus actuelles pour chaque croyant, et éloquentes pour tout lecteur.",
-        "de": "Eine höchst aktuelle Reflexion über die Christen des heutigen Nahen Ostens, geprägt von Konflikten, Kriegen und ständigen Spannungen. Der Autor verbindet Feingefühl beim Unterscheiden, echte biblische Kompetenz und eine Spiritualität von unbestreitbarer Tiefe und schlägt auch einen konkreten Weg für Christen aller Zeiten und Orte vor.\n\nGestützt auf das Buch der Offenbarung erklärt der Patriarch von Jerusalem, warum der Christ trotz erlittenen Bösen nicht in sich selbst zurückziehen darf, sondern offen für die Begegnung mit dem anderen bleiben muss.",
-        "en": "A highly relevant reflection on the Christians of today's Middle East, marked by conflicts, wars and continuous tensions. Combining discernment, genuine biblical expertise and spirituality of undeniable depth, the author also proposes a concrete path for Christians of all times and places.\n\nDrawing on the Book of Revelation, the Patriarch of Jerusalem explains why, even in the face of evil suffered, the Christian must not withdraw into themselves, but remain open to encounter with the other."
-      },
-      "citation": null,
-      "img_filename": "livre-pizzaballa-gerusalemme.jpg",
-      "cover_note": null,
-      "meta": [
-        {
-          "label": {
-            "fr": "Éditeur",
-            "de": "Verlag",
-            "en": "Publisher"
-          },
-          "valeur": "Libreria Editrice Vaticana"
-        },
-        {
-          "label": {
-            "fr": "Parution",
-            "de": "Erscheinungsdatum",
-            "en": "Publication"
-          },
-          "valeur": "11 mai 2026"
-        },
-        {
-          "label": {
-            "fr": "Langue",
-            "de": "Sprache",
-            "en": "Language"
-          },
-          "valeur": {
-            "fr": "Italien",
-            "de": "Italienisch",
-            "en": "Italian"
-          }
-        }
-      ],
-      "liens": [
-        {
-          "label": {
-            "fr": "Se procurer l'ouvrage",
-            "de": "Buch bestellen",
-            "en": "Get the book"
-          },
-          "url": "https://www.amazon.it/-/en/Pierbattista-Pizzaballa/dp/8826610940/",
-          "muted": false
         }
       ]
     }
