@@ -432,6 +432,8 @@ textarea.wfield, input.wfield, select.wfield,
     </div>
     <div class="nav-cta">
       <div style="display:flex;align-items:center;gap:8px">
+        <img id="user-avatar" src="" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1px solid var(--line);display:none"/>
+        <span id="user-name" style="font-family:var(--sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute)"></span>
         
       </div>
       <button class="menu-btn" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu" onclick="toggleMobileMenu()">
@@ -748,8 +750,8 @@ function showSetup(){
 function onGoogleLogin(r){
   var p=JSON.parse(atob(r.credential.split('.')[1]));
   if(ALLOWED_EMAILS.indexOf(p.email)===-1){ document.getElementById('login-err').style.display='block'; return; }
-  document.getElementById('user-name').textContent=p.name;
-  var av=document.getElementById('user-avatar'); av.src=p.picture; av.style.display='block';
+  var un=document.getElementById('user-name'); if(un) un.textContent=p.name;
+  var av=document.getElementById('user-avatar'); if(av){ av.src=p.picture; av.style.display='block'; }
   sessionStart(p.email, p.name);
   document.getElementById('login-screen').style.display='none';
   if(hasSettings()){ document.getElementById('app').style.display='block'; showTab('articles'); }
