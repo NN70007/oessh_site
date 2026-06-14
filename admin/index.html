@@ -1281,7 +1281,7 @@ async function loadArticles(){
   var loadEl = document.getElementById('articles-loading');
   loadEl.style.display = 'block';
   listEl.innerHTML = '';
-  listEl.innerHTML = '<div class="drag-hint">Utilisez ↑ ↓ pour changer l'ordre d'affichage</div>';
+  listEl.innerHTML = '<div class="drag-hint">Utilisez ↑ ↓ pour changer l’ordre d’affichage</div>';
 
   try {
     articlesData = await fetchActualites(s);
