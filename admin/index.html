@@ -1900,6 +1900,54 @@ function switchLivreTab(lang,btn){ /* legacy - no-op */ }
 function addMetaLivreRow(l,v){ addMetaLivreRow2(l,v); }
 function addLienLivreRow(l,u,m){ addLienLivreRow2(l,u,m); }
 
+// ── Lectures management functions ────────────────
+async function toggleLivrePublish(id, makeVisible){
+  var s = getSettings();
+  var freshData = await fetchLectures(s);
+  if(!freshData || !freshData.ouvrages) return;
+  freshData.ouvrages = freshData.ouvrages.map(function(o){
+    if(o.id === id) o.published = makeVisible;
+    return o;
+  });
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
+  try {
+    await githubPut(s, 'lectures.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' ouvrage '+id);
+    loadLivres();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function moveLivre(id, direction){
+  var s = getSettings();
+  var freshData = await fetchLectures(s);
+  if(!freshData || !freshData.ouvrages) return;
+  var ouvrages = freshData.ouvrages;
+  var idx = ouvrages.findIndex(function(o){ return o.id === id; });
+  var newIdx = idx + direction;
+  if(idx === -1 || newIdx < 0 || newIdx >= ouvrages.length) return;
+  var tmp = ouvrages[idx]; ouvrages[idx] = ouvrages[newIdx]; ouvrages[newIdx] = tmp;
+  freshData.ouvrages = ouvrages;
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
+  try {
+    await githubPut(s, 'lectures.json', jsonB64, 'Admin: reorder ouvrages');
+    loadLivres();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function deleteLivre(id){
+  if(!confirm('Supprimer définitivement cet ouvrage ?')) return;
+  var s = getSettings();
+  var freshData = await fetchLectures(s);
+  if(!freshData || !freshData.ouvrages) return;
+  freshData.ouvrages = freshData.ouvrages.filter(function(o){ return o.id !== id; });
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
+  try {
+    await githubPut(s, 'lectures.json', jsonB64, 'Admin: suppression ouvrage '+id);
+    loadLivres();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
 </script>
 </body>
 </html>
