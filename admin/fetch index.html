@@ -1393,13 +1393,13 @@ async function githubPut(s, path, b64, message){
   var url='https://api.github.com/repos/'+s.repo+'/contents/'+path;
   var sha;
   try{
-    var rGet=await fetch(url,{headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
-    if(rGet.ok){ var d=await rGet.json(); sha=d.sha; }
+    var r=await fetch(url,{headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
+    if(r.ok){ var d=await r.json(); sha=d.sha; }
   }catch(e){}
   var body={message:message,content:b64};
   if(sha) body.sha=sha;
-  var rPut=await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(!rPut.ok){ var e=await rPut.json(); throw new Error(e.message||rPut.statusText); }
+  var r=await fetch(url,{method:'PUT',headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok){ var e=await r.json(); throw new Error(e.message||r.statusText); }
 }
 
 function setLoading(lid,bid,on){
