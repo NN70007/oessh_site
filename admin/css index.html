@@ -2,11 +2,12 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#7a1a18"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="icon" href="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem.svg" type="image/svg+xml"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>ADMIN · OESSH · Luxembourg</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -23,6 +24,8 @@
   --gold:#b08a4f;
   --line:rgba(26,26,26,.16);
   --line-soft:rgba(26,26,26,.08);
+  --gutter:clamp(20px,4vw,56px);
+  --maxw:1280px;
   --border:rgba(26,26,26,.14);
   --serif:"Cormorant Garamond","EB Garamond",Georgia,serif;
   --sans:"Inter",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
@@ -71,7 +74,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
   display:grid; grid-template-columns:1fr auto; align-items:center; gap:24px;
 }
 .tb-left{display:flex; align-items:center; gap:10px; justify-self:start}
-.tb-dot{width:6px; height:6px; border-radius:50%; background:var(--red); display:inline-block}
+.tb-dot{width:6px; height:6px; border-radius:50%; background:var(--cardinal); display:inline-block}
 .tb-center{justify-self:end; color:var(--ink-soft); font-weight:400; white-space:nowrap}
 .tb-center strong{font-weight:700; letter-spacing:.18em}
 .tb-sep{color:var(--ink-soft); margin:0 4px}
@@ -225,29 +228,10 @@ textarea.field:focus,input.field:focus{outline:none;border-color:var(--cardinal)
 .btn-secondary{padding:10px 18px;border:1px solid var(--border);border-radius:7px;background:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--sans);color:var(--ink)}
 .btn-secondary:hover{background:#f7f4ee}
 .step-bar{display:flex;gap:10px;margin-top:14px;align-items:center}
-.pub-status{font-size:13px;padding:10px 14px;border-radius:6px;display:none;margin-top:12px;line-height:1.5}
 .pub-ok{background:#edfff4;border:1px solid #b0e8c4;color:#1a6e3a}
 .pub-err{background:#fff0f0;border:1px solid #ffc0c0;color:#a00}
-.lang-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
-.lang-tab{padding:7px 16px;font-size:12px;font-weight:500;color:var(--ink-mute);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--sans)}
 .lang-tab.active{color:var(--cardinal);border-bottom-color:var(--cardinal)}
-.loading-dots{display:none;align-items:center;gap:6px;font-size:13px;color:var(--ink-mute)}
-.loading-dots span{width:6px;height:6px;border-radius:50%;background:var(--cardinal);animation:blink 1.2s infinite}
-.loading-dots span:nth-child(2){animation-delay:.2s}
-.loading-dots span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
 
-/* ── Lien / PDF rows ── */
-.lien-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px}
-.lien-row input{font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:5px;font-family:var(--sans);color:var(--ink)}
-.btn-rm{background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:18px}
-.btn-rm:hover{color:var(--cardinal)}
-.btn-add-lien{background:none;border:1px dashed var(--border);border-radius:6px;padding:6px 12px;font-size:12px;color:var(--ink-mute);cursor:pointer;font-family:var(--sans);margin-top:4px}
-.btn-add-lien:hover{border-color:var(--cardinal);color:var(--cardinal)}
-
-/* ── PDF upload ── */
-.pdf-row{display:flex;align-items:center;gap:8px;background:#faf9f6;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:6px;font-size:13px}
-.pdf-row .btn-rm{font-size:16px}
 
 /* ── Livre list ── */
 .book-row{background:#fff;border:1px solid var(--border);border-radius:0;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px}
@@ -315,6 +299,8 @@ textarea.wfield, input.wfield, select.wfield,
 .pdf-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);background:var(--paper);margin-bottom:6px;font-size:13px}
 .pdf-row .btn-rm{background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:16px;padding:0 4px}
 .pdf-row .btn-rm:hover{color:var(--cardinal)}
+.btn-rm{background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:18px}
+.btn-rm:hover{color:var(--cardinal)}
 .btn-add-pdf{background:none;border:1px dashed var(--line);padding:7px 14px;font-size:12px;color:var(--ink-mute);cursor:pointer;font-family:var(--sans);margin-top:6px;letter-spacing:.05em}
 .btn-add-pdf:hover{border-color:var(--cardinal);color:var(--cardinal)}
 
@@ -388,6 +374,69 @@ textarea.wfield, input.wfield, select.wfield,
 .err-box.visible{display:block}
 .spinner{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--cardinal);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Container (centrage général) ── */
+.container{max-width:var(--maxw); margin:0 auto; padding-left:var(--gutter); padding-right:var(--gutter)}
+
+/* ── Footer ── */
+footer.site{
+  background:#fbf8f2; color:var(--ink-soft);
+  padding:80px 0 30px;
+  border-top:3px solid var(--cardinal);
+}
+footer.site .footer-grid{
+  display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px;
+  padding-bottom:60px; border-bottom:1px solid var(--line-soft);
+}
+@media (max-width:880px){footer.site .footer-grid{grid-template-columns:1fr 1fr; gap:36px}}
+@media (max-width:560px){footer.site .footer-grid{grid-template-columns:1fr}}
+footer.site .col h3,
+footer.site .col h4,
+footer.site .col h5{
+  font-family:var(--sans); font-size:11px; letter-spacing:.22em; font-weight:500;
+  text-transform:uppercase; color:var(--ink-mute);
+  margin:0 0 18px;
+}
+footer.site .col a{
+  display:block; padding:5px 0;
+  font-size:14px; color:var(--ink-soft);
+  text-decoration:none;
+  transition:color .15s;
+}
+footer.site .col a:hover{color:var(--cardinal)}
+footer.site .brand{
+  display:flex; align-items:center; gap:18px;
+  text-decoration:none; margin-bottom:22px;
+}
+footer.site .brand .cross{width:84px; height:84px; flex:0 0 auto; display:block; background:transparent}
+footer.site .brand-text{display:flex; flex-direction:column; line-height:1.2; gap:5px}
+footer.site .brand-text .l1{
+  font-family:var(--serif); font-size:28px; letter-spacing:.005em;
+  color:var(--ink); line-height:1.1; font-weight:500;
+}
+footer.site .brand-text .l2{
+  font-family:var(--sans); font-size:11px; letter-spacing:.26em;
+  text-transform:uppercase; color:var(--ink-mute); font-weight:500;
+}
+@media (max-width:1100px){
+  footer.site .brand .cross{width:64px; height:64px}
+  footer.site .brand-text .l1{font-size:21px}
+}
+@media (max-width:760px){
+  footer.site .brand .cross{width:54px; height:54px}
+  footer.site .brand-text .l1{font-size:18px; line-height:1.15}
+  footer.site .brand{gap:12px}
+}
+footer.site .baseline{
+  font-family:var(--serif); font-style:italic; font-size:18px;
+  line-height:1.45; color:var(--ink-soft); max-width:35ch;
+}
+footer.site .foot-bottom{
+  padding-top:30px;
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px;
+  font-size:12px; color:var(--ink-mute);
+}
+footer.site .foot-bottom a{color:var(--ink-soft); text-decoration:none}
 
 </style>
 </head>
@@ -2505,5 +2554,50 @@ async function deleteLivre(id){
   } catch(e){ alert('Erreur : '+e.message); }
 }
 </script>
+
+<!-- ====================== FOOTER ====================== -->
+<footer class="site">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="col">
+        <div class="brand">
+          <img class="cross" src="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem.svg" alt="Croix de Jérusalem" decoding="async"/>
+          <span class="brand-text"><span class="l1">Ordre Équestre du Saint-Sépulcre de Jérusalem</span><span class="l2">Lieutenance pour le Luxembourg</span></span>
+        </div>
+        <p class="baseline">« Une force spirituelle et caritative au service de la Terre Sainte. »</p>
+      </div>
+      <div class="col">
+        <h3>Le site</h3>
+        <a href="index.html#mission">Notre Ordre</a>
+        <a href="index.html#actualites">Actualités</a>
+        <a href="index.html#oeuvres">Œuvres</a>
+        <a href="index.html#publications">Publications</a>
+        <a href="index.html#lectures">Lectures</a>
+        <a href="index.html#calendrier">Calendrier</a>
+        <a href="index.html#contact">Contact</a>
+      </div>
+      <div class="col">
+        <h3>Engagement</h3>
+        <a href="index.html#don">Faire un don</a>
+        <a href="index.html#priere">Prière du Chevalier</a>
+      </div>
+      <div class="col">
+        <h3>Institutions</h3>
+        <a href="https://www.oessh.va" target="_blank" rel="noopener">Grand Magistère ↗</a>
+        <a href="https://www.lpj.org" target="_blank" rel="noopener">Patriarcat latin ↗</a>
+        <a href="https://irmine.lu/la-fondation-sainte-irmine/" target="_blank" rel="noopener">Fondation Sainte-Irmine ↗</a>
+        <a href="https://secure.oessh.lu/" target="_blank" rel="noopener">Espace membres ↗</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>© 2026 OESSH · Lieutenance pour le Luxembourg</div>
+      <div style="display:flex;gap:24px">
+        <a href="https://drive.google.com/file/d/1nY6uMTLuOqwZZdTtGhrtgg-mCylyT0um/view" target="_blank" rel="noopener">Protection des données</a>
+        <a href="credits.html">Crédits</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>
