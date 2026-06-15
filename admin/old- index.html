@@ -1497,7 +1497,6 @@ function renderArticles(){
   listEl.innerHTML = "<div class='drag-hint'>Utilisez ↑ ↓ pour changer l’ordre d’affichage</div>";
   var articles = articlesData.articles || [];
   articles.forEach(function(art, idx){
-    var isActive = art.id === activeId || (articles.length === 1);
     var titre = (art.titre && art.titre.fr) || art.titre || '(sans titre)';
     var date = art.date_affichee || '';
     var lieu = art.lieu || '';
@@ -1580,18 +1579,10 @@ async function loadArticles(){
   }
   loadEl.style.display = 'none';
   renderArticles();
-  return;
+}
 
-  // Support both v1 (actu_une) and v2 (articles array)
-  var articles = articlesData.articles || (articlesData.actu_une ? [articlesData.actu_une] : []);
-  if(!articles || articles.length === 0){
-    loadEl.style.display = 'block';
-    loadEl.style.color = '#888';
-    loadEl.textContent = 'Aucun article trouvé dans actualites.json';
-    return;
-  }
-  var activeId = articlesData.actu_une_id || (articlesData.actu_une ? articlesData.actu_une.id : null);
-
+function _deadcode_articles(articlesData, listEl, idx){
+  var art = {}; var articles = []; // dead code kept for reference only
   articles.forEach(function(art, idx){
     var isActive = art.id === activeId || (articles.length === 1);
     var titre = (art.titre && art.titre.fr) || art.titre || '(sans titre)';

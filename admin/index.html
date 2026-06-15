@@ -1669,7 +1669,7 @@ async function moveArticle(id, direction){
   delete freshData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    await githubPutX(s, 'actualites.json', jsonB64, 'Admin: reorder articles');
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: reorder articles');
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
@@ -1701,7 +1701,7 @@ async function togglePublish(id, makeVisible){
   delete freshData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    await githubPutX(s, 'actualites.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' '+id);
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' '+id);
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
