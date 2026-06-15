@@ -365,12 +365,29 @@ textarea.wfield, input.wfield, select.wfield,
   .admin-controls{display:none}
   .nav-cta{padding-right:8px}
 }
+@media(max-width:600px){
+  .btn-gen{font-size:15px;padding:16px 20px;border-radius:4px}
+  .btn-primary{font-size:15px;padding:14px 20px}
+  .btn-secondary{font-size:14px;padding:12px 18px}
+  .btn-pub{font-size:13px;padding:8px 14px}
+  .wstep-body{padding:20px 16px}
+  .main{padding:24px 12px}
+}
 
 
 @media(max-width:600px){
   .main{padding:24px 12px}
   .article-row, .book-row, .export-item{margin-left:0;margin-right:0}
 }
+
+
+/* ── Loaders et erreurs — cachés par défaut ── */
+.loader{display:none;align-items:center;gap:10px;font-size:13px;color:var(--ink-mute);margin-top:12px}
+.loader.visible{display:flex}
+.err-box{display:none;color:#b00;font-size:13px;margin-top:8px;padding:10px 14px;background:#fff0f0;border:1px solid #ffc0c0}
+.err-box.visible{display:block}
+.spinner{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--cardinal);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 </style>
 </head>
@@ -1129,8 +1146,8 @@ function validateFR(){
 async function namePDFsWithClaude(){
   goStep(25);
   document.getElementById('btn25').disabled = true;
-  document.getElementById('load25').style.display = 'flex';
-  document.getElementById('err25').style.display = 'none';
+  document.getElementById('load25').className='loader visible';
+  document.getElementById('err25').className='err-box';
 
   var fr = getFRData();
   var context = 'Article : ' + fr.titre + '\n';
@@ -1193,7 +1210,7 @@ async function namePDFsWithClaude(){
   } catch(e){
     showErr('err25', 'Erreur Claude : '+e.message);
   }
-  document.getElementById('load25').style.display = 'none';
+  document.getElementById('load25').className='loader';
   document.getElementById('btn25').disabled = false;
 }
 
@@ -1366,7 +1383,9 @@ async function publish(){
     }
     newArticle.liens = newArticle.liens.concat(pdfLiens);
     var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(json,null,2))));
-    await githubPut(s, 'actualites.json', jsonB64, 'Admin: actualité "'+fr.titre.substring(0,50)+'"');
+    var freshForPub = await fetchActualites(s);
+  var pubSha = freshForPub ? freshForPub._sha : undefined;
+  await githubPut(s, 'actualites.json', jsonB64, 'Admin: actualité "'+fr.titre.substring(0,50)+'"', pubSha);
     showPub('✓ Publié avec succès ! L\'article est en ligne.','ok');
     setTimeout(function(){
       document.getElementById('desc').value = '';
@@ -1669,7 +1688,7 @@ async function moveArticle(id, direction){
   delete freshData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    await githubPutX(s, 'actualites.json', jsonB64, 'Admin: reorder articles');
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: reorder articles', knownSha);
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
@@ -1701,7 +1720,7 @@ async function togglePublish(id, makeVisible){
   delete freshData._sha;
   var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
   try {
-    await githubPutX(s, 'actualites.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' '+id);
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' '+id, knownSha);
     loadArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
@@ -1711,25 +1730,26 @@ async function deleteArticle(id){
   var s = getSettings();
   if(!articlesData) return;
 
-  var sha = articlesData._sha;
-  delete articlesData._sha;
+  var freshDel = await fetchActualites(s);
+  if(!freshDel){ alert('Erreur : impossible de lire actualites.json'); return; }
+  var knownSha = freshDel._sha;
+  delete freshDel._sha;
 
-  if(articlesData.articles){
-    articlesData.articles = articlesData.articles.filter(function(a){ return a.id !== id; });
-    if(articlesData.actu_une_id === id){
-      articlesData.actu_une_id = articlesData.articles.length ? articlesData.articles[0].id : null;
+  if(freshDel.articles){
+    freshDel.articles = freshDel.articles.filter(function(a){ return a.id !== id; });
+    if(freshDel.actu_une_id === id){
+      freshDel.actu_une_id = freshDel.articles.length ? freshDel.articles[0].id : null;
     }
-  } else if(articlesData.actu_une && articlesData.actu_une.id === id){
-    articlesData.actu_une = null;
+  } else if(freshDel.actu_une && freshDel.actu_une.id === id){
+    freshDel.actu_une = null;
   }
 
-  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(articlesData, null, 2))));
-  articlesData._sha = sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshDel, null, 2))));
 
   try {
-    await githubPut(s, 'actualites.json', jsonB64, 'Admin: suppression article '+id);
-    articlesData._sha = sha; // restore for next op
-    loadArticles();
+    await githubPut(s, 'actualites.json', jsonB64, 'Admin: suppression article '+id, knownSha);
+    articlesData = freshDel;
+    renderArticles();
   } catch(e){ alert('Erreur : '+e.message); }
 }
 
@@ -1789,8 +1809,8 @@ async function doExport(){
   });
   if(!selected.length){ alert('Selectionnez au moins un article.'); return; }
   document.getElementById('btn-export').disabled = true;
-  document.getElementById('export-loader').style.display = 'flex';
-  document.getElementById('export-err').style.display = 'none';
+  document.getElementById('export-loader').className='loader visible';
+  document.getElementById('export-err').className='err-box';
   var zip = new JSZip();
   for(var ai=0; ai<selected.length; ai++){
     var art = selected[ai];
@@ -1837,10 +1857,10 @@ async function doExport(){
     URL.revokeObjectURL(a.href);
   } catch(e){
     document.getElementById('export-err').textContent = 'Erreur ZIP : '+e.message;
-    document.getElementById('export-err').style.display = 'block';
+    document.getElementById('export-err').className='err-box visible';
   }
   document.getElementById('btn-export').disabled = false;
-  document.getElementById('export-loader').style.display = 'none';
+  document.getElementById('export-loader').className='loader';
 }
 
 // ═══════════════════════════════════════════════════════
