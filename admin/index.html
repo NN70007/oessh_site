@@ -1497,7 +1497,6 @@ function renderArticles(){
   listEl.innerHTML = "<div class='drag-hint'>Utilisez ↑ ↓ pour changer l’ordre d’affichage</div>";
   var articles = articlesData.articles || [];
   articles.forEach(function(art, idx){
-    var isActive = art.id === activeId || (articles.length === 1);
     var titre = (art.titre && art.titre.fr) || art.titre || '(sans titre)';
     var date = art.date_affichee || '';
     var lieu = art.lieu || '';
