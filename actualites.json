@@ -2,6 +2,54 @@
   "version": 2,
   "articles": [
     {
+      "id": "la-lieutenance-pour-le-luxembourg-se-dot",
+      "date_affichee": "2025",
+      "lieu": "Luxembourg",
+      "badges": [
+        "À la Une",
+        "Lieutenance"
+      ],
+      "img_filename": "lieutenance-luxembourg-outil-numerique-publication.jpg",
+      "legende": {
+        "fr": "Luxembourg · 2025 · © Lieutenance pour le Luxembourg",
+        "de": "Luxemburg · 2025 · © Lieutenance für Luxemburg",
+        "en": "Luxembourg · 2025 · © Lieutenancy for Luxembourg"
+      },
+      "titre": {
+        "fr": "La Lieutenance pour le Luxembourg se dote d'un nouvel outil numérique au service de la mission",
+        "de": "Die Lieutenance für Luxemburg gibt sich ein neues digitales Werkzeug im Dienst der Mission",
+        "en": "The Lieutenancy for Luxembourg Equips Itself with a New Digital Tool in Service of Its Mission"
+      },
+      "teaser": {
+        "fr": "Partager, témoigner, relier : la Lieutenance pour le Luxembourg franchit une nouvelle étape dans sa vie fraternelle en se dotant d'un outil de publication en ligne au service de ses confrères et consœurs.",
+        "de": "Teilen, bezeugen, verbinden: Die Lieutenance für Luxemburg schreitet mit der Einführung eines Online-Publikationswerkzeugs im Dienst ihrer Mitbrüder und Mitschwestern zu einem neuen Schritt in ihrem brüderlichen Leben.",
+        "en": "Sharing, witnessing, connecting: the Lieutenancy for Luxembourg takes a new step in its fraternal life by acquiring an online publication tool in service of its knights and ladies."
+      },
+      "texte": {
+        "fr": "C'est dans la joie et le recueillement que la Lieutenance pour le Luxembourg annonce la mise en service d'une nouvelle solution de publication numérique, fruit d'un travail patient et dédié, placé au service de la communauté des Chevaliers et Dames de l'Ordre Équestre du Saint-Sépulcre de Jérusalem.\n\nDans une époque où la distance ne saurait affaiblir les liens de fraternité qui unissent nos confrères et consœurs, il nous a semblé essentiel de nous doter des moyens propres à maintenir vivante la circulation de la parole, du témoignage et de l'engagement commun. Désormais, les moments forts de la vie de notre Lieutenance — investitures, pèlerinages en Terre Sainte, projets de soutien aux chrétiens de Terre Sainte, rencontres spirituelles — pourront être partagés avec célérité et fidélité, tant auprès de nos membres que de tous les amis de l'Ordre.\n\nCet outil n'est pas une fin en soi. Il est au service d'une mission plus haute : celle de rendre compte, avec soin et vérité, de ce que nous vivons sur le terrain, afin que nul Chevalier ni Dame ne se sente éloigné du cœur battant de notre fraternité. Nous rendons grâce à ceux qui ont œuvré, dans le dévouement et la discrétion, à la concrétisation de ce projet, et nous les encourageons à poursuivre ce service précieux rendu à toute notre communauté.",
+        "de": "In Freude und Besinnung gibt die Lieutenance für Luxemburg die Inbetriebnahme einer neuen digitalen Publikationslösung bekannt — das Ergebnis geduldiger und hingebungsvoller Arbeit, die in den Dienst der Gemeinschaft der Ritter und Damen des Equestrian Order of the Holy Sepulchre of Jerusalem gestellt wurde.\n\nIn einer Zeit, in der die Entfernung die Bande der Brüderlichkeit, die unsere Mitbrüder und Mitschwestern vereinen, nicht zu schwächen vermag, erschien es uns unerlässlich, uns die Mittel zu verschaffen, die geeignet sind, den lebendigen Austausch von Worten, Zeugnis und gemeinsamem Engagement aufrechtzuerhalten. Fortan können die bedeutsamen Momente im Leben unserer Lieutenance — Investituren, Pilgerfahrten ins Heilige Land, Projekte zur Unterstützung der Christen im Heiligen Land, geistliche Begegnungen — mit Schnelligkeit und Treue sowohl unseren Mitgliedern als auch allen Freunden des Ordens mitgeteilt werden.\n\nDieses Werkzeug ist kein Selbstzweck. Es steht im Dienst einer höheren Mission: mit Sorgfalt und Wahrhaftigkeit Rechenschaft darüber abzulegen, was wir im Feld erleben, damit sich kein Ritter und keine Dame vom schlagenden Herzen unserer Bruderschaft entfernt fühle. Wir danken jenen, die in Hingabe und Stille an der Verwirklichung dieses Projekts mitgewirkt haben, und ermutigen sie, diesen wertvollen Dienst an unserer gesamten Gemeinschaft fortzusetzen.",
+        "en": "It is with joy and recollection that the Lieutenancy for Luxembourg announces the launch of a new digital publication platform — the fruit of patient and dedicated work, placed at the service of the community of Knights and Ladies of the Equestrian Order of the Holy Sepulchre of Jerusalem.\n\nIn an age where distance cannot weaken the bonds of fraternity uniting our brothers and sisters, it seemed to us essential to equip ourselves with the means proper to sustaining the living circulation of word, testimony, and common commitment. Henceforth, the significant moments in the life of our Lieutenancy — investitures, pilgrimages to the Holy Land, projects supporting the Christians of the Holy Land, spiritual gatherings — may be shared with swiftness and fidelity, both with our members and with all friends of the Order.\n\nThis tool is not an end in itself. It is at the service of a higher mission: to render account, with care and truth, of what we live on the ground, so that no Knight or Lady may feel distant from the beating heart of our fraternity. We give thanks to those who have laboured, in dedication and discretion, to bring this project to fruition, and we encourage them to continue this precious service rendered to our entire community."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Ordre Équestre du Saint-Sépulcre de Jérusalem — site officiel du Grand Magistère",
+            "de": "Ritterlicher Orden vom Heiligen Grab zu Jerusalem — offizielle Website des Großmagisteriums",
+            "en": "Equestrian Order of the Holy Sepulchre of Jerusalem — official website of the Grand Magisterium"
+          },
+          "url": "https://www.oessh.va"
+        },
+        {
+          "label": {
+            "fr": "Patriarcat latin de Jérusalem — site officiel",
+            "de": "Lateinisches Patriarchat von Jerusalem — offizielle Website",
+            "en": "Latin Patriarchate of Jerusalem — official website"
+          },
+          "url": "https://www.lpj.org"
+        }
+      ]
+    },
+    {
       "id": "centenaire-de-la-lieutenance-pour-la-bel",
       "date_affichee": "6 juin 2026",
       "lieu": "Bruxelles",
