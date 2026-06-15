@@ -365,29 +365,12 @@ textarea.wfield, input.wfield, select.wfield,
   .admin-controls{display:none}
   .nav-cta{padding-right:8px}
 }
-@media(max-width:600px){
-  .btn-gen{font-size:15px;padding:16px 20px;border-radius:4px}
-  .btn-primary{font-size:15px;padding:14px 20px}
-  .btn-secondary{font-size:14px;padding:12px 18px}
-  .btn-pub{font-size:13px;padding:8px 14px}
-  .wstep-body{padding:20px 16px}
-  .main{padding:24px 12px}
-}
 
 
 @media(max-width:600px){
   .main{padding:24px 12px}
   .article-row, .book-row, .export-item{margin-left:0;margin-right:0}
 }
-
-
-/* ── Loaders et erreurs — cachés par défaut ── */
-.loader{display:none;align-items:center;gap:10px;font-size:13px;color:var(--ink-mute);margin-top:12px}
-.loader.visible{display:flex}
-.err-box{display:none;color:#b00;font-size:13px;margin-top:8px;padding:10px 14px;background:#fff0f0;border:1px solid #ffc0c0}
-.err-box.visible{display:block}
-.spinner{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--cardinal);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
 
 </style>
 </head>
@@ -1146,8 +1129,8 @@ function validateFR(){
 async function namePDFsWithClaude(){
   goStep(25);
   document.getElementById('btn25').disabled = true;
-  document.getElementById('load25').className='loader visible';
-  document.getElementById('err25').className='err-box';
+  document.getElementById('load25').style.display = 'flex';
+  document.getElementById('err25').style.display = 'none';
 
   var fr = getFRData();
   var context = 'Article : ' + fr.titre + '\n';
@@ -1210,7 +1193,7 @@ async function namePDFsWithClaude(){
   } catch(e){
     showErr('err25', 'Erreur Claude : '+e.message);
   }
-  document.getElementById('load25').className='loader';
+  document.getElementById('load25').style.display = 'none';
   document.getElementById('btn25').disabled = false;
 }
 
@@ -1809,8 +1792,8 @@ async function doExport(){
   });
   if(!selected.length){ alert('Selectionnez au moins un article.'); return; }
   document.getElementById('btn-export').disabled = true;
-  document.getElementById('export-loader').className='loader visible';
-  document.getElementById('export-err').className='err-box';
+  document.getElementById('export-loader').style.display = 'flex';
+  document.getElementById('export-err').style.display = 'none';
   var zip = new JSZip();
   for(var ai=0; ai<selected.length; ai++){
     var art = selected[ai];
@@ -1857,10 +1840,10 @@ async function doExport(){
     URL.revokeObjectURL(a.href);
   } catch(e){
     document.getElementById('export-err').textContent = 'Erreur ZIP : '+e.message;
-    document.getElementById('export-err').className='err-box visible';
+    document.getElementById('export-err').style.display = 'block';
   }
   document.getElementById('btn-export').disabled = false;
-  document.getElementById('export-loader').className='loader';
+  document.getElementById('export-loader').style.display = 'none';
 }
 
 // ═══════════════════════════════════════════════════════
