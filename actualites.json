@@ -2,6 +2,46 @@
   "version": 2,
   "articles": [
     {
+      "id": "fete-du-sacre-c-ur-de-jesus",
+      "date_affichee": "12 juin 2026",
+      "lieu": "Belair (Luxembourg)",
+      "badges": [
+        "À la Une",
+        "Investitures"
+      ],
+      "img_filename": "messe-sacre-coeur-remise-manteau-gris-belair-juin-2026.jpeg",
+      "legende": {
+        "fr": "Belair · 12 juin 2026 · © I. Scart",
+        "de": "Belair · 12. Juni 2026 · © I. Scart",
+        "en": "Belair · 12 June 2026 · © I. Scart"
+      },
+      "titre": {
+        "fr": "Fête du Sacré Cœur de Jésus",
+        "de": "Fest des Heiligsten Herzens Jesu",
+        "en": "Feast of the Sacred Heart of Jesus"
+      },
+      "teaser": {
+        "fr": "En la solennité du Sacré Cœur de Jésus, trois candidats entrent en noviciat sous le signe du manteau gris. Un moment de fraternité et d'engagement au service de la Terre Sainte.",
+        "de": "Am Hochfest des Heiligsten Herzens Jesu treten drei Kandidaten unter dem Zeichen des grauen Mantels in das Noviziat ein. Ein Moment der Bruderschaft und des Engagements im Dienst des Heiligen Landes.",
+        "en": "On the Solemnity of the Sacred Heart of Jesus, three candidates enter the novitiate under the sign of the grey mantle. A moment of fraternity and commitment in service to the Holy Land."
+      },
+      "texte": {
+        "fr": "C'est dans la joie et le recueillement que la Lieutenance pour le Luxembourg s'est réunie le vendredi douze juin deux mille vingt-six, en la solennité de la Fête du Sacré Cœur de Jésus, pour sa messe mensuelle célébrée à douze heures en la chapelle de la Maison Mère des Sœurs Franciscaines, à Belair. Ce cadre de prière, empreint de sérénité et d'une longue tradition de service évangélique, offrait un écrin particulièrement digne à la rencontre fraternelle de nos confrères et consœurs réunis autour de l'autel.\n\nLa célébration a été marquée par un moment d'une signification toute particulière : au seuil de la messe, le Grand Prieur coadjuteur a procédé à la remise du manteau gris à trois nouveaux candidats. Par ce geste chargé de sens, ces hommes entament désormais leur noviciat auprès de l'Ordre Équestre du Saint-Sépulcre de Jérusalem, s'engageant sur la voie de la fidélité spirituelle et du dévouement envers les chrétiens de Terre Sainte. \n\nQue nos Chevaliers et Dames qui ont eu la grâce d'être présents entourent ces trois nouveaux novices de leur fraternité, de leurs prières et de leur témoignage vécu. Chacun se souvient du jour où lui-même a revêtu ce manteau pour la première fois — symbole d'appartenance, d'humilité et d'engagement au service des pierres vivantes de Jérusalem. La messe s'est conclue dans la chaleur d'un déjeuner pris en commun, prolongeant ainsi l'esprit de fraternité qui est l'une des plus belles expressions de notre vie de Chevaliers et Dames au Luxembourg.",
+        "de": "In Freude und Sammlung versammelte sich die Leutnantschaft für Luxemburg am Freitag, dem zwölften Juni zweitausendsechsundzwanzig, am Hochfest des Heiligsten Herzens Jesu, zu ihrer monatlichen Messe, die um zwölf Uhr in der Kapelle des Mutterhauses der Franziskanerinnen in Belair gefeiert wurde. Dieser vom Geist des Gebetes, der Stille und einer langen Tradition evangelischen Dienstes durchdrungene Ort bot einen besonders würdigen Rahmen für die brüderliche Begegnung unserer Ritter und Damen, die sich rund um den Altar versammelten.\n\nDie Feier wurde durch einen Moment von ganz besonderer Bedeutung geprägt: Zu Beginn der Messe nahm der Koadjutor-Großprior die Überreichung des grauen Mantels an drei neue Kandidaten vor. Durch diese bedeutungsvolle Geste treten diese Männer nunmehr ihr Noviziat beim Ritterlichen Orden vom Heiligen Grab zu Jerusalem an und begeben sich auf den Weg der geistlichen Treue und der Hingabe an die Christen im Heiligen Land.\n\nMögen unsere Ritter und Damen, denen die Gnade zuteilwurde, zugegen zu sein, diese drei neuen Novizen mit ihrer Bruderschaft, ihren Gebeten und ihrem gelebten Zeugnis umhüllen. Jeder erinnert sich an den Tag, an dem er selbst diesen Mantel zum ersten Mal anlegte — Symbol der Zugehörigkeit, der Demut und des Einsatzes im Dienst der lebendigen Steine Jerusalems. Die Messe fand ihren Abschluss in der Wärme eines gemeinsamen Mittagessens, das den Geist der Bruderschaft, der einen der schönsten Ausdrücke unseres Lebens als Ritter und Damen in Luxemburg darstellt, weiter erstrahlen ließ.",
+        "en": "In joy and quiet recollection, the Lieutenancy for Luxembourg gathered on Friday, the twelfth of June two thousand and twenty-six, on the Solemnity of the Feast of the Sacred Heart of Jesus, for its monthly Mass celebrated at noon in the chapel of the Mother House of the Franciscan Sisters in Belair. This place of prayer, steeped in serenity and a long tradition of evangelical service, provided a particularly worthy setting for the fraternal gathering of our Knights and Ladies assembled around the altar.\n\nThe celebration was marked by a moment of singular significance: at the threshold of the Mass, the Coadjutor Grand Prior proceeded to present the grey mantle to three new candidates. Through this gesture laden with meaning, these men now begin their novitiate with the Equestrian Order of the Holy Sepulchre of Jerusalem, setting forth on the path of spiritual fidelity and dedication to the Christians of the Holy Land.\n\nMay our Knights and Ladies who were graced with their presence surround these three new novices with their fraternity, their prayers, and their lived witness. Each one remembers the day when he himself first wore that mantle — a symbol of belonging, of humility, and of commitment in service to the living stones of Jerusalem. The Mass concluded in the warmth of a shared luncheon, thus prolonging the spirit of fraternity that is one of the most beautiful expressions of our life as Knights and Ladies in Luxembourg."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Ordre Équestre du Saint-Sépulcre de Jérusalem — site officiel du Grand Magistère",
+            "de": "Ritterlicher Orden vom Heiligen Grab zu Jerusalem — offizielle Website des Großmagisteriums",
+            "en": "Equestrian Order of the Holy Sepulchre of Jerusalem — official website of the Grand Magisterium"
+          },
+          "url": "https://www.oessh.va"
+        }
+      ]
+    },
+    {
       "id": "l-ordre-equestre-du-saint-sepulcre-de-je",
       "date_affichee": "16 octobre 2012",
       "lieu": "Vatican",
@@ -46,46 +86,6 @@
             "en": "Latin Patriarchate of Jerusalem – official website"
           },
           "url": "https://www.lpj.org"
-        }
-      ]
-    },
-    {
-      "id": "fete-du-sacre-c-ur-de-jesus",
-      "date_affichee": "12 juin 2026",
-      "lieu": "Belair (Luxembourg)",
-      "badges": [
-        "À la Une",
-        "Investitures"
-      ],
-      "img_filename": "messe-sacre-coeur-remise-manteau-gris-belair-juin-2026.jpeg",
-      "legende": {
-        "fr": "Belair · 12 juin 2026 · © I. Scart",
-        "de": "Belair · 12. Juni 2026 · © I. Scart",
-        "en": "Belair · 12 June 2026 · © I. Scart"
-      },
-      "titre": {
-        "fr": "Fête du Sacré Cœur de Jésus",
-        "de": "Fest des Heiligsten Herzens Jesu",
-        "en": "Feast of the Sacred Heart of Jesus"
-      },
-      "teaser": {
-        "fr": "En la solennité du Sacré Cœur de Jésus, trois candidats entrent en noviciat sous le signe du manteau gris. Un moment de fraternité et d'engagement au service de la Terre Sainte.",
-        "de": "Am Hochfest des Heiligsten Herzens Jesu treten drei Kandidaten unter dem Zeichen des grauen Mantels in das Noviziat ein. Ein Moment der Bruderschaft und des Engagements im Dienst des Heiligen Landes.",
-        "en": "On the Solemnity of the Sacred Heart of Jesus, three candidates enter the novitiate under the sign of the grey mantle. A moment of fraternity and commitment in service to the Holy Land."
-      },
-      "texte": {
-        "fr": "C'est dans la joie et le recueillement que la Lieutenance pour le Luxembourg s'est réunie le vendredi douze juin deux mille vingt-six, en la solennité de la Fête du Sacré Cœur de Jésus, pour sa messe mensuelle célébrée à douze heures en la chapelle de la Maison Mère des Sœurs Franciscaines, à Belair. Ce cadre de prière, empreint de sérénité et d'une longue tradition de service évangélique, offrait un écrin particulièrement digne à la rencontre fraternelle de nos confrères et consœurs réunis autour de l'autel.\n\nLa célébration a été marquée par un moment d'une signification toute particulière : au seuil de la messe, le Grand Prieur coadjuteur a procédé à la remise du manteau gris à trois nouveaux candidats. Par ce geste chargé de sens, ces hommes entament désormais leur noviciat auprès de l'Ordre Équestre du Saint-Sépulcre de Jérusalem, s'engageant sur la voie de la fidélité spirituelle et du dévouement envers les chrétiens de Terre Sainte. \n\nQue nos Chevaliers et Dames qui ont eu la grâce d'être présents entourent ces trois nouveaux novices de leur fraternité, de leurs prières et de leur témoignage vécu. Chacun se souvient du jour où lui-même a revêtu ce manteau pour la première fois — symbole d'appartenance, d'humilité et d'engagement au service des pierres vivantes de Jérusalem. La messe s'est conclue dans la chaleur d'un déjeuner pris en commun, prolongeant ainsi l'esprit de fraternité qui est l'une des plus belles expressions de notre vie de Chevaliers et Dames au Luxembourg.",
-        "de": "In Freude und Sammlung versammelte sich die Leutnantschaft für Luxemburg am Freitag, dem zwölften Juni zweitausendsechsundzwanzig, am Hochfest des Heiligsten Herzens Jesu, zu ihrer monatlichen Messe, die um zwölf Uhr in der Kapelle des Mutterhauses der Franziskanerinnen in Belair gefeiert wurde. Dieser vom Geist des Gebetes, der Stille und einer langen Tradition evangelischen Dienstes durchdrungene Ort bot einen besonders würdigen Rahmen für die brüderliche Begegnung unserer Ritter und Damen, die sich rund um den Altar versammelten.\n\nDie Feier wurde durch einen Moment von ganz besonderer Bedeutung geprägt: Zu Beginn der Messe nahm der Koadjutor-Großprior die Überreichung des grauen Mantels an drei neue Kandidaten vor. Durch diese bedeutungsvolle Geste treten diese Männer nunmehr ihr Noviziat beim Ritterlichen Orden vom Heiligen Grab zu Jerusalem an und begeben sich auf den Weg der geistlichen Treue und der Hingabe an die Christen im Heiligen Land.\n\nMögen unsere Ritter und Damen, denen die Gnade zuteilwurde, zugegen zu sein, diese drei neuen Novizen mit ihrer Bruderschaft, ihren Gebeten und ihrem gelebten Zeugnis umhüllen. Jeder erinnert sich an den Tag, an dem er selbst diesen Mantel zum ersten Mal anlegte — Symbol der Zugehörigkeit, der Demut und des Einsatzes im Dienst der lebendigen Steine Jerusalems. Die Messe fand ihren Abschluss in der Wärme eines gemeinsamen Mittagessens, das den Geist der Bruderschaft, der einen der schönsten Ausdrücke unseres Lebens als Ritter und Damen in Luxemburg darstellt, weiter erstrahlen ließ.",
-        "en": "In joy and quiet recollection, the Lieutenancy for Luxembourg gathered on Friday, the twelfth of June two thousand and twenty-six, on the Solemnity of the Feast of the Sacred Heart of Jesus, for its monthly Mass celebrated at noon in the chapel of the Mother House of the Franciscan Sisters in Belair. This place of prayer, steeped in serenity and a long tradition of evangelical service, provided a particularly worthy setting for the fraternal gathering of our Knights and Ladies assembled around the altar.\n\nThe celebration was marked by a moment of singular significance: at the threshold of the Mass, the Coadjutor Grand Prior proceeded to present the grey mantle to three new candidates. Through this gesture laden with meaning, these men now begin their novitiate with the Equestrian Order of the Holy Sepulchre of Jerusalem, setting forth on the path of spiritual fidelity and dedication to the Christians of the Holy Land.\n\nMay our Knights and Ladies who were graced with their presence surround these three new novices with their fraternity, their prayers, and their lived witness. Each one remembers the day when he himself first wore that mantle — a symbol of belonging, of humility, and of commitment in service to the living stones of Jerusalem. The Mass concluded in the warmth of a shared luncheon, thus prolonging the spirit of fraternity that is one of the most beautiful expressions of our life as Knights and Ladies in Luxembourg."
-      },
-      "liens": [
-        {
-          "label": {
-            "fr": "Ordre Équestre du Saint-Sépulcre de Jérusalem — site officiel du Grand Magistère",
-            "de": "Ritterlicher Orden vom Heiligen Grab zu Jerusalem — offizielle Website des Großmagisteriums",
-            "en": "Equestrian Order of the Holy Sepulchre of Jerusalem — official website of the Grand Magisterium"
-          },
-          "url": "https://www.oessh.va"
         }
       ]
     },
