@@ -787,6 +787,51 @@ footer.site .foot-bottom a{color:var(--ink-soft); text-decoration:none}
 </div><!-- end app -->
 
 <script>
+// ── Configuration ──────────────────────────────────
+var CONFIG = null; // Configuration chargée depuis admin-config.json
+
+// Charger la configuration au démarrage
+async function loadConfig() {
+  try {
+    const response = await fetch('./admin-config.json');
+    if (!response.ok) {
+      console.warn('Impossible de charger admin-config.json, utilisation des valeurs par défaut');
+      return getDefaultConfig();
+    }
+    CONFIG = await response.json();
+    console.log('✓ Configuration chargée depuis admin-config.json v' + CONFIG.version);
+    return CONFIG;
+  } catch (error) {
+    console.error('Erreur lors du chargement de la configuration:', error);
+    return getDefaultConfig();
+  }
+}
+
+// Configuration par défaut (fallback)
+function getDefaultConfig() {
+  return {
+    version: "1.0.0",
+    langues: { disponibles: ["fr", "de", "en"], principale: "fr" },
+    articles: {
+      champs: {},
+      messages: {
+        validation: { titre_manquant: "Le titre est obligatoire" },
+        succes: { article_cree: "Article créé avec succès" }
+      }
+    }
+  };
+}
+
+// Helper functions pour accéder à la config
+function getConfig(path) {
+  if (!CONFIG) return null;
+  return path.split('.').reduce((obj, key) => obj?.[key], CONFIG);
+}
+
+function getMessage(type, key) {
+  return getConfig(`${type}.messages.${key}`) || key;
+}
+
 var ALLOWED_EMAILS = ['jb.niedercorn@gmail.com', 's.niedercorn@gmail.com', 'norbert.stors@gmail.com', 'secretariat@oessh.lu', 'lieutenant@oessh.lu'];
 var imgBase64 = null, imgMime = null, imgOrigName = '';
 var pdfFiles = []; // [{label, filename, base64}]
@@ -2568,6 +2613,13 @@ async function deleteLivre(id){
     renderLivres();
   } catch(e){ alert('Erreur : '+e.message); }
 }
+
+// ── Initialisation ──────────────────────────────────
+// Charger la configuration au démarrage de la page
+(async function init() {
+  await loadConfig();
+  console.log('✓ Interface admin OESSH initialisée');
+})();
 </script>
 
 <!-- ====================== FOOTER ====================== -->

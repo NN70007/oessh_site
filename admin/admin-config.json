@@ -1,0 +1,369 @@
+{
+  "version": "1.0.0",
+  "description": "Configuration rédactionnelle pour l'interface admin OESSH",
+
+  "langues": {
+    "disponibles": ["fr", "de", "en"],
+    "principale": "fr",
+    "labels": {
+      "fr": "Français",
+      "de": "Deutsch",
+      "en": "English"
+    }
+  },
+
+  "articles": {
+    "champs": {
+      "titre": {
+        "type": "text",
+        "label": "Titre de l'article",
+        "placeholder": "Ex: Pèlerinage à Lourdes",
+        "obligatoire": true,
+        "multilingue": true,
+        "validation": {
+          "minLength": 3,
+          "maxLength": 200
+        }
+      },
+      "teaser": {
+        "type": "textarea",
+        "label": "Résumé court (teaser)",
+        "placeholder": "Résumé de l'article en 2-3 phrases",
+        "rows": 3,
+        "obligatoire": true,
+        "multilingue": true,
+        "validation": {
+          "minLength": 10,
+          "maxLength": 500
+        }
+      },
+      "texte": {
+        "type": "textarea",
+        "label": "Texte complet",
+        "placeholder": "Texte intégral de l'article",
+        "rows": 6,
+        "obligatoire": true,
+        "multilingue": true,
+        "validation": {
+          "minLength": 50
+        }
+      },
+      "legende": {
+        "type": "text",
+        "label": "Légende de l'image",
+        "placeholder": "Ex: Photo prise lors du pèlerinage",
+        "obligatoire": false,
+        "multilingue": true,
+        "validation": {
+          "maxLength": 200
+        }
+      },
+      "date_affichee": {
+        "type": "date",
+        "label": "Date affichée",
+        "obligatoire": true,
+        "multilingue": false
+      },
+      "lieu": {
+        "type": "text",
+        "label": "Lieu",
+        "placeholder": "Ex: Luxembourg, Paris, Rome...",
+        "obligatoire": false,
+        "multilingue": false,
+        "validation": {
+          "maxLength": 100
+        }
+      },
+      "badges": {
+        "type": "text",
+        "label": "Catégories (séparées par des virgules)",
+        "placeholder": "Ex: Pèlerinage, Liturgie, Formation",
+        "obligatoire": false,
+        "multilingue": false,
+        "hint": "Séparez les catégories par des virgules"
+      },
+      "image": {
+        "type": "file",
+        "label": "Image de l'article",
+        "accept": "image/*",
+        "obligatoire": true,
+        "multilingue": false,
+        "validation": {
+          "maxSize": 5242880,
+          "formats": ["jpg", "jpeg", "png", "webp"]
+        }
+      },
+      "liens": {
+        "type": "array",
+        "label": "Liens associés",
+        "structure": {
+          "url": {
+            "type": "url",
+            "label": "URL",
+            "placeholder": "https://...",
+            "obligatoire": true
+          },
+          "label": {
+            "type": "text",
+            "label": "Texte du lien",
+            "placeholder": "Ex: En savoir plus",
+            "obligatoire": true,
+            "multilingue": true
+          }
+        },
+        "obligatoire": false,
+        "multilingue": true
+      },
+      "pdfs": {
+        "type": "array",
+        "label": "Documents PDF",
+        "structure": {
+          "file": {
+            "type": "file",
+            "accept": ".pdf",
+            "obligatoire": true
+          },
+          "label": {
+            "type": "text",
+            "label": "Nom du document",
+            "obligatoire": true,
+            "multilingue": true
+          }
+        },
+        "obligatoire": false,
+        "multilingue": true
+      }
+    },
+    "messages": {
+      "validation": {
+        "titre_manquant": "Le titre est obligatoire",
+        "titre_trop_court": "Le titre doit faire au moins 3 caractères",
+        "teaser_manquant": "Le résumé court est obligatoire",
+        "texte_manquant": "Le texte complet est obligatoire",
+        "texte_trop_court": "Le texte doit faire au moins 50 caractères",
+        "image_manquante": "Une image est obligatoire",
+        "date_manquante": "La date est obligatoire"
+      },
+      "succes": {
+        "article_cree": "Article créé avec succès",
+        "article_modifie": "Article modifié avec succès",
+        "article_publie": "Article publié avec succès",
+        "traduction_generee": "Traduction générée avec succès"
+      },
+      "erreur": {
+        "creation_echouee": "Erreur lors de la création de l'article",
+        "modification_echouee": "Erreur lors de la modification",
+        "traduction_echouee": "Erreur lors de la traduction"
+      }
+    },
+    "workflow": {
+      "etapes": [
+        {
+          "id": "step1",
+          "numero": 1,
+          "titre": "Infos & Médias",
+          "description": "Date, lieu, image, catégories"
+        },
+        {
+          "id": "step2",
+          "numero": 2,
+          "titre": "Rédaction (FR)",
+          "description": "Rédigez le titre, teaser et texte complet en français"
+        },
+        {
+          "id": "step3",
+          "numero": 3,
+          "titre": "Traduction",
+          "description": "Générez automatiquement les versions DE et EN"
+        },
+        {
+          "id": "step4",
+          "numero": 4,
+          "titre": "Publication",
+          "description": "Prévisualisez et publiez l'article"
+        }
+      ]
+    }
+  },
+
+  "livres": {
+    "champs": {
+      "categorie": {
+        "type": "text",
+        "label": "Catégorie",
+        "placeholder": "Ex: Théologie, Spiritualité, Histoire...",
+        "obligatoire": true,
+        "multilingue": false,
+        "validation": {
+          "maxLength": 100
+        }
+      },
+      "auteur": {
+        "type": "text",
+        "label": "Auteur",
+        "placeholder": "Nom de l'auteur",
+        "obligatoire": true,
+        "multilingue": false,
+        "validation": {
+          "maxLength": 150
+        }
+      },
+      "titre": {
+        "type": "text",
+        "label": "Titre du livre",
+        "placeholder": "Titre complet",
+        "obligatoire": true,
+        "multilingue": false,
+        "validation": {
+          "minLength": 2,
+          "maxLength": 300
+        }
+      },
+      "resume": {
+        "type": "textarea",
+        "label": "Résumé",
+        "placeholder": "Description du livre",
+        "rows": 5,
+        "obligatoire": true,
+        "multilingue": false,
+        "validation": {
+          "minLength": 20
+        }
+      },
+      "citation": {
+        "type": "textarea",
+        "label": "Citation (optionnelle)",
+        "placeholder": "Une citation du livre",
+        "rows": 2,
+        "obligatoire": false,
+        "multilingue": false,
+        "validation": {
+          "maxLength": 500
+        }
+      },
+      "citation_source": {
+        "type": "text",
+        "label": "Source de la citation",
+        "placeholder": "Ex: p. 42, Chapitre 3",
+        "obligatoire": false,
+        "multilingue": false,
+        "validation": {
+          "maxLength": 100
+        }
+      },
+      "couverture": {
+        "type": "file",
+        "label": "Image de couverture",
+        "accept": "image/*",
+        "obligatoire": true,
+        "multilingue": false,
+        "validation": {
+          "maxSize": 3145728,
+          "formats": ["jpg", "jpeg", "png", "webp"]
+        }
+      }
+    },
+    "messages": {
+      "validation": {
+        "categorie_manquante": "La catégorie est obligatoire",
+        "auteur_manquant": "L'auteur est obligatoire",
+        "titre_manquant": "Le titre est obligatoire",
+        "resume_manquant": "Le résumé est obligatoire",
+        "couverture_manquante": "L'image de couverture est obligatoire"
+      },
+      "succes": {
+        "livre_cree": "Livre ajouté avec succès",
+        "livre_modifie": "Livre modifié avec succès",
+        "livre_publie": "Livre publié avec succès"
+      },
+      "erreur": {
+        "creation_echouee": "Erreur lors de l'ajout du livre",
+        "modification_echouee": "Erreur lors de la modification"
+      }
+    },
+    "workflow": {
+      "etapes": [
+        {
+          "id": "lstep1",
+          "numero": 1,
+          "titre": "Couverture",
+          "description": "Uploadez l'image de couverture"
+        },
+        {
+          "id": "lstep2",
+          "numero": 2,
+          "titre": "Informations",
+          "description": "Catégorie, auteur, titre, résumé et citation"
+        },
+        {
+          "id": "lstep3",
+          "numero": 3,
+          "titre": "Publication",
+          "description": "Vérifiez et publiez"
+        }
+      ]
+    }
+  },
+
+  "traduction": {
+    "service": "claude",
+    "modele": "claude-sonnet-4-5-20250929",
+    "instructions": {
+      "de": "Traduisez en allemand de manière formelle et respectueuse, adaptée au contexte religieux catholique",
+      "en": "Traduisez en anglais de manière formelle et respectueuse, adaptée au contexte religieux catholique"
+    },
+    "temperature": 0.3
+  },
+
+  "export": {
+    "formats": ["json", "zip"],
+    "nomFichier": {
+      "json": "actualites.json",
+      "lectures": "lectures.json",
+      "zip": "export-oessh.zip"
+    }
+  },
+
+  "interface": {
+    "tableaux": {
+      "articlesParPage": 50,
+      "livresParPage": 50,
+      "afficherMiniatures": true,
+      "afficherBadges": true
+    },
+    "boutons": {
+      "labels": {
+        "nouveau": "Nouvel article",
+        "editer": "✏",
+        "supprimer": "🗑",
+        "publier": "Publier",
+        "depublier": "Dépublier",
+        "sauvegarder": "Enregistrer",
+        "annuler": "Annuler",
+        "traduire": "Générer DE + EN",
+        "exporter": "Exporter",
+        "deplacer_haut": "↑",
+        "deplacer_bas": "↓"
+      }
+    },
+    "textes": {
+      "chargement": "Chargement...",
+      "generation": "Génération en cours...",
+      "aucunArticle": "Aucun article pour le moment",
+      "aucunLivre": "Aucun livre pour le moment",
+      "confirmationSuppression": "Êtes-vous sûr de vouloir supprimer cet élément ?"
+    }
+  },
+
+  "api": {
+    "endpoints": {
+      "articles": "../actualites.json",
+      "lectures": "../lectures.json"
+    },
+    "images": {
+      "cheminBase": "../assets/",
+      "cheminArticles": "../assets/",
+      "cheminLivres": "../assets/"
+    }
+  }
+}
