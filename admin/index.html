@@ -1145,12 +1145,18 @@ function getFRData(){
     if(url) liens.push({label:label,url:url});
   });
   var tEl = document.getElementById('fr-titre');
+
+  // Fonction de nettoyage : remplacer -- par -
+  function cleanText(text){
+    return text.replace(/--/g, '-');
+  }
+
   return {
-    titre: document.getElementById('fr-titre').value.trim(),
-    teaser: document.getElementById('fr-teaser').value.trim(),
-    texte: document.getElementById('fr-texte').value.trim(),
-    legende: document.getElementById('fr-legende').value.trim(),
-    liens: liens,
+    titre: cleanText(document.getElementById('fr-titre').value.trim()),
+    teaser: cleanText(document.getElementById('fr-teaser').value.trim()),
+    texte: cleanText(document.getElementById('fr-texte').value.trim()),
+    legende: cleanText(document.getElementById('fr-legende').value.trim()),
+    liens: liens.map(function(l){ return {label: cleanText(l.label), url: l.url}; }),
     img: tEl.dataset.img || '',
     badges: tEl.dataset.badges || 'À la Une',
     date: tEl.dataset.date || '',
@@ -1302,19 +1308,29 @@ async function translateDEEN(){
       return txt.substring(s,e).trim();
     }
 
+    // Fonction de nettoyage : -- → - (toutes langues)
+    function cleanDashes(text){
+      return text.replace(/--/g, '-');
+    }
+
+    // Fonction de nettoyage pour l'allemand : Leutnantschaft → Statthalterei + -- → -
+    function cleanGerman(text){
+      return cleanDashes(text).replace(/Leutnantschaften/g, 'Statthaltereien').replace(/Leutnantschaft/g, 'Statthalterei');
+    }
+
     articleDE = {
-      titre: get('DE_TITRE'),
-      teaser: get('DE_TEASER'),
-      texte: get('DE_TEXTE'),
-      legende: get('DE_LEGENDE'),
-      liens: fr.liens.map(function(l,i){ return {label: get('DE_LIEN'+(i+1)+'_LABEL') || l.label, url: l.url}; })
+      titre: cleanGerman(get('DE_TITRE')),
+      teaser: cleanGerman(get('DE_TEASER')),
+      texte: cleanGerman(get('DE_TEXTE')),
+      legende: cleanGerman(get('DE_LEGENDE')),
+      liens: fr.liens.map(function(l,i){ return {label: cleanGerman(get('DE_LIEN'+(i+1)+'_LABEL') || l.label), url: l.url}; })
     };
     articleEN = {
-      titre: get('EN_TITRE'),
-      teaser: get('EN_TEASER'),
-      texte: get('EN_TEXTE'),
-      legende: get('EN_LEGENDE'),
-      liens: fr.liens.map(function(l,i){ return {label: get('EN_LIEN'+(i+1)+'_LABEL') || l.label, url: l.url}; })
+      titre: cleanDashes(get('EN_TITRE')),
+      teaser: cleanDashes(get('EN_TEASER')),
+      texte: cleanDashes(get('EN_TEXTE')),
+      legende: cleanDashes(get('EN_LEGENDE')),
+      liens: fr.liens.map(function(l,i){ return {label: cleanDashes(get('EN_LIEN'+(i+1)+'_LABEL') || l.label), url: l.url}; })
     };
 
     renderLangPanel('de', articleDE);
