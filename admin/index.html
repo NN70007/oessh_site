@@ -505,6 +505,7 @@ footer.site .foot-bottom a{color:var(--ink-soft); text-decoration:none}
       <button class="nav-tab active" id="tab-articles" onclick="showTab('articles')">Articles</button>
       <button class="nav-tab" id="tab-lectures" onclick="showTab('lectures')">Lectures</button>
       <button class="nav-tab" id="tab-export" onclick="showTab('export')">Export newsletter</button>
+      <button class="nav-tab" id="tab-config" onclick="showTab('config')">Configuration</button>
     </div>
     <div class="nav-cta">
       <div class="admin-controls">
@@ -523,6 +524,7 @@ footer.site .foot-bottom a{color:var(--ink-soft); text-decoration:none}
   <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('articles');closeMobileMenu()">Articles</button>
   <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('lectures');closeMobileMenu()">Lectures</button>
   <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('export');closeMobileMenu()">Export newsletter</button>
+  <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('config');closeMobileMenu()">Configuration</button>
 </div>
 
   <div class="main">
@@ -781,6 +783,53 @@ footer.site .foot-bottom a{color:var(--ink-soft); text-decoration:none}
 
       </div><!-- end workflow -->
     </div><!-- end livres-workflow -->
+  </div>
+
+  <!-- TAB: CONFIGURATION ════════════════════════════════════════════════ -->
+  <div id="tab-config-content" style="display:none">
+    <h1 class="page-title">Configuration des clés API</h1>
+    <p class="page-sub">Gérez vos clés API Claude et GitHub. Ces informations sont stockées uniquement dans votre navigateur.</p>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px">
+
+      <label class="lbl">
+        <span>Clé API Claude</span>
+        <input type="password" id="config-claude-key" class="wfield" placeholder="sk-ant-api03-..." style="margin-top:4px"/>
+        <div class="field-hint">Obtenez votre clé sur console.anthropic.com → API Keys</div>
+      </label>
+
+      <label class="lbl" style="margin-top:24px">
+        <span>GitHub Personal Access Token</span>
+        <input type="password" id="config-github-token" class="wfield" placeholder="github_pat_..." style="margin-top:4px"/>
+        <div class="field-hint">Créez un token sur github.com → Settings → Developer settings → Personal access tokens</div>
+      </label>
+
+      <label class="lbl" style="margin-top:24px">
+        <span>Nom du dépôt GitHub</span>
+        <input type="text" id="config-github-repo" class="wfield" placeholder="utilisateur/depot" style="margin-top:4px"/>
+        <div class="field-hint">Format: utilisateur/nom-du-depot (ex: NN70007/oessh_site)</div>
+      </label>
+
+      <div style="margin-top:28px;display:flex;gap:12px;align-items:center">
+        <button class="btn-gen" onclick="saveConfigTab()" style="width:auto;padding:12px 24px;margin:0">Enregistrer les clés</button>
+        <button class="btn-secondary" onclick="loadConfigTab()">Annuler</button>
+      </div>
+
+      <div class="wstep-ok" id="config-success" style="margin-top:16px">✓ Configuration enregistrée avec succès</div>
+      <div class="wstep-err" id="config-error" style="margin-top:16px">Erreur lors de l'enregistrement</div>
+    </div>
+
+    <div style="background:#fff9e6;border:1px solid #f0e68c;border-radius:var(--radius);padding:16px">
+      <div style="font-size:13px;color:var(--ink-soft);line-height:1.6">
+        <strong style="display:block;margin-bottom:8px">ℹ️ Informations importantes</strong>
+        • Les clés API sont stockées uniquement dans votre navigateur (localStorage)<br/>
+        • Elles ne sont jamais envoyées à un serveur tiers<br/>
+        • Si vous changez de navigateur ou effacez vos données, vous devrez les ressaisir<br/>
+        • La clé Claude est utilisée pour les traductions automatiques<br/>
+        • Le token GitHub permet de publier les articles sur le site
+      </div>
+    </div>
+
   </div>
 
   </div><!-- end main -->
@@ -1542,7 +1591,7 @@ function showPub(msg,type){ var e=document.getElementById('pubStatus'); e.textCo
 
 // ── Tabs ──────────────────────────────────────────
 function showTab(tab){
-  ['new','articles','lectures','export'].forEach(function(t){
+  ['new','articles','lectures','export','config'].forEach(function(t){
     var c = document.getElementById('tab-'+t+'-content');
     if(c) c.style.display = tab===t ? 'block' : 'none';
     var b = document.getElementById('tab-'+t);
@@ -1551,6 +1600,7 @@ function showTab(tab){
   if(tab==='articles') loadArticles();
   if(tab==='export') loadExportList();
   if(tab==='lectures') loadLivres();
+  if(tab==='config') loadConfigTab();
   closeMobileMenu();
 }
 
@@ -2612,6 +2662,54 @@ async function deleteLivre(id){
     livresData = freshData; livresData._sha = knownSha;
     renderLivres();
   } catch(e){ alert('Erreur : '+e.message); }
+}
+
+// ── Configuration Tab ─────────────────────────────────
+function loadConfigTab() {
+  // Charger les valeurs actuelles depuis localStorage
+  var s = getSettings();
+
+  document.getElementById('config-claude-key').value = s.claudeKey || '';
+  document.getElementById('config-github-token').value = s.githubToken || '';
+  document.getElementById('config-github-repo').value = s.repo || 'NN70007/oessh_site';
+
+  // Masquer les messages
+  document.getElementById('config-success').style.display = 'none';
+  document.getElementById('config-error').style.display = 'none';
+}
+
+function saveConfigTab() {
+  var claudeKey = document.getElementById('config-claude-key').value.trim();
+  var githubToken = document.getElementById('config-github-token').value.trim();
+  var repo = document.getElementById('config-github-repo').value.trim();
+
+  // Validation basique
+  if (!claudeKey || !githubToken) {
+    document.getElementById('config-error').textContent = 'La clé Claude et le token GitHub sont obligatoires';
+    document.getElementById('config-error').style.display = 'block';
+    document.getElementById('config-success').style.display = 'none';
+    return;
+  }
+
+  // Sauvegarder dans localStorage
+  try {
+    localStorage.setItem('oessh_claude_key', claudeKey);
+    localStorage.setItem('oessh_github_token', githubToken);
+    localStorage.setItem('oessh_repo', repo || 'NN70007/oessh_site');
+
+    // Afficher le message de succès
+    document.getElementById('config-success').style.display = 'block';
+    document.getElementById('config-error').style.display = 'none';
+
+    // Masquer le message après 3 secondes
+    setTimeout(function() {
+      document.getElementById('config-success').style.display = 'none';
+    }, 3000);
+  } catch(e) {
+    document.getElementById('config-error').textContent = 'Erreur lors de la sauvegarde : ' + e.message;
+    document.getElementById('config-error').style.display = 'block';
+    document.getElementById('config-success').style.display = 'none';
+  }
 }
 
 // ── Initialisation ──────────────────────────────────
