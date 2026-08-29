@@ -305,6 +305,92 @@
     }
   },
 
+  "newsletters": {
+    "champs": {
+      "titre": {
+        "type": "text",
+        "label": "Titre de la newsletter",
+        "placeholder": "Ex: Noël 2025, Pâques 2024...",
+        "obligatoire": true,
+        "multilingue": false,
+        "validation": {
+          "minLength": 3,
+          "maxLength": 100
+        }
+      },
+      "couverture": {
+        "type": "file",
+        "label": "Image de couverture",
+        "accept": "image/*",
+        "obligatoire": true,
+        "multilingue": false,
+        "validation": {
+          "maxSize": 3145728,
+          "formats": ["jpg", "jpeg", "png", "webp"]
+        }
+      },
+      "pdf_url": {
+        "type": "url",
+        "label": "Lien vers le PDF",
+        "placeholder": "https://drive.google.com/file/d/...",
+        "obligatoire": true,
+        "multilingue": false,
+        "validation": {
+          "pattern": "^https://"
+        }
+      },
+      "pages": {
+        "type": "text",
+        "label": "Nombre de pages",
+        "placeholder": "Ex: 48 p., PDF, etc.",
+        "obligatoire": false,
+        "multilingue": false,
+        "validation": {
+          "maxLength": 20
+        }
+      },
+      "nouvelle": {
+        "type": "checkbox",
+        "label": "Marquer comme nouvelle",
+        "obligatoire": false,
+        "multilingue": false
+      }
+    },
+    "messages": {
+      "validation": {
+        "titre_manquant": "Le titre est obligatoire",
+        "couverture_manquante": "L'image de couverture est obligatoire",
+        "pdf_url_manquant": "Le lien PDF est obligatoire",
+        "pdf_url_invalide": "Le lien doit commencer par https://"
+      },
+      "succes": {
+        "newsletter_creee": "Newsletter ajoutée avec succès",
+        "newsletter_modifiee": "Newsletter modifiée avec succès",
+        "newsletter_publiee": "Newsletter publiée avec succès"
+      },
+      "erreur": {
+        "creation_echouee": "Erreur lors de l'ajout de la newsletter",
+        "modification_echouee": "Erreur lors de la modification"
+      }
+    },
+    "workflow": {
+      "etapes": [
+        {
+          "id": "nstep1",
+          "numero": 1,
+          "titre": "Informations",
+          "description": "Titre, couverture, lien PDF et nombre de pages"
+        },
+        {
+          "id": "nstep2",
+          "numero": 2,
+          "titre": "Publication",
+          "description": "Vérifiez et publiez"
+        }
+      ]
+    }
+  },
+
   "traduction": {
     "service": "claude",
     "modele": "claude-sonnet-4-5-20250929",
@@ -358,12 +444,14 @@
   "api": {
     "endpoints": {
       "articles": "../actualites.json",
-      "lectures": "../lectures.json"
+      "lectures": "../lectures.json",
+      "newsletters": "../newsletters.json"
     },
     "images": {
       "cheminBase": "../assets/",
       "cheminArticles": "../assets/",
-      "cheminLivres": "../assets/"
+      "cheminLivres": "../assets/",
+      "cheminNewsletters": "../assets/"
     }
   }
 }

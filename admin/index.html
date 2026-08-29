@@ -504,6 +504,7 @@ footer.site .foot-bottom a{color:var(--ink-soft); text-decoration:none}
     <div class="nav-links">
       <button class="nav-tab active" id="tab-articles" onclick="showTab('articles')">Articles</button>
       <button class="nav-tab" id="tab-lectures" onclick="showTab('lectures')">Lectures</button>
+      <button class="nav-tab" id="tab-newsletters" onclick="showTab('newsletters')">Newsletters</button>
       <button class="nav-tab" id="tab-export" onclick="showTab('export')">Export newsletter</button>
       <button class="nav-tab" id="tab-config" onclick="showTab('config')">Configuration</button>
     </div>
@@ -523,6 +524,7 @@ footer.site .foot-bottom a{color:var(--ink-soft); text-decoration:none}
 <div id="mobile-menu" class="mobile-menu" aria-hidden="true">
   <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('articles');closeMobileMenu()">Articles</button>
   <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('lectures');closeMobileMenu()">Lectures</button>
+  <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('newsletters');closeMobileMenu()">Newsletters</button>
   <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('export');closeMobileMenu()">Export newsletter</button>
   <button class="nav-tab" style="font-family:var(--serif);font-size:22px;text-align:left;padding:14px 4px;border-bottom:1px solid var(--line-soft);width:100%;background:none;border-left:none;border-right:none;border-top:none;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400" onclick="showTab('config');closeMobileMenu()">Configuration</button>
 </div>
@@ -783,6 +785,90 @@ footer.site .foot-bottom a{color:var(--ink-soft); text-decoration:none}
 
       </div><!-- end workflow -->
     </div><!-- end livres-workflow -->
+  </div>
+
+  <!-- TAB: NEWSLETTERS ════════════════════════════════════════════════ -->
+  <div id="tab-newsletters-content" style="display:none">
+
+    <!-- Vue liste -->
+    <div id="newsletters-view">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <h1 class="page-title">Newsletters de la Lieutenance</h1>
+        <button class="btn-gen" id="btn-new-newsletter" onclick="startNewsletterWorkflow(null)" style="width:auto;padding:10px 20px;margin:0">+ Ajouter une newsletter</button>
+      </div>
+      <p class="page-sub">Gérez les newsletters affichées dans la section Publications du site.</p>
+      <div id="newsletters-loading" style="font-size:13px;color:var(--ink-mute);padding:20px 0">Chargement…</div>
+      <div id="newsletters-list"></div>
+    </div>
+
+    <!-- Vue workflow (2 étapes) -->
+    <div id="newsletters-workflow" style="display:none">
+      <h1 class="page-title" id="newsletter-workflow-title">Nouvelle newsletter</h1>
+      <p class="page-sub">Ajoutez une newsletter avec son titre, sa couverture et le lien PDF.</p>
+
+      <div class="workflow">
+
+        <!-- ÉTAPE N1 : Informations -->
+        <div class="wstep active" id="nstep1">
+          <div class="wstep-head"><div class="wstep-num">1</div><div class="wstep-title">Informations de la newsletter</div></div>
+          <div class="wstep-body">
+            <label class="lbl">Titre de la newsletter</label>
+            <input type="text" id="newsletter-titre" placeholder="Ex: Noël 2025, Pâques 2024..." />
+
+            <div style="margin-top:16px">
+              <label class="lbl">Image de couverture</label>
+              <div class="dropzone">
+                <input type="file" id="newsletter-img-input" accept="image/*" onchange="handleNewsletterImg(this)"/>
+                <div class="dz-icon">📄</div>
+                <div class="dz-txt"><strong>Choisir l'image de couverture</strong> ou glisser-déposer</div>
+              </div>
+              <div style="display:none;margin-top:8px" id="newsletter-img-preview-wrap">
+                <img id="newsletter-img-preview" src="" alt="" style="width:120px;height:auto;object-fit:cover;border-radius:4px;border:1px solid var(--border)"/>
+                <span id="newsletter-img-fname" style="font-size:12px;color:var(--ink-mute);margin-left:10px;vertical-align:top"></span>
+              </div>
+            </div>
+
+            <div style="margin-top:16px">
+              <label class="lbl">Lien vers le PDF</label>
+              <input type="url" id="newsletter-pdf-url" placeholder="https://drive.google.com/file/d/..." />
+            </div>
+
+            <div style="margin-top:16px">
+              <label class="lbl">Nombre de pages (optionnel)</label>
+              <input type="text" id="newsletter-pages" placeholder="Ex: 48 p., PDF, etc." />
+            </div>
+
+            <div style="margin-top:16px">
+              <label class="lbl" style="flex-direction:row;align-items:center;gap:8px">
+                <input type="checkbox" id="newsletter-nouvelle" />
+                <span style="text-transform:none;letter-spacing:0;font-size:13px">Marquer comme nouvelle</span>
+              </label>
+              <div class="field-hint">Une seule newsletter devrait être marquée comme nouvelle (la plus récente).</div>
+            </div>
+
+            <div class="action-bar" style="margin-top:24px">
+              <button class="btn-secondary" onclick="cancelNewsletterWorkflow()">← Annuler</button>
+              <button class="btn-action" id="btn-next-nstep" onclick="goNStep(2)">Continuer →</button>
+            </div>
+            <div class="err-box" id="err-nstep1"></div>
+          </div>
+        </div>
+
+        <!-- ÉTAPE N2 : Publication -->
+        <div class="wstep" id="nstep2">
+          <div class="wstep-head"><div class="wstep-num">2</div><div class="wstep-title">Vérifier et publier</div></div>
+          <div class="wstep-body">
+            <div id="newsletter-preview" style="background:var(--paper);padding:20px;border:1px solid var(--line);border-radius:var(--radius)"></div>
+            <div class="action-bar" style="margin-top:16px">
+              <button class="btn-secondary" onclick="goNStep(1)">← Retour</button>
+              <button class="btn-action" id="btn-nsave" onclick="saveNewsletter()">↑ Publier sur le site</button>
+            </div>
+            <div class="newsletter-pub-status" id="newsletter-pub-status"></div>
+          </div>
+        </div>
+
+      </div><!-- end workflow -->
+    </div><!-- end newsletters-workflow -->
   </div>
 
   <!-- TAB: CONFIGURATION ════════════════════════════════════════════════ -->
@@ -1591,7 +1677,7 @@ function showPub(msg,type){ var e=document.getElementById('pubStatus'); e.textCo
 
 // ── Tabs ──────────────────────────────────────────
 function showTab(tab){
-  ['new','articles','lectures','export','config'].forEach(function(t){
+  ['new','articles','lectures','newsletters','export','config'].forEach(function(t){
     var c = document.getElementById('tab-'+t+'-content');
     if(c) c.style.display = tab===t ? 'block' : 'none';
     var b = document.getElementById('tab-'+t);
@@ -1600,6 +1686,7 @@ function showTab(tab){
   if(tab==='articles') loadArticles();
   if(tab==='export') loadExportList();
   if(tab==='lectures') loadLivres();
+  if(tab==='newsletters') loadNewsletters();
   if(tab==='config') loadConfigTab();
   closeMobileMenu();
 }
@@ -2661,6 +2748,279 @@ async function deleteLivre(id){
     await githubPut(s, 'lectures.json', jsonB64, 'Admin: suppression ouvrage '+id, knownSha);
     livresData = freshData; livresData._sha = knownSha;
     renderLivres();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+// ══════════════════════════════════════════════════════
+// ── NEWSLETTERS MANAGEMENT ────────────────────────────
+// ══════════════════════════════════════════════════════
+
+var newslettersData = null;
+var newsletterEditingId = null;
+var newsletterEditingData = null;
+var newsletterImgBase64 = null, newsletterImgMime = null, newsletterImgOrigName = '';
+
+function escNewsletter(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+async function fetchNewsletters(s){
+  try{
+    var url='https://api.github.com/repos/'+s.repo+'/contents/newsletters.json';
+    var r=await fetch(url,{headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}});
+    if(!r.ok) return null;
+    var d=await r.json();
+    var decoded=decodeURIComponent(escape(atob(d.content.replace(/\n/g,''))));
+    var data=JSON.parse(decoded); data._sha=d.sha; return data;
+  }catch(e){ return null; }
+}
+
+async function loadNewsletters(){
+  var s=getSettings();
+  var loadEl=document.getElementById('newsletters-loading');
+  var listEl=document.getElementById('newsletters-list');
+  loadEl.style.display='block'; loadEl.textContent='Chargement…'; listEl.innerHTML='';
+  newslettersData=await fetchNewsletters(s); loadEl.style.display='none';
+  renderNewsletters();
+}
+
+function renderNewsletters(){
+  var listEl = document.getElementById('newsletters-list');
+  if(!newslettersData || !newslettersData.newsletters || newslettersData.newsletters.length===0){
+    listEl.innerHTML='<div style="padding:40px;text-align:center;color:var(--ink-mute)">Aucune newsletter pour le moment.</div>';
+    return;
+  }
+  listEl.innerHTML='';
+  newslettersData.newsletters.forEach(function(nl,i){
+    var row = document.createElement('div'); row.className='book-row';
+    var moveDiv = document.createElement('div'); moveDiv.className='move-col';
+    var upBtn = document.createElement('button'); upBtn.className='btn-move'; upBtn.textContent='\u2191'; upBtn.disabled = i===0;
+    upBtn.onclick=function(){ moveNewsletter(nl.id, -1); };
+    var dnBtn = document.createElement('button'); dnBtn.className='btn-move'; dnBtn.textContent='\u2193'; dnBtn.disabled = i===newslettersData.newsletters.length-1;
+    dnBtn.onclick=function(){ moveNewsletter(nl.id, 1); };
+    moveDiv.appendChild(upBtn); moveDiv.appendChild(dnBtn);
+
+    var thumb = document.createElement('img'); thumb.className='book-thumb';
+    thumb.src = 'https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/'+nl.img_filename;
+    thumb.alt = nl.titre;
+    row.appendChild(moveDiv); row.appendChild(thumb);
+
+    var info = document.createElement('div'); info.className='book-info';
+    var titre = document.createElement('div'); titre.className='book-titre'; titre.textContent = nl.titre + (nl.nouvelle?' \u2728':'');
+    var meta = document.createElement('div'); meta.className='book-meta';
+    meta.textContent = (nl.pages||'PDF') + ' \u2022 ' + nl.id;
+    info.appendChild(titre); info.appendChild(meta);
+    row.appendChild(info);
+
+    var actions = document.createElement('div'); actions.className='book-actions';
+    var isVisible = nl.published !== false;
+    var toggleBtn = document.createElement('button'); toggleBtn.className='btn-pub '+(isVisible?'current':'');
+    toggleBtn.textContent = isVisible?'Visible':'Masqué';
+    toggleBtn.onclick=function(){ toggleNewsletterVisibility(nl.id, !isVisible); };
+    var editBtn = document.createElement('button'); editBtn.className='btn-edit'; editBtn.textContent='\u270f';
+    editBtn.onclick=function(){ startNewsletterWorkflow(nl); };
+    var delBtn = document.createElement('button'); delBtn.className='btn-del'; delBtn.textContent='\uD83D\uDDD1';
+    delBtn.onclick=function(){ deleteNewsletter(nl.id); };
+
+    actions.appendChild(toggleBtn); actions.appendChild(editBtn); actions.appendChild(delBtn);
+    row.appendChild(actions); listEl.appendChild(row);
+  });
+}
+
+function startNewsletterWorkflow(newsletter){
+  newsletterEditingId = newsletter ? newsletter.id : null;
+  newsletterEditingData = newsletter || null;
+  newsletterImgBase64 = null; newsletterImgMime = null; newsletterImgOrigName = '';
+  document.getElementById('newsletters-view').style.display = 'none';
+  document.getElementById('newsletters-workflow').style.display = 'block';
+  document.getElementById('newsletter-workflow-title').textContent = newsletter ? 'Modifier la newsletter' : 'Nouvelle newsletter';
+  document.getElementById('newsletter-pub-status').style.display = 'none';
+  document.getElementById('newsletter-titre').value = '';
+  document.getElementById('newsletter-pdf-url').value = '';
+  document.getElementById('newsletter-pages').value = '';
+  document.getElementById('newsletter-nouvelle').checked = false;
+  document.getElementById('newsletter-preview').innerHTML = '';
+  document.getElementById('newsletter-img-preview-wrap').style.display = 'none';
+
+  if(newsletter){
+    document.getElementById('newsletter-titre').value = newsletter.titre || '';
+    document.getElementById('newsletter-pdf-url').value = newsletter.pdf_url || '';
+    document.getElementById('newsletter-pages').value = newsletter.pages || '';
+    document.getElementById('newsletter-nouvelle').checked = newsletter.nouvelle || false;
+    if(newsletter.img_filename){
+      document.getElementById('newsletter-img-preview-wrap').style.display = 'block';
+      document.getElementById('newsletter-img-preview').src = 'https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/'+newsletter.img_filename;
+      document.getElementById('newsletter-img-fname').textContent = newsletter.img_filename + ' — choisir pour remplacer';
+    }
+  }
+  goNStep(1);
+  window.scrollTo(0,0);
+}
+
+function goNStep(n){
+  [1,2].forEach(function(s){
+    var el = document.getElementById('nstep'+s);
+    if(!el) return;
+    el.classList.remove('active','done');
+    if(s < n) el.classList.add('done');
+    else if(s === n) el.classList.add('active');
+  });
+  if(n===2){
+    // Build preview
+    var titre = document.getElementById('newsletter-titre').value.trim();
+    var pdfUrl = document.getElementById('newsletter-pdf-url').value.trim();
+    var pages = document.getElementById('newsletter-pages').value.trim();
+    var nouvelle = document.getElementById('newsletter-nouvelle').checked;
+    if(!titre || !pdfUrl){
+      document.getElementById('err-nstep1').textContent = 'Le titre et le lien PDF sont obligatoires.';
+      document.getElementById('err-nstep1').style.display = 'block';
+      goNStep(1);
+      return;
+    }
+    document.getElementById('err-nstep1').style.display = 'none';
+    var previewHtml = '<div class="preview-card">'+
+      '<div class="pv-row"><div class="pv-label">Titre</div><div class="pv-val big">'+escNewsletter(titre)+(nouvelle?' \u2728 (nouvelle)':'')+'</div></div>'+
+      '<div class="pv-row"><div class="pv-label">Lien PDF</div><div class="pv-val"><a href="'+pdfUrl+'" target="_blank">'+pdfUrl+'</a></div></div>'+
+      '<div class="pv-row"><div class="pv-label">Pages</div><div class="pv-val">'+escNewsletter(pages||'PDF')+'</div></div>'+
+      '</div>';
+    document.getElementById('newsletter-preview').innerHTML = previewHtml;
+  }
+  window.scrollTo(0,0);
+}
+
+function cancelNewsletterWorkflow(){
+  document.getElementById('newsletters-workflow').style.display = 'none';
+  document.getElementById('newsletters-view').style.display = 'block';
+  newsletterEditingId = null; newsletterEditingData = null;
+}
+
+function handleNewsletterImg(input){
+  var file = input.files[0]; if(!file) return;
+  newsletterImgOrigName = file.name; newsletterImgMime = file.type;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    newsletterImgBase64 = e.target.result.split(',')[1];
+    document.getElementById('newsletter-img-preview-wrap').style.display = 'block';
+    document.getElementById('newsletter-img-preview').src = e.target.result;
+    document.getElementById('newsletter-img-fname').textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveNewsletter(){
+  var s = getSettings();
+  var titre = document.getElementById('newsletter-titre').value.trim();
+  var pdfUrl = document.getElementById('newsletter-pdf-url').value.trim();
+  var pages = document.getElementById('newsletter-pages').value.trim();
+  var nouvelle = document.getElementById('newsletter-nouvelle').checked;
+
+  if(!titre || !pdfUrl){ showNewsletterPub('Le titre et le lien PDF sont obligatoires.','err'); return; }
+  document.getElementById('btn-nsave').disabled=true;
+  showNewsletterPub('Publication en cours…','ok');
+
+  var slug = newsletterEditingId || titre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').substring(0,40);
+  var imgFilename = (newsletterEditingData && newsletterEditingData.img_filename) || '';
+
+  if(newsletterImgBase64 && newsletterImgOrigName){
+    var ext = newsletterImgOrigName.split('.').pop().toLowerCase();
+    imgFilename = 'newsletter-'+slug+'.'+ext;
+    var imgB64 = newsletterImgBase64;
+    try{ await githubPut(s, 'assets/'+imgFilename, imgB64, 'Admin: upload image newsletter '+titre.substring(0,30)); }
+    catch(e){ showNewsletterPub('Erreur upload image : '+e.message,'err'); document.getElementById('btn-nsave').disabled=false; return; }
+  }
+
+  var newsletter = {
+    id: slug,
+    published: true,
+    titre: titre,
+    pdf_url: pdfUrl,
+    img_filename: imgFilename,
+    pages: pages || 'PDF',
+    nouvelle: nouvelle
+  };
+
+  var freshData = await fetchNewsletters(s);
+  var newsletters = (freshData&&freshData.newsletters)||[];
+  var idx = newsletters.findIndex(function(nl){ return nl.id===slug; });
+  if(idx>=0){ newsletter.published=newsletters[idx].published!==false; newsletters[idx]=newsletter; }
+  else{ newsletters.push(newsletter); }
+
+  var jsonB64=btoa(unescape(encodeURIComponent(JSON.stringify({version:1,newsletters:newsletters},null,2))));
+  try{
+    await githubPut(s,'newsletters.json',jsonB64,'Admin: newsletter "'+titre.substring(0,40)+'"');
+    showNewsletterPub('\u2713 Publié avec succès !','ok');
+    setTimeout(function(){
+      document.getElementById('newsletters-workflow').style.display='none';
+      document.getElementById('newsletters-view').style.display='block';
+      newsletterEditingId=null; newsletterEditingData=null;
+      loadNewsletters();
+      showTab('newsletters');
+    },1500);
+  }catch(e){ showNewsletterPub('Erreur : '+e.message,'err'); }
+  document.getElementById('btn-nsave').disabled=false;
+}
+
+function showNewsletterPub(msg, type){
+  var el = document.getElementById('newsletter-pub-status');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.padding = '10px 14px';
+  el.style.borderRadius = 'var(--radius)';
+  el.style.fontSize = '13px';
+  el.style.marginTop = '12px';
+  if(type==='ok'){ el.style.background='#edfff4'; el.style.border='1px solid #b0e8c4'; el.style.color='#1a6e3a'; }
+  else{ el.style.background='#fff0f0'; el.style.border='1px solid #ffc0c0'; el.style.color='#a00'; }
+}
+
+async function toggleNewsletterVisibility(id, makeVisible){
+  var s = getSettings();
+  var freshData = await fetchNewsletters(s);
+  if(!freshData || !freshData.newsletters) return;
+  var knownSha = freshData._sha;
+  freshData.newsletters = freshData.newsletters.map(function(nl){
+    if(nl.id === id) nl.published = makeVisible;
+    return nl;
+  });
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
+  try {
+    await githubPut(s, 'newsletters.json', jsonB64, 'Admin: '+(makeVisible?'visible':'masque')+' newsletter '+id, knownSha);
+    newslettersData = freshData; newslettersData._sha = knownSha;
+    renderNewsletters();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function moveNewsletter(id, direction){
+  var s = getSettings();
+  var freshData = await fetchNewsletters(s);
+  if(!freshData || !freshData.newsletters) return;
+  var newsletters = freshData.newsletters;
+  var idx = newsletters.findIndex(function(nl){ return nl.id === id; });
+  var newIdx = idx + direction;
+  if(idx === -1 || newIdx < 0 || newIdx >= newsletters.length) return;
+  var tmp = newsletters[idx]; newsletters[idx] = newsletters[newIdx]; newsletters[newIdx] = tmp;
+  var knownSha = freshData._sha;
+  freshData.newsletters = newsletters;
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
+  try {
+    await githubPut(s, 'newsletters.json', jsonB64, 'Admin: reorder newsletters', knownSha);
+    newslettersData = freshData; newslettersData._sha = knownSha;
+    renderNewsletters();
+  } catch(e){ alert('Erreur : '+e.message); }
+}
+
+async function deleteNewsletter(id){
+  if(!confirm('Supprimer définitivement cette newsletter ?')) return;
+  var s = getSettings();
+  var freshData = await fetchNewsletters(s);
+  if(!freshData || !freshData.newsletters) return;
+  var knownSha = freshData._sha;
+  freshData.newsletters = freshData.newsletters.filter(function(nl){ return nl.id !== id; });
+  delete freshData._sha;
+  var jsonB64 = btoa(unescape(encodeURIComponent(JSON.stringify(freshData, null, 2))));
+  try {
+    await githubPut(s, 'newsletters.json', jsonB64, 'Admin: suppression newsletter '+id, knownSha);
+    newslettersData = freshData; newslettersData._sha = knownSha;
+    renderNewsletters();
   } catch(e){ alert('Erreur : '+e.message); }
 }
 
