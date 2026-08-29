@@ -2,21 +2,21 @@
   "version": 1,
   "newsletters": [
     {
-      "id": "noel-2025",
-      "published": true,
-      "titre": "Noël 2025",
-      "pdf_url": "https://drive.google.com/file/d/1F5qRuZcU-Ck4A6toILV2hd8JNiJhOVSz/view",
-      "img_filename": "oessh_lu_010.jpg",
-      "pages": "48 p.",
-      "nouvelle": true
-    },
-    {
       "id": "ete-2026",
       "published": true,
       "titre": "Eté 2026",
       "pdf_filename": "newsletter-ete-2026.pdf",
       "img_filename": "newsletter-ete-2026.png",
       "pages": "PDF",
+      "nouvelle": true
+    },
+    {
+      "id": "noel-2025",
+      "published": true,
+      "titre": "Noël 2025",
+      "pdf_url": "https://drive.google.com/file/d/1F5qRuZcU-Ck4A6toILV2hd8JNiJhOVSz/view",
+      "img_filename": "oessh_lu_010.jpg",
+      "pages": "48 p.",
       "nouvelle": true
     },
     {
