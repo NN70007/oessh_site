@@ -65,15 +65,6 @@
       "nouvelle": false
     },
     {
-      "id": "paques-2022",
-      "published": true,
-      "titre": "Pâques 2022",
-      "pdf_url": "https://drive.google.com/file/d/1ko8BNtwohDOwZF5Xa2J0GWuGfMxXiWNQ/view",
-      "img_filename": "oessh_lu_017.jpg",
-      "pages": "PDF",
-      "nouvelle": false
-    },
-    {
       "id": "ete-2026",
       "published": true,
       "titre": "Eté 2026",
@@ -81,6 +72,15 @@
       "img_filename": "newsletter-ete-2026.png",
       "pages": "PDF",
       "nouvelle": true
+    },
+    {
+      "id": "paques-2022",
+      "published": true,
+      "titre": "Pâques 2022",
+      "pdf_url": "https://drive.google.com/file/d/1ko8BNtwohDOwZF5Xa2J0GWuGfMxXiWNQ/view",
+      "img_filename": "oessh_lu_017.jpg",
+      "pages": "PDF",
+      "nouvelle": false
     },
     {
       "id": "noel-2021",
