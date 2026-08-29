@@ -18,8 +18,9 @@
     var newTag = nl.nouvelle ? '<span class="new-tag">Nouvelle</span>' : '';
     var pages = nl.pages || 'PDF';
     var classe = isFeatured ? 'nl featured has-image' : 'nl has-image';
+    var pdfHref = nl.pdf_filename ? 'assets/' + nl.pdf_filename : (nl.pdf_url || '#');
 
-    return '<a class="' + classe + '" href="' + esc(nl.pdf_url) + '" target="_blank" rel="noopener">' +
+    return '<a class="' + classe + '" href="' + esc(pdfHref) + '" target="_blank" rel="noopener">' +
       '<div class="cover">' +
       (imgSrc ? '<img src="' + esc(imgSrc) + '" alt="' + imgAlt + '" loading="lazy" decoding="async"/>' : '') +
       newTag +

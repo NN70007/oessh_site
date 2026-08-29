@@ -829,8 +829,16 @@ footer.site .foot-bottom a{color:var(--ink-soft); text-decoration:none}
             </div>
 
             <div style="margin-top:16px">
-              <label class="lbl">Lien vers le PDF</label>
-              <input type="url" id="newsletter-pdf-url" placeholder="https://drive.google.com/file/d/..." />
+              <label class="lbl">Fichier PDF</label>
+              <div class="dropzone">
+                <input type="file" id="newsletter-pdf-input" accept=".pdf" onchange="handleNewsletterPdf(this)"/>
+                <div class="dz-icon">📄</div>
+                <div class="dz-txt"><strong>Choisir le fichier PDF</strong> ou glisser-déposer</div>
+              </div>
+              <div style="display:none;margin-top:8px;padding:10px;background:var(--paper);border:1px solid var(--line);border-radius:4px" id="newsletter-pdf-preview-wrap">
+                <span id="newsletter-pdf-fname" style="font-size:13px;color:var(--ink)"></span>
+                <span id="newsletter-pdf-size" style="font-size:12px;color:var(--ink-mute);margin-left:10px"></span>
+              </div>
             </div>
 
             <div style="margin-top:16px">
@@ -2759,6 +2767,7 @@ var newslettersData = null;
 var newsletterEditingId = null;
 var newsletterEditingData = null;
 var newsletterImgBase64 = null, newsletterImgMime = null, newsletterImgOrigName = '';
+var newsletterPdfBase64 = null, newsletterPdfMime = null, newsletterPdfOrigName = '';
 
 function escNewsletter(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 
@@ -2829,26 +2838,31 @@ function startNewsletterWorkflow(newsletter){
   newsletterEditingId = newsletter ? newsletter.id : null;
   newsletterEditingData = newsletter || null;
   newsletterImgBase64 = null; newsletterImgMime = null; newsletterImgOrigName = '';
+  newsletterPdfBase64 = null; newsletterPdfMime = null; newsletterPdfOrigName = '';
   document.getElementById('newsletters-view').style.display = 'none';
   document.getElementById('newsletters-workflow').style.display = 'block';
   document.getElementById('newsletter-workflow-title').textContent = newsletter ? 'Modifier la newsletter' : 'Nouvelle newsletter';
   document.getElementById('newsletter-pub-status').style.display = 'none';
   document.getElementById('newsletter-titre').value = '';
-  document.getElementById('newsletter-pdf-url').value = '';
   document.getElementById('newsletter-pages').value = '';
   document.getElementById('newsletter-nouvelle').checked = false;
   document.getElementById('newsletter-preview').innerHTML = '';
   document.getElementById('newsletter-img-preview-wrap').style.display = 'none';
+  document.getElementById('newsletter-pdf-preview-wrap').style.display = 'none';
 
   if(newsletter){
     document.getElementById('newsletter-titre').value = newsletter.titre || '';
-    document.getElementById('newsletter-pdf-url').value = newsletter.pdf_url || '';
     document.getElementById('newsletter-pages').value = newsletter.pages || '';
     document.getElementById('newsletter-nouvelle').checked = newsletter.nouvelle || false;
     if(newsletter.img_filename){
       document.getElementById('newsletter-img-preview-wrap').style.display = 'block';
       document.getElementById('newsletter-img-preview').src = 'https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/'+newsletter.img_filename;
       document.getElementById('newsletter-img-fname').textContent = newsletter.img_filename + ' — choisir pour remplacer';
+    }
+    if(newsletter.pdf_filename){
+      document.getElementById('newsletter-pdf-preview-wrap').style.display = 'block';
+      document.getElementById('newsletter-pdf-fname').textContent = newsletter.pdf_filename + ' — choisir pour remplacer';
+      document.getElementById('newsletter-pdf-size').textContent = '';
     }
   }
   goNStep(1);
@@ -2866,19 +2880,25 @@ function goNStep(n){
   if(n===2){
     // Build preview
     var titre = document.getElementById('newsletter-titre').value.trim();
-    var pdfUrl = document.getElementById('newsletter-pdf-url').value.trim();
     var pages = document.getElementById('newsletter-pages').value.trim();
     var nouvelle = document.getElementById('newsletter-nouvelle').checked;
-    if(!titre || !pdfUrl){
-      document.getElementById('err-nstep1').textContent = 'Le titre et le lien PDF sont obligatoires.';
+    if(!titre){
+      document.getElementById('err-nstep1').textContent = 'Le titre est obligatoire.';
+      document.getElementById('err-nstep1').style.display = 'block';
+      goNStep(1);
+      return;
+    }
+    if(!newsletterPdfBase64 && !newsletterEditingData){
+      document.getElementById('err-nstep1').textContent = 'Veuillez uploader un fichier PDF.';
       document.getElementById('err-nstep1').style.display = 'block';
       goNStep(1);
       return;
     }
     document.getElementById('err-nstep1').style.display = 'none';
+    var pdfInfo = newsletterPdfOrigName || (newsletterEditingData && newsletterEditingData.pdf_filename) || 'PDF';
     var previewHtml = '<div class="preview-card">'+
       '<div class="pv-row"><div class="pv-label">Titre</div><div class="pv-val big">'+escNewsletter(titre)+(nouvelle?' \u2728 (nouvelle)':'')+'</div></div>'+
-      '<div class="pv-row"><div class="pv-label">Lien PDF</div><div class="pv-val"><a href="'+pdfUrl+'" target="_blank">'+pdfUrl+'</a></div></div>'+
+      '<div class="pv-row"><div class="pv-label">Fichier PDF</div><div class="pv-val">'+escNewsletter(pdfInfo)+'</div></div>'+
       '<div class="pv-row"><div class="pv-label">Pages</div><div class="pv-val">'+escNewsletter(pages||'PDF')+'</div></div>'+
       '</div>';
     document.getElementById('newsletter-preview').innerHTML = previewHtml;
@@ -2905,19 +2925,40 @@ function handleNewsletterImg(input){
   reader.readAsDataURL(file);
 }
 
+function handleNewsletterPdf(input){
+  var file = input.files[0]; if(!file) return;
+  if(file.type !== 'application/pdf'){
+    alert('Veuillez sélectionner un fichier PDF.');
+    input.value = '';
+    return;
+  }
+  newsletterPdfOrigName = file.name; newsletterPdfMime = file.type;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    newsletterPdfBase64 = e.target.result.split(',')[1];
+    document.getElementById('newsletter-pdf-preview-wrap').style.display = 'block';
+    document.getElementById('newsletter-pdf-fname').textContent = file.name;
+    var sizeKB = (file.size / 1024).toFixed(0);
+    var sizeMB = (file.size / 1024 / 1024).toFixed(1);
+    document.getElementById('newsletter-pdf-size').textContent = file.size > 1024*1024 ? '('+sizeMB+' MB)' : '('+sizeKB+' KB)';
+  };
+  reader.readAsDataURL(file);
+}
+
 async function saveNewsletter(){
   var s = getSettings();
   var titre = document.getElementById('newsletter-titre').value.trim();
-  var pdfUrl = document.getElementById('newsletter-pdf-url').value.trim();
   var pages = document.getElementById('newsletter-pages').value.trim();
   var nouvelle = document.getElementById('newsletter-nouvelle').checked;
 
-  if(!titre || !pdfUrl){ showNewsletterPub('Le titre et le lien PDF sont obligatoires.','err'); return; }
+  if(!titre){ showNewsletterPub('Le titre est obligatoire.','err'); return; }
+  if(!newsletterPdfBase64 && !newsletterEditingData){ showNewsletterPub('Veuillez uploader un fichier PDF.','err'); return; }
   document.getElementById('btn-nsave').disabled=true;
   showNewsletterPub('Publication en cours…','ok');
 
   var slug = newsletterEditingId || titre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').substring(0,40);
   var imgFilename = (newsletterEditingData && newsletterEditingData.img_filename) || '';
+  var pdfFilename = (newsletterEditingData && newsletterEditingData.pdf_filename) || '';
 
   if(newsletterImgBase64 && newsletterImgOrigName){
     var ext = newsletterImgOrigName.split('.').pop().toLowerCase();
@@ -2927,11 +2968,18 @@ async function saveNewsletter(){
     catch(e){ showNewsletterPub('Erreur upload image : '+e.message,'err'); document.getElementById('btn-nsave').disabled=false; return; }
   }
 
+  if(newsletterPdfBase64 && newsletterPdfOrigName){
+    pdfFilename = 'newsletter-'+slug+'.pdf';
+    var pdfB64 = newsletterPdfBase64;
+    try{ await githubPut(s, 'assets/'+pdfFilename, pdfB64, 'Admin: upload PDF newsletter '+titre.substring(0,30)); }
+    catch(e){ showNewsletterPub('Erreur upload PDF : '+e.message,'err'); document.getElementById('btn-nsave').disabled=false; return; }
+  }
+
   var newsletter = {
     id: slug,
     published: true,
     titre: titre,
-    pdf_url: pdfUrl,
+    pdf_filename: pdfFilename,
     img_filename: imgFilename,
     pages: pages || 'PDF',
     nouvelle: nouvelle
