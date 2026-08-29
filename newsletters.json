@@ -38,15 +38,6 @@
       "nouvelle": false
     },
     {
-      "id": "noel-2023",
-      "published": true,
-      "titre": "Noël 2023",
-      "pdf_url": "https://drive.google.com/file/d/1M9_qbIYS8j1QV6aLWIvryfYNjD3sKdRe/view",
-      "img_filename": "oessh_lu_014.jpg",
-      "pages": "PDF",
-      "nouvelle": false
-    },
-    {
       "id": "ete-2026",
       "published": true,
       "titre": "Eté 2026",
@@ -54,6 +45,15 @@
       "img_filename": "newsletter-ete-2026.png",
       "pages": "PDF",
       "nouvelle": true
+    },
+    {
+      "id": "noel-2023",
+      "published": true,
+      "titre": "Noël 2023",
+      "pdf_url": "https://drive.google.com/file/d/1M9_qbIYS8j1QV6aLWIvryfYNjD3sKdRe/view",
+      "img_filename": "oessh_lu_014.jpg",
+      "pages": "PDF",
+      "nouvelle": false
     },
     {
       "id": "paques-2023",
