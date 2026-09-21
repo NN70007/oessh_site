@@ -483,6 +483,16 @@
           Scannen Sie den QR-Code mit Ihrem Smartphone oder <a href="#" onclick="openPayconiqQR();return false;">tippen Sie hier</a> auf dem Mobilgerät.
         </div>
       </div>
+
+      <div class="don-alt">
+        <button type="button" class="payconiq-card" aria-label="WERO-QR-Code vergrößern" onclick="openWeroQR()">
+          <img src="assets/wero_qr.png" alt="WERO-QR-Code — humanitäre Hilfe OESSH" loading="lazy" decoding="async"/>
+        </button>
+        <div class="qr-info">
+          <strong>Mobile Spende per WERO</strong>
+          Scannen Sie den QR-Code mit Ihrem Smartphone oder <a href="#" onclick="openWeroQR();return false;">tippen Sie hier</a> auf dem Mobilgerät.
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -788,6 +798,18 @@ document.querySelectorAll('.section-head, .pillar, .news-card, .oeuvre, .nl, .ca
     <p class="qr-modal-foot">Vom Mobilgerät: <a href="https://irmine.lu/st-irmine-project/aide-humanitaire-de-l_oessh/" target="_blank" rel="noopener">Seite Sainte-Irmine öffnen →</a></p>
   </div>
 </div>
+
+<!-- ====================== WERO QR MODAL ====================== -->
+<div id="wero-modal" class="qr-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="wero-modal-title">
+  <div class="qr-modal-backdrop" onclick="closeWeroQR()"></div>
+  <div class="qr-modal-card" role="document">
+    <button type="button" class="qr-modal-close" aria-label="Schließen" onclick="closeWeroQR()">×</button>
+    <h3 id="wero-modal-title">Mit WERO spenden</h3>
+    <p class="qr-modal-lede">Scannen Sie den QR-Code mit der WERO-App auf Ihrem Smartphone.</p>
+    <img src="assets/wero_qr.png" alt="WERO-QR-Code — humanitäre Hilfe OESSH" loading="lazy" decoding="async"/>
+    <p class="qr-modal-foot">Vom Mobilgerät: <a href="https://wero-checkout.prod-pci.buckaroo.io/?wero-context=eyJzIjoic180NmlRYkV0NSIsImQiOiJGU0ktQWlkZV9odW1hbml0YWlyZV9PRVNTSCIsInIiOiJGU0ktQWlkZV9odW1hbml0YWlyZV9PRVNTSCJ9" target="_blank" rel="noopener">WERO-Zahlung öffnen →</a></p>
+  </div>
+</div>
 <script>
 function openPayconiqQR(){
   // Sur mobile : redirige directement vers Payconiq
@@ -807,8 +829,26 @@ function closePayconiqQR(){
   m.setAttribute('aria-hidden','true');
   document.body.style.overflow = '';
 }
+function openWeroQR(){
+  // Sur mobile : redirige directement vers WERO
+  var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.matchMedia('(max-width: 760px)').matches;
+  if(isMobile){
+    window.location.href = 'https://wero-checkout.prod-pci.buckaroo.io/?wero-context=eyJzIjoic180NmlRYkV0NSIsImQiOiJGU0ktQWlkZV9odW1hbml0YWlyZV9PRVNTSCIsInIiOiJGU0ktQWlkZV9odW1hbml0YWlyZV9PRVNTSCJ9';
+    return;
+  }
+  var m = document.getElementById('wero-modal');
+  m.classList.add('is-open');
+  m.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+function closeWeroQR(){
+  var m = document.getElementById('wero-modal');
+  m.classList.remove('is-open');
+  m.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+}
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape') closePayconiqQR();
+  if(e.key === 'Escape'){ closePayconiqQR(); closeWeroQR(); }
 });
 </script>
 
