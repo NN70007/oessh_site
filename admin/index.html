@@ -1012,12 +1012,22 @@ function showSetup(){
 }
 
 // ── Auth ──────────────────────────────────────────
+// Le payload d'un JWT est encodé en base64url (caractères - et _, sans padding) :
+// atob() seul échoue dès que le jeton contient l'un de ces caractères.
+function decodeJwtPayload(token){
+  var b64=token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+  while(b64.length%4) b64+='=';
+  return JSON.parse(decodeURIComponent(escape(atob(b64))));
+}
 function onGoogleLogin(r){
-  var p=JSON.parse(atob(r.credential.split('.')[1]));
-  if(ALLOWED_EMAILS.indexOf(p.email)===-1){ document.getElementById('login-err').style.display='block'; return; }
+  var p;
+  try { p=decodeJwtPayload(r.credential); }
+  catch(e){ console.error('Google login: jeton illisible', e); document.getElementById('login-err').style.display='block'; return; }
+  var email=(p.email||'').toLowerCase();
+  if(ALLOWED_EMAILS.indexOf(email)===-1){ document.getElementById('login-err').style.display='block'; return; }
   var un=document.getElementById('user-name'); if(un) un.textContent=p.name;
   var av=document.getElementById('user-avatar'); if(av){ av.src=p.picture; av.style.display='block'; }
-  sessionStart(p.email, p.name);
+  sessionStart(email, p.name);
   document.getElementById('login-screen').style.display='none';
   if(hasSettings()){ document.getElementById('app').style.display='block'; showTab('articles'); }
   else { document.getElementById('setup-screen').style.display='flex'; }
