@@ -1,24 +1,31 @@
 # OESSH Luxembourg — robots.txt
 User-agent: *
 Allow: /
+Disallow: /espace/
 
 # AI crawlers — explicitly allowed
 User-agent: GPTBot
 Allow: /
+Disallow: /espace/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /espace/
 
 User-agent: Claude-Web
 Allow: /
+Disallow: /espace/
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /espace/
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /espace/
 
 User-agent: CCBot
 Allow: /
+Disallow: /espace/
 
 Sitemap: https://luxembourg.oessh.lu/sitemap.xml
