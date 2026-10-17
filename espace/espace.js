@@ -4,6 +4,16 @@
   var CFG = window.ESPACE_CONFIG || {};
   var KEY = "oessh_espace_session";
 
+  /* Racine de l'espace membres (le dossier de ce script), pour que les liens marchent
+     depuis n'importe quelle sous-page : /espace/, /espace/courrier/, /espace/admin/… */
+  var SCRIPT = document.currentScript;
+  var BASE = SCRIPT && SCRIPT.src ? new URL(".", SCRIPT.src).href : location.origin + "/espace/";
+  function lien(p) { return new URL(p || "./", BASE).href; }
+  function surPageConnexion() {
+    var ici = location.href.split(/[?#]/)[0];
+    return ici === BASE || ici === BASE + "index.html";
+  }
+
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 
   function getSession() {
@@ -33,8 +43,7 @@
     if (!out.ok) {
       if (out.code === "session") {
         clearSession();
-        var dansEspace = location.pathname.indexOf("/espace/") > -1;
-        if (!/\/espace\/?(index\.html)?$/.test(location.pathname)) location.href = dansEspace ? "./?expire=1" : "/espace/?expire=1";
+        if (!surPageConnexion()) location.href = lien("./?expire=1");
       }
       throw { message: out.error || "Erreur.", code: out.code };
     }
@@ -44,17 +53,17 @@
 
   function requireLogin() {
     var s = getSession();
-    if (!s) { location.replace("./"); return null; }
+    if (!s) { if (!surPageConnexion()) location.replace(lien("./")); return null; }
     return s;
   }
 
   async function logout() {
     try { await api("auth.deconnexion"); } catch (e) {}
     clearSession();
-    location.href = "./";
+    location.href = lien("./");
   }
 
-  function cross() { return '<img class="cross" src="../assets/croix-jerusalem.svg" alt="Croix de Jérusalem">'; }
+  function cross() { return '<img class="cross" src="' + lien("../assets/croix-jerusalem.svg") + '" alt="Croix de Jérusalem">'; }
 
   function dateTopbar() {
     var d = new Date();
@@ -65,12 +74,12 @@
 
   /** Liens de navigation entre pages, selon les droits. */
   function pageLinks(user, active) {
-    var L = [{ k: "accueil", href: "./", t: "Accueil" }];
-    if (user && user.inv) L.push({ k: "investiture", href: "investiture.html", t: "Investiture 2027" });
-    if (user && (user.media || user.admin || user.gestion)) L.push({ k: "media", href: "../media/", t: "Médiathèque" });
-    if (user && (user.courrier || user.admin)) L.push({ k: "courrier", href: "../courrier/", t: "Courrier" });
-    if (user && user.gestion) L.push({ k: "acces", href: "acces.html", t: "Accès" });
-    if (user && user.site && (user.site.actualites || user.site.lectures || user.site.newsletter)) L.push({ k: "site", href: "../admin/", t: "Administration du site ↗" });
+    var L = [{ k: "accueil", href: lien("./"), t: "Accueil" }];
+    if (user && user.inv) L.push({ k: "investiture", href: lien("investiture.html"), t: "Investiture 2027" });
+    if (user && (user.media || user.admin || user.gestion)) L.push({ k: "media", href: lien("media/"), t: "Médiathèque" });
+    if (user && (user.courrier || user.admin)) L.push({ k: "courrier", href: lien("courrier/"), t: "Courrier" });
+    if (user && user.gestion) L.push({ k: "acces", href: lien("acces.html"), t: "Accès" });
+    if (user && user.site && (user.site.actualites || user.site.lectures || user.site.newsletter)) L.push({ k: "site", href: lien("admin/"), t: "Administration du site ↗" });
     return L.map(function (l) { return '<a class="nav-tab' + (l.k === active ? " active" : "") + '" href="' + l.href + '">' + esc(l.t) + "</a>"; }).join("");
   }
 
@@ -83,12 +92,12 @@
     var s = getSession(), user = s && s.user;
     var el = document.getElementById("chrome-top");
     var right = user
-      ? '<span class="tb-right"><span>' + esc(user.nom) + "</span>" + (opts.tabs ? '<a href="./">Espace membres</a>' : "") + '<button type="button" id="btn-logout">Se déconnecter</button></span>'
+      ? '<span class="tb-right"><span>' + esc(user.nom) + "</span>" + (opts.tabs ? '<a href="' + lien("./") + '">Espace membres</a>' : "") + '<button type="button" id="btn-logout">Se déconnecter</button></span>'
       : '<span class="tb-center">Ordre pontifical au service de la Terre Sainte</span>';
     el.innerHTML =
       '<div class="topbar"><div class="topbar-inner"><span class="tb-left"><span class="tb-dot' + (user ? " live" : "") + '"></span><span>' + (user ? "ESPACE MEMBRES" : dateTopbar()) + "</span></span>" + right + "</div></div>" +
       '<header class="site"><nav class="nav" aria-label="Navigation">' +
-      '<a class="brand" href="./">' + cross() + '<span class="brand-text"><span class="l1">Ordre Équestre du Saint-Sépulcre de Jérusalem</span><span class="l2">Lieutenance pour le Luxembourg · Espace membres</span></span></a>' +
+      '<a class="brand" href="' + lien("./") + '">' + cross() + '<span class="brand-text"><span class="l1">Ordre Équestre du Saint-Sépulcre de Jérusalem</span><span class="l2">Lieutenance pour le Luxembourg · Espace membres</span></span></a>' +
       '<div class="nav-cta">' + (opts.cta || "") + "</div>" +
       (user ? '<div class="nav-links" role="tablist">' + (opts.tabs || pageLinks(user, opts.active)) + "</div>" : "") +
       "</nav></header>";
@@ -102,8 +111,29 @@
     el.innerHTML =
       '<footer class="site"><div class="container"><div class="foot-top"><div class="brand">' + cross().replace('alt="Croix de Jérusalem"', 'alt=""') +
       '<span class="brand-text"><span class="l1">Ordre Équestre du Saint-Sépulcre de Jérusalem</span><span class="l2">Lieutenance pour le Luxembourg</span></span></div>' +
-      '<a href="../" style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute)">← Site public</a></div>' +
+      '<a href="' + lien("../") + '" style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mute)">← Site public</a></div>' +
       '<div class="foot-bottom"><div>© ' + new Date().getFullYear() + " OESSH · Lieutenance pour le Luxembourg</div><div>Espace réservé · données privées</div></div></div></footer>";
+  }
+
+  /**
+   * Menu propre à une page : liens vers ses sections (ancres), à passer à renderTop({ tabs: … }).
+   * secs : [{ id: "section-x", t: "Libellé" }]. L'onglet de la section visible est mis en évidence.
+   */
+  function sectionTabs(secs) {
+    setTimeout(function () { suivreSections(secs); }, 0);
+    return secs.map(function (x, i) {
+      return '<a class="nav-tab' + (i === 0 ? " active" : "") + '" href="#' + esc(x.id) + '" data-sec="' + esc(x.id) + '">' + esc(x.t) + "</a>";
+    }).join("");
+  }
+  function suivreSections(secs) {
+    var tabs = document.querySelectorAll(".nav-tab[data-sec]");
+    function activer(id) { tabs.forEach(function (t) { t.classList.toggle("active", t.dataset.sec === id); }); }
+    tabs.forEach(function (t) { t.addEventListener("click", function () { activer(t.dataset.sec); }); });
+    if (!("IntersectionObserver" in window)) return;
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) activer(e.target.id); });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    secs.forEach(function (x) { var el = document.getElementById(x.id); if (el) obs.observe(el); });
   }
 
   function toast(msg) {
@@ -113,5 +143,5 @@
     clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove("show"); }, 2800);
   }
 
-  window.Espace = { CFG: CFG, esc: esc, api: api, getSession: getSession, setSession: setSession, clearSession: clearSession, requireLogin: requireLogin, logout: logout, renderTop: renderTop, renderFoot: renderFoot, toast: toast };
+  window.Espace = { CFG: CFG, esc: esc, api: api, getSession: getSession, setSession: setSession, clearSession: clearSession, requireLogin: requireLogin, logout: logout, renderTop: renderTop, renderFoot: renderFoot, sectionTabs: sectionTabs, lien: lien, toast: toast };
 })();

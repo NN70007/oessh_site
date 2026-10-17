@@ -78,7 +78,7 @@ La connexion par **code e-mail** fonctionne dans tous les cas.
 
 ## 10. Publication sur le site (admin) sans clé dans le navigateur
 
-L'admin `/admin/` utilise désormais la connexion de l'espace membres. Les clés GitHub et Claude sont rangées **une seule fois dans le script**, jamais dans les navigateurs.
+L'admin `/espace/admin/` utilise désormais la connexion de l'espace membres. Les clés GitHub et Claude sont rangées **une seule fois dans le script**, jamais dans les navigateurs.
 
 1. **Jeton GitHub** (sur github.com, connecté au compte propriétaire du dépôt) :
    Settings → Developer settings → Personal access tokens → **Fine-grained tokens** → Generate new token.
@@ -110,7 +110,7 @@ Ce que vérifie le serveur à chaque publication : la session, le droit de la pe
 
 ## Limites connues
 
-- L'admin de publication (`/admin/`) garde pour l'instant sa propre connexion et le token GitHub de chaque éditeur. Les cases « Actualités / Lectures / Newsletter » de la page Accès servent à afficher la tuile ; elles deviendront contraignantes quand la publication passera par le serveur (phase suivante).
+- L'admin de publication (`/espace/admin/`) garde pour l'instant sa propre connexion et le token GitHub de chaque éditeur. Les cases « Actualités / Lectures / Newsletter » de la page Accès servent à afficher la tuile ; elles deviendront contraignantes quand la publication passera par le serveur (phase suivante).
 - Envoi d'e-mails : les codes de connexion partent du compte jb.niedercorn@oessh.lu et sont soumis au quota quotidien d'envoi de Google pour ce compte (largement suffisant pour des codes de connexion, pas pour des envois groupés).
 - Les modifications des autres apparaissent automatiquement en 30 secondes au plus.
 

@@ -83,12 +83,14 @@
       '<div class="login-card" style="max-width:460px;text-align:left">' +
       '<h2>Administration du site</h2>' +
       '<p>' + E.esc(message) + '</p>' +
-      '<p style="margin-top:18px"><a href="../espace/" style="display:inline-block;background:#b10103;color:#fff;padding:11px 20px;border-radius:2px;text-decoration:none;font-weight:500">Aller à l’espace membres →</a></p>' +
+      '<p style="margin-top:18px"><a href="../" style="display:inline-block;background:#b10103;color:#fff;padding:11px 20px;border-radius:2px;text-decoration:none;font-weight:500">Aller à l’espace membres →</a></p>' +
       '</div>';
     login.style.display = "flex";
   }
 
   function demarrer() {
+    // Le pont est aussi chargé par l'outil courrier (pour l'IA) : l'écran de l'admin n'y existe pas.
+    if (!document.getElementById("app")) return;
     var s = E.getSession(), u = s && s.user;
     if (!u) { ecranSansAcces("Connectez-vous d’abord à l’espace membres de la Lieutenance, avec votre compte Google ou un code reçu par e-mail."); return; }
     var d = u.site || {};
@@ -98,7 +100,7 @@
     document.getElementById("app").style.display = "block";
     var ctrl = document.querySelector(".admin-controls");
     if (ctrl && !document.getElementById("lien-espace")) {
-      var a = document.createElement("a"); a.id = "lien-espace"; a.href = "../espace/"; a.className = "btn-sm"; a.textContent = "← Espace membres"; a.style.textDecoration = "none";
+      var a = document.createElement("a"); a.id = "lien-espace"; a.href = "../"; a.className = "btn-sm"; a.textContent = "← Espace membres"; a.style.textDecoration = "none";
       ctrl.insertBefore(a, ctrl.firstChild);
     }
     appliquerDroits(u);

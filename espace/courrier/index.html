@@ -6,11 +6,11 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Courrier officiel · OESSH Luxembourg</title>
 <meta name="theme-color" content="#b10103">
-<link rel="icon" type="image/svg+xml" href="../assets/croix-jerusalem.svg">
+<link rel="icon" type="image/svg+xml" href="../../assets/croix-jerusalem.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../espace/espace.css">
+<link rel="stylesheet" href="../espace.css">
 <style>
 /* ── Courrier officiel ── */
 
@@ -244,7 +244,7 @@
       <div class="courrier-layout">
 
         <!-- ══ PANNEAU FORMULAIRE ══ -->
-        <div class="courrier-form-panel">
+        <div class="courrier-form-panel" id="sec-rediger">
 
           <!-- 1. Entité -->
           <div class="field-group">
@@ -337,7 +337,7 @@
         </div>
 
         <!-- ══ PANNEAU DROIT ══ -->
-        <div class="courrier-side-panel">
+        <div class="courrier-side-panel" id="sec-apercu">
           <div id="side-preview-title">Prévisualisation</div>
           <div id="letter-preview">
             <!-- Rempli dynamiquement -->
@@ -347,7 +347,7 @@
           </div>
 
           <!-- Historique -->
-          <div class="historique-section">
+          <div class="historique-section" id="sec-historique">
             <h4>Mes courriers récents</h4>
             <div id="historique-list">
               <div class="hist-empty">Chargement…</div>
@@ -362,8 +362,8 @@
 
 <div id="chrome-foot"></div>
 
-<script src="../espace/config.js"></script>
-<script src="../espace/espace.js"></script>
+<script src="../config.js"></script>
+<script src="../espace.js"></script>
 <script src="../admin/espace-pont.js"></script>
 <script>
 (function(){
@@ -379,11 +379,16 @@ if (!u.courrier && !u.admin) {
     '<div class="container"><div class="notice"><h4>Accès non autorisé.</h4>' +
     '<p>Vous n\'avez pas accès à l\'outil de courrier. Contactez le secrétariat de la Lieutenance.</p>' +
     '</div></div>';
-  E.renderTop({ active: "courrier" });
+  E.renderTop({ tabs: " " });
   E.renderFoot();
   return;
 }
-E.renderTop({ active: "courrier" });
+// Menu propre à la page
+E.renderTop({ tabs: E.sectionTabs([
+  { id: "sec-rediger",    t: "Rédiger" },
+  { id: "sec-apercu",     t: "Prévisualisation" },
+  { id: "sec-historique", t: "Mes courriers" }
+]) });
 E.renderFoot();
 
 /* ── Données membres ── */
@@ -530,8 +535,8 @@ function getRoleLabel(){
 /* ── Logos ── */
 function getLogoSrc(){
   return entite === "asbl"
-    ? "../assets/croix-jerusalem-rouge-transparent.png"
-    : "../assets/logo-oessh-armoiries-transparent.png";
+    ? "../../assets/croix-jerusalem-rouge-transparent.png"
+    : "../../assets/logo-oessh-armoiries-transparent.png";
 }
 function getLogoAlt(){
   return entite === "asbl" ? "Croix de Jérusalem" : "Armoiries OESSH";

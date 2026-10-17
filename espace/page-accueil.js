@@ -56,9 +56,9 @@
     $("#home-title").textContent="Bonjour, "+u.nom.split(" ")[0]+".";
     var T=[];
     if(u.inv) T.push({h:"investiture.html",n:"— 9 & 10 juillet 2027",t:"Investiture 2027",p:"Tâches, responsables, équipes et calendrier des cérémonies d'investiture.",r:ROLE_TXT[u.inv]});
-    if(u.site&&(u.site.actualites||u.site.lectures||u.site.newsletter)) T.push({h:"../admin/",n:"— Publication",t:"Administration du site",p:"Rédiger et publier les actualités, lectures et newsletters du site oessh.lu.",r:[u.site.actualites?"Actualités":"",u.site.lectures?"Lectures":"",u.site.newsletter?"Newsletter":""].filter(Boolean).join(" · ")});
-    if(u.media||u.admin||u.gestion) T.push({h:"../media/",n:"— Ressources",t:"Médiathèque",p:"Logos, armoiries, croix de Jérusalem et visuels officiels de la Lieutenance.",r:"Ressources graphiques"});
-    if(u.courrier||u.admin) T.push({h:"../courrier/",n:"— Communication",t:"Courrier officiel",p:"Rédigez, corrigez et imprimez un courrier officiel de la Lieutenance ou de l'Asbl.",r:"Rédaction"});
+    if(u.site&&(u.site.actualites||u.site.lectures||u.site.newsletter)) T.push({h:"admin/",n:"— Publication",t:"Administration du site",p:"Rédiger et publier les actualités, lectures et newsletters du site oessh.lu.",r:[u.site.actualites?"Actualités":"",u.site.lectures?"Lectures":"",u.site.newsletter?"Newsletter":""].filter(Boolean).join(" · ")});
+    if(u.media||u.admin||u.gestion) T.push({h:"media/",n:"— Ressources",t:"Médiathèque",p:"Logos, armoiries, croix de Jérusalem et visuels officiels de la Lieutenance.",r:"Ressources graphiques"});
+    if(u.courrier||u.admin) T.push({h:"courrier/",n:"— Communication",t:"Courrier officiel",p:"Rédigez, corrigez et imprimez un courrier officiel de la Lieutenance ou de l'Asbl.",r:"Rédaction"});
     if(u.gestion) T.push({h:"acces.html",n:"— Gestion",t:"Accès",p:"Inscrire une personne et choisir ce qu'elle peut voir ou modifier.",r:"Gestionnaire"});
     $("#tiles").innerHTML=T.length?T.map(function(x){return '<a class="tile" href="'+x.h+'"><span class="pn">'+E.esc(x.n)+'</span><h3>'+E.esc(x.t)+'</h3><p>'+E.esc(x.p)+'</p>'+(x.r?'<span class="role-pill">'+E.esc(x.r)+'</span>':"")+'<span class="go">Ouvrir →</span></a>';}).join(""):'<div class="notice" style="grid-column:1/-1"><h4>Aucun espace ne vous est encore ouvert.</h4><p>Le secrétariat de la Lieutenance peut vous donner les accès nécessaires.</p></div>';
     // Rafraîchit les droits en arrière-plan.

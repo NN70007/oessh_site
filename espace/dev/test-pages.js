@@ -110,7 +110,7 @@ function ok(c, m) { assert.ok(c, m); n++; console.log('  ✓ ' + m); }
   if (shots) await p.screenshot({ path: shots + '/4-acces.png', fullPage: true });
   console.log('Admin de publication');
   srv.props.GITHUB_TOKEN = 'ghp_test'; srv.props.CLAUDE_KEY = 'sk-test';
-  await p.goto(BASE + '/admin/');
+  await p.goto(BASE + '/espace/admin/');
   await p.waitForSelector('#app', { state: 'visible' });
   await p.waitForFunction(() => document.querySelectorAll('#articles-list > *').length > 2, null, { timeout: 15000 });
   ok(true, 'admin ouvert avec la session de l\'espace, actualités chargées via le serveur');
@@ -123,15 +123,15 @@ function ok(c, m) { assert.ok(c, m); n++; console.log('  ✓ ' + m); }
   await p.goto(BASE + '/espace/');
   await p.click('#btn-logout'); await p.waitForSelector('#login:not([hidden])');
   ok(true, 'déconnexion');
-  await p.goto(BASE + '/admin/');
-  await p.waitForSelector('#login-screen a[href="../espace/"]');
+  await p.goto(BASE + '/espace/admin/');
+  await p.waitForSelector('#login-screen a[href="../"]');
   ok(!(await p.isVisible('#app')), 'admin inaccessible sans session : renvoi vers l\'espace membres');
 
   console.log('Contributeur');
   await login(p, 'joris@example.lu');
   ok(await p.locator('.tile').count() === 1, 'contributeur : une seule tuile (investiture)');
-  await p.goto(BASE + '/admin/');
-  await p.waitForSelector('#login-screen a[href="../espace/"]');
+  await p.goto(BASE + '/espace/admin/');
+  await p.waitForSelector('#login-screen a[href="../"]');
   ok(!(await p.isVisible('#app')), 'admin refusé à un membre sans droit « site »');
   await p.evaluate(() => localStorage.removeItem('inv27_view'));
   await p.goto(BASE + '/espace/investiture.html');
