@@ -13,10 +13,7 @@
 
 /* ======================= Réglages ======================= */
 var CONFIG = {
-  // Identifiant OAuth Google du site (le même que celui de l'admin actuel).
   GOOGLE_CLIENT_ID: '52829295071-cer9p7voptd0lgdrmgk5a35furmtn256.apps.googleusercontent.com',
-  // Personne(s) qui reçoivent tous les droits à l'installation (modifiable ensuite dans l'onglet Acces).
-  // Une personne peut avoir plusieurs adresses : la première est l'adresse principale.
   ADMINS_INITIAUX: [{ emails: ['jb.niedercorn@oessh.lu', 'jb.niedercorn@gmail.com'], nom: 'Jean-Baptiste Niedercorn' }],
   SESSION_JOURS: 30,
   CODE_MINUTES: 10,
@@ -81,12 +78,13 @@ function route_(req) {
     case 'acces.deconnecter': return accesDeconnecter_(user, req.email);
     case 'pub.github': return pubGithub_(user, req.methode, req.chemin, req.corps);
     case 'pub.claude': return pubClaude_(user, req.corps);
+    case 'courrier.sauvegarder': return courrierSauvegarder_(user, req);
+    case 'courrier.liste': return courrierListe_(user);
     default: throw refus_('Action inconnue.', 'inconnu');
   }
 }
 
 /* ======================= Installation ======================= */
-/** À lancer une fois depuis l'éditeur : crée les onglets et donne les droits aux administrateurs initiaux. */
 function installer() {
   var ss = classeur_(true);
   Object.keys(ONGLETS).forEach(function (nom) {
@@ -94,7 +92,7 @@ function installer() {
     var head = ONGLETS[nom];
     sh.getRange(1, 1, 1, head.length).setValues([head]);
     sh.setFrozenRows(1);
-    sh.getRange(1, 1, Math.max(sh.getMaxRows(), 2), head.length).setNumberFormat('@'); // tout en texte : pas de conversion de dates ni de numéros
+    sh.getRange(1, 1, Math.max(sh.getMaxRows(), 2), head.length).setNumberFormat('@');
   });
   var acc = lire_('Acces');
   CONFIG.ADMINS_INITIAUX.forEach(function (a) {
@@ -116,14 +114,12 @@ function installer() {
     ].forEach(function (j) { ajouter_('Jalons', { Date: j[0], Titre: j[1], Detail: j[2], Cle: j[3] }); });
   }
   journal_('installation', 'installer', 'Onglets créés');
-  // Déclenche la demande d'autorisation pour l'envoi d'e-mails et les appels à Google.
   MailApp.getRemainingDailyQuota();
   var msg = 'Installation terminée. Feuille : ' + ss.getUrl();
   console.log(msg);
   return msg;
 }
 
-/** Supprime les sessions expirées (peut être programmé chaque nuit). */
 function nettoyerSessions() {
   var props = PropertiesService.getScriptProperties();
   var all = props.getProperties(), now = Date.now(), n = 0;
@@ -134,7 +130,6 @@ function nettoyerSessions() {
   return n + ' session(s) supprimée(s)';
 }
 
-/** Après l'investiture : efface les téléphones et e-mails des intervenants (RGPD). */
 function effacerContactsIntervenants() {
   var sh = feuille_('Intervenants'), last = sh.getLastRow();
   if (last > 1) sh.getRange(2, 4, last - 1, 2).setValues(new Array(last - 1).fill(['', '']));
@@ -201,7 +196,7 @@ function verifierCode_(email, code) {
 }
 
 function ouvrirSession_(row, via, loginEmail) {
-  try { nettoyerSessions(); } catch (e) {} // ménage des sessions expirées à chaque connexion
+  try { nettoyerSessions(); } catch (e) {}
   var token = Utilities.getUuid() + Utilities.getUuid().replace(/-/g, '');
   var exp = Date.now() + CONFIG.SESSION_JOURS * 86400000;
   loginEmail = norm_(loginEmail);
@@ -237,30 +232,57 @@ function accesPour_(email) {
   }
   return null;
 }
-/** Adresses d'une ligne (séparées par ; , ou espace), en minuscules, sans doublon. */
 function emails_(v) {
   var out = [];
   String(v || '').split(/[;,\s]+/).forEach(function (e) { e = norm_(e); if (e && out.indexOf(e) < 0) out.push(e); });
   return out;
 }
 function cle_(r) { return emails_(r.Email)[0] || ''; }
+
 function userFromRow_(r, loginEmail) {
   var inv = String(r.Investiture || '').toLowerCase().trim();
   var ems = emails_(r.Email);
+  // Emails supplémentaires (colonne Emails, séparés par |)
+  var extraEmails = String(r.Emails || '').split('|').map(function(e){ return norm_(e); }).filter(Boolean);
+  // Fusionner sans doublon
+  extraEmails.forEach(function(e){ if (ems.indexOf(e) < 0) ems.push(e); });
   return {
-    email: norm_(loginEmail) || ems[0] || '', emails: ems, cle: ems[0] || '', nom: String(r.Nom || ems[0] || ''),
+    email: norm_(loginEmail) || ems[0] || '',
+    emails: ems,
+    cle: emails_(r.Email)[0] || '',
+    nom: String(r.Nom || ems[0] || ''),
     inv: ROLES_INV.indexOf(inv) > -1 ? inv : '',
     site: { actualites: oui_(r.Actualites), lectures: oui_(r.Lectures), newsletter: oui_(r.Newsletter) },
-    gestion: oui_(r.Gestion)
+    gestion: oui_(r.Gestion),
+    admin: oui_(r.Admin),
+    media: oui_(r.Media),
+    courrier: oui_(r.Courrier),
+    roles: String(r.Roles || ''),
+    userEmails: String(r.Emails || '')
   };
 }
-function publicUser_(u) { return { email: u.email, emails: u.emails, nom: u.nom, inv: u.inv, site: u.site, gestion: u.gestion }; }
+
+function publicUser_(u) {
+  return {
+    email: u.email,
+    emails: u.emails,
+    nom: u.nom,
+    inv: u.inv,
+    site: u.site,
+    gestion: u.gestion,
+    admin: u.admin,
+    media: u.media,
+    courrier: u.courrier,
+    roles: u.roles,
+    userEmails: u.userEmails
+  };
+}
+
 function exigerInv_(u, roles) {
   if (roles.indexOf(u.inv) < 0) throw refus_("Vous n'avez pas les droits pour cette action.", 'droits');
 }
 function exigerGestion_(u) { if (!u.gestion) throw refus_("Vous n'avez pas les droits pour gérer les accès.", 'droits'); }
 
-/** Un contributeur peut modifier une tâche dont il est responsable, ou une tâche sans responsable. */
 function peutModifier_(u, t) {
   if (u.inv === 'organisateur') return true;
   if (u.inv !== 'contributeur') return false;
@@ -415,9 +437,9 @@ function accesEnregistrer_(u, p, cleOriginale) {
   return verrou_(function () {
     var rows = lire_('Acces');
     var cible = orig ? rows.filter(function (r) { return cle_(r) === orig; })[0] : null;
-    if (orig && !cible) throw refus_('Cette personne n\u2019existe plus dans la liste.', 'introuvable');
+    if (orig && !cible) throw refus_('Cette personne n’existe plus dans la liste.', 'introuvable');
     if (cible && emails_(cible.Email).indexOf(u.email) > -1 && (!ligne.Gestion || ligne.Actif !== 'oui' || ems.indexOf(u.email) < 0)) {
-      throw refus_('Vous ne pouvez pas retirer vos propres droits de gestion, ni l\u2019adresse avec laquelle vous êtes connecté.', 'droits');
+      throw refus_('Vous ne pouvez pas retirer vos propres droits de gestion, ni l’adresse avec laquelle vous êtes connecté.', 'droits');
     }
     var doublon = rows.filter(function (r) { return r !== cible && emails_(r.Email).some(function (e) { return ems.indexOf(e) > -1; }); })[0];
     if (doublon) throw refus_('Une de ces adresses est déjà attribuée à ' + (doublon.Nom || cle_(doublon)) + '.', 'donnees');
@@ -440,7 +462,6 @@ function accesSupprimer_(u, cle) {
     return { ok: true };
   });
 }
-/** Ferme toutes les sessions ouvertes d'une personne (toutes ses adresses, tous ses appareils). */
 function accesDeconnecter_(u, cle) {
   exigerGestion_(u);
   cle = norm_(cle);
@@ -465,14 +486,6 @@ function resumeDroits_(l) {
 function journal_(qui, action, detail) { ajouter_('Journal', { Date: String(Date.now()), Qui: qui, Action: action, Detail: detail }); }
 
 /* ======================= Publication sur le site (admin) ======================= */
-/*
- * L'admin du site ne détient plus aucune clé : il passe par ces deux actions.
- * Les clés sont dans les Propriétés du script (jamais envoyées au navigateur) :
- *   GITHUB_TOKEN  : jeton GitHub limité au dépôt du site (droit « Contents : lecture et écriture »)
- *   CLAUDE_KEY    : clé API Claude de la Lieutenance
- *   GITHUB_REPO   : (facultatif) par défaut NN70007/oessh_site
- *   CLAUDE_MODEL  : (facultatif) par défaut claude-sonnet-4-6
- */
 var FICHIERS_PUB = { 'actualites.json': 'actualites', 'lectures.json': 'lectures', 'newsletters.json': 'newsletter' };
 var ASSET_RE = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]{0,150}\.(jpe?g|png|webp|gif|pdf)$/i;
 
@@ -505,7 +518,7 @@ function pubGithub_(u, methode, chemin, corps) {
     if (droit) {
       var txt;
       try { txt = Utilities.newBlob(Utilities.base64Decode(corps.content.replace(/\s/g, ''))).getDataAsString('UTF-8'); JSON.parse(txt); }
-      catch (e) { throw refus_('Le contenu envoyé n\u2019est pas un fichier valide : publication refusée.', 'donnees'); }
+      catch (e) { throw refus_('Le contenu envoyé n’est pas un fichier valide : publication refusée.', 'donnees'); }
     }
     var message = texte_(corps.message, 180) || ('Mise à jour ' + chemin);
     message += ' — par ' + u.nom;
@@ -545,12 +558,70 @@ function pubClaude_(u, corps) {
   return { ok: true, status: res.getResponseCode(), data: data };
 }
 
+/* ======================= Courrier officiel ======================= */
+var SHEET_COURRIERS = 'Courriers';
+
+function courrierSauvegarder_(u, data) {
+  if (!u.courrier && !u.admin) throw refus_("Vous n'avez pas accès à l'outil de courrier.", 'droits');
+  var ss = classeur_(false);
+  var tab = ss.getSheetByName(SHEET_COURRIERS);
+  if (!tab) {
+    tab = ss.insertSheet(SHEET_COURRIERS);
+    tab.appendRow(['Date', 'Email', 'Ref', 'Entite', 'Role', 'Destinataire', 'Objet', 'Corps', 'Formule', 'Salut', 'EmailAffiche', 'Lang']);
+    tab.setFrozenRows(1);
+    tab.getRange('A1:L1').setFontWeight('bold');
+  }
+  tab.appendRow([
+    new Date(),
+    u.email,
+    texte_(data.ref,     80),
+    texte_(data.entite,  30),
+    texte_(data.role,    60),
+    texte_(data.dest,   400),
+    texte_(data.objet,  200),
+    texte_(data.corps, 8000),
+    texte_(data.formule, 300),
+    texte_(data.salut,  100),
+    texte_(data.email,  120),
+    texte_(data.lang,    10) || 'fr'
+  ]);
+  journal_(u.email, 'courrier.sauvegarde', texte_(data.ref, 80) + ' — ' + texte_(data.objet, 80));
+  return { ok: true };
+}
+
+function courrierListe_(u) {
+  if (!u.courrier && !u.admin) throw refus_("Vous n'avez pas accès à l'outil de courrier.", 'droits');
+  var ss = classeur_(false);
+  var tab = ss.getSheetByName(SHEET_COURRIERS);
+  if (!tab) return { ok: true, courriers: [] };
+
+  var rows = tab.getDataRange().getValues();
+  var idx = {};
+  rows[0].forEach(function (h, i) { idx[h] = i; });
+
+  var result = [];
+  for (var r = 1; r < rows.length; r++) {
+    var row = rows[r];
+    if (String(row[idx['Email']]).toLowerCase() !== u.email.toLowerCase()) continue;
+    result.push({
+      date:    row[idx['Date']] ? Utilities.formatDate(new Date(row[idx['Date']]), Session.getScriptTimeZone(), 'dd/MM/yyyy') : '',
+      ref:     String(row[idx['Ref']]          || ''),
+      entite:  String(row[idx['Entite']]       || ''),
+      role:    String(row[idx['Role']]         || ''),
+      dest:    String(row[idx['Destinataire']] || ''),
+      objet:   String(row[idx['Objet']]        || ''),
+      corps:   String(row[idx['Corps']]        || ''),
+      formule: String(row[idx['Formule']]      || ''),
+      salut:   String(row[idx['Salut']]        || ''),
+      email:   String(row[idx['EmailAffiche']] || ''),
+      lang:    String(row[idx['Lang']]         || 'fr')
+    });
+  }
+  result.reverse();
+  return { ok: true, courriers: result.slice(0, 50) };
+}
+
 /* ======================= Feuille : utilitaires ======================= */
-/**
- * Retrouve la feuille de données.
- * - Script ouvert depuis la feuille (Extensions → Apps Script) : la feuille elle-même.
- * - Script autonome (créé sur script.google.com) : la feuille mémorisée, ou créée à l'installation.
- */
 function classeur_(creerSiAbsent) {
   var actif = null;
   try { actif = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) { actif = null; }
@@ -614,7 +685,6 @@ function refus_(msg, code) { var e = new Error(msg); e.public = true; e.code = c
 function norm_(s) { return String(s || '').trim().toLowerCase(); }
 function oui_(v) { v = String(v || '').trim().toLowerCase(); return v === 'oui' || v === 'x' || v === 'true' || v === '1' || v === 'yes'; }
 function texte_(s, max) { return String(s == null ? '' : s).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max); }
-/** Empêche l'interprétation d'une saisie comme formule (=, +, -, @). */
 function sur_(v) { v = v instanceof Date ? dateTxt_(v) : String(v == null ? '' : v); return /^[=+\-@]/.test(v) ? "'" + v : v; }
 function dateTxt_(v) {
   if (v instanceof Date) return Utilities.formatDate(v, 'Europe/Luxembourg', 'yyyy-MM-dd');
