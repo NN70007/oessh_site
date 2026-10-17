@@ -516,6 +516,17 @@ a.btn-sm:visited{color:var(--ink-soft)}
 .livre-pub-ok{background:#edfff4;border:1px solid #b0e8c4;color:#1a6e3a}
 .livre-pub-err{background:#fff0f0;border:1px solid #ffc0c0;color:#a00}
 
+/* ── Édition : PDF déjà joints ── */
+.pdf-exist-row{padding:10px 12px;background:#fff;border:1px solid var(--line)}
+.pdf-exist-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;color:var(--ink);overflow-wrap:anywhere}
+.pdf-exist-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.pdf-exist-grid label{display:block;margin-bottom:4px;font-size:10.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute)}
+.pdf-exist-grid input{width:100%;margin-top:0}
+.pdf-exist-row.is-removed{background:var(--bg-soft);opacity:.6}
+.pdf-exist-row.is-removed .pdf-exist-head span{text-decoration:line-through}
+.pdf-exist-row.is-removed .pdf-exist-grid{display:none}
+@media(max-width:600px){.pdf-exist-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -612,7 +623,7 @@ a.btn-sm:visited{color:var(--ink-soft)}
 
   <!-- TAB: NOUVEL ARTICLE -->
   <div id="tab-new-content">
-    <h1 class="page-title">Nouvelle actualité « À la Une »</h1>
+    <h1 class="page-title" id="article-page-title">Nouvelle actualité « À la Une »</h1>
     <p class="page-sub">Workflow en 4 étapes — Claude rédige, vous validez, il traduit.</p>
 
     <div class="workflow">
@@ -664,6 +675,10 @@ a.btn-sm:visited{color:var(--ink-soft)}
               </div>
               <div class="img-preview" id="imgPreview2" style="display:none;margin-top:8px"><img id="imgThumb2" src="" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:6px"/></div>
             </div>
+            <div style="margin-bottom:14px">
+              <label class="lbl">PDF déjà joints à l’article</label>
+              <div id="pdf-exist-list" style="display:flex;flex-direction:column;gap:8px"></div>
+            </div>
             <div>
               <label class="lbl">Ajouter des PDFs (homélie, article…)</label>
               <div id="pdf-list2" style="display:flex;flex-direction:column;gap:8px"></div>
@@ -710,6 +725,7 @@ a.btn-sm:visited{color:var(--ink-soft)}
       <div class="wstep" id="step3">
         <div class="wstep-head"><div class="wstep-num">3</div><div class="wstep-title">Vérifier les versions allemande et anglaise</div></div>
         <div class="wstep-body">
+          <p class="wstep-hint" id="trad-info" style="display:none"></p>
           <div class="lang-tabs">
             <button class="lang-tab active" onclick="switchLang('de',this)">🇩🇪 Deutsch</button>
             <button class="lang-tab" onclick="switchLang('en',this)">🇬🇧 English</button>
@@ -758,7 +774,7 @@ a.btn-sm:visited{color:var(--ink-soft)}
   <div id="tab-articles-content" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
       <h1 class="page-title">Articles stockés</h1>
-      <button class="btn-gen" style="width:auto;padding:10px 20px;margin:0" onclick="showTab('new')">+ Ajouter un article</button>
+      <button class="btn-gen" style="width:auto;padding:10px 20px;margin:0" onclick="nouvelArticle()">+ Ajouter un article</button>
     </div>
     <p class="page-sub">Gérez les articles du stock dynamique.</p>
     <div id="articles-loading" style="font-size:13px;color:var(--ink-mute);padding:20px 0">Chargement…</div>
@@ -1233,7 +1249,7 @@ function handlePDF(input, idx){
 }
 
 async function generateFR(){
-  editingId = null; // fresh article
+  editingId = null; editOriginal = null; editPDFs = []; // fresh article
   var desc=document.getElementById('desc').value.trim();
   if(!desc){ showErr('err1','Décrivez l\'événement.'); return; }
   if(!getSettings().claudeKey){ showErr('err1','Clé Claude manquante.'); return; }
@@ -1448,6 +1464,9 @@ function validateFR(){
     });
   }
 
+  // Mode édition : PDF déjà joints, conservés avec leurs intitulés (sauf ceux retirés)
+  if(editingId) pendingPDFs = pendingPDFs.concat(lirePDFsExistants());
+
   // Nouveaux PDFs ajoutés en mode édition (step2-media)
   document.querySelectorAll('#pdf-list2 .pdf-row2').forEach(function(row){
     var fname = row.dataset.filename || '';
@@ -1455,8 +1474,8 @@ function validateFR(){
     if(fname) pendingPDFs.push({ filename: fname, base64: b64, labelFr: '', labelDe: '', labelEn: '' });
   });
 
-  // Toujours passer par l'étape 2.5 si des PDFs sont présents (création OU édition)
-  if(pendingPDFs.length > 0){
+  // Étape 2.5 seulement s'il y a des PDF à nommer (les PDF déjà joints gardent leurs intitulés)
+  if(pendingPDFs.some(function(p){ return !p.existing; })){
     document.getElementById('pdf-labels-container').innerHTML = '';
     namePDFsWithClaude();
   } else {
@@ -1474,14 +1493,16 @@ async function namePDFsWithClaude(){
   var context = 'Article : ' + fr.titre + '\n';
   if(fr.date) context += 'Date : ' + fr.date + '\n';
 
-  var pdfList = pendingPDFs.map(function(p, i){
+  // Seuls les nouveaux PDF sont nommés par Claude ; les PDF déjà joints gardent leurs intitulés.
+  var aNommer = pendingPDFs.filter(function(p){ return p && !p.existing; });
+  var pdfList = aNommer.map(function(p, i){
     return (i+1) + '. Fichier : ' + p.filename;
   }).join('\n');
 
   var prompt = context + '\nFichiers PDF joints à cet article :\n' + pdfList +
     '\n\nPour chaque fichier PDF, propose un intitulé descriptif court en français, allemand et anglais.'+
     '\nRéponds UNIQUEMENT avec ce format :\n\n' +
-    pendingPDFs.map(function(p, i){
+    aNommer.map(function(p, i){
       return '###PDF'+(i+1)+'_FR###\n[intitulé en français]\n###FIN###\n'+
              '###PDF'+(i+1)+'_DE###\n[intitulé en allemand]\n###FIN###\n'+
              '###PDF'+(i+1)+'_EN###\n[intitulé en anglais]\n###FIN###';
@@ -1490,7 +1511,7 @@ async function namePDFsWithClaude(){
   var system = 'Tu proposes des intitulés courts et descriptifs pour des liens vers des documents PDF liés à des articles de l\'Ordre Equestre du Saint-Sepulcre de Jerusalem. Les intitulés doivent être concis (3-6 mots max), clairs et décrire le contenu du document.';
 
   try {
-    var txt = await claudeCall(system, prompt, 500);
+    var txt = aNommer.length ? await claudeCall(system, prompt, 500) : '';
     function getPdfField(name){
       var open = '###'+name+'###', close = '###FIN###';
       var s = txt.indexOf(open); if(s===-1) return '';
@@ -1498,7 +1519,7 @@ async function namePDFsWithClaude(){
       var e = txt.indexOf(close, s); if(e===-1) return txt.substring(s).trim();
       return txt.substring(s, e).trim();
     }
-    pendingPDFs.forEach(function(pdf, i){
+    aNommer.forEach(function(pdf, i){
       var n = i+1;
       pdf.labelFr = getPdfField('PDF'+n+'_FR') || pdf.filename;
       pdf.labelDe = getPdfField('PDF'+n+'_DE') || pdf.labelFr;
@@ -1555,17 +1576,35 @@ async function translateDEEN(){
   setLoading('load2','btn2',true);
   hideErr('err2');
 
-  var liensText = fr.liens.map(function(l,i){ return 'Lien '+(i+1)+' — Intitulé FR: '+l.label+'\nLien '+(i+1)+' — URL: '+l.url; }).join('\n');
+  // Traduction ciblée : en édition, seuls les champs français modifiés sont retraduits.
+  var orig = editOriginal;
+  var CHAMPS = [
+    {k:'titre',   tag:'TITRE',   lib:'TITRE',   de:'[titre en allemand]',  en:'[title in English]'},
+    {k:'teaser',  tag:'TEASER',  lib:'TEASER',  de:'[teaser en allemand]', en:'[teaser in English]'},
+    {k:'texte',   tag:'TEXTE',   lib:'TEXTE',   de:'[texte en allemand]',  en:'[text in English]'},
+    {k:'legende', tag:'LEGENDE', lib:'LEGENDE', de:'[légende en allemand, même format court]', en:'[caption in English, same short format]'}
+  ];
+  var aFaire = champsATraduire(orig, CHAMPS.map(function(c){ return c.k; }), fr);
+  var champsFaits = CHAMPS.filter(function(c){ return aFaire.indexOf(c.k) > -1; });
+  var liensOrig = fr.liens.map(function(l){ return lienDejaTraduit(orig, l); });
+  var liensAFaire = fr.liens.map(function(l,i){ return i; }).filter(function(i){ return !liensOrig[i] && fr.liens[i].label; });
+
+  var liensText = liensAFaire.map(function(i){ var l=fr.liens[i]; return 'Lien '+(i+1)+' — Intitulé FR: '+l.label+'\nLien '+(i+1)+' — URL: '+l.url; }).join('\n');
 
   var system = 'Tu es traducteur officiel de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem. Tu traduis des articles de presse en allemand et en anglais en conservant le registre solennel et élégant. IMPORTANT pour les intitulés de liens : traduis le texte descriptif, ne le remplace pas par un verbe générique.\n\nRéponds UNIQUEMENT avec ce format (balises ###CHAMP### et ###FIN###) :';
 
-  var userPrompt = 'Traduis cet article en ALLEMAND et en ANGLAIS.\n\nTITRE FR: '+fr.titre+'\nTEASER FR: '+fr.teaser+'\nTEXTE FR:\n'+fr.texte+'\nLEGENDE FR: '+fr.legende+'\n'+liensText+'\n\nFormat de réponse :\n\n###DE_TITRE###\n[titre en allemand]\n###FIN###\n###DE_TEASER###\n[teaser en allemand]\n###FIN###\n###DE_TEXTE###\n[texte en allemand]\n###FIN###\n###DE_LEGENDE###\n[légende en allemand, même format court]\n###FIN###'+
-    fr.liens.map(function(l,i){ return '\n###DE_LIEN'+(i+1)+'_LABEL###\n[intitulé du lien '+(i+1)+' TRADUIT en allemand]\n###FIN###'; }).join('')+
-    '\n\n###EN_TITRE###\n[title in English]\n###FIN###\n###EN_TEASER###\n[teaser in English]\n###FIN###\n###EN_TEXTE###\n[text in English]\n###FIN###\n###EN_LEGENDE###\n[caption in English, same short format]\n###FIN###'+
-    fr.liens.map(function(l,i){ return '\n###EN_LIEN'+(i+1)+'_LABEL###\n[descriptive label of link '+(i+1)+' TRANSLATED in English]\n###FIN###'; }).join('');
+  var contexte = (aFaire.indexOf('titre') < 0) ? 'CONTEXTE (titre de l\'article, à ne pas traduire) : '+fr.titre+'\n\n' : '';
+  var userPrompt = contexte + 'Traduis en ALLEMAND et en ANGLAIS uniquement les éléments suivants.\n\n'+
+    champsFaits.map(function(c){ return c.lib+' FR:'+(c.k==='texte'?'\n':' ')+fr[c.k]; }).join('\n')+'\n'+liensText+'\n\nFormat de réponse :\n'+
+    champsFaits.map(function(c){ return '\n###DE_'+c.tag+'###\n'+c.de+'\n###FIN###'; }).join('')+
+    liensAFaire.map(function(i){ return '\n###DE_LIEN'+(i+1)+'_LABEL###\n[intitulé du lien '+(i+1)+' TRADUIT en allemand]\n###FIN###'; }).join('')+
+    '\n'+
+    champsFaits.map(function(c){ return '\n###EN_'+c.tag+'###\n'+c.en+'\n###FIN###'; }).join('')+
+    liensAFaire.map(function(i){ return '\n###EN_LIEN'+(i+1)+'_LABEL###\n[descriptive label of link '+(i+1)+' TRANSLATED in English]\n###FIN###'; }).join('');
+  var rienATraduire = !champsFaits.length && !liensAFaire.length;
 
   try {
-    var txt = await claudeCall(system, userPrompt, 3000);
+    var txt = rienATraduire ? '' : await claudeCall(system, userPrompt, 3000);
 
     function get(name){
       var open='###'+name+'###', close='###FIN###';
@@ -1585,20 +1624,35 @@ async function translateDEEN(){
       return cleanDashes(text).replace(/Leutnantschaften/g, 'Statthaltereien').replace(/Leutnantschaft/g, 'Statthalterei');
     }
 
+    // Champ retraduit → nouvelle traduction ; champ inchangé → traduction déjà publiée.
+    function val(c, lang, clean){
+      if(aFaire.indexOf(c) > -1) return clean(get(lang.toUpperCase()+'_'+c.toUpperCase()));
+      return fr[c] ? champOrig(orig && orig[c], lang) : '';
+    }
+    function lienLabel(i, lang, clean){
+      if(liensOrig[i]) return champOrig(liensOrig[i].label, lang) || fr.liens[i].label;
+      return clean(get(lang.toUpperCase()+'_LIEN'+(i+1)+'_LABEL')) || fr.liens[i].label;
+    }
     articleDE = {
-      titre: cleanGerman(get('DE_TITRE')),
-      teaser: cleanGerman(get('DE_TEASER')),
-      texte: cleanGerman(get('DE_TEXTE')),
-      legende: cleanGerman(get('DE_LEGENDE')),
-      liens: fr.liens.map(function(l,i){ return {label: cleanGerman(get('DE_LIEN'+(i+1)+'_LABEL') || l.label), url: l.url}; })
+      titre: val('titre','de',cleanGerman), teaser: val('teaser','de',cleanGerman),
+      texte: val('texte','de',cleanGerman), legende: val('legende','de',cleanGerman),
+      liens: fr.liens.map(function(l,i){ return {label: lienLabel(i,'de',cleanGerman), url: l.url}; })
     };
     articleEN = {
-      titre: cleanDashes(get('EN_TITRE')),
-      teaser: cleanDashes(get('EN_TEASER')),
-      texte: cleanDashes(get('EN_TEXTE')),
-      legende: cleanDashes(get('EN_LEGENDE')),
-      liens: fr.liens.map(function(l,i){ return {label: cleanDashes(get('EN_LIEN'+(i+1)+'_LABEL') || l.label), url: l.url}; })
+      titre: val('titre','en',cleanDashes), teaser: val('teaser','en',cleanDashes),
+      texte: val('texte','en',cleanDashes), legende: val('legende','en',cleanDashes),
+      liens: fr.liens.map(function(l,i){ return {label: lienLabel(i,'en',cleanDashes), url: l.url}; })
     };
+
+    var info = document.getElementById('trad-info');
+    if(orig){
+      var noms = {titre:'titre', teaser:'teaser', texte:'texte', legende:'légende'};
+      var faits = aFaire.map(function(c){ return noms[c]; }).concat(liensAFaire.length ? ['intitulés de liens'] : []);
+      info.textContent = faits.length
+        ? 'Retraduit : ' + faits.join(', ') + '. Le reste reprend les traductions déjà publiées.'
+        : 'Aucun texte modifié : les traductions déjà publiées sont conservées.';
+      info.style.display = 'block';
+    } else { info.style.display = 'none'; }
 
     renderLangPanel('de', articleDE);
     renderLangPanel('en', articleEN);
@@ -1687,9 +1741,16 @@ async function publish(){
     }
   } catch(e2){}
 
-  // Remove article with same id if exists, then prepend new one
-  existingArticles = existingArticles.filter(function(a){ return a.id !== newArticle.id; });
-  existingArticles.unshift(newArticle);
+  // Édition : l'article garde sa place dans la liste et son statut visible/masqué.
+  // Nouvel article : il est placé en tête (et remplace un éventuel homonyme).
+  var idxExistant = editingId ? existingArticles.findIndex(function(a){ return a.id === newArticle.id; }) : -1;
+  if(idxExistant > -1){
+    if('published' in existingArticles[idxExistant]) newArticle.published = existingArticles[idxExistant].published;
+    existingArticles[idxExistant] = newArticle;
+  } else {
+    existingArticles = existingArticles.filter(function(a){ return a.id !== newArticle.id; });
+    existingArticles.unshift(newArticle);
+  }
 
   var json = {
     version: 2,
@@ -1702,6 +1763,7 @@ async function publish(){
     var pdfLiens = [];
     for(var pi=0; pi<pendingPDFs.length; pi++){
       var ppdf = pendingPDFs[pi];
+      if(!ppdf) continue; // PDF retiré à l'étape 2.5
       if(ppdf.base64 && ppdf.filename) await githubPut(s, 'assets/'+ppdf.filename, ppdf.base64, 'Admin: PDF '+ppdf.filename);
       if(ppdf.filename) pdfLiens.push({
         label: {
@@ -1719,20 +1781,7 @@ async function publish(){
   await githubPut(s, 'actualites.json', jsonB64, 'Admin: actualité "'+fr.titre.substring(0,50)+'"', pubSha);
     showPub('✓ Publié avec succès ! L\'article est en ligne.','ok');
     setTimeout(function(){
-      document.getElementById('desc').value = '';
-      document.getElementById('fr-titre').value = '';
-      document.getElementById('fr-teaser').value = '';
-      document.getElementById('fr-texte').value = '';
-      document.getElementById('fr-legende').value = '';
-      document.getElementById('liens-edit').innerHTML = '';
-      document.getElementById('imgPreview').style.display = 'none';
-      document.getElementById('imgFname').style.display = 'none';
-      document.getElementById('panel-de').innerHTML = '';
-      document.getElementById('panel-en').innerHTML = '';
-      document.getElementById('pubStatus').style.display = 'none';
-      imgBase64 = null; imgMime = null; imgOrigName = ''; editingId = null; pdfFiles = []; document.getElementById('pdf-list').innerHTML = '';
-      articleDE = {}; articleEN = {};
-      addLienRow('','');
+      resetArticleForm();
       showTab('articles');
     }, 2000);
   } catch(e){ showPub('Erreur : '+e.message,'err'); }
@@ -1783,8 +1832,11 @@ var articlesData = null;
 var editingId = null;
 
 function editArticle(art){
+  resetArticleForm();
   showTab('new');
   editingId = art.id;
+  editOriginal = JSON.parse(JSON.stringify(art)); // version publiée, pour ne retraduire que ce qui change
+  document.getElementById('article-page-title').textContent = 'Modifier l’actualité';
 
   // Helper: extract FR value from multilingual field
   function fr(field, lang){ var l = lang||'fr'; return (field && (field[l] || field.fr || field)) || ''; }
@@ -1812,12 +1864,12 @@ function editArticle(art){
   container.innerHTML = '';
   document.getElementById('pdf-list').innerHTML = '';
   pdfFiles = [];
-  pendingPDFs = []; // reset — existing PDFs will show in step 2.5
+  pendingPDFs = [];
+  editPDFs = []; // PDF déjà joints : affichés et modifiables dans le bloc « PDF déjà joints »
   (art.liens || []).forEach(function(l){
     var label = fr(l.label);
     if(l.url && l.url.match(/\.pdf$/i)){
-      // Existing PDF: put in pendingPDFs directly (no base64, will be kept as-is)
-      pendingPDFs.push({ filename: l.url.replace(/^assets\//,''), base64: null, labelFr: label, labelDe: fr(l.label, 'de'), labelEn: fr(l.label, 'en'), existing: true });
+      editPDFs.push({ filename: l.url.replace(/^assets\//,''), base64: null, labelFr: label, labelDe: fr(l.label, 'de'), labelEn: fr(l.label, 'en'), existing: true });
     } else {
       addLienRow(label, l.url);
     }
@@ -1833,13 +1885,132 @@ function editArticle(art){
     var thumbImg = document.getElementById('imgThumb');
     thumbImg.src = 'https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/' + art.img_filename;
     thumb.style.display = 'block';
+    // Photo actuelle aussi visible à l'étape 2 (là où on la remplace)
+    document.getElementById('imgThumb2').src = thumbImg.src;
+    document.getElementById('imgPreview2').style.display = 'block';
+    document.getElementById('img2-txt').innerHTML = '<strong>Photo actuelle : ' + escHtml(art.img_filename) + '</strong> — choisir une nouvelle photo pour la remplacer';
   }
 
+  renderPDFsExistants();
   document.getElementById('step2-media').style.display = 'block';
   goStep(2);
   window.scrollTo(0, 0);
 }
 
+
+// ── Édition : état et utilitaires ───────────────────
+var editOriginal = null; // article tel que publié, en mode édition
+var editPDFs = [];       // PDF déjà joints à l'article en cours d'édition
+
+/** Remet le formulaire d'article à zéro (nouvel article, ou après publication). */
+function resetArticleForm(){
+  ['desc','fr-titre','fr-teaser','fr-texte','fr-legende'].forEach(function(id){ document.getElementById(id).value = ''; });
+  var tEl = document.getElementById('fr-titre');
+  delete tEl.dataset.img; delete tEl.dataset.badges; delete tEl.dataset.date; delete tEl.dataset.lieu;
+  document.getElementById('liens-edit').innerHTML = '';
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('imgFname').style.display = 'none';
+  document.getElementById('imgPreview2').style.display = 'none';
+  document.getElementById('img2-txt').innerHTML = '<strong>Choisir une nouvelle photo</strong> ou glisser — laisser vide pour conserver l’actuelle';
+  document.getElementById('imgInput').value = '';
+  document.getElementById('imgInput2').value = '';
+  document.getElementById('panel-de').innerHTML = '';
+  document.getElementById('panel-en').innerHTML = '';
+  document.getElementById('pubStatus').style.display = 'none';
+  document.getElementById('trad-info').style.display = 'none';
+  document.getElementById('step2-media').style.display = 'none';
+  document.getElementById('pdf-list').innerHTML = '';
+  document.getElementById('pdf-list2').innerHTML = '';
+  document.getElementById('pdf-exist-list').innerHTML = '';
+  document.getElementById('pdf-labels-container').innerHTML = '';
+  document.getElementById('article-page-title').textContent = 'Nouvelle actualité « À la Une »';
+  imgBase64 = null; imgMime = null; imgOrigName = '';
+  editingId = null; editOriginal = null; editPDFs = [];
+  pdfFiles = []; pendingPDFs = [];
+  articleDE = {}; articleEN = {};
+  addLienRow('','');
+  goStep(1);
+}
+
+/** Bouton « + Ajouter un article » : toujours un formulaire vierge. */
+function nouvelArticle(){
+  resetArticleForm();
+  showTab('new');
+}
+
+/** Affiche les PDF déjà joints, avec leurs intitulés modifiables et un bouton pour les retirer. */
+function renderPDFsExistants(){
+  var box = document.getElementById('pdf-exist-list');
+  box.innerHTML = '';
+  if(!editPDFs.length){
+    box.innerHTML = '<div style="font-size:13px;color:var(--ink-mute)">Aucun PDF joint.</div>';
+    return;
+  }
+  editPDFs.forEach(function(p, i){
+    var row = document.createElement('div');
+    row.className = 'pdf-exist-row';
+    row.dataset.idx = i;
+    row.innerHTML =
+      '<div class="pdf-exist-head"><span>📄 ' + escHtml(p.filename) + '</span>' +
+        '<button type="button" class="btn-sm pdf-exist-toggle">✕ Retirer</button></div>' +
+      '<div class="pdf-exist-grid">' +
+        '<div><label>Intitulé FR</label><input type="text" class="pdfx-fr" value="' + escHtml(p.labelFr) + '"/></div>' +
+        '<div><label>Intitulé DE</label><input type="text" class="pdfx-de" value="' + escHtml(p.labelDe) + '"/></div>' +
+        '<div><label>Intitulé EN</label><input type="text" class="pdfx-en" value="' + escHtml(p.labelEn) + '"/></div>' +
+      '</div>';
+    row.querySelector('.pdf-exist-toggle').onclick = function(){
+      var retire = row.classList.toggle('is-removed');
+      this.textContent = retire ? '↺ Garder' : '✕ Retirer';
+    };
+    box.appendChild(row);
+  });
+}
+
+/** Lit les PDF déjà joints conservés (non retirés), avec les intitulés saisis. */
+function lirePDFsExistants(){
+  var out = [];
+  document.querySelectorAll('#pdf-exist-list .pdf-exist-row').forEach(function(row){
+    if(row.classList.contains('is-removed')) return;
+    var p = editPDFs[parseInt(row.dataset.idx, 10)];
+    if(!p) return;
+    var lfr = row.querySelector('.pdfx-fr').value.trim() || p.filename;
+    out.push({ filename: p.filename, base64: null, existing: true,
+      labelFr: lfr,
+      labelDe: row.querySelector('.pdfx-de').value.trim() || lfr,
+      labelEn: row.querySelector('.pdfx-en').value.trim() || lfr });
+  });
+  return out;
+}
+
+/** Valeur d'un champ multilingue dans une langue ('' si absente). */
+function champOrig(obj, lang){
+  if(!obj) return '';
+  if(typeof obj === 'string') return lang === 'fr' ? obj : '';
+  return obj[lang] || '';
+}
+
+/**
+ * Champs à retraduire : tous en création ; en édition, seulement ceux dont le français
+ * a changé depuis la publication, ou dont une traduction manque.
+ */
+function champsATraduire(orig, champs, fr){
+  return champs.filter(function(c){
+    var v = (fr[c] || '').trim();
+    if(!v) return false;
+    if(!orig) return true;
+    return v !== champOrig(orig[c], 'fr').trim() || !champOrig(orig[c], 'de') || !champOrig(orig[c], 'en');
+  });
+}
+
+/** Lien déjà publié avec la même adresse et le même intitulé français, et déjà traduit ; sinon null. */
+function lienDejaTraduit(orig, l){
+  if(!orig || !Array.isArray(orig.liens)) return null;
+  for(var i = 0; i < orig.liens.length; i++){
+    var o = orig.liens[i];
+    if(o.url === l.url && champOrig(o.label, 'fr').trim() === (l.label || '').trim() && champOrig(o.label, 'de') && champOrig(o.label, 'en')) return o;
+  }
+  return null;
+}
 
 function renderArticles(){
   var listEl = document.getElementById('articles-list');
@@ -2528,23 +2699,41 @@ async function translateLivre2(){
   document.getElementById('load-ltranslate').style.display='flex';
   document.getElementById('btn-ltranslate').disabled=true;
 
-  var liensText = fr.liens.map(function(l,i){ return 'Lien '+(i+1)+' FR: '+l.label; }).join('\n');
-  var metasText = fr.metas.map(function(m,i){ return 'Meta '+(i+1)+': '+m.label+' = '+m.valeur; }).join('\n');
+  // Traduction ciblée : en édition, seuls les champs français modifiés sont retraduits.
+  var orig = livreEditingData;
+  var CHAMPS = [
+    {k:'titre',     tag:'TITRE',     lib:'TITRE',     de:'[titre DE]',     en:'[title EN]'},
+    {k:'auteur',    tag:'AUTEUR',    lib:'AUTEUR',    de:'[auteur DE]',    en:'[author EN]'},
+    {k:'categorie', tag:'CATEGORIE', lib:'CATEGORIE', de:'[catégorie DE]', en:'[category EN]'},
+    {k:'resume',    tag:'RESUME',    lib:'RESUME',    de:'[résumé DE]',    en:'[summary EN]'},
+    {k:'citation',  tag:'CITATION',  lib:'CITATION',  de:'[citation DE]',  en:'[quote EN]'}
+  ];
+  var aFaire = champsATraduire(orig, CHAMPS.map(function(c){ return c.k; }), fr);
+  var champsFaits = CHAMPS.filter(function(c){ return aFaire.indexOf(c.k) > -1; });
+  var liensOrig = fr.liens.map(function(l){ return lienDejaTraduit(orig, l); });
+  var liensAFaire = fr.liens.map(function(l,i){ return i; }).filter(function(i){ return !liensOrig[i] && fr.liens[i].label; });
+  var liensText = liensAFaire.map(function(i){ return 'Lien '+(i+1)+' FR: '+fr.liens[i].label; }).join('\n');
 
   var system = "Tu traduis des fiches d'ouvrages de l'Ordre Equestre du Saint-Sepulcre de Jerusalem en allemand et en anglais, en conservant le registre solennel. IMPORTANT: traduis aussi les intitules de liens.";
-  var prompt = 'Traduis en ALLEMAND et ANGLAIS:\n\nTITRE: '+fr.titre+'\nAUTEUR: '+fr.auteur+'\nCATEGORIE: '+fr.categorie+'\nRESUME:\n'+fr.resume+(fr.citation?'\nCITATION: '+fr.citation:'')+(liensText?'\n'+liensText:'')+'\n\n'+
-    '###DE_TITRE###\n[titre DE]\n###FIN###\n###DE_AUTEUR###\n[auteur DE]\n###FIN###\n###DE_CATEGORIE###\n[catégorie DE]\n###FIN###\n###DE_RESUME###\n[résumé DE]\n###FIN###'+(fr.citation?'\n###DE_CITATION###\n[citation DE]\n###FIN###':'')+
-    fr.liens.map(function(l,i){ return '\n###DE_LIEN'+(i+1)+'_LABEL###\n[intitulé lien '+(i+1)+' DE]\n###FIN###'; }).join('')+
-    '\n\n###EN_TITRE###\n[title EN]\n###FIN###\n###EN_AUTEUR###\n[author EN]\n###FIN###\n###EN_CATEGORIE###\n[category EN]\n###FIN###\n###EN_RESUME###\n[summary EN]\n###FIN###'+(fr.citation?'\n###EN_CITATION###\n[quote EN]\n###FIN###':'')+
-    fr.liens.map(function(l,i){ return '\n###EN_LIEN'+(i+1)+'_LABEL###\n[link '+(i+1)+' label EN]\n###FIN###'; }).join('');
+  var prompt = 'Traduis en ALLEMAND et ANGLAIS uniquement les éléments suivants'+(aFaire.indexOf('titre')<0 ? ' (ouvrage : '+fr.titre+')' : '')+' :\n\n'+
+    champsFaits.map(function(c){ return c.lib+':'+(c.k==='resume'?'\n':' ')+fr[c.k]; }).join('\n')+(liensText?'\n'+liensText:'')+'\n\n'+
+    champsFaits.map(function(c){ return '###DE_'+c.tag+'###\n'+c.de+'\n###FIN###\n'; }).join('')+
+    liensAFaire.map(function(i){ return '###DE_LIEN'+(i+1)+'_LABEL###\n[intitulé lien '+(i+1)+' DE]\n###FIN###\n'; }).join('')+
+    '\n'+
+    champsFaits.map(function(c){ return '###EN_'+c.tag+'###\n'+c.en+'\n###FIN###\n'; }).join('')+
+    liensAFaire.map(function(i){ return '###EN_LIEN'+(i+1)+'_LABEL###\n[link '+(i+1)+' label EN]\n###FIN###\n'; }).join('');
+  var rienATraduire = !champsFaits.length && !liensAFaire.length;
 
   try {
-    var txt = await claudeCall(system, prompt, 2500);
+    var txt = rienATraduire ? '' : await claudeCall(system, prompt, 2500);
     function get(n){ var o='###'+n+'###',c='###FIN###'; var s=txt.indexOf(o); if(s===-1) return ''; s+=o.length; var e=txt.indexOf(c,s); return e===-1?txt.substring(s).trim():txt.substring(s,e).trim(); }
-    livreDE = { titre:get('DE_TITRE'), auteur:get('DE_AUTEUR'), categorie:get('DE_CATEGORIE'), resume:get('DE_RESUME'), citation:get('DE_CITATION'),
-                liens:fr.liens.map(function(l,i){ return {label:get('DE_LIEN'+(i+1)+'_LABEL')||l.label, url:l.url, muted:l.muted}; }) };
-    livreEN = { titre:get('EN_TITRE'), auteur:get('EN_AUTEUR'), categorie:get('EN_CATEGORIE'), resume:get('EN_RESUME'), citation:get('EN_CITATION'),
-                liens:fr.liens.map(function(l,i){ return {label:get('EN_LIEN'+(i+1)+'_LABEL')||l.label, url:l.url, muted:l.muted}; }) };
+    // Champ retraduit → nouvelle traduction ; champ inchangé → traduction déjà publiée.
+    function val(c, lang){ return aFaire.indexOf(c) > -1 ? get(lang.toUpperCase()+'_'+c.toUpperCase()) : (fr[c] ? champOrig(orig && orig[c], lang) : ''); }
+    function lienLabel(i, lang){ return liensOrig[i] ? (champOrig(liensOrig[i].label, lang) || fr.liens[i].label) : (get(lang.toUpperCase()+'_LIEN'+(i+1)+'_LABEL') || fr.liens[i].label); }
+    livreDE = { titre:val('titre','de'), auteur:val('auteur','de'), categorie:val('categorie','de'), resume:val('resume','de'), citation:val('citation','de'),
+                liens:fr.liens.map(function(l,i){ return {label:lienLabel(i,'de'), url:l.url, muted:l.muted}; }) };
+    livreEN = { titre:val('titre','en'), auteur:val('auteur','en'), categorie:val('categorie','en'), resume:val('resume','en'), citation:val('citation','en'),
+                liens:fr.liens.map(function(l,i){ return {label:lienLabel(i,'en'), url:l.url, muted:l.muted}; }) };
 
     function renderPreview(lang, art, fr){
       var liensHtml = art.liens.map(function(l){ return '<div class="link-prev">'+escLivre(l.label)+' <a href="'+l.url+'" target="_blank">'+l.url+'</a></div>'; }).join('');
