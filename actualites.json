@@ -46,6 +46,14 @@
             "en": "Equestrian Order of the Holy Sepulchre of Jerusalem — Grand Magisterium"
           },
           "url": "https://www.oessh.va"
+        },
+        {
+          "label": {
+            "fr": "Programme de la veillée",
+            "de": "Programm der Gebetsvigil",
+            "en": "Prayer vigil programme"
+          },
+          "url": "assets/test-programme.pdf"
         }
       ],
       "published": false
