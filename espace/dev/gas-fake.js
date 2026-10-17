@@ -15,6 +15,8 @@ function charger(opts) {
   const props = {};
   const cache = {};
   const mails = [];
+  const github = [];
+  const claude = [];
   const googleTokens = opts.googleTokens || {}; // idToken -> infos tokeninfo
 
   function makeSheet(name) {
@@ -88,7 +90,28 @@ function charger(opts) {
       getRemainingDailyQuota: () => 100
     },
     UrlFetchApp: {
-      fetch: (url) => {
+      fetch: (url, o) => {
+        o = o || {};
+        if (url.startsWith('https://api.github.com/')) {
+          const chemin = decodeURIComponent(url.split('/contents/')[1] || '');
+          const methode = (o.method || 'get').toUpperCase();
+          let code = 200, body;
+          if (methode === 'GET') {
+            const f = path.join(__dirname, '..', '..', chemin);
+            if (fs.existsSync(f)) body = { sha: 'sha-' + chemin, content: fs.readFileSync(f).toString('base64'), path: chemin };
+            else { code = 404; body = { message: 'Not Found' }; }
+          } else {
+            const p = JSON.parse(o.payload || '{}');
+            github.push({ chemin, message: p.message, content: p.content, sha: p.sha, auth: (o.headers || {}).Authorization });
+            body = { content: { sha: 'nouveau-sha', path: chemin } };
+          }
+          return { getResponseCode: () => code, getContentText: () => JSON.stringify(body) };
+        }
+        if (url.startsWith('https://api.anthropic.com/')) {
+          const p = JSON.parse(o.payload || '{}');
+          claude.push({ body: p, key: (o.headers || {})['x-api-key'] });
+          return { getResponseCode: () => 200, getContentText: () => JSON.stringify({ content: [{ type: 'text', text: 'Texte rédigé.' }] }) };
+        }
         const tok = decodeURIComponent(url.split('id_token=')[1] || '');
         const info = googleTokens[tok];
         return {
@@ -100,6 +123,8 @@ function charger(opts) {
     Utilities: {
       DigestAlgorithm: { SHA_256: 'sha256' },
       Charset: { UTF_8: 'utf8' },
+      newBlob: (bytes) => ({ getDataAsString: () => Buffer.from(bytes).toString('utf8') }),
+      base64Decode: (b64) => Array.from(Buffer.from(b64, 'base64')),
       computeDigest: (alg, s) => Array.from(crypto.createHash('sha256').update(String(s), 'utf8').digest()).map(b => (b > 127 ? b - 256 : b)),
       getUuid: () => crypto.randomUUID(),
       formatDate: (d) => d.toISOString().slice(0, 10)
@@ -115,7 +140,7 @@ function charger(opts) {
   if (opts.extra) vm.runInContext(opts.extra, ctx, { filename: 'extra.gs' });
 
   return {
-    ctx, sheets, props, cache, mails,
+    ctx, sheets, props, cache, mails, github, claude,
     run: (fnName) => vm.runInContext(fnName + '()', ctx),
     post: (body) => JSON.parse(ctx.doPost({ postData: { contents: JSON.stringify(body) } }).content),
     lastCode: (email) => {

@@ -975,7 +975,7 @@ function getMessage(type, key) {
   return getConfig(`${type}.messages.${key}`) || key;
 }
 
-var ALLOWED_EMAILS = ['jb.niedercorn@gmail.com', 's.niedercorn@gmail.com', 'norbert.stors@gmail.com', 'secretariat@oessh.lu', 'lieutenant@oessh.lu'];
+var ALLOWED_EMAILS = []; // Les accès sont désormais gérés dans l'espace membres (page Accès).
 var imgBase64 = null, imgMime = null, imgOrigName = '';
 var pdfFiles = []; // [{label, filename, base64}]
 var articleDE = {}, articleEN = {};
@@ -3127,6 +3127,10 @@ function saveConfigTab() {
   console.log('✓ Interface admin OESSH initialisée');
 })();
 </script>
+<!-- Connexion et publication via l'espace membres (aucune clé dans le navigateur) -->
+<script src="../espace/config.js"></script>
+<script src="../espace/espace.js"></script>
+<script src="espace-pont.js"></script>
 
 <!-- ====================== FOOTER ====================== -->
 <footer class="site">

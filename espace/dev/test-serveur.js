@@ -119,6 +119,38 @@ srv.run('effacerContactsIntervenants');
 r = srv.post({ action: 'inv.charger', token: tJB });
 ok(r.taches.find(t => t.id === idJ).equipe[0].tel === '', 'effacement des téléphones des intervenants');
 
+console.log('Publication (admin du site)');
+{
+  const sp = charger({ googleTokens: { gj: { aud: CLIENT, iss: 'accounts.google.com', email: 'jb.niedercorn@oessh.lu', email_verified: 'true', exp: futur } } });
+  sp.run('installer');
+  const tA = sp.post({ action: 'auth.google', idToken: 'gj' }).token;
+  const addP = (p) => sp.post({ action: 'acces.enregistrer', token: tA, personne: p });
+  addP({ email: 'redac@x.lu', nom: 'Rita Rédaction', inv: '', site: { actualites: true } });
+  addP({ email: 'conseil@x.lu', nom: 'Carl Conseil', inv: 'organisateur', site: {} });
+  const lg = (e) => { sp.cache = {}; sp.post({ action: 'auth.demanderCode', email: e }); return sp.post({ action: 'auth.verifierCode', email: e, code: sp.lastCode(e) }).token; };
+  const tR = lg('redac@x.lu'), tC = lg('conseil@x.lu');
+  let x = sp.post({ action: 'pub.github', token: tR, methode: 'GET', chemin: 'actualites.json' });
+  ok(x.code === 'config', 'sans jeton GitHub configuré : publication refusée proprement');
+  sp.props.GITHUB_TOKEN = 'ghp_test'; sp.props.CLAUDE_KEY = 'sk-test';
+  x = sp.post({ action: 'pub.github', token: tR, methode: 'GET', chemin: 'actualites.json' });
+  ok(x.ok && x.status === 200 && x.data.content, 'lecture des actualités via le serveur');
+  const b64 = Buffer.from(JSON.stringify({ articles: [] })).toString('base64');
+  x = sp.post({ action: 'pub.github', token: tR, methode: 'PUT', chemin: 'actualites.json', corps: { message: 'Admin: test', content: b64, sha: 'abc' } });
+  ok(x.ok && sp.github.length === 1 && /par Rita Rédaction/.test(sp.github[0].message) && sp.github[0].auth === 'Bearer ghp_test', 'publication d\'une actualité, signée du nom de la personne');
+  ok(!sp.post({ action: 'pub.github', token: tR, methode: 'PUT', chemin: 'lectures.json', corps: { content: b64 } }).ok, 'pas de publication dans une rubrique non autorisée');
+  ok(!sp.post({ action: 'pub.github', token: tR, methode: 'PUT', chemin: 'index.html', corps: { content: b64 } }).ok, 'impossible de modifier une page du site');
+  ok(!sp.post({ action: 'pub.github', token: tR, methode: 'PUT', chemin: 'assets/../index.html', corps: { content: b64 } }).ok, 'chemins détournés refusés');
+  ok(!sp.post({ action: 'pub.github', token: tR, methode: 'PUT', chemin: 'assets/x.svg', corps: { content: b64 } }).ok, 'fichiers SVG refusés (pourraient contenir du code)');
+  ok(sp.post({ action: 'pub.github', token: tR, methode: 'PUT', chemin: 'assets/photo-1.jpg', corps: { content: 'AAAA' } }).ok, 'envoi d\'une image');
+  ok(!sp.post({ action: 'pub.github', token: tR, methode: 'PUT', chemin: 'actualites.json', corps: { content: Buffer.from('pas du json').toString('base64') } }).ok, 'contenu invalide refusé avant publication');
+  ok(sp.post({ action: 'pub.github', token: tC, methode: 'GET', chemin: 'actualites.json' }).code === 'droits', 'un membre sans droit « site » n\'a pas accès');
+  x = sp.post({ action: 'pub.claude', token: tR, corps: { system: 'S', messages: [{ role: 'user', content: 'Bonjour' }], max_tokens: 99999, model: 'autre' } });
+  ok(x.ok && x.data.content[0].text === 'Texte rédigé.' && sp.claude[0].key === 'sk-test' && sp.claude[0].body.max_tokens === 8000 && sp.claude[0].body.model === 'claude-sonnet-4-6', 'rédaction via Claude : clé et modèle côté serveur, plafond de tokens');
+  ok(sp.post({ action: 'pub.claude', token: tC, corps: { messages: [{ role: 'user', content: 'x' }] } }).code === 'droits', 'rédaction réservée aux éditeurs du site');
+  ok(JSON.stringify(sp.post({ action: 'moi', token: tR })).indexOf('ghp_test') < 0, 'les clés ne sont jamais renvoyées au navigateur');
+  ok(sp.sheets.Journal.data.some(r => r[2] === 'publication'), 'publications inscrites au journal');
+}
+
 console.log('Plusieurs adresses par personne');
 const s2 = charger({ googleTokens: { g1: { aud: CLIENT, iss: 'accounts.google.com', email: 'jb.niedercorn@gmail.com', email_verified: 'true', exp: futur }, g2: { aud: CLIENT, iss: 'accounts.google.com', email: 'jb.niedercorn@oessh.lu', email_verified: 'true', exp: futur } } });
 s2.run('installer');

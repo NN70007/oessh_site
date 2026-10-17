@@ -76,6 +76,28 @@ La connexion par **code e-mail** fonctionne dans tous les cas.
 
 ---
 
+## 10. Publication sur le site (admin) sans clé dans le navigateur
+
+L'admin `/admin/` utilise désormais la connexion de l'espace membres. Les clés GitHub et Claude sont rangées **une seule fois dans le script**, jamais dans les navigateurs.
+
+1. **Jeton GitHub** (sur github.com, connecté au compte propriétaire du dépôt) :
+   Settings → Developer settings → Personal access tokens → **Fine-grained tokens** → Generate new token.
+   - Nom : `OESSH espace membres` · Expiration : 1 an (à renouveler)
+   - Repository access : **Only select repositories** → `NN70007/oessh_site`
+   - Permissions → Repository permissions → **Contents : Read and write** (rien d'autre)
+   - Generate, puis copier le jeton (`github_pat_…`).
+2. **Clé Claude** : console.anthropic.com → API Keys → Create key (nommée `OESSH espace membres`). Copier la clé (`sk-ant-…`).
+3. Dans Apps Script : ⚙️ **Paramètres du projet** → **Propriétés du script** → **Ajouter une propriété du script** :
+   - `GITHUB_TOKEN` = le jeton GitHub
+   - `CLAUDE_KEY` = la clé Claude
+   puis **Enregistrer les propriétés du script**.
+4. Déployer une **nouvelle version** (Déployer → Gérer les déploiements → ✏️ → Nouvelle version).
+5. Dans la page **Accès**, cocher Actualités / Lectures / Newsletter pour les éditeurs.
+
+Les anciennes clés collées dans les navigateurs peuvent ensuite être révoquées (jeton GitHub de chaque éditeur, clé Claude personnelle).
+
+Ce que vérifie le serveur à chaque publication : la session, le droit de la personne sur la rubrique (actualités, lectures, newsletters), le fichier visé (uniquement ces trois fichiers et des images ou PDF dans `assets/`), et la validité du contenu. Chaque publication est signée du nom de la personne dans l'historique GitHub et inscrite au journal.
+
 ## Entretien
 
 - **Modifier le script** (nouvelle version de `Code.gs`) : coller le nouveau code, enregistrer, puis **Déployer → Gérer les déploiements → ✏️ → Version : Nouvelle version → Déployer**. L'URL ne change pas.
