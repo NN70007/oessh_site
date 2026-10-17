@@ -16,10 +16,8 @@ var CONFIG = {
   // Identifiant OAuth Google du site (le même que celui de l'admin actuel).
   GOOGLE_CLIENT_ID: '52829295071-cer9p7voptd0lgdrmgk5a35furmtn256.apps.googleusercontent.com',
   // Personne(s) qui reçoivent tous les droits à l'installation (modifiable ensuite dans l'onglet Acces).
-  ADMINS_INITIAUX: [
-    { email: 'jb.niedercorn@oessh.lu', nom: 'Jean-Baptiste Niedercorn' },
-    { email: 'jb.niedercorn@gmail.com', nom: 'Jean-Baptiste Niedercorn (Gmail)' }
-  ],
+  // Une personne peut avoir plusieurs adresses : la première est l'adresse principale.
+  ADMINS_INITIAUX: [{ emails: ['jb.niedercorn@oessh.lu', 'jb.niedercorn@gmail.com'], nom: 'Jean-Baptiste Niedercorn' }],
   SESSION_JOURS: 30,
   CODE_MINUTES: 10,
   CODE_ESSAIS_MAX: 5,
@@ -97,8 +95,9 @@ function installer() {
   });
   var acc = lire_('Acces');
   CONFIG.ADMINS_INITIAUX.forEach(function (a) {
-    if (!acc.some(function (r) { return norm_(r.Email) === norm_(a.email); })) {
-      ajouter_('Acces', { Email: norm_(a.email), Nom: a.nom, Investiture: 'organisateur', Actualites: 'oui', Lectures: 'oui', Newsletter: 'oui', Gestion: 'oui', Actif: 'oui', Note: 'Administrateur initial' });
+    var em = a.emails.map(norm_);
+    if (!acc.some(function (r) { return emails_(r.Email).some(function (x) { return em.indexOf(x) > -1; }); })) {
+      ajouter_('Acces', { Email: em.join('; '), Nom: a.nom, Investiture: 'organisateur', Actualites: 'oui', Lectures: 'oui', Newsletter: 'oui', Gestion: 'oui', Actif: 'oui', Note: 'Administrateur initial' });
     }
   });
   if (!lire_('Jalons').length) {
@@ -156,7 +155,7 @@ function authGoogle_(idToken) {
     journal_(norm_(info.email), 'refus', 'Connexion Google sans autorisation');
     throw refus_("Votre compte n'est pas autorisé. Demandez l'accès au secrétariat de la Lieutenance.", 'non_autorise');
   }
-  return ouvrirSession_(row, 'google');
+  return ouvrirSession_(row, 'google', info.email);
 }
 
 function demanderCode_(email) {
@@ -195,15 +194,16 @@ function verifierCode_(email, code) {
   cache.remove('otp:' + email);
   var row = accesPour_(email);
   if (!row) throw refus_("Votre compte n'est pas autorisé.", 'non_autorise');
-  return ouvrirSession_(row, 'code');
+  return ouvrirSession_(row, 'code', email);
 }
 
-function ouvrirSession_(row, via) {
+function ouvrirSession_(row, via, loginEmail) {
   var token = Utilities.getUuid() + Utilities.getUuid().replace(/-/g, '');
   var exp = Date.now() + CONFIG.SESSION_JOURS * 86400000;
-  PropertiesService.getScriptProperties().setProperty('s:' + hash_(token), JSON.stringify({ email: norm_(row.Email), exp: exp }));
-  journal_(norm_(row.Email), 'connexion', via);
-  return { ok: true, token: token, expire: exp, user: publicUser_(userFromRow_(row)) };
+  loginEmail = norm_(loginEmail);
+  PropertiesService.getScriptProperties().setProperty('s:' + hash_(token), JSON.stringify({ email: loginEmail, exp: exp }));
+  journal_(loginEmail, 'connexion', via);
+  return { ok: true, token: token, expire: exp, user: publicUser_(userFromRow_(row, loginEmail)) };
 }
 
 function deconnexion_(token) {
@@ -220,7 +220,7 @@ function userFromToken_(token) {
   if (s.exp < Date.now()) { props.deleteProperty(key); throw refus_('Session expirée. Reconnectez-vous.', 'session'); }
   var row = accesPour_(s.email);
   if (!row) { props.deleteProperty(key); throw refus_("Votre accès a été retiré.", 'session'); }
-  return userFromRow_(row);
+  return userFromRow_(row, s.email);
 }
 
 /* ======================= Droits ======================= */
@@ -229,20 +229,28 @@ function accesPour_(email) {
   if (!email) return null;
   var rows = lire_('Acces');
   for (var i = 0; i < rows.length; i++) {
-    if (norm_(rows[i].Email) === email && oui_(rows[i].Actif)) return rows[i];
+    if (emails_(rows[i].Email).indexOf(email) > -1 && oui_(rows[i].Actif)) return rows[i];
   }
   return null;
 }
-function userFromRow_(r) {
+/** Adresses d'une ligne (séparées par ; , ou espace), en minuscules, sans doublon. */
+function emails_(v) {
+  var out = [];
+  String(v || '').split(/[;,\s]+/).forEach(function (e) { e = norm_(e); if (e && out.indexOf(e) < 0) out.push(e); });
+  return out;
+}
+function cle_(r) { return emails_(r.Email)[0] || ''; }
+function userFromRow_(r, loginEmail) {
   var inv = String(r.Investiture || '').toLowerCase().trim();
+  var ems = emails_(r.Email);
   return {
-    email: norm_(r.Email), nom: String(r.Nom || r.Email),
+    email: norm_(loginEmail) || ems[0] || '', emails: ems, cle: ems[0] || '', nom: String(r.Nom || ems[0] || ''),
     inv: ROLES_INV.indexOf(inv) > -1 ? inv : '',
     site: { actualites: oui_(r.Actualites), lectures: oui_(r.Lectures), newsletter: oui_(r.Newsletter) },
     gestion: oui_(r.Gestion)
   };
 }
-function publicUser_(u) { return { email: u.email, nom: u.nom, inv: u.inv, site: u.site, gestion: u.gestion }; }
+function publicUser_(u) { return { email: u.email, emails: u.emails, nom: u.nom, inv: u.inv, site: u.site, gestion: u.gestion }; }
 function exigerInv_(u, roles) {
   if (roles.indexOf(u.inv) < 0) throw refus_("Vous n'avez pas les droits pour cette action.", 'droits');
 }
@@ -261,7 +269,7 @@ function invCharger_(u) {
   var taches = toutesTaches_();
   if (u.inv === 'intervenant') {
     taches = taches.filter(function (t) {
-      return t.equipe.some(function (m) { return (m.email && norm_(m.email) === u.email) || (m.nom && m.nom === u.nom); });
+      return t.equipe.some(function (m) { return (m.email && u.emails.indexOf(norm_(m.email)) > -1) || (m.nom && m.nom === u.nom); });
     });
   }
   var activite = u.inv === 'intervenant' ? [] : lire_('Activite').slice(-CONFIG.ACTIVITE_MAX).reverse().map(function (r) { return { ts: Number(r.Date) || 0, qui: r.Qui, texte: r.Texte }; });
@@ -379,46 +387,52 @@ function activite_(qui, texte) {
 function accesLister_(u) {
   exigerGestion_(u);
   var personnes = lire_('Acces').map(function (r) {
-    var x = userFromRow_(r); x.actif = oui_(r.Actif); x.note = r.Note || ''; return x;
+    var x = userFromRow_(r); delete x.email; x.actif = oui_(r.Actif); x.note = r.Note || ''; return x;
   });
   var journal = lire_('Journal').slice(-60).reverse().map(function (r) { return { ts: Number(r.Date) || 0, qui: r.Qui, action: r.Action, detail: r.Detail }; });
   return { ok: true, personnes: personnes, journal: journal };
 }
 
-function accesEnregistrer_(u, p, emailOriginal) {
+function accesEnregistrer_(u, p, cleOriginale) {
   exigerGestion_(u);
   if (!p || typeof p !== 'object') throw refus_('Données invalides.', 'donnees');
-  var email = norm_(p.email);
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw refus_('Adresse e-mail invalide.', 'donnees');
-  var orig = norm_(emailOriginal || email);
+  var ems = emails_(p.email);
+  if (!ems.length) throw refus_('Indiquez au moins une adresse e-mail.', 'donnees');
+  ems.forEach(function (e) { if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) throw refus_('Adresse e-mail invalide : ' + e, 'donnees'); });
+  if (ems.length > 5) throw refus_('Cinq adresses au maximum par personne.', 'donnees');
+  var orig = norm_(cleOriginale);
   var inv = ROLES_INV.indexOf(p.inv) > -1 ? p.inv : '';
   var site = p.site || {};
   var ligne = {
-    Email: email, Nom: texte_(p.nom, 80) || email, Investiture: inv,
+    Email: ems.join('; '), Nom: texte_(p.nom, 80) || ems[0], Investiture: inv,
     Actualites: site.actualites ? 'oui' : '', Lectures: site.lectures ? 'oui' : '', Newsletter: site.newsletter ? 'oui' : '',
     Gestion: p.gestion ? 'oui' : '', Actif: p.actif === false ? 'non' : 'oui', Note: texte_(p.note, 200)
   };
-  if (orig === u.email && (!ligne.Gestion || ligne.Actif !== 'oui' || email !== u.email)) {
-    throw refus_('Vous ne pouvez pas retirer vos propres droits de gestion (demandez à un autre gestionnaire).', 'droits');
-  }
   return verrou_(function () {
     var rows = lire_('Acces');
-    var existe = rows.some(function (r) { return norm_(r.Email) === orig; });
-    if (email !== orig && rows.some(function (r) { return norm_(r.Email) === email; })) throw refus_('Cette adresse figure déjà dans la liste.', 'donnees');
-    if (existe) majLigne_('Acces', function (r) { return norm_(r.Email) === orig; }, ligne);
+    var cible = orig ? rows.filter(function (r) { return cle_(r) === orig; })[0] : null;
+    if (orig && !cible) throw refus_('Cette personne n\u2019existe plus dans la liste.', 'introuvable');
+    if (cible && emails_(cible.Email).indexOf(u.email) > -1 && (!ligne.Gestion || ligne.Actif !== 'oui' || ems.indexOf(u.email) < 0)) {
+      throw refus_('Vous ne pouvez pas retirer vos propres droits de gestion, ni l\u2019adresse avec laquelle vous êtes connecté.', 'droits');
+    }
+    var doublon = rows.filter(function (r) { return r !== cible && emails_(r.Email).some(function (e) { return ems.indexOf(e) > -1; }); })[0];
+    if (doublon) throw refus_('Une de ces adresses est déjà attribuée à ' + (doublon.Nom || cle_(doublon)) + '.', 'donnees');
+    if (cible) majLigne_('Acces', function (r) { return cle_(r) === orig; }, ligne);
     else ajouter_('Acces', ligne);
-    journal_(u.email, existe ? 'acces.modifie' : 'acces.ajoute', resumeDroits_(ligne));
+    journal_(u.email, cible ? 'acces.modifie' : 'acces.ajoute', resumeDroits_(ligne));
     return { ok: true };
   });
 }
 
-function accesSupprimer_(u, email) {
+function accesSupprimer_(u, cle) {
   exigerGestion_(u);
-  email = norm_(email);
-  if (email === u.email) throw refus_('Vous ne pouvez pas supprimer votre propre accès.', 'droits');
+  cle = norm_(cle);
   return verrou_(function () {
-    supprimerLignes_('Acces', function (r) { return norm_(r.Email) === email; });
-    journal_(u.email, 'acces.supprime', email);
+    var cible = lire_('Acces').filter(function (r) { return cle_(r) === cle; })[0];
+    if (!cible) return { ok: true };
+    if (emails_(cible.Email).indexOf(u.email) > -1) throw refus_('Vous ne pouvez pas supprimer votre propre accès.', 'droits');
+    supprimerLignes_('Acces', function (r) { return cle_(r) === cle; });
+    journal_(u.email, 'acces.supprime', cible.Email);
     return { ok: true };
   });
 }

@@ -18,10 +18,10 @@ function ok(cond, msg) { assert.ok(cond, msg); n++; console.log('  ✓ ' + msg);
 
 console.log('Installation');
 srv.run('installer');
-ok(srv.sheets.Acces.data.length === 3, 'onglet Acces créé avec les administrateurs initiaux');
+ok(srv.sheets.Acces.data.length === 2, 'onglet Acces créé avec l\'administrateur initial (deux adresses)');
 ok(srv.sheets.Jalons.data.length === 9, 'jalons par défaut créés');
 srv.run('installer');
-ok(srv.sheets.Acces.data.length === 3, 'réinstaller ne duplique rien');
+ok(srv.sheets.Acces.data.length === 2, 'réinstaller ne duplique rien');
 
 console.log('Connexion Google');
 let r = srv.post({ action: 'auth.google', idToken: 'tok-jb' });
@@ -46,9 +46,9 @@ ok(add({ email: 'chauffeur@example.lu', nom: 'Charles Chauffeur', inv: 'interven
 ok(add({ email: 'site@example.lu', nom: 'Sam Site', inv: '', site: { actualites: true } }).ok, 'ajout d\'un éditeur du site seulement');
 r = add({ email: 'jb.niedercorn@gmail.com', nom: 'JB', inv: 'organisateur', site: {}, gestion: false });
 ok(!r.ok, 'impossible de retirer ses propres droits de gestion');
-ok(!srv.post({ action: 'acces.supprimer', token: tJB, email: 'jb.niedercorn@gmail.com' }).ok, 'impossible de supprimer son propre accès');
+ok(!srv.post({ action: 'acces.supprimer', token: tJB, email: 'jb.niedercorn@oessh.lu' }).ok, 'impossible de supprimer son propre accès');
 r = srv.post({ action: 'acces.lister', token: tJB });
-ok(r.ok && r.personnes.length === 6 && r.journal.length > 0, 'liste des accès et journal');
+ok(r.ok && r.personnes.length === 5 && r.journal.length > 0, 'liste des accès et journal');
 
 console.log('Connexion par code');
 r = srv.post({ action: 'auth.demanderCode', email: 'joris@example.lu' });
@@ -100,7 +100,7 @@ ok(r.taches.length === 2 && r.activite.length >= 5, 'activité journalisée côt
 console.log('Retrait d\'accès');
 ok(srv.post({ action: 'acces.supprimer', token: tJB, email: 'lecteur@example.lu' }).ok, 'suppression d\'un accès');
 ok(srv.post({ action: 'inv.charger', token: tLect }).code === 'session', 'la session de la personne retirée ne marche plus');
-add({ email: 'joris@example.lu', nom: 'Joris Buyse', inv: 'contributeur', site: {}, actif: false });
+srv.post({ action: 'acces.enregistrer', token: tJB, emailOriginal: 'joris@example.lu', personne: { email: 'joris@example.lu', nom: 'Joris Buyse', inv: 'contributeur', site: {}, actif: false } });
 ok(srv.post({ action: 'moi', token: tJoris }).code === 'session', 'désactiver un accès coupe la session');
 ok(srv.post({ action: 'auth.deconnexion', token: tChauf }).ok && srv.post({ action: 'moi', token: tChauf }).code === 'session', 'déconnexion');
 
@@ -109,9 +109,22 @@ srv.run('effacerContactsIntervenants');
 r = srv.post({ action: 'inv.charger', token: tJB });
 ok(r.taches.find(t => t.id === idJ).equipe[0].tel === '', 'effacement des téléphones des intervenants');
 
+console.log('Plusieurs adresses par personne');
+const s2 = charger({ googleTokens: { g1: { aud: CLIENT, iss: 'accounts.google.com', email: 'jb.niedercorn@gmail.com', email_verified: 'true', exp: futur }, g2: { aud: CLIENT, iss: 'accounts.google.com', email: 'jb.niedercorn@oessh.lu', email_verified: 'true', exp: futur } } });
+s2.run('installer');
+const a1 = s2.post({ action: 'auth.google', idToken: 'g1' }), a2 = s2.post({ action: 'auth.google', idToken: 'g2' });
+ok(a1.ok && a2.ok && a1.user.nom === a2.user.nom && a1.user.emails.length === 2, 'connexion avec l\'une ou l\'autre adresse : même personne');
+ok(s2.post({ action: 'acces.enregistrer', token: a1.token, personne: { email: 'a@x.lu, b@y.lu', nom: 'Alice', inv: 'lecture', site: {} } }).ok, 'ajout d\'une personne avec deux adresses');
+s2.cache = {}; s2.post({ action: 'auth.demanderCode', email: 'b@y.lu' });
+ok(s2.post({ action: 'auth.verifierCode', email: 'b@y.lu', code: s2.lastCode('b@y.lu') }).user.nom === 'Alice', 'connexion par code avec la seconde adresse');
+ok(!s2.post({ action: 'acces.enregistrer', token: a1.token, personne: { email: 'b@y.lu', nom: 'Bob', inv: 'lecture', site: {} } }).ok, 'une adresse ne peut appartenir qu\'à une seule personne');
+ok(!s2.post({ action: 'acces.enregistrer', token: a1.token, emailOriginal: 'jb.niedercorn@oessh.lu', personne: { email: 'jb.niedercorn@oessh.lu', nom: 'JB', inv: 'organisateur', site: {}, gestion: true } }).ok, 'on ne peut pas retirer l\'adresse avec laquelle on est connecté');
+ok(s2.post({ action: 'acces.enregistrer', token: a1.token, emailOriginal: 'a@x.lu', personne: { email: 'a@x.lu', nom: 'Alice', inv: 'contributeur', site: {} } }).ok, 'retirer une adresse à quelqu\'un d\'autre');
+ok(!s2.post({ action: 'acces.supprimer', token: a2.token, email: 'jb.niedercorn@oessh.lu' }).ok, 'impossible de supprimer sa propre fiche, quelle que soit l\'adresse de connexion');
+
 console.log('Script autonome (hors feuille)');
 const auto = charger({ autonome: true });
 ok(/Installation terminée/.test(auto.run('installer')) && auto.props.SHEET_ID === 'fake', 'installer crée et mémorise la feuille si le script n\'est pas rattaché');
-ok(auto.sheets.Acces.data.length === 3, 'onglets créés dans la feuille mémorisée');
+ok(auto.sheets.Acces.data.length === 2, 'onglets créés dans la feuille mémorisée');
 
 console.log('\n' + n + ' vérifications réussies.');
