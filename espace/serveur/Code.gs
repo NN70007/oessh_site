@@ -78,6 +78,7 @@ function route_(req) {
     case 'acces.lister': return accesLister_(user);
     case 'acces.enregistrer': return accesEnregistrer_(user, req.personne, req.emailOriginal);
     case 'acces.supprimer': return accesSupprimer_(user, req.email);
+    case 'acces.deconnecter': return accesDeconnecter_(user, req.email);
     default: throw refus_('Action inconnue.', 'inconnu');
   }
 }
@@ -198,6 +199,7 @@ function verifierCode_(email, code) {
 }
 
 function ouvrirSession_(row, via, loginEmail) {
+  try { nettoyerSessions(); } catch (e) {} // ménage des sessions expirées à chaque connexion
   var token = Utilities.getUuid() + Utilities.getUuid().replace(/-/g, '');
   var exp = Date.now() + CONFIG.SESSION_JOURS * 86400000;
   loginEmail = norm_(loginEmail);
@@ -435,6 +437,21 @@ function accesSupprimer_(u, cle) {
     journal_(u.email, 'acces.supprime', cible.Email);
     return { ok: true };
   });
+}
+/** Ferme toutes les sessions ouvertes d'une personne (toutes ses adresses, tous ses appareils). */
+function accesDeconnecter_(u, cle) {
+  exigerGestion_(u);
+  cle = norm_(cle);
+  var cible = lire_('Acces').filter(function (r) { return cle_(r) === cle; })[0];
+  if (!cible) throw refus_('Personne introuvable.', 'introuvable');
+  var ems = emails_(cible.Email);
+  var props = PropertiesService.getScriptProperties(), all = props.getProperties(), n = 0;
+  Object.keys(all).forEach(function (k) {
+    if (k.indexOf('s:') !== 0) return;
+    try { if (ems.indexOf(JSON.parse(all[k]).email) > -1) { props.deleteProperty(k); n++; } } catch (e) {}
+  });
+  journal_(u.email, 'acces.deconnecte', cible.Email + ' — ' + n + ' session(s) fermée(s)');
+  return { ok: true, fermees: n, vous: ems.indexOf(u.email) > -1 };
 }
 function resumeDroits_(l) {
   var d = [];

@@ -102,6 +102,10 @@ function ok(c, m) { assert.ok(c, m); n++; console.log('  ✓ ' + m); }
   await p.locator('button[data-email="jb.niedercorn@oessh.lu"]').click();
   ok(await p.isDisabled('#p-gest'), 'on ne peut pas se retirer soi-même le droit de gestion');
   await p.click('#p-cancel');
+  await p.locator('button[data-email="joris@example.lu"]').click();
+  await p.click('#p-logout');
+  await p.waitForFunction(() => /session|Aucune session/.test(document.getElementById('toast')?.textContent || ''));
+  ok(true, 'bouton « Déconnecter partout »');
   ok((await p.locator('#journal').innerText()).includes('ajoute'), 'journal des changements de droits');
   if (shots) await p.screenshot({ path: shots + '/4-acces.png', fullPage: true });
   await p.click('#btn-logout'); await p.waitForSelector('#login:not([hidden])');
