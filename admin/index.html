@@ -3488,31 +3488,65 @@ function typeBadge(t){
   return '<span class="type-badge type-'+(t||'autre')+'">'+(labels[t]||'Autre')+'</span>';
 }
 
+var calData=null, calLoadError=null;
+
 function loadCalendrier(){
   var loadEl=document.getElementById('cal-loading');
   var listEl=document.getElementById('cal-list');
   if(loadEl) loadEl.style.display='block';
   if(listEl) listEl.innerHTML='';
+  calData=null; calLoadError=null;
   githubGetFile('calendrier.json')
     .then(function(res){
-      calData=JSON.parse(atob(res.content.replace(/\s/g,'')));
+      calData=JSON.parse(calDecodeB64(res.content));
+      if(!calData.evenements) calData.evenements=[];
       if(loadEl) loadEl.style.display='none';
       renderCalList();
     })
-    .catch(function(){
+    .catch(function(err){
       if(loadEl) loadEl.style.display='none';
-      if(listEl) listEl.innerHTML='<p style="color:var(--ink-mute);font-size:13px">Fichier calendrier.json introuvable — il sera créé à la première publication.</p>';
-      calData={version:1,evenements:[]};
+      if(err && err.status===404){
+        calData={version:1,evenements:[]};
+        if(listEl) listEl.innerHTML='<p style="color:var(--ink-mute);font-size:13px">Fichier calendrier.json introuvable — il sera créé à la première publication.</p>';
+        return;
+      }
+      // Toute autre erreur : on NE repart PAS d'une liste vide (sinon une publication écraserait le calendrier existant).
+      calLoadError=(err&&err.message)||'erreur inconnue';
+      if(listEl) listEl.innerHTML='<p style="color:var(--cardinal);font-size:13px">Impossible de charger le calendrier ('+escHtmlCal(calLoadError)+'). Ajout et suppression sont bloqués tant que le chargement échoue. <a href="#" onclick="loadCalendrier();return false">Réessayer</a></p>';
     });
 }
 
+function escHtmlCal(t){return String(t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function calDecodeB64(b64){return decodeURIComponent(escape(atob(String(b64).replace(/\s/g,''))));}
+function calEncodeB64(txt){return btoa(unescape(encodeURIComponent(txt)));}
+
 function githubGetFile(path){
-  var repo=localStorage.getItem('oessh_repo')||'NN70007/oessh_site';
-  var pat=localStorage.getItem('oessh_pat');
-  var url='https://api.github.com/repos/'+repo+'/contents/'+path;
-  var h={'Accept':'application/vnd.github.v3+json'};
-  if(pat) h['Authorization']='token '+pat;
-  return fetch(url,{headers:h}).then(function(r){if(!r.ok) throw new Error('HTTP '+r.status); return r.json();});
+  var s=getSettings();
+  var url='https://api.github.com/repos/'+s.repo+'/contents/'+path;
+  return fetch(url,{headers:{'Authorization':'Bearer '+s.githubToken,'Accept':'application/vnd.github+json'}}).then(function(r){
+    if(r.ok) return r.json();
+    return r.json().catch(function(){return {};}).then(function(d){
+      var e=new Error((d&&d.message)||('HTTP '+r.status)); e.status=r.status; throw e;
+    });
+  });
+}
+
+function calCanWrite(){
+  if(calData && !calLoadError) return true;
+  alert('Le calendrier n\'a pas pu être chargé : publication bloquée pour ne pas écraser les événements existants.');
+  return false;
+}
+
+function publishCalJson(message, done){
+  var json=JSON.stringify(calData,null,2)+'\n';
+  githubPut(getSettings(),'calendrier.json',calEncodeB64(json),message)
+    .then(function(){ if(done) done(); })
+    .catch(function(e){
+      alert('Échec de la publication du calendrier : '+(e&&e.message||e));
+      var l=document.getElementById('cal-publish-loader'); if(l) l.style.display='none';
+      var bt=document.getElementById('cal-publish-btn'); if(bt) bt.disabled=false;
+      loadCalendrier();
+    });
 }
 
 function renderCalList(){
@@ -3533,6 +3567,7 @@ function renderCalList(){
 }
 
 function deleteCalEvent(id){
+  if(!calCanWrite()) return;
   if(!confirm('Supprimer cet événement ?')) return;
   calData.evenements=calData.evenements.filter(function(e){return e.id!==id;});
   publishCalJson('Suppression événement '+id,function(){renderCalList();});
@@ -3658,6 +3693,7 @@ function calCellEdit(td){
 function calTypeEdit(i,val){calParsed[i].type=val;}
 
 function calPublish(){
+  if(!calCanWrite()) return;
   var toAdd=calParsed.filter(function(e){return e._checked;});
   if(!toAdd.length){document.getElementById('cal-publish-err').textContent='Aucun événement coché.';return;}
   document.getElementById('cal-publish-err').textContent='';
