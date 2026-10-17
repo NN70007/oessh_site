@@ -326,6 +326,23 @@
       }
     },
     {
+      "id": "2026-10-12-formation-17922664437640",
+      "date_iso": "2026-10-12",
+      "date_affichee": "OCT 12",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation spirituelle",
+        "de": "Abend der geistlichen Bildung",
+        "en": "Spiritual Formation Meeting"
+      },
+      "lieu": {
+        "fr": "Walferdange · 19h30 à 21h30",
+        "de": "Walferdange · 19:30 bis 21:30 Uhr",
+        "en": "Walferdange · 7:30 PM to 9:30 PM"
+      }
+    },
+    {
       "id": "2026-10-23-messe",
       "date_iso": "2026-10-23",
       "date_affichee": "OCT 23",
