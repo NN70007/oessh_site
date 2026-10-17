@@ -360,6 +360,23 @@
       }
     },
     {
+      "id": "2026-11-17-formation-17922659338850",
+      "date_iso": "2026-11-17",
+      "date_affichee": "NOV 17",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation spirituelle",
+        "de": "Treffen zur geistlichen Bildung",
+        "en": "Spiritual Formation Meeting"
+      },
+      "lieu": {
+        "fr": "19h30–21h30",
+        "de": "Zu bestätigen · 19:30–21:30 Uhr",
+        "en": "To be confirmed · 7:30–9:30 PM"
+      }
+    },
+    {
       "id": "2026-11-29-messe",
       "date_iso": "2026-11-29",
       "date_affichee": "NOV 29",
