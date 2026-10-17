@@ -57,7 +57,7 @@
   var droitsOnglets = {};
   function appliquerDroits(u) {
     var d = (u && u.site) || {};
-    droitsOnglets = { "new": !!d.actualites, articles: !!d.actualites, lectures: !!d.lectures, newsletters: !!d.newsletter, "export": !!(d.newsletter || d.actualites), config: false };
+    droitsOnglets = { "new": !!d.actualites, articles: !!d.actualites, lectures: !!d.lectures, newsletters: !!d.newsletter, calendrier: !!d.actualites, "export": !!(d.newsletter || d.actualites), config: false };
     Object.keys(droitsOnglets).forEach(function (k) {
       var b = document.getElementById("tab-" + k);
       if (b) b.style.display = droitsOnglets[k] ? "" : "none";
@@ -102,10 +102,10 @@
       ctrl.insertBefore(a, ctrl.firstChild);
     }
     appliquerDroits(u);
-    var premier = ["articles", "lectures", "newsletters"].filter(function (k) { return droitsOnglets[k]; })[0];
+    var premier = ["articles", "lectures", "calendrier", "newsletters"].filter(function (k) { return droitsOnglets[k]; })[0];
     if (premier) showTabOrigine(premier);
     // Droits à jour depuis le serveur (un accès retiré est appliqué immédiatement).
-    E.api("moi").then(function (out) { appliquerDroits(out.user); var d2 = out.user.site || {}; if (!(d2.actualites || d2.lectures || d2.newsletter)) ecranSansAcces("Votre accès à l’administration du site a été retiré."); })
+    E.api("moi").then(function (out) { appliquerDroits(out.user); var d2 = out.user.site || {}; if (!(d2.actualites || d2.lectures || d2.newsletter || d2.calendrier)) ecranSansAcces("Votre accès à l’administration du site a été retiré."); })
       .catch(function (e) { if (e && e.code === "session") ecranSansAcces("Votre session a expiré. Reconnectez-vous à l’espace membres."); });
   }
 
