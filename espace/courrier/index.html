@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../espace.css">
+<link rel="stylesheet" href="../espace.css?v=20261018a">
 <style>
 /* ── Courrier officiel ── */
 
@@ -363,7 +363,7 @@
 <div id="chrome-foot"></div>
 
 <script src="../config.js"></script>
-<script src="../espace.js"></script>
+<script src="../espace.js?v=20261018a"></script>
 <script src="../admin/espace-pont.js"></script>
 <script>
 (function(){
@@ -379,12 +379,12 @@ if (!u.courrier && !u.admin) {
     '<div class="container"><div class="notice"><h4>Accès non autorisé.</h4>' +
     '<p>Vous n\'avez pas accès à l\'outil de courrier. Contactez le secrétariat de la Lieutenance.</p>' +
     '</div></div>';
-  E.renderTop({ tabs: " " });
+  E.renderTop({ section: "Courrier", tabs: " " });
   E.renderFoot();
   return;
 }
 // Menu propre à la page
-E.renderTop({ tabs: E.sectionTabs([
+E.renderTop({ section: "Courrier", tabs: E.sectionTabs([
   { id: "sec-rediger",    t: "Rédiger" },
   { id: "sec-apercu",     t: "Prévisualisation" },
   { id: "sec-historique", t: "Mes courriers" }

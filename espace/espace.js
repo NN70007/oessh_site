@@ -92,10 +92,15 @@
     var s = getSession(), user = s && s.user;
     var el = document.getElementById("chrome-top");
     var right = user
-      ? '<span class="tb-right"><span>' + esc(user.nom) + "</span>" + (opts.tabs ? '<a href="' + lien("./") + '">Espace membres</a>' : "") + '<button type="button" id="btn-logout">Se déconnecter</button></span>'
+      ? '<span class="tb-right"><span>' + esc(user.nom) + "</span>" + '<button type="button" id="btn-logout">Se déconnecter</button></span>'
       : '<span class="tb-center">Ordre pontifical au service de la Terre Sainte</span>';
+    // Fil d'Ariane : « Espace membres / Section » (lien de retour vers l'accueil de l'espace)
+    var fil = !user ? "<span>" + dateTopbar() + "</span>"
+      : opts.section
+        ? '<a class="tb-home" href="' + lien("./") + '">Espace membres</a><span class="tb-sep" aria-hidden="true">/</span><span class="tb-here" aria-current="page">' + esc(opts.section) + "</span>"
+        : '<span class="tb-here" aria-current="page">Espace membres</span>';
     el.innerHTML =
-      '<div class="topbar"><div class="topbar-inner"><span class="tb-left"><span class="tb-dot' + (user ? " live" : "") + '"></span><span>' + (user ? "ESPACE MEMBRES" : dateTopbar()) + "</span></span>" + right + "</div></div>" +
+      '<div class="topbar"><div class="topbar-inner"><nav class="tb-left" aria-label="Fil d’Ariane"><span class="tb-dot' + (user ? " live" : "") + '"></span>' + fil + "</nav>" + right + "</div></div>" +
       '<header class="site"><nav class="nav" aria-label="Navigation">' +
       '<a class="brand" href="' + lien("./") + '">' + cross() + '<span class="brand-text"><span class="l1">Ordre Équestre du Saint-Sépulcre de Jérusalem</span><span class="l2">Lieutenance pour le Luxembourg · Espace membres</span></span></a>' +
       '<div class="nav-cta">' + (opts.cta || "") + "</div>" +

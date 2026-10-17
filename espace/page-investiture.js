@@ -262,7 +262,7 @@ function renderChrome(){
     var badge=x[0]==="qui"&&fr?' <span class="badge">'+fr+'</span>':(x[0]==="mes"&&mineN?' <span class="badge quiet">'+mineN+'</span>':"");
     return '<button class="nav-tab'+(x[0]===view?" active":"")+'" type="button" data-act="tab" data-tab="'+x[0]+'" role="tab" aria-selected="'+(x[0]===view)+'">'+x[1]+badge+'</button>';
   }).join("");
-  E.renderTop({tabs:tabs,cta:canWrite()?'<button class="btn btn-primary" type="button" data-act="new"><span class="arr">+</span><span class="lbl">Nouvelle tâche</span></button>':''});
+  E.renderTop({section:"Investiture 2027",tabs:tabs,cta:canWrite()?'<button class="btn btn-primary" type="button" data-act="new"><span class="arr">+</span><span class="lbl">Nouvelle tâche</span></button>':''});
 }
 function render(){
   var sx=window.scrollY;

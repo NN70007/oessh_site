@@ -7,7 +7,7 @@ if(!S.user.gestion){ location.replace("./"); return; }
 var personnes=[], editing=null, delArmed=false;
 var INV={organisateur:"Organisateur",contributeur:"Contributeur",lecture:"Lecture",intervenant:"Intervenant"};
 
-E.renderTop({tabs:E.sectionTabs([{id:"sec-roles",t:"Rôles"},{id:"sec-personnes",t:"Personnes inscrites"},{id:"sec-journal",t:"Journal"}])}); E.renderFoot();
+E.renderTop({section:"Accès",tabs:E.sectionTabs([{id:"sec-roles",t:"Rôles"},{id:"sec-personnes",t:"Personnes inscrites"},{id:"sec-journal",t:"Journal"}])}); E.renderFoot();
 
 function isSelf(p){ var mine=(S.user.emails||[S.user.email]); return p.emails.some(function(e){return mine.indexOf(e)>-1;}); }
 function yes(b){ return b?'<span class="yes" aria-label="oui">✓</span>':'<span class="no" aria-label="non">—</span>'; }
