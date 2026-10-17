@@ -79,6 +79,8 @@ function route_(req) {
     case 'acces.enregistrer': return accesEnregistrer_(user, req.personne, req.emailOriginal);
     case 'acces.supprimer': return accesSupprimer_(user, req.email);
     case 'acces.deconnecter': return accesDeconnecter_(user, req.email);
+    case 'pub.github': return pubGithub_(user, req.methode, req.chemin, req.corps);
+    case 'pub.claude': return pubClaude_(user, req.corps);
     default: throw refus_('Action inconnue.', 'inconnu');
   }
 }
@@ -461,6 +463,87 @@ function resumeDroits_(l) {
   return l.Email + ' — ' + (d.join(', ') || 'aucun droit') + (l.Actif !== 'oui' ? ' (désactivé)' : '');
 }
 function journal_(qui, action, detail) { ajouter_('Journal', { Date: String(Date.now()), Qui: qui, Action: action, Detail: detail }); }
+
+/* ======================= Publication sur le site (admin) ======================= */
+/*
+ * L'admin du site ne détient plus aucune clé : il passe par ces deux actions.
+ * Les clés sont dans les Propriétés du script (jamais envoyées au navigateur) :
+ *   GITHUB_TOKEN  : jeton GitHub limité au dépôt du site (droit « Contents : lecture et écriture »)
+ *   CLAUDE_KEY    : clé API Claude de la Lieutenance
+ *   GITHUB_REPO   : (facultatif) par défaut NN70007/oessh_site
+ *   CLAUDE_MODEL  : (facultatif) par défaut claude-sonnet-4-6
+ */
+var FICHIERS_PUB = { 'actualites.json': 'actualites', 'lectures.json': 'lectures', 'newsletters.json': 'newsletter' };
+var ASSET_RE = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]{0,150}\.(jpe?g|png|webp|gif|pdf)$/i;
+
+function aUnDroitSite_(u) { return !!(u.site && (u.site.actualites || u.site.lectures || u.site.newsletter)); }
+function prop_(k) { return PropertiesService.getScriptProperties().getProperty(k) || ''; }
+
+function pubGithub_(u, methode, chemin, corps) {
+  if (!aUnDroitSite_(u)) throw refus_("Vous n'avez pas accès à l'administration du site.", 'droits');
+  methode = String(methode || 'GET').toUpperCase();
+  if (methode !== 'GET' && methode !== 'PUT') throw refus_('Opération non autorisée.', 'droits');
+  chemin = String(chemin || '').split('?')[0].replace(/^\/+/, '');
+  if (chemin.indexOf('..') > -1) throw refus_('Fichier non autorisé.', 'droits');
+  var droit = FICHIERS_PUB[chemin];
+  var estAsset = ASSET_RE.test(chemin);
+  if (!droit && !estAsset) throw refus_('Fichier non autorisé : ' + chemin, 'droits');
+  if (methode === 'PUT' && droit && !u.site[droit]) throw refus_("Vous n'avez pas le droit de modifier cette rubrique.", 'droits');
+
+  var token = prop_('GITHUB_TOKEN');
+  if (!token) throw refus_("La publication n'est pas encore configurée (jeton GitHub manquant dans le script).", 'config');
+  var repo = prop_('GITHUB_REPO') || 'NN70007/oessh_site';
+  var url = 'https://api.github.com/repos/' + repo + '/contents/' + chemin.split('/').map(encodeURIComponent).join('/');
+  var opts = {
+    method: methode.toLowerCase(), muteHttpExceptions: true,
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'oessh-espace-membres' }
+  };
+  var detail = '';
+  if (methode === 'PUT') {
+    if (!corps || typeof corps.content !== 'string') throw refus_('Contenu manquant.', 'donnees');
+    if (corps.content.length > 20 * 1024 * 1024) throw refus_('Fichier trop volumineux.', 'donnees');
+    if (droit) {
+      var txt;
+      try { txt = Utilities.newBlob(Utilities.base64Decode(corps.content.replace(/\s/g, ''))).getDataAsString('UTF-8'); JSON.parse(txt); }
+      catch (e) { throw refus_('Le contenu envoyé n\u2019est pas un fichier valide : publication refusée.', 'donnees'); }
+    }
+    var message = texte_(corps.message, 180) || ('Mise à jour ' + chemin);
+    message += ' — par ' + u.nom;
+    var payload = { message: message, content: corps.content.replace(/\s/g, '') };
+    if (corps.sha) payload.sha = String(corps.sha);
+    opts.contentType = 'application/json';
+    opts.payload = JSON.stringify(payload);
+    detail = chemin + ' — ' + message;
+  }
+  var res = UrlFetchApp.fetch(url, opts);
+  var code = res.getResponseCode(), txtRes = res.getContentText(), data;
+  try { data = JSON.parse(txtRes); } catch (e) { data = { message: txtRes }; }
+  if (methode === 'PUT') journal_(u.email, code < 300 ? 'publication' : 'publication.echec', detail + (code < 300 ? '' : ' (' + code + ')'));
+  return { ok: true, status: code, data: data };
+}
+
+function pubClaude_(u, corps) {
+  if (!aUnDroitSite_(u)) throw refus_("Vous n'avez pas accès à l'administration du site.", 'droits');
+  var key = prop_('CLAUDE_KEY');
+  if (!key) throw refus_("La rédaction assistée n'est pas encore configurée (clé Claude manquante dans le script).", 'config');
+  var cache = CacheService.getScriptCache(), k = 'claude:' + u.email, n = Number(cache.get(k) || 0);
+  if (n >= 80) throw refus_('Trop de demandes de rédaction cette heure-ci. Réessayez plus tard.', 'limite');
+  cache.put(k, String(n + 1), 3600);
+  corps = corps || {};
+  var messages = (Array.isArray(corps.messages) ? corps.messages : []).filter(function (m) {
+    return m && (m.role === 'user' || m.role === 'assistant') && (typeof m.content === 'string' || Array.isArray(m.content));
+  }).slice(0, 20);
+  if (!messages.length) throw refus_('Demande vide.', 'donnees');
+  var body = { model: prop_('CLAUDE_MODEL') || 'claude-sonnet-4-6', max_tokens: Math.min(Math.max(Number(corps.max_tokens) || 2000, 1), 8000), messages: messages };
+  if (typeof corps.system === 'string') body.system = corps.system.slice(0, 50000);
+  var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+    method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+    headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    payload: JSON.stringify(body)
+  });
+  var data; try { data = JSON.parse(res.getContentText()); } catch (e) { data = { error: { message: 'Réponse illisible du service de rédaction.' } }; }
+  return { ok: true, status: res.getResponseCode(), data: data };
+}
 
 /* ======================= Feuille : utilitaires ======================= */
 /**

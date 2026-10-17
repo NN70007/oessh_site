@@ -31,7 +31,11 @@
     var out;
     try { out = await res.json(); } catch (e) { throw { message: "Réponse inattendue du serveur.", code: "serveur" }; }
     if (!out.ok) {
-      if (out.code === "session") { clearSession(); if (!/\/espace\/?(index\.html)?$/.test(location.pathname)) { location.href = "./?expire=1"; } }
+      if (out.code === "session") {
+        clearSession();
+        var dansEspace = location.pathname.indexOf("/espace/") > -1;
+        if (!/\/espace\/?(index\.html)?$/.test(location.pathname)) location.href = dansEspace ? "./?expire=1" : "/espace/?expire=1";
+      }
       throw { message: out.error || "Erreur.", code: out.code };
     }
     if (out.user && s) { s.user = out.user; setSession(s); }
