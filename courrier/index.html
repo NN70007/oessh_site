@@ -659,7 +659,7 @@ var REGLES_COURRIER =
   +"PROTOCOLE : le rang ecclésiastique ou princier prévaut sur le grade de chevalerie.\n"
   +"- Grand-Duc / Grande-Duchesse et Famille grand-ducale : « Monseigneur, » / « Madame, » — « Je prie Votre Altesse Royale d'agréer l'expression de mon plus profond respect. » (princes : « …de mes hommages les plus respectueux. ») ; corps à la troisième personne (Votre Altesse Royale).\n"
   +"- Pape : « Très Saint Père, » — « Je prie Votre Sainteté d'agréer l'expression de mon profond et filial respect. »\n"
-  +"- Cardinal (dont le Cardinal Grand Maître) : « Éminentissime Seigneur, » ou « Monsieur le Cardinal, » — « Je prie Votre Éminence d'agréer l'expression de ma très haute considération. » ; corps à la troisième personne.\n"
+  +"- Cardinal (dont le Cardinal Grand Maître) : « Éminentissime Seigneur, » ou « Monsieur le Cardinal, » — « Je prie Votre Éminence d'agréer l'expression de mon profond respect. » ; corps à la troisième personne.\n"
   +"- Archevêque / Évêque : « Monseigneur, » — « Je prie Votre Excellence d'agréer l'expression de mon respectueux dévouement. »\n"
   +"- Nonce apostolique : « Monseigneur, » ou « Excellence, » — « Je prie Votre Excellence d'agréer l'expression de ma très haute considération. »\n"
   +"- Prêtre / Abbé : « Monsieur l'Abbé, » ou « Mon Père, » — « Je vous prie d'agréer, Monsieur l'Abbé, l'expression de mes salutations respectueuses. »\n"
@@ -675,6 +675,14 @@ var REGLES_COURRIER =
   +"DESTINATAIRE : faire TOUJOURS précéder le nom du destinataire de son titre exact, par exemple « À l'attention de Monsieur le Chevalier Commandeur Jean Dupont ».";
 
 var LANGUES = { fr: "français", de: "allemand", en: "anglais", it: "italien" };
+
+// Formules officielles en langue étrangère (skill oessh-style, section 6.8)
+var FORMULES_ETRANGERES =
+  "FORMULES OFFICIELLES POUR UN CARDINAL, à utiliser telles quelles (ne pas traduire mot à mot la formule française) :\n"
+  +"- DE : appel « Eure Eminenz, » ou « Hochwürdigster Herr Kardinal, » — formule finale « Mit dem Ausdruck meiner tiefen Hochachtung und Ehrerbietung verbleibe ich Eurer Eminenz sehr ergebener » (sans point final, « sehr ergebene » pour une signataire).\n"
+  +"- EN : appel « Your Eminence, » ou « My Lord Cardinal, » — formule finale « I have the honor to be, Your Eminence, your most obedient servant. »\n"
+  +"- IT : appel « Eminentissimo Signor Cardinale, » ou « Eminenza, » — formule finale « Voglia la Vostra Eminenza gradire i sensi del mio più profondo rispetto. »\n"
+  +"- FR : appel « Éminentissime Seigneur, » ou « Monsieur le Cardinal, » — formule finale « Je prie Votre Éminence d'agréer l'expression de mon profond respect. »\n";
 
 function sectionIA(txt, nom){
   var m = txt.match(new RegExp("###" + nom + "###\\s*([\\s\\S]*?)\\s*(?=###[A-Z]+###|$)"));
@@ -716,7 +724,8 @@ async function callIA(mode){
       +"EN : Equestrian Order of the Holy Sepulchre of Jerusalem / Lieutenancy for Luxembourg ; "
       +"IT : Ordine Equestre del Santo Sepolcro di Gerusalemme / Luogotenenza per il Lussemburgo. "
       +"Guillemets DE : „…“ / EN et IT : \"…\" / FR : « ». "
-      +"La ligne de date garde le lieu (Luxembourg) et la date, à la manière de la langue cible (ex. DE « Luxemburg, den 18. Oktober 2026 »)." + sortie
+      +"La ligne de date garde le lieu (Luxembourg) et la date, à la manière de la langue cible (ex. DE « Luxemburg, den 18. Oktober 2026 »).\n"
+      + FORMULES_ETRANGERES + sortie
   };
 
   var message =
