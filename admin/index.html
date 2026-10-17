@@ -673,7 +673,7 @@ a.btn-sm:visited{color:var(--ink-soft)}
                 <div class="dz-icon" style="font-size:20px">📷</div>
                 <div class="dz-txt" id="img2-txt"><strong>Choisir une nouvelle photo</strong> ou glisser — laisser vide pour conserver l'actuelle</div>
               </div>
-              <div class="img-preview" id="imgPreview2" style="display:none;margin-top:8px"><img id="imgThumb2" src="" alt="" style="width:100%;height:140px;object-fit:cover;border-radius:6px"/></div>
+              <div class="img-preview" id="imgPreview2" style="display:none;margin-top:8px"><img id="imgThumb2" src="" alt=""/></div>
             </div>
             <div style="margin-bottom:14px">
               <label class="lbl">PDF déjà joints à l’article</label>
@@ -1779,7 +1779,9 @@ async function publish(){
     var freshForPub = await fetchActualites(s);
   var pubSha = freshForPub ? freshForPub._sha : undefined;
   await githubPut(s, 'actualites.json', jsonB64, 'Admin: actualité "'+fr.titre.substring(0,50)+'"', pubSha);
-    showPub('✓ Publié avec succès ! L\'article est en ligne.','ok');
+    showPub(newArticle.published === false
+      ? '✓ Publié avec succès. L\'article est en ligne mais masqué : il n\'apparaît pas sur le site tant que vous ne le rendez pas visible.'
+      : '✓ Publié avec succès ! L\'article est en ligne.', 'ok');
     setTimeout(function(){
       resetArticleForm();
       showTab('articles');
