@@ -633,8 +633,8 @@
         var evs = (data.evenements || []).filter(function(e){
           if(e.published === false) return false;
           var d = new Date(e.date_iso);
-          // Fenêtre roulante : passé récent (7 jours) + 12 mois à venir
-          var cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 7);
+          // Fenêtre roulante : 12 mois en arrière (grisés) + 12 mois à venir
+          var cutoff = new Date(today); cutoff.setFullYear(cutoff.getFullYear() - 1);
           return d >= cutoff && d <= horizon;
         });
         evs.sort(function(a,b){ return a.date_iso < b.date_iso ? -1 : 1; });
