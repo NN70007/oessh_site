@@ -87,7 +87,7 @@ function route_(req) {
 /* ======================= Installation ======================= */
 /** À lancer une fois depuis l'éditeur : crée les onglets et donne les droits aux administrateurs initiaux. */
 function installer() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = classeur_(true);
   Object.keys(ONGLETS).forEach(function (nom) {
     var sh = ss.getSheetByName(nom) || ss.insertSheet(nom);
     var head = ONGLETS[nom];
@@ -116,7 +116,9 @@ function installer() {
   journal_('installation', 'installer', 'Onglets créés');
   // Déclenche la demande d'autorisation pour l'envoi d'e-mails et les appels à Google.
   MailApp.getRemainingDailyQuota();
-  return 'Installation terminée';
+  var msg = 'Installation terminée. Feuille : ' + ss.getUrl();
+  console.log(msg);
+  return msg;
 }
 
 /** Supprime les sessions expirées (peut être programmé chaque nuit). */
@@ -430,8 +432,25 @@ function resumeDroits_(l) {
 function journal_(qui, action, detail) { ajouter_('Journal', { Date: String(Date.now()), Qui: qui, Action: action, Detail: detail }); }
 
 /* ======================= Feuille : utilitaires ======================= */
+/**
+ * Retrouve la feuille de données.
+ * - Script ouvert depuis la feuille (Extensions → Apps Script) : la feuille elle-même.
+ * - Script autonome (créé sur script.google.com) : la feuille mémorisée, ou créée à l'installation.
+ */
+function classeur_(creerSiAbsent) {
+  var actif = null;
+  try { actif = SpreadsheetApp.getActiveSpreadsheet(); } catch (e) { actif = null; }
+  if (actif) return actif;
+  var props = PropertiesService.getScriptProperties();
+  var id = props.getProperty('SHEET_ID');
+  if (id) return SpreadsheetApp.openById(id);
+  if (!creerSiAbsent) throw refus_("La feuille n'est pas installée. Lancez « installer ».", 'installation');
+  var ss = SpreadsheetApp.create('OESSH – Espace membres (privé)');
+  props.setProperty('SHEET_ID', ss.getId());
+  return ss;
+}
 function feuille_(nom) {
-  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(nom);
+  var sh = classeur_(false).getSheetByName(nom);
   if (!sh) throw refus_("La feuille n'est pas installée (onglet " + nom + ' manquant). Lancez « installer ».', 'installation');
   return sh;
 }

@@ -109,4 +109,9 @@ srv.run('effacerContactsIntervenants');
 r = srv.post({ action: 'inv.charger', token: tJB });
 ok(r.taches.find(t => t.id === idJ).equipe[0].tel === '', 'effacement des téléphones des intervenants');
 
+console.log('Script autonome (hors feuille)');
+const auto = charger({ autonome: true });
+ok(/Installation terminée/.test(auto.run('installer')) && auto.props.SHEET_ID === 'fake', 'installer crée et mémorise la feuille si le script n\'est pas rattaché');
+ok(auto.sheets.Acces.data.length === 3, 'onglets créés dans la feuille mémorisée');
+
 console.log('\n' + n + ' vérifications réussies.');

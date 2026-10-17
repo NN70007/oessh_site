@@ -55,12 +55,18 @@ function charger(opts) {
 
   const ss = {
     getSheetByName: (n) => sheets[n] || null,
-    insertSheet: (n) => (sheets[n] = makeSheet(n))
+    insertSheet: (n) => (sheets[n] = makeSheet(n)),
+    getUrl: () => 'https://docs.google.com/spreadsheets/d/fake',
+    getId: () => 'fake'
   };
 
   const ctx = {
     console,
-    SpreadsheetApp: { getActiveSpreadsheet: () => ss },
+    SpreadsheetApp: {
+      getActiveSpreadsheet: () => (opts.autonome ? null : ss),
+      openById: () => ss,
+      create: () => ss
+    },
     PropertiesService: {
       getScriptProperties: () => ({
         getProperty: (k) => (k in props ? props[k] : null),
