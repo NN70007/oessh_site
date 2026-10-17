@@ -9,3 +9,10 @@
     Header unset Expires
   </FilesMatch>
 </IfModule>
+
+# L'admin du site contient encore des scripts et des gestionnaires d'événements dans la page,
+# une bibliothèque externe (JSZip) et des images de raw.githubusercontent.com :
+# la politique de sécurité du dossier /espace/ ne lui est pas appliquée (même situation qu'à l'ancienne adresse /admin/).
+<IfModule mod_headers.c>
+  Header always unset Content-Security-Policy
+</IfModule>
