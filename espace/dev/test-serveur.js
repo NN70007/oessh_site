@@ -18,10 +18,10 @@ function ok(cond, msg) { assert.ok(cond, msg); n++; console.log('  ✓ ' + msg);
 
 console.log('Installation');
 srv.run('installer');
-ok(srv.sheets.Acces.data.length === 2, 'onglet Acces créé avec l\'administrateur initial');
+ok(srv.sheets.Acces.data.length === 3, 'onglet Acces créé avec les administrateurs initiaux');
 ok(srv.sheets.Jalons.data.length === 9, 'jalons par défaut créés');
 srv.run('installer');
-ok(srv.sheets.Acces.data.length === 2, 'réinstaller ne duplique rien');
+ok(srv.sheets.Acces.data.length === 3, 'réinstaller ne duplique rien');
 
 console.log('Connexion Google');
 let r = srv.post({ action: 'auth.google', idToken: 'tok-jb' });
@@ -48,7 +48,7 @@ r = add({ email: 'jb.niedercorn@gmail.com', nom: 'JB', inv: 'organisateur', site
 ok(!r.ok, 'impossible de retirer ses propres droits de gestion');
 ok(!srv.post({ action: 'acces.supprimer', token: tJB, email: 'jb.niedercorn@gmail.com' }).ok, 'impossible de supprimer son propre accès');
 r = srv.post({ action: 'acces.lister', token: tJB });
-ok(r.ok && r.personnes.length === 5 && r.journal.length > 0, 'liste des accès et journal');
+ok(r.ok && r.personnes.length === 6 && r.journal.length > 0, 'liste des accès et journal');
 
 console.log('Connexion par code');
 r = srv.post({ action: 'auth.demanderCode', email: 'joris@example.lu' });

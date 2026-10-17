@@ -5,8 +5,8 @@ L'espace membres se compose de trois pièces :
 | Pièce | Où | Contient des données ? |
 |---|---|---|
 | Les pages (`espace/*.html`) | site oessh.lu (ce dépôt) | **Non** : uniquement l'habillage |
-| Le script serveur (`espace/serveur/Code.gs`) | Google Apps Script, compte secretariat@oessh.lu | **Non** |
-| La feuille Google Sheets | Drive de secretariat@oessh.lu, **partagée avec personne** | **Oui**, uniquement ici |
+| Le script serveur (`espace/serveur/Code.gs`) | Google Apps Script, compte jb.niedercorn@oessh.lu | **Non** |
+| La feuille Google Sheets | Drive de jb.niedercorn@oessh.lu, **partagée avec personne** | **Oui**, uniquement ici |
 
 Personne ne peut lire la feuille directement. Les pages demandent les données au script, qui vérifie l'identité de la personne (connexion Google vérifiée par Google, ou code reçu par e-mail) et ses droits (onglet « Acces ») avant de répondre.
 
@@ -14,7 +14,7 @@ Personne ne peut lire la feuille directement. Les pages demandent les données a
 
 ## 1. Préparer le compte
 
-1. Ouvrir une session Google avec **secretariat@oessh.lu**.
+1. Ouvrir une session Google avec **jb.niedercorn@oessh.lu**.
 2. Vérifier que la **validation en deux étapes** est activée sur ce compte (myaccount.google.com → Sécurité). C'est ce compte qui protège tout le reste.
 
 ## 2. Créer la feuille
@@ -33,7 +33,7 @@ Personne ne peut lire la feuille directement. Les pages demandent les données a
 ## 4. Lancer l'installation
 
 1. Dans la liste déroulante des fonctions (en haut), choisir **`installer`**, puis **Exécuter**.
-2. Google demande des autorisations : **Examiner les autorisations** → choisir secretariat@oessh.lu.
+2. Google demande des autorisations : **Examiner les autorisations** → choisir jb.niedercorn@oessh.lu.
    Un écran « Google n'a pas validé cette application » peut apparaître : c'est normal pour un script personnel → **Paramètres avancés** → **Accéder à … (non sécurisé)** → **Autoriser**.
    Les autorisations demandées sont : gérer cette feuille, envoyer des e-mails en votre nom (codes de connexion), se connecter à un service externe (vérification des connexions Google).
 3. Revenir à la feuille : les onglets `Acces`, `Taches`, `Intervenants`, `Activite`, `Jalons`, `Journal` sont créés.
@@ -52,7 +52,7 @@ Le fichier `Import.gs` est fourni à part (il contient des données : il ne doit
 1. **Déployer → Nouveau déploiement**.
 2. ⚙️ Type : **Application Web**.
 3. Description : `Espace membres`.
-4. Exécuter en tant que : **Moi (secretariat@oessh.lu)**.
+4. Exécuter en tant que : **Moi (jb.niedercorn@oessh.lu)**.
 5. Qui a accès : **Tout le monde**.
    (Indispensable pour les personnes sans compte Google. L'adresse est joignable, mais elle ne renvoie **rien** sans session valide.)
 6. **Déployer**, puis copier l'**URL de l'application Web** (elle se termine par `/exec`).
@@ -87,7 +87,7 @@ La connexion par **code e-mail** fonctionne dans tous les cas.
 ## Limites connues
 
 - L'admin de publication (`/admin/`) garde pour l'instant sa propre connexion et le token GitHub de chaque éditeur. Les cases « Actualités / Lectures / Newsletter » de la page Accès servent à afficher la tuile ; elles deviendront contraignantes quand la publication passera par le serveur (phase suivante).
-- Envoi d'e-mails : les codes de connexion partent du compte secretariat@ et sont soumis au quota quotidien d'envoi de Google pour ce compte (largement suffisant pour des codes de connexion, pas pour des envois groupés).
+- Envoi d'e-mails : les codes de connexion partent du compte jb.niedercorn@oessh.lu et sont soumis au quota quotidien d'envoi de Google pour ce compte (largement suffisant pour des codes de connexion, pas pour des envois groupés).
 - Les modifications des autres apparaissent automatiquement en 30 secondes au plus.
 
 ## Pour les développeurs

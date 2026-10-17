@@ -1,7 +1,7 @@
 /**
  * Espace membres OESSH Luxembourg — serveur (Google Apps Script)
  * ---------------------------------------------------------------
- * Ce script est rattaché à une feuille Google Sheets PRIVÉE (compte secretariat@oessh.lu).
+ * Ce script est rattaché à une feuille Google Sheets PRIVÉE (compte jb.niedercorn@oessh.lu, Google Workspace de la Lieutenance).
  * Il est le seul point d'accès aux données : chaque demande doit porter une session valide,
  * obtenue soit par connexion Google (jeton vérifié auprès de Google), soit par code envoyé par e-mail.
  *
@@ -16,7 +16,10 @@ var CONFIG = {
   // Identifiant OAuth Google du site (le même que celui de l'admin actuel).
   GOOGLE_CLIENT_ID: '52829295071-cer9p7voptd0lgdrmgk5a35furmtn256.apps.googleusercontent.com',
   // Personne(s) qui reçoivent tous les droits à l'installation (modifiable ensuite dans l'onglet Acces).
-  ADMINS_INITIAUX: [{ email: 'jb.niedercorn@gmail.com', nom: 'Jean-Baptiste Niedercorn' }],
+  ADMINS_INITIAUX: [
+    { email: 'jb.niedercorn@oessh.lu', nom: 'Jean-Baptiste Niedercorn' },
+    { email: 'jb.niedercorn@gmail.com', nom: 'Jean-Baptiste Niedercorn (Gmail)' }
+  ],
   SESSION_JOURS: 30,
   CODE_MINUTES: 10,
   CODE_ESSAIS_MAX: 5,
