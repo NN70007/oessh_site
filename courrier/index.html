@@ -399,7 +399,7 @@
 var E = window.Espace;
 
 /* ── Auth ── */
-var s = E.requireLogin({ redirect: "../espace/?expire=1" });
+var s = E.requireLogin();
 if (!s) return;
 var u = s.user;
 if (!u.courrier && !u.admin) {
@@ -441,16 +441,20 @@ var ROLES = {
 
 // Emails de l'utilisateur (lus depuis la session)
 var userEmails = [];
-if (u.emails) {
-  userEmails = u.emails.split ? u.emails.split("|") : (Array.isArray(u.emails) ? u.emails : []);
+if (Array.isArray(u.emails) && u.emails.length) {
+  userEmails = u.emails;
+} else if (u.userEmails && typeof u.userEmails === "string" && u.userEmails.trim()) {
+  userEmails = u.userEmails.split("|").map(function(e){ return e.trim(); }).filter(Boolean);
 } else if (u.email) {
   userEmails = [u.email];
 }
 
 // Rôles de l'utilisateur (lus depuis la session)
 var userRoles = [];
-if (u.roles) {
-  userRoles = u.roles.split ? u.roles.split(",") : (Array.isArray(u.roles) ? u.roles : []);
+if (u.roles && typeof u.roles === "string" && u.roles.trim()) {
+  userRoles = u.roles.split(",").map(function(r){ return r.trim(); }).filter(Boolean);
+} else if (Array.isArray(u.roles)) {
+  userRoles = u.roles;
 }
 
 /* ── État ── */
