@@ -1,0 +1,380 @@
+{
+  "version": 1,
+  "note": "Calendrier roulant — fenêtre 12 mois glissants, gérée côté JS",
+  "evenements": [
+    {
+      "id": "2025-11-20-formation",
+      "date_iso": "2025-11-20",
+      "date_affichee": "NOV 20",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation · « En vertu de nos engagements… »",
+        "de": "Ausbildungstreffen · « Gemäß unseren Verpflichtungen… »",
+        "en": "Formation meeting · « According to our commitments… »"
+      },
+      "lieu": {
+        "fr": "Présentation : Isabelle Scart<br>Coordination : Isabelle Scart",
+        "de": "Präsentation: Isabelle Scart<br>Koordination: Isabelle Scart",
+        "en": "Presentation: Isabelle Scart<br>Coordination: Isabelle Scart"
+      }
+    },
+    {
+      "id": "2025-12-17-formation",
+      "date_iso": "2025-12-17",
+      "date_affichee": "DEC 17",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation · « Prudence et prud'homie »",
+        "de": "Ausbildungstreffen · « Klugheit und Besonnenheit »",
+        "en": "Formation meeting · « Prudence and wisdom »"
+      },
+      "lieu": {
+        "fr": "Présentation : Carlo Mulbach<br>Coordination : Isabelle Scart",
+        "de": "Präsentation: Carlo Mulbach<br>Koordination: Isabelle Scart",
+        "en": "Presentation: Carlo Mulbach<br>Coordination: Isabelle Scart"
+      }
+    },
+    {
+      "id": "2026-01-09-messe",
+      "date_iso": "2026-01-09",
+      "date_affichee": "JAN 09",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Messe du 1ᵉʳ vendredi · Galette des Rois",
+        "de": "Messe am 1. Freitag · Dreikönigsfest",
+        "en": "First Friday Mass · Epiphany celebration"
+      },
+      "lieu": {
+        "fr": "Chapelle des Sœurs Franciscaines · Belair · 12h00",
+        "de": "Kapelle der Franziskanerinnen · Belair · 12:00 Uhr",
+        "en": "Chapel of the Franciscan Sisters · Belair · noon"
+      }
+    },
+    {
+      "id": "2026-01-28-formation",
+      "date_iso": "2026-01-28",
+      "date_affichee": "JAN 28",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation · Renoncement, pauvreté et tempérance",
+        "de": "Ausbildungstreffen · Entsagung, Armut und Mäßigung",
+        "en": "Formation meeting · Renunciation, poverty and temperance"
+      },
+      "lieu": {
+        "fr": "Présentation : Matthieu et Jeanne Ducorroy<br>Coordination : Isabelle Scart",
+        "de": "Präsentation: Matthieu und Jeanne Ducorroy<br>Koordination: Isabelle Scart",
+        "en": "Presentation: Matthieu and Jeanne Ducorroy<br>Coordination: Isabelle Scart"
+      }
+    },
+    {
+      "id": "2026-02-06-messe",
+      "date_iso": "2026-02-06",
+      "date_affichee": "FEV 06",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Messe du 1ᵉʳ vendredi du mois",
+        "de": "Messe am 1. Freitag des Monats",
+        "en": "First Friday Mass of the month"
+      },
+      "lieu": {
+        "fr": "Chapelle des Sœurs Franciscaines · Belair · 12h00",
+        "de": "Kapelle der Franziskanerinnen · Belair · 12:00 Uhr",
+        "en": "Chapel of the Franciscan Sisters · Belair · noon"
+      }
+    },
+    {
+      "id": "2026-02-25-formation",
+      "date_iso": "2026-02-25",
+      "date_affichee": "FEV 25",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation · Courage ou force d'âme",
+        "de": "Ausbildungstreffen · Mut oder Seelenstärke",
+        "en": "Formation meeting · Courage or strength of soul"
+      },
+      "lieu": {
+        "fr": "Présentation : Arthur Scart<br>Coordination : Isabelle Scart",
+        "de": "Präsentation: Arthur Scart<br>Koordination: Isabelle Scart",
+        "en": "Presentation: Arthur Scart<br>Coordination: Isabelle Scart"
+      }
+    },
+    {
+      "id": "2026-03-06-messe",
+      "date_iso": "2026-03-06",
+      "date_affichee": "MAR 06",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Messe du 1ᵉʳ vendredi du mois",
+        "de": "Messe am 1. Freitag des Monats",
+        "en": "First Friday Mass of the month"
+      },
+      "lieu": {
+        "fr": "Chapelle des Sœurs Franciscaines · Belair · 12h00",
+        "de": "Kapelle der Franziskanerinnen · Belair · 12:00 Uhr",
+        "en": "Chapel of the Franciscan Sisters · Belair · noon"
+      }
+    },
+    {
+      "id": "2026-03-16-formation",
+      "date_iso": "2026-03-16",
+      "date_affichee": "MAR 16",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation · Justice et paix",
+        "de": "Ausbildungstreffen · Gerechtigkeit und Frieden",
+        "en": "Formation meeting · Justice and peace"
+      },
+      "lieu": {
+        "fr": "Présentation : Jean-Baptiste Niedercorn<br>Coordination : Isabelle Scart",
+        "de": "Präsentation: Jean-Baptiste Niedercorn<br>Koordination: Isabelle Scart",
+        "en": "Presentation: Jean-Baptiste Niedercorn<br>Coordination: Isabelle Scart"
+      }
+    },
+    {
+      "id": "2026-03-27-assemblee",
+      "date_iso": "2026-03-27",
+      "date_affichee": "MAR 27",
+      "type": "assemblee",
+      "published": true,
+      "titre": {
+        "fr": "Assemblée générale de l'OESSH asbl",
+        "de": "Generalversammlung des OESSH asbl",
+        "en": "General Assembly of OESSH asbl"
+      },
+      "lieu": {
+        "fr": "Centre Jean XXIII · Luxembourg",
+        "de": "Centre Jean XXIII · Luxemburg",
+        "en": "Centre Jean XXIII · Luxembourg"
+      }
+    },
+    {
+      "id": "2026-04-06-messe",
+      "date_iso": "2026-04-06",
+      "date_affichee": "AVR 06",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Messe du Lundi de Pâques + déjeuner",
+        "de": "Ostermontag-Messe + Mittagessen",
+        "en": "Easter Monday Mass + lunch"
+      },
+      "lieu": {
+        "fr": "Église de Manternach · 10h30",
+        "de": "Kirche von Manternach · 10:30 Uhr",
+        "en": "Church of Manternach · 10:30 a.m."
+      }
+    },
+    {
+      "id": "2026-04-22-formation",
+      "date_iso": "2026-04-22",
+      "date_affichee": "AVR 22",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation · Sollicitude, solidarité et générosité",
+        "de": "Ausbildungstreffen · Fürsorge, Solidarität und Großzügigkeit",
+        "en": "Formation meeting · Solicitude, solidarity and generosity"
+      },
+      "lieu": {
+        "fr": "Présentation : Joris Buyse<br>Coordination : Isabelle Scart",
+        "de": "Präsentation: Joris Buyse<br>Koordination: Isabelle Scart",
+        "en": "Presentation: Joris Buyse<br>Coordination: Isabelle Scart"
+      }
+    },
+    {
+      "id": "2026-05-10-pelerinage",
+      "date_iso": "2026-05-10",
+      "date_affichee": "AVR 25 → MAI 10",
+      "type": "pelerinage",
+      "published": true,
+      "titre": {
+        "fr": "Octave · Pèlerinage à Notre-Dame de Luxembourg",
+        "de": "Oktav · Wallfahrt zu Unserer Lieben Frau von Luxemburg",
+        "en": "Octave · Pilgrimage to Our Lady of Luxembourg"
+      },
+      "lieu": {
+        "fr": "Cathédrale Notre-Dame",
+        "de": "Kathedrale Notre-Dame",
+        "en": "Notre-Dame Cathedral"
+      }
+    },
+    {
+      "id": "2026-05-18-formation",
+      "date_iso": "2026-05-18",
+      "date_affichee": "MAI 18",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation · Implication et collaboration",
+        "de": "Ausbildungstreffen · Engagement und Zusammenarbeit",
+        "en": "Formation meeting · Involvement and collaboration"
+      },
+      "lieu": {
+        "fr": "Présentation : Isabelle Scart<br>Coordination : Isabelle Scart",
+        "de": "Präsentation: Isabelle Scart<br>Koordination: Isabelle Scart",
+        "en": "Presentation: Isabelle Scart<br>Coordination: Isabelle Scart"
+      }
+    },
+    {
+      "id": "2026-06-12-messe",
+      "date_iso": "2026-06-12",
+      "date_affichee": "JUN 12",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Messe du 1ᵉʳ vendredi du mois",
+        "de": "Messe am 1. Freitag des Monats",
+        "en": "First Friday Mass of the month"
+      },
+      "lieu": {
+        "fr": "Chapelle des Sœurs Franciscaines · Belair · 12h00",
+        "de": "Kapelle der Franziskanerinnen · Belair · 12:00 Uhr",
+        "en": "Chapel of the Franciscan Sisters · Belair · noon"
+      }
+    },
+    {
+      "id": "2026-06-17-formation",
+      "date_iso": "2026-06-17",
+      "date_affichee": "JUN 17",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation · Les vertus théologales",
+        "de": "Ausbildungstreffen · Die theologischen Tugenden",
+        "en": "Formation meeting · The theological virtues"
+      },
+      "lieu": {
+        "fr": "Présentation : Olivier de Gassart<br>Coordination : Isabelle Scart",
+        "de": "Präsentation: Olivier de Gassart<br>Koordination: Isabelle Scart",
+        "en": "Presentation: Olivier de Gassart<br>Coordination: Isabelle Scart"
+      }
+    },
+    {
+      "id": "2026-06-23-messe",
+      "date_iso": "2026-06-23",
+      "date_affichee": "JUN 23",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Te Deum de la Fête nationale",
+        "de": "Te Deum zum Nationalfeiertag",
+        "en": "Te Deum for the National Day"
+      },
+      "lieu": {
+        "fr": "Cathédrale Notre-Dame · Luxembourg",
+        "de": "Kathedrale Notre-Dame · Luxemburg",
+        "en": "Notre-Dame Cathedral · Luxembourg"
+      }
+    },
+    {
+      "id": "2026-07-03-messe",
+      "date_iso": "2026-07-03",
+      "date_affichee": "JUL 03",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Messe du 1ᵉʳ vendredi du mois",
+        "de": "Messe am 1. Freitag des Monats",
+        "en": "First Friday Mass of the month"
+      },
+      "lieu": {
+        "fr": "Chapelle des Sœurs Franciscaines · Belair · 12h00",
+        "de": "Kapelle der Franziskanerinnen · Belair · 12:00 Uhr",
+        "en": "Chapel of the Franciscan Sisters · Belair · noon"
+      }
+    },
+    {
+      "id": "2026-07-09-formation",
+      "date_iso": "2026-07-09",
+      "date_affichee": "JUL 09",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Réunion de formation · En vertu de nos engagements",
+        "de": "Ausbildungstreffen · Gemäß unseren Verpflichtungen",
+        "en": "Formation meeting · According to our commitments"
+      },
+      "lieu": {
+        "fr": "Coordination : Isabelle Scart",
+        "de": "Koordination: Isabelle Scart",
+        "en": "Coordination: Isabelle Scart"
+      }
+    },
+    {
+      "id": "2026-09-11-messe",
+      "date_iso": "2026-09-11",
+      "date_affichee": "SEP 11",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Messe — Célébration de la Fête de l'Exaltation de la Sainte Croix",
+        "de": "Messe · Fest der Kreuzerhöhung",
+        "en": "Mass · Feast of the Exaltation of the Holy Cross"
+      },
+      "lieu": {
+        "fr": "Chapelle des Sœurs Franciscaines · Belair · 12h00",
+        "de": "Kapelle der Franziskanerinnen · Belair · 12:00 Uhr",
+        "en": "Chapel of the Franciscan Sisters · Belair · noon"
+      }
+    },
+    {
+      "id": "2026-10-23-messe",
+      "date_iso": "2026-10-23",
+      "date_affichee": "OCT 23",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Solennité de Marie, Reine de Palestine",
+        "de": "Hochfest Mariä, Königin von Palästina",
+        "en": "Solemnity of Mary, Queen of Palestine"
+      },
+      "lieu": {
+        "fr": "Chapelle des Sœurs Franciscaines · Belair · 12h00",
+        "de": "Kapelle der Franziskanerinnen · Belair · 12:00 Uhr",
+        "en": "Chapel of the Franciscan Sisters · Belair · noon"
+      }
+    },
+    {
+      "id": "2026-11-06-messe",
+      "date_iso": "2026-11-06",
+      "date_affichee": "NOV 06",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Messe en mémoire des membres défunts",
+        "de": "Messe zum Gedächtnis der verstorbenen Mitglieder",
+        "en": "Mass in memory of deceased members"
+      },
+      "lieu": {
+        "fr": "Chapelle des Sœurs Franciscaines · Belair · 12h00",
+        "de": "Kapelle der Franziskanerinnen · Belair · 12:00 Uhr",
+        "en": "Chapel of the Franciscan Sisters · Belair · noon"
+      }
+    },
+    {
+      "id": "2026-11-29-messe",
+      "date_iso": "2026-11-29",
+      "date_affichee": "NOV 29",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Messe de l'Avent à Walferdange",
+        "de": "Adventsmesse in Walferdingen",
+        "en": "Advent Mass in Walferdange"
+      },
+      "lieu": {
+        "fr": "Walferdange · 11h00",
+        "de": "Walferdingen · 11:00 Uhr",
+        "en": "Walferdange · 11:00 a.m."
+      }
+    }
+  ]
+}
