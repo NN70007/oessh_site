@@ -2691,7 +2691,7 @@ function renderCalList(){
       +'<div class="cal-date-chip">'+e.date_affichee+'</div>'
       +'<div style="flex:1"><div class="cal-ev-title">'+(e.titre&&e.titre.fr||'')+typeBadge(e.type)+'</div>'
       +'<div class="cal-ev-where">'+(e.lieu&&e.lieu.fr||'')+'</div></div>'
-      +'<div class="cal-actions"><button onclick="deleteCalEvent(''+e.id+'')" title="Supprimer" style="background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:16px;padding:4px">🗑</button></div>'
+      +'<div class="cal-actions"><button onclick="deleteCalEvent(\''+e.id+'\')" title="Supprimer" style="background:none;border:none;cursor:pointer;color:var(--ink-mute);font-size:16px;padding:4px">🗑</button></div>'
       +'</div>';
   }).join('')+'</div>';
 }
@@ -2732,35 +2732,20 @@ function calParseEvents(){
   if(btn) btn.disabled=true;
 
   var today=new Date().toISOString().substring(0,10);
-  var prompt='Tu es un assistant pour une lieutenance catholique au Luxembourg (OESSH). Analyse ce texte et extrais TOUS les événements du calendrier.
-'
-    +'Pour chaque événement, retourne un bloc séparé par ###EVENT### avec ces champs exacts :
-'
-    +'DATE_ISO: (format YYYY-MM-DD — si période, utiliser la date de fin)
-'
-    +'DATE_AFFICHEE: (ex: "JAN 09" ou "AVR 25 → MAI 10" — mois en majuscules 3 lettres FR)
-'
-    +'TYPE: (une valeur parmi: messe / formation / pelerinage / assemblee / autre)
-'
-    +'TITRE_FR: (intitulé français normalisé, orthographe correcte, termes liturgiques exacts)
-'
-    +'TITRE_DE: (traduction allemande — termes liturgiques corrects)
-'
-    +'TITRE_EN: (traduction anglaise — termes liturgiques corrects)
-'
-    +'LIEU_FR: (lieu en français, format "Lieu · Ville · heure" si disponible)
-'
-    +'LIEU_DE: (traduction allemande du lieu)
-'
-    +'LIEU_EN: (traduction anglaise du lieu)
-'
-    +'###FIN###
-
-'
-    +'Aujourd'hui : '+today+'. Si une date est ambiguë, déduis l'année la plus probable.
-'
-    +'Texte à analyser :
-'+txt;
+  var prompt='Tu es un assistant pour une lieutenance catholique au Luxembourg (OESSH). Analyse ce texte et extrais TOUS les événements du calendrier.\n'
+    +'Pour chaque événement, retourne un bloc séparé par ###EVENT### avec ces champs exacts :\n'
+    +'DATE_ISO: (format YYYY-MM-DD — si période, utiliser la date de fin)\n'
+    +'DATE_AFFICHEE: (ex: "JAN 09" ou "AVR 25 → MAI 10" — mois en majuscules 3 lettres FR)\n'
+    +'TYPE: (une valeur parmi: messe / formation / pelerinage / assemblee / autre)\n'
+    +'TITRE_FR: (intitulé français normalisé, orthographe correcte, termes liturgiques exacts)\n'
+    +'TITRE_DE: (traduction allemande — termes liturgiques corrects)\n'
+    +'TITRE_EN: (traduction anglaise — termes liturgiques corrects)\n'
+    +'LIEU_FR: (lieu en français, format "Lieu · Ville · heure" si disponible)\n'
+    +'LIEU_DE: (traduction allemande du lieu)\n'
+    +'LIEU_EN: (traduction anglaise du lieu)\n'
+    +'###FIN###\n\n'
+    +'Aujourd\'hui : '+today+'. Si une date est ambiguë, déduis l\'année la plus probable.\n'
+    +'Texte à analyser :\n'+txt;
 
   fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
@@ -2774,7 +2759,7 @@ function calParseEvents(){
     if(data.error){document.getElementById('cal-parse-err').textContent='Erreur Claude : '+data.error.message;return;}
     var raw=(data.content&&data.content[0]&&data.content[0].text)||'';
     calParsed=parseClaudeCalEvents(raw);
-    if(!calParsed.length){document.getElementById('cal-parse-err').textContent='Claude n'a détecté aucun événement.';return;}
+    if(!calParsed.length){document.getElementById('cal-parse-err').textContent='Claude n\'a détecté aucun événement.';return;}
     renderValidationTable();
     document.getElementById('cal-step1').style.display='none';
     document.getElementById('cal-step2').style.display='block';
