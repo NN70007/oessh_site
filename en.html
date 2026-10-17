@@ -1049,5 +1049,14 @@ document.addEventListener('keydown', function(e){
 </script>
 <script src="lectures-loader.js"></script>
 <script src="newsletters-loader.js"></script>
+<script>
+/* Mémorise la langue choisie avec FR / DE / EN (prime sur la détection automatique). */
+document.querySelectorAll('.lang-opt').forEach(function(a){
+  a.addEventListener('click',function(){
+    var h=a.getAttribute('href')||'', l=h.indexOf('de.html')>-1?'de':h.indexOf('en.html')>-1?'en':'fr';
+    try{ localStorage.setItem('oessh_lang', l); }catch(e){}
+  });
+});
+</script>
 </body>
 </html>

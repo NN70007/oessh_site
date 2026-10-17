@@ -3,6 +3,21 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+<script>
+/* Langue automatique (première visite de la page d'accueil) :
+   allemand → de.html ; français, luxembourgeois, italien → reste en français ; autre langue → en.html.
+   Un choix fait avec FR / DE / EN est mémorisé et prime toujours. Les robots d'indexation ne sont pas redirigés. */
+(function(){
+  try{
+    if(localStorage.getItem('oessh_lang')) return;
+    if(location.hash || location.search) return;
+    if(/bot|crawl|spider|slurp|google|bing|yandex|baidu|duckduck|facebookexternalhit|lighthouse|headless/i.test(navigator.userAgent)) return;
+    var l=((navigator.languages&&navigator.languages[0])||navigator.language||'fr').toLowerCase().slice(0,2);
+    if(l==='de') location.replace('de.html');
+    else if(l!=='fr' && l!=='lb' && l!=='it') location.replace('en.html');
+  }catch(e){}
+})();
+</script>
 <script>if('scrollRestoration' in history){history.scrollRestoration='manual'} window.addEventListener('load',function(){window.scrollTo(0,0)});</script>
 <title>OESSH · Lieutenance pour le Luxembourg</title>
 <meta name="description" content="Ordre Équestre du Saint-Sépulcre de Jérusalem — Lieutenance pour le Luxembourg. Ordre pontifical au service de la Terre Sainte." />
@@ -997,5 +1012,14 @@ document.addEventListener('keydown', function(e){
 
 <script src="lectures-loader.js"></script>
 <script src="newsletters-loader.js"></script>
+<script>
+/* Mémorise la langue choisie avec FR / DE / EN (prime sur la détection automatique). */
+document.querySelectorAll('.lang-opt').forEach(function(a){
+  a.addEventListener('click',function(){
+    var h=a.getAttribute('href')||'', l=h.indexOf('de.html')>-1?'de':h.indexOf('en.html')>-1?'en':'fr';
+    try{ localStorage.setItem('oessh_lang', l); }catch(e){}
+  });
+});
+</script>
 </body>
 </html>
