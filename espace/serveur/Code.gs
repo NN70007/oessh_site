@@ -536,7 +536,8 @@ function pubGithub_(u, methode, chemin, corps) {
 }
 
 function pubClaude_(u, corps) {
-  if (!aUnDroitSite_(u)) throw refus_("Vous n'avez pas accès à l'administration du site.", 'droits');
+  // Rédaction assistée : éditeurs du site et utilisateurs de l'outil courrier
+  if (!aUnDroitSite_(u) && !u.courrier) throw refus_("Vous n'avez pas accès à la rédaction assistée.", 'droits');
   var key = prop_('CLAUDE_KEY');
   if (!key) throw refus_("La rédaction assistée n'est pas encore configurée (clé Claude manquante dans le script).", 'config');
   var cache = CacheService.getScriptCache(), k = 'claude:' + u.email, n = Number(cache.get(k) || 0);

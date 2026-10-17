@@ -67,7 +67,6 @@
 .entite-tab.active {
   border-color: var(--cardinal); background: #fff5f5;
 }
-.entite-tab .et-logo { font-size: 22px; display: block; margin-bottom: 4px; }
 .entite-tab .et-name {
   font-family: var(--sans); font-size: 12px; font-weight: 500;
   color: var(--ink); line-height: 1.3;
@@ -190,9 +189,7 @@
 .ltr-date { margin-top: 8mm; }
 .ltr-objet { margin-bottom: 5mm; }
 .ltr-objet u { text-decoration: underline; }
-.ltr-salut { margin-bottom: 5mm; }
-.ltr-body { margin-bottom: 6mm; white-space: pre-wrap; text-align: justify; }
-.ltr-formule { margin-bottom: 12mm; text-align: justify; }
+.ltr-body { margin-bottom: 12mm; white-space: pre-wrap; text-align: justify; }
 .ltr-signature { margin-left: 97mm; break-inside: avoid; }
 
 /* Pied de page : adresse officielle, en bas de chaque page */
@@ -254,11 +251,9 @@
             <label>Rédiger en tant que</label>
             <div class="entite-tabs">
               <button class="entite-tab active" data-entite="lieutenance" type="button">
-                <span class="et-logo">⚔️</span>
                 <span class="et-name">Lieutenance<br>pour le Luxembourg</span>
               </button>
               <button class="entite-tab" data-entite="asbl" type="button">
-                <span class="et-logo">✠</span>
                 <span class="et-name">OESSH Asbl<br>Luxembourg</span>
               </button>
             </div>
@@ -304,22 +299,10 @@
             <input type="text" id="in-objet" placeholder="Objet du courrier">
           </div>
 
-          <!-- 7. Salutation -->
-          <div class="field-group">
-            <label>Salutation</label>
-            <input type="text" id="in-salut" value="Cher(e) ">
-          </div>
-
           <!-- 8. Corps du courrier -->
           <div class="field-group">
             <label>Corps du courrier</label>
-            <textarea id="in-corps" rows="10" placeholder="Rédigez ici votre texte…"></textarea>
-          </div>
-
-          <!-- 9. Formule de politesse -->
-          <div class="field-group">
-            <label>Formule de politesse</label>
-            <input type="text" id="in-formule" value="Nous vous prions d'agréer, [formule de politesse], l'expression de nos sentiments distingués.">
+            <textarea id="in-corps" rows="12" placeholder="Monsieur le Chevalier,&#10;&#10;Votre texte…&#10;&#10;Je vous prie d'agréer, Monsieur le Chevalier, l'expression de mes salutations distinguées.&#10;&#10;(Ou écrivez simplement votre message et la qualité du destinataire, puis cliquez sur « Améliorer » : l'appel et la formule de politesse seront rédigés selon le protocole.)"></textarea>
           </div>
 
           <!-- Boutons IA -->
@@ -447,6 +430,19 @@ var userRoles  = lireRoles(u);
 /* ── État ── */
 var entite = "lieutenance";
 var langCible = "fr";
+// Libellés imprimés dans la lettre, selon la langue du courrier
+var LIBELLES = {
+  fr: { ref: "Réf.", objet: "Objet" },
+  de: { ref: "Unser Zeichen", objet: "Betreff" },
+  en: { ref: "Our ref.", objet: "Subject" },
+  it: { ref: "Rif.", objet: "Oggetto" }
+};
+function setLangue(l){
+  langCible = LIBELLES[l] ? l : "fr";
+  document.querySelectorAll(".lang-btn").forEach(function(b){
+    b.classList.toggle("active", b.dataset.lang === langCible);
+  });
+}
 
 /* ── Éléments DOM ── */
 var $  = function(id){ return document.getElementById(id); };
@@ -456,9 +452,7 @@ var inRef     = $("in-ref");
 var inDate    = $("in-date");
 var inDest    = $("in-dest");
 var inObjet   = $("in-objet");
-var inSalut   = $("in-salut");
 var inCorps   = $("in-corps");
-var inFormule = $("in-formule");
 var preview   = $("letter-preview");
 var spinner   = $("ia-spinner");
 var langRow   = $("lang-row");
@@ -555,9 +549,7 @@ function updatePreview(){
   var ref      = inRef.value.trim();
   var date     = inDate.value.trim();
   var objet    = inObjet.value.trim();
-  var salut    = inSalut.value.trim();
   var corps    = inCorps.value.trim();
-  var formule  = inFormule.value.trim();
   var nom      = u.nom || "";
 
   var dest     = E.esc(inDest.value.trim()).replace(/\n/g,"<br>");
@@ -584,16 +576,14 @@ function updatePreview(){
         '</div>' +
         // Référence à gauche, destinataire et date à droite
         '<div class="ltr-top">' +
-          '<div class="ltr-ref">'+(ref ? 'Réf. : '+E.esc(ref) : '')+'</div>' +
+          '<div class="ltr-ref">'+(ref ? (LIBELLES[langCible]||LIBELLES.fr).ref+' : '+E.esc(ref) : '')+'</div>' +
           '<div>' +
             (dest ? '<div class="ltr-dest">'+dest+'</div>' : '') +
             (date ? '<div class="ltr-date">'+E.esc(date)+'</div>' : '') +
           '</div>' +
         '</div>' +
-        (objet ? '<div class="ltr-objet"><u>Objet</u> : '+E.esc(objet)+'</div>' : '') +
-        (salut ? '<div class="ltr-salut">'+E.esc(salut)+',</div>' : '') +
+        (objet ? '<div class="ltr-objet"><u>'+(LIBELLES[langCible]||LIBELLES.fr).objet+'</u> : '+E.esc(objet)+'</div>' : '') +
         (corps ? '<div class="ltr-body">'+E.esc(corps)+'</div>' : '') +
-        (formule ? '<div class="ltr-formule">'+E.esc(formule)+'</div>' : '') +
         // Signature
         '<div class="ltr-signature">' +
           '<div class="ltr-signame">'+E.esc(nom)+'</div>' +
@@ -623,7 +613,7 @@ window.addEventListener("beforeprint", function(){ preview.style.height = "auto"
 window.addEventListener("afterprint", fitPreview);
 
 /* ── Événements formulaire ── */
-[selRole, selEmail, inRef, inDate, inDest, inObjet, inSalut, inCorps, inFormule].forEach(function(el){
+[selRole, selEmail, inRef, inDate, inDest, inObjet, inCorps].forEach(function(el){
   el.addEventListener("input", updatePreview);
   el.addEventListener("change", updatePreview);
 });
@@ -646,9 +636,7 @@ $("btn-traduire").addEventListener("click", function(){
 });
 document.querySelectorAll(".lang-btn").forEach(function(btn){
   btn.addEventListener("click", function(){
-    document.querySelectorAll(".lang-btn").forEach(function(b){ b.classList.remove("active"); });
-    btn.classList.add("active");
-    langCible = btn.dataset.lang;
+    setLangue(btn.dataset.lang);
     callIA("traduire");
   });
 });
@@ -664,33 +652,78 @@ function setSpinner(on){
   });
 }
 
+var REGLES_COURRIER =
+  "RÈGLES DE LA LIEUTENANCE (skill oessh-style) : sigle OESSH (jamais OESSJ) ; majuscules à Le Lieutenant, Le Chancelier, "
+  +"Le Trésorier, Le Secrétaire, Chevaliers et Dames ; « Patriarcat latin de Jérusalem (PLJ) » ; « Lieutenance pour le Luxembourg » ; "
+  +"pas de titres académiques ni de noblesse ; guillemets « » et apostrophes courbes ; pas d'anglicismes ni de superlatifs.\n"
+  +"PROTOCOLE : le rang ecclésiastique ou princier prévaut sur le grade de chevalerie.\n"
+  +"- Grand-Duc / Grande-Duchesse et Famille grand-ducale : « Monseigneur, » / « Madame, » — « Je prie Votre Altesse Royale d'agréer l'expression de mon plus profond respect. » (princes : « …de mes hommages les plus respectueux. ») ; corps à la troisième personne (Votre Altesse Royale).\n"
+  +"- Pape : « Très Saint Père, » — « Je prie Votre Sainteté d'agréer l'expression de mon profond et filial respect. »\n"
+  +"- Cardinal (dont le Cardinal Grand Maître) : « Éminentissime Seigneur, » ou « Monsieur le Cardinal, » — « Je prie Votre Éminence d'agréer l'expression de ma très haute considération. » ; corps à la troisième personne.\n"
+  +"- Archevêque / Évêque : « Monseigneur, » — « Je prie Votre Excellence d'agréer l'expression de mon respectueux dévouement. »\n"
+  +"- Nonce apostolique : « Monseigneur, » ou « Excellence, » — « Je prie Votre Excellence d'agréer l'expression de ma très haute considération. »\n"
+  +"- Prêtre / Abbé : « Monsieur l'Abbé, » ou « Mon Père, » — « Je vous prie d'agréer, Monsieur l'Abbé, l'expression de mes salutations respectueuses. »\n"
+  +"- Ambassadeur étranger : « Monsieur l'Ambassadeur, » ou « Excellence, » — « Je prie Votre Excellence d'agréer l'assurance de ma très haute considération. »\n"
+  +"- Consul général : « Monsieur le Consul général, » — « Je vous prie d'agréer, Monsieur le Consul général, l'assurance de ma haute considération. »\n"
+  +"- Ordre de Malte : Grand Maître « Monseigneur, » ou « Altesse Éminentissime, » ; Chevalier « Monsieur le Chevalier, ».\n"
+  +"- OESSH, Lieutenant : « Monsieur le Lieutenant, » — « Je vous prie d'agréer, Monsieur le Lieutenant, l'assurance de ma haute considération. »\n"
+  +"- OESSH, Chevalier / Dame de Collier : « Monsieur le Chevalier, » / « Madame, » — « Je vous prie d'agréer l'expression de ma considération la plus distinguée et respectueuse. »\n"
+  +"- OESSH, Grand-Croix, Grand Officier, Dame de Commanderie avec Plaque : « Monsieur le Chevalier, » / « Madame, » — « Je vous prie d'agréer, Monsieur le Chevalier / Madame, l'expression de ma considération distinguée. »\n"
+  +"- OESSH, Commandeur / Dame de Commanderie : « Monsieur le Chevalier, » (ou « Monsieur le Commandeur, ») / « Madame, » — « Je vous prie d'agréer, Monsieur le Chevalier / Commandeur, l'expression de mes salutations distinguées. »\n"
+  +"- OESSH, Chevalier / Dame : « Monsieur le Chevalier, » / « Madame, » — « Je vous prie d'agréer, Monsieur le Chevalier / Madame, l'expression de mes salutations distinguées. »\n"
+  +"La formule d'appel est reprise à l'identique dans la formule finale. Formule au singulier (« Je vous prie ») quand une personne signe.\n"
+  +"DESTINATAIRE : faire TOUJOURS précéder le nom du destinataire de son titre exact, par exemple « À l'attention de Monsieur le Chevalier Commandeur Jean Dupont ».";
+
+var LANGUES = { fr: "français", de: "allemand", en: "anglais", it: "italien" };
+
+function sectionIA(txt, nom){
+  var m = txt.match(new RegExp("###" + nom + "###\\s*([\\s\\S]*?)\\s*(?=###[A-Z]+###|$)"));
+  return m ? m[1].trim() : null;
+}
+
 async function callIA(mode){
   var corps = inCorps.value.trim();
   if (!corps){ E.toast("Veuillez saisir un texte avant d'utiliser l'IA."); return; }
 
   setSpinner(true);
 
+  var sortie = "\nRéponds UNIQUEMENT dans ce format, sans aucun commentaire :\n"
+    + (mode === "ameliorer" ? "###DESTINATAIRE###\n(bloc destinataire)\n" : "")
+    + "###OBJET###\n(objet)\n"
+    + (mode === "traduire" ? "###DATE###\n(ligne de date)\n" : "")
+    + "###CORPS###\n(corps du courrier)\n###FIN###";
+
   var systemMap = {
     corriger:
       "Tu es correcteur de texte pour l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH), Lieutenance pour le Luxembourg. "
-      +"Corrige UNIQUEMENT les fautes d'orthographe, de grammaire, de ponctuation et de typographie française (guillemets « », apostrophes courbes). "
-      +"Ne change pas le style ni le contenu. Retourne UNIQUEMENT le texte corrigé, sans commentaire.",
+      +"Corrige UNIQUEMENT les fautes d'orthographe, de grammaire, de ponctuation et de typographie (guillemets « », apostrophes courbes) "
+      +"dans l'objet et dans le corps du courrier. Ne change pas le style ni le contenu." + sortie,
     ameliorer:
       "Tu es rédacteur officiel de la Lieutenance pour le Luxembourg de l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH). "
-      +"Améliore le texte suivant en respectant le style solennel mais accessible de l'Ordre : "
-      +"ton digne sans être pompeux, français soutenu, guillemets « », apostrophes courbes. "
-      +"Vérifie que les titres (Le Lieutenant, Le Secrétaire, Le Chancelier, etc.) sont bien écrits avec majuscule. "
-      +"Retourne UNIQUEMENT le texte amélioré, sans commentaire.",
+      +"Améliore l'objet et le corps du courrier dans le style solennel mais accessible de l'Ordre : ton digne sans être pompeux, français soutenu. "
+      +"Déduis le rang du destinataire de ce qui est indiqué (par exemple « commandeur », « cardinal », « Grand-Duc »), dans le destinataire ou dans le texte. "
+      +"Le corps doit COMMENCER par la formule d'appel et SE TERMINER par la formule de politesse correspondant à ce rang ; "
+      +"si une indication de rang figure seule dans le texte, intègre-la dans ces formules au lieu de la laisser telle quelle. "
+      +"Ne mets ni signature ni nom du signataire à la fin. Mets le bloc destinataire en forme selon la règle ci-dessous, "
+      +"sans inventer d'adresse ni de nom absents. Le signataire écrit en qualité de : " + (getRoleLabel() || "membre de la Lieutenance") + ".\n"
+      + REGLES_COURRIER + sortie,
     traduire:
-      "Tu traduis un texte officiel de l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH), Lieutenance pour le Luxembourg. "
-      +"Traduis en "+({"fr":"français","de":"allemand","en":"anglais","it":"italien"}[langCible]||"français")+" "
-      +"en conservant le registre solennel et les conventions de l'Ordre : "
+      "Tu traduis un courrier officiel de l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH), Lieutenance pour le Luxembourg. "
+      +"Traduis l'objet, la ligne de date et le corps en " + (LANGUES[langCible] || "français") + " "
+      +"en conservant le registre solennel et les conventions de l'Ordre, et en remplaçant la formule d'appel et la formule de politesse "
+      +"par leurs équivalents protocolaires usuels dans cette langue : "
       +"DE : Ritterorden vom Heiligen Grab zu Jerusalem / Statthalterei Luxemburg ; "
       +"EN : Equestrian Order of the Holy Sepulchre of Jerusalem / Lieutenancy for Luxembourg ; "
       +"IT : Ordine Equestre del Santo Sepolcro di Gerusalemme / Luogotenenza per il Lussemburgo. "
-      +"Guillemets DE : „…“ / EN et IT : \"…\". "
-      +"Retourne UNIQUEMENT le texte traduit, sans commentaire."
+      +"Guillemets DE : „…“ / EN et IT : \"…\" / FR : « ». "
+      +"La ligne de date garde le lieu (Luxembourg) et la date, à la manière de la langue cible (ex. DE « Luxemburg, den 18. Oktober 2026 »)." + sortie
   };
+
+  var message =
+      (mode === "ameliorer" ? "DESTINATAIRE :\n" + (inDest.value.trim() || "(non renseigné)") + "\n\n" : "")
+    + "OBJET :\n" + (inObjet.value.trim() || "(vide)") + "\n\n"
+    + (mode === "traduire" ? "DATE :\n" + (inDate.value.trim() || "(vide)") + "\n\n" : "")
+    + "CORPS :\n" + corps;
 
   try {
     var res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -702,14 +735,23 @@ async function callIA(mode){
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
-        max_tokens: 2048,
+        max_tokens: 3000,
         system: systemMap[mode],
-        messages: [{ role: "user", content: corps }]
+        messages: [{ role: "user", content: message }]
       })
     });
     var data = await res.json();
-    if (data.content && data.content[0] && data.content[0].text){
-      inCorps.value = data.content[0].text.trim();
+    var txt = data.content && data.content[0] && data.content[0].text;
+    var nvCorps = txt && sectionIA(txt, "CORPS");
+    if (nvCorps){
+      nvCorps = nvCorps.replace(/\s*###FIN###\s*$/, "");
+      var nvObjet = sectionIA(txt, "OBJET");
+      var nvDate  = sectionIA(txt, "DATE");
+      var nvDest  = sectionIA(txt, "DESTINATAIRE");
+      inCorps.value = nvCorps;
+      if (nvObjet && nvObjet !== "(vide)") inObjet.value = nvObjet;
+      if (mode === "traduire" && nvDate && nvDate !== "(vide)") inDate.value = nvDate;
+      if (mode === "ameliorer" && nvDest && nvDest !== "(non renseigné)") inDest.value = nvDest;
       updatePreview();
       E.toast(mode === "corriger" ? "Texte corrigé ✓" : mode === "ameliorer" ? "Texte amélioré ✓" : "Texte traduit ✓");
     } else {
@@ -738,9 +780,7 @@ $("btn-save").addEventListener("click", async function(){
     email:   selEmail.value,
     dest:    inDest.value.trim(),
     objet:   inObjet.value.trim(),
-    salut:   inSalut.value.trim(),
     corps:   inCorps.value.trim(),
-    formule: inFormule.value.trim(),
     lang:    langCible
   };
   if (!payload.corps){ E.toast("Rien à enregistrer."); return; }
@@ -786,9 +826,9 @@ async function chargerHistorique(){
           inDate.value    = c.date  || "";
           inDest.value    = c.dest  || "";
           inObjet.value   = c.objet || "";
-          inSalut.value   = c.salut || "";
-          inCorps.value   = c.corps || "";
-          inFormule.value = c.formule || "";
+          inCorps.value   = [c.salut ? c.salut + "," : "", c.corps || "", c.formule || ""]
+                              .filter(Boolean).join("\n\n");
+          setLangue(c.lang || "fr");
           updatePreview();
           E.toast("Courrier rechargé.");
         } catch(e){}
