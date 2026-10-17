@@ -359,3 +359,5 @@ a{color:inherit;text-decoration:none}
 .journal{margin-top:40px}
 @media (max-width:880px){.login-wrap{grid-template-columns:1fr;gap:32px}}
 @media (max-width:760px){.topbar-inner{grid-template-columns:auto 1fr}.tb-right{justify-content:flex-end;gap:14px}.tb-right>span:first-child{display:none}}
+.login-form{display:flex;flex-direction:column;gap:12px}
+.login-form label{display:block}
