@@ -68,6 +68,7 @@
     var L = [{ k: "accueil", href: "./", t: "Accueil" }];
     if (user && user.inv) L.push({ k: "investiture", href: "investiture.html", t: "Investiture 2027" });
     if (user && (user.media || user.admin || user.gestion)) L.push({ k: "media", href: "../media/", t: "Médiathèque" });
+    if (user && (user.courrier || user.admin)) L.push({ k: "courrier", href: "../courrier/", t: "Courrier" });
     if (user && user.gestion) L.push({ k: "acces", href: "acces.html", t: "Accès" });
     if (user && user.site && (user.site.actualites || user.site.lectures || user.site.newsletter)) L.push({ k: "site", href: "../admin/", t: "Administration du site ↗" });
     return L.map(function (l) { return '<a class="nav-tab' + (l.k === active ? " active" : "") + '" href="' + l.href + '">' + esc(l.t) + "</a>"; }).join("");
