@@ -439,23 +439,21 @@ var ROLES = {
   ]
 };
 
-// Emails de l'utilisateur (lus depuis la session)
-var userEmails = [];
-if (Array.isArray(u.emails) && u.emails.length) {
-  userEmails = u.emails;
-} else if (u.userEmails && typeof u.userEmails === "string" && u.userEmails.trim()) {
-  userEmails = u.userEmails.split("|").map(function(e){ return e.trim(); }).filter(Boolean);
-} else if (u.email) {
-  userEmails = [u.email];
+// Emails de l'utilisateur (colonnes Email + Emails de l'onglet Acces)
+function lireEmails(x){
+  if (Array.isArray(x.emails) && x.emails.length) return x.emails;
+  if (x.userEmails && typeof x.userEmails === "string" && x.userEmails.trim())
+    return x.userEmails.split("|").map(function(e){ return e.trim(); }).filter(Boolean);
+  return x.email ? [x.email] : [];
 }
-
-// Rôles de l'utilisateur (lus depuis la session)
-var userRoles = [];
-if (u.roles && typeof u.roles === "string" && u.roles.trim()) {
-  userRoles = u.roles.split(",").map(function(r){ return r.trim(); }).filter(Boolean);
-} else if (Array.isArray(u.roles)) {
-  userRoles = u.roles;
+// Qualités de l'utilisateur (colonne Roles de l'onglet Acces)
+function lireRoles(x){
+  if (x.roles && typeof x.roles === "string" && x.roles.trim())
+    return x.roles.split(",").map(function(r){ return r.trim(); }).filter(Boolean);
+  return Array.isArray(x.roles) ? x.roles : [];
 }
+var userEmails = lireEmails(u);
+var userRoles  = lireRoles(u);
 
 /* ── État ── */
 var entite = "lieutenance";
@@ -512,24 +510,30 @@ document.querySelectorAll(".entite-tab").forEach(function(tab){
 /* ── Remplissage select rôle ── */
 function updateRoleSelect(){
   var roles = ROLES[entite] || [];
-  // Filtrer selon les rôles de l'utilisateur (sauf admin)
-  var filtered = u.admin ? roles : roles.filter(function(r){
+  // Uniquement les qualités inscrites dans l'onglet Acces
+  // (un administrateur sans aucune qualité voit tout, pour pouvoir tester)
+  var filtered = (u.admin && !userRoles.length) ? roles : roles.filter(function(r){
     return userRoles.indexOf(r.v) > -1;
   });
+  var avant = selRole.value;
   selRole.innerHTML = '<option value="">— Choisir votre qualité —</option>' +
     filtered.map(function(r){ return '<option value="'+r.v+'">'+r.t+'</option>'; }).join("");
-  // Pré-sélectionner si un seul choix
-  if (filtered.length === 1) selRole.value = filtered[0].v;
-  updatePreview();
+  if (filtered.some(function(r){ return r.v === avant; })) selRole.value = avant;
+  else if (filtered.length === 1) selRole.value = filtered[0].v;
+  // Met à jour la référence et l'aperçu
+  selRole.dispatchEvent(new Event("change"));
 }
 
 /* ── Emails select ── */
-(function(){
+function remplirEmails(){
+  var avant = selEmail.value;
   selEmail.innerHTML = '<option value="">— Ne pas afficher d\'adresse e-mail —</option>' +
     userEmails.map(function(em){
-      return '<option value="'+em+'">'+em+'</option>';
+      return '<option value="'+E.esc(em)+'">'+E.esc(em)+'</option>';
     }).join("");
-})();
+  if (userEmails.indexOf(avant) > -1) selEmail.value = avant;
+}
+remplirEmails();
 
 /* ── Labels rôles ── */
 function getRoleLabel(){
@@ -609,6 +613,17 @@ function updatePreview(){
   el.addEventListener("change", updatePreview);
 });
 updateRoleSelect();
+
+/* ── Relire qualités et adresses dans l'onglet Acces (la session peut être ancienne) ── */
+E.api("moi").then(function(out){
+  if (!out || !out.user) return;
+  u = out.user;
+  userRoles  = lireRoles(u);
+  userEmails = lireEmails(u);
+  updateRoleSelect();
+  remplirEmails();
+  updatePreview();
+}).catch(function(){ /* on garde les données de la session */ });
 
 /* ── Bouton Traduire — toggle langue ── */
 $("btn-traduire").addEventListener("click", function(){
