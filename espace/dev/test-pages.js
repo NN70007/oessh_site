@@ -98,8 +98,8 @@ function ok(c, m) { assert.ok(c, m); n++; console.log('  ✓ ' + m); }
   }
   await ajouter('Joris Buyse', 'joris@example.lu', 'contributeur');
   await ajouter('Charles Chauffeur', 'chauffeur@example.lu', 'intervenant');
-  ok(await p.locator('table.acc tbody tr').count() === 4, 'deux personnes ajoutées depuis la page Accès');
-  await p.locator('button[data-email="jb.niedercorn@gmail.com"]').click();
+  ok(await p.locator('table.acc tbody tr').count() === 3, 'deux personnes ajoutées depuis la page Accès');
+  await p.locator('button[data-email="jb.niedercorn@oessh.lu"]').click();
   ok(await p.isDisabled('#p-gest'), 'on ne peut pas se retirer soi-même le droit de gestion');
   await p.click('#p-cancel');
   ok((await p.locator('#journal').innerText()).includes('ajoute'), 'journal des changements de droits');

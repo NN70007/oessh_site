@@ -226,7 +226,7 @@ function vMes(){
   var open=mine.filter(function(t){return t.statut!=="fait";}).sort(byDue);
   var late=open.filter(isLate), rest=open.filter(function(t){return !isLate(t);});
   var done=mine.filter(function(t){return t.statut==="fait";});
-  var part=tasks.filter(function(t){return t.resp.indexOf(me)<0&&(t.equipe||[]).some(function(m){return m.nom===me||(m.email&&m.email===user.email);});}).sort(byDue);
+  var part=tasks.filter(function(t){return t.resp.indexOf(me)<0&&(t.equipe||[]).some(function(m){return m.nom===me||(m.email&&(user.emails||[user.email]).indexOf(String(m.email).toLowerCase())>-1);});}).sort(byDue);
   h+=head("— Mes tâches",esc(me),"Bonjour, "+esc(me.split(" ")[0])+".", open.length?("Vous êtes responsable de "+open.length+" tâche"+(open.length>1?"s":"")+" à suivre"+(late.length?(", dont "+late.length+" en retard."):".")):(part.length?"Voici les tâches sur lesquelles vous intervenez.":"Rien en attente de votre côté. Merci !"));
   if(notice){ return h+notice+'</div></section>'; }
   if(late.length) h+='<div class="subhead"><h3 style="color:var(--cardinal)">En retard</h3></div>'+listHTML(late,"")+'<div style="height:32px"></div>';
