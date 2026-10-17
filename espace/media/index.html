@@ -58,6 +58,14 @@
   margin-bottom: 4px;
 }
 
+/* Aperçu des images à fond transparent : damier pour montrer la transparence */
+.media-card.image-card .mc-preview.mc-transparent {
+  background-color: #fff;
+  background-image: linear-gradient(45deg, #ececec 25%, transparent 25%), linear-gradient(-45deg, #ececec 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ececec 75%), linear-gradient(-45deg, transparent 75%, #ececec 75%);
+  background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
 /* Notice vide */
 .media-empty {
   grid-column: 1 / -1; text-align: center; padding: 48px 24px;
@@ -122,6 +130,22 @@
             <div class="mc-name">Croix de Jérusalem</div>
             <div class="mc-desc">Croix de Jérusalem officielle, rouge sur fond blanc — cinq croix (une grande, quatre petites). Format PNG haute résolution.</div>
             <div class="mc-meta">PNG · Haute résolution</div>
+            <span class="mc-dl">Télécharger</span>
+          </a>
+
+          <a class="media-card image-card" href="../../assets/logo-oessh-armoiries-transparent.png" download="logo-oessh-armoiries-transparent.png">
+            <img class="mc-preview mc-transparent" src="../../assets/logo-oessh-armoiries-transparent.png" alt="Armoiries OESSH, fond transparent">
+            <div class="mc-name">Armoiries de l'Ordre — fond transparent</div>
+            <div class="mc-desc">Mêmes armoiries, sans fond : elles se posent sur n'importe quel papier ou visuel sans rectangle blanc. Utilisées dans les courriers de la Lieutenance.</div>
+            <div class="mc-meta">PNG transparent · Haute résolution</div>
+            <span class="mc-dl">Télécharger</span>
+          </a>
+
+          <a class="media-card image-card" href="../../assets/croix-jerusalem-rouge-transparent.png" download="croix-jerusalem-rouge-transparent.png">
+            <img class="mc-preview mc-transparent" src="../../assets/croix-jerusalem-rouge-transparent.png" alt="Croix de Jérusalem, fond transparent">
+            <div class="mc-name">Croix de Jérusalem — fond transparent</div>
+            <div class="mc-desc">Même croix, sans fond. Utilisée dans les courriers de l'OESSH Asbl.</div>
+            <div class="mc-meta">PNG transparent · Haute résolution</div>
             <span class="mc-dl">Télécharger</span>
           </a>
 
