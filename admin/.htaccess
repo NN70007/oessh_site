@@ -1,0 +1,11 @@
+# Admin du site : toujours recharger la dernière version des pages et scripts.
+# (Le .htaccess racine met le HTML en cache 1 h et les .js en cache 1 an.)
+<IfModule mod_expires.c>
+  ExpiresActive Off
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|js|json)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+    Header unset Expires
+  </FilesMatch>
+</IfModule>
