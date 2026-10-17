@@ -180,6 +180,9 @@
 .ltr-header-text { flex: 1; text-align: center; font-weight: 700; font-size: 15pt; line-height: 1.35; padding-bottom: 6mm; }
 .ltr-latin, .ltr-ordre { color: var(--ltr-red); white-space: nowrap; }
 .ltr-lieutenance { color: #000; margin-top: 2.5mm; }
+/* Asbl : seule la ligne latine en rouge ; l'Ordre et la Lieutenance Asbl groupés en noir */
+.ltr-entite-asbl .ltr-ordre { color: #000; margin-top: 2.5mm; }
+.ltr-entite-asbl .ltr-lieutenance { margin-top: 0; }
 
 /* Bloc référence / destinataire / date */
 .ltr-top { display: grid; grid-template-columns: 1fr 1fr; column-gap: 6mm; margin-bottom: 12mm; }
@@ -573,7 +576,7 @@ function updatePreview(){
             '<img class="ltr-logo" src="'+getLogoSrc()+'" alt="'+getLogoAlt()+'">' +
             (role ? '<div class="ltr-qualite">'+E.esc(role)+'</div>' : '') +
           '</div>' +
-          '<div class="ltr-header-text">' +
+          '<div class="ltr-header-text ltr-entite-'+entite+'">' +
             '<div class="ltr-latin">ORDO EQUESTRIS SANCTI SEPULCRI HIEROSOLYMITANI</div>' +
             '<div class="ltr-ordre">Ordre Équestre du Saint-Sépulcre de Jérusalem</div>' +
             '<div class="ltr-lieutenance">'+getLieutenanceLabel()+'</div>' +
