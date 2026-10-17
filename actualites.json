@@ -2,6 +2,54 @@
   "version": 2,
   "articles": [
     {
+      "id": "veillee-de-priere-pour-la-paix-en-terre-",
+      "date_affichee": "10 octobre 2026",
+      "lieu": "Luxembourg",
+      "badges": [
+        "À la Une",
+        "Spiritualité"
+      ],
+      "img_filename": "veillee-priere-paix-terre-sainte-saint-michel-luxembourg-2026.jpg",
+      "legende": {
+        "fr": "Luxembourg · 10 octobre 2026 · © Lieutenance Luxembourg",
+        "de": "Luxemburg · 10. Oktober 2026 · © Statthalterei Luxemburg",
+        "en": "Luxembourg · 10 October 2026 · © Lieutenancy Luxembourg"
+      },
+      "titre": {
+        "fr": "Veillée de prière pour la paix en Terre Sainte — Luxembourg, octobre 2026",
+        "de": "Gebetsvigil für den Frieden im Heiligen Land — Luxemburg, Oktober 2026",
+        "en": "Prayer Vigil for Peace in the Holy Land — Luxembourg, October 2026"
+      },
+      "teaser": {
+        "fr": "Une quarantaine de confrères et consœurs réunis à Saint-Michel pour intercéder, dans le recueillement et la fraternité, pour les chrétiens de Terre Sainte.",
+        "de": "Rund vierzig Ritter und Damen versammelten sich in Saint-Michel, um in Stille und Brüderlichkeit für die Christen im Heiligen Land Fürsprache zu halten.",
+        "en": "Some forty Knights and Ladies gathered at Saint-Michel to intercede, in recollection and fraternity, for the Christians of the Holy Land."
+      },
+      "texte": {
+        "fr": "C'est dans la joie et le recueillement que la Lieutenance pour le Luxembourg s'est rassemblée, le dix octobre deux mille vingt-six, en l'église Saint-Michel de Luxembourg, pour une veillée de prière dédiée à la paix en Terre Sainte. Lieu chargé d'histoire et de dévotion, Saint-Michel offrait ce soir-là un cadre de silence et de ferveur particulièrement propice à l'intercession commune.\n\nUne quarantaine de Chevaliers et Dames avaient répondu à l'appel, témoignant ainsi de leur fidélité à l'une des missions premières de l'Ordre : le soutien spirituel et matériel aux chrétiens de Terre Sainte, ces « pierres vivantes » auxquelles notre Lieutenance unit sa prière et son engagement. La veillée était présidée par l'aumônier de la Lieutenance, dont les intentions et les méditations guidèrent l'assemblée à travers les heures de ce recueillement fraternel.\n\nAu fil de la veillée, les confrères et consœurs purent s'unir, dans un même élan de dévouement, à l'Église de Jérusalem, si souvent éprouvée mais jamais abandonnée. Ce témoignage silencieux et fervent rappelle que la vocation de chaque membre de l'Ordre ne s'arrête pas aux frontières du Grand-Duché : elle s'étend, par la prière et l'offrande, jusqu'au cœur même de la Terre Sainte, là où bat, depuis des siècles, le cœur de la foi chrétienne. Que cette veillée porte ses fruits dans les cœurs et, par la grâce de Dieu, dans le monde.",
+        "de": "In Freude und Besinnung versammelte sich die Statthalterei für Luxemburg am zehnten Oktober zweitausendsechsundzwanzig in der Kirche Saint-Michel in Luxemburg zu einer Gebetsvigil für den Frieden im Heiligen Land. Saint-Michel, ein Ort reicher Geschichte und tiefer Frömmigkeit, bot an jenem Abend einen Rahmen der Stille und Inbrunst, der der gemeinsamen Fürsprache in besonderer Weise förderlich war.\n\nRund vierzig Ritter und Damen hatten dem Ruf Folge geleistet und bezeugten damit ihre Treue zu einer der vorrangigen Aufgaben des Ordens: die geistliche und materielle Unterstützung der Christen im Heiligen Land, jener „lebendigen Steine\", mit denen unsere Statthalterei ihr Gebet und ihr Engagement verbindet. Die Vigil wurde vom Kaplan der Statthalterei geleitet, dessen Intentionen und Meditationen die Versammlung durch die Stunden dieser brüderlichen Besinnung führten.\n\nIm Laufe der Vigil konnten sich die Mitbrüder und Mitschwestern in einem gemeinsamen Aufschung der Hingabe mit der Kirche von Jerusalem vereinen, die so oft geprüft, doch niemals verlassen wurde. Dieses stille und inbrünstige Zeugnis ruft in Erinnerung, dass die Berufung jedes Ordensmitglieds nicht an den Grenzen des Großherzogtums endet: Sie erstreckt sich, durch Gebet und Opfer, bis in das Herz des Heiligen Landes, wo seit Jahrhunderten das Herz des christlichen Glaubens schlägt. Möge diese Vigil Früchte tragen in den Herzen und, durch Gottes Gnade, in der Welt.",
+        "en": "In joy and prayerful recollection, the Lieutenancy for Luxembourg assembled on the tenth of October two thousand and twenty-six, at the Church of Saint-Michel in Luxembourg, for a prayer vigil dedicated to peace in the Holy Land. A place steeped in history and devotion, Saint-Michel offered that evening a setting of silence and fervour particularly conducive to common intercession.\n\nSome forty Knights and Ladies had answered the call, bearing witness thereby to their fidelity to one of the Order's foremost missions: the spiritual and material support of the Christians of the Holy Land, those \"living stones\" with whom our Lieutenancy unites its prayer and its commitment. The vigil was presided over by the Lieutenancy's chaplain, whose intentions and meditations guided the assembly through the hours of this fraternal recollection.\n\nAs the vigil unfolded, the members were able to unite, in a shared impulse of devotion, with the Church of Jerusalem — so often tried, yet never abandoned. This silent and fervent witness recalls that the vocation of each member of the Order does not end at the borders of the Grand Duchy: it extends, through prayer and offering, to the very heart of the Holy Land, where the heart of the Christian faith has been beating for centuries. May this vigil bear fruit in hearts and, by the grace of God, in the world."
+      },
+      "liens": [
+        {
+          "label": {
+            "fr": "Patriarcat latin de Jérusalem — site officiel",
+            "de": "Lateinisches Patriarchat von Jerusalem — offizielle Website",
+            "en": "Latin Patriarchate of Jerusalem — official website"
+          },
+          "url": "https://www.lpj.org"
+        },
+        {
+          "label": {
+            "fr": "Ordre Équestre du Saint-Sépulcre de Jérusalem — Grand Magistère",
+            "de": "Ritterorden vom Heiligen Grab zu Jerusalem — Großmagiisterium",
+            "en": "Equestrian Order of the Holy Sepulchre of Jerusalem — Grand Magisterium"
+          },
+          "url": "https://www.oessh.va"
+        }
+      ]
+    },
+    {
       "id": "le-saint-siege-rappelle-la-position-du-s",
       "date_affichee": "2024",
       "lieu": "Cité du Vatican",
