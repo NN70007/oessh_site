@@ -191,7 +191,6 @@
 .ltr-body { margin-bottom: 6mm; white-space: pre-wrap; text-align: justify; }
 .ltr-formule { margin-bottom: 12mm; text-align: justify; }
 .ltr-signature { margin-left: 97mm; break-inside: avoid; }
-.ltr-sigemail { margin-top: 1mm; }
 
 /* Pied de page : adresse officielle, en bas de chaque page */
 .ltr-footer {
@@ -596,12 +595,13 @@ function updatePreview(){
         '<div class="ltr-signature">' +
           '<div class="ltr-signame">'+E.esc(nom)+'</div>' +
           (fonction ? '<div class="ltr-sigtitle">'+E.esc(fonction)+'</div>' : '') +
-          (email ? '<div class="ltr-sigemail">'+E.esc(email)+'</div>' : '') +
         '</div>' +
       '</td></tr></tbody>' +
     '</table>' +
     // Pied de page
-    '<div class="ltr-footer">OESSH Luxembourg,&nbsp; 2, rue Christophe Plantin,&nbsp; L-2339 Luxembourg<br>secretariat@oessh.lu</div>' +
+    // Pied de page : adresse postale + adresse e-mail choisie dans le menu
+    '<div class="ltr-footer">OESSH Luxembourg,&nbsp; 2, rue Christophe Plantin,&nbsp; L-2339 Luxembourg' +
+      (email ? '<br>'+E.esc(email) : '') + '</div>' +
     '</div>';
   fitPreview();
 }
