@@ -18,8 +18,12 @@ function demarrer(port, importPath) {
   if (extra) srv.run('importerTaches');
   const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'application/javascript', '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg' };
 
+  // Applique la même politique de sécurité que espace/.htaccess, pour détecter toute ressource bloquée.
+  const ht = fs.readFileSync(path.join(root, 'espace', '.htaccess'), 'utf8');
+  const csp = (ht.match(/Content-Security-Policy "([^"]+)"/) || [])[1];
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://x');
+    if (csp && url.pathname.startsWith('/espace/')) res.setHeader('Content-Security-Policy', csp);
     if (req.method === 'POST' && url.pathname === '/api') {
       let body = '';
       req.on('data', (c) => (body += c));

@@ -97,9 +97,19 @@ ok(srv.post({ action: 'inv.supprimer', token: tJB, id: idAutre }).ok, 'organisat
 r = srv.post({ action: 'inv.charger', token: tJB });
 ok(r.taches.length === 2 && r.activite.length >= 5, 'activité journalisée côté serveur');
 
+console.log('Déconnecter partout');
+const tLect2 = login('lecteur@example.lu');
+r = srv.post({ action: 'acces.deconnecter', token: tJB, email: 'lecteur@example.lu' });
+ok(r.ok && r.fermees >= 2, 'toutes les sessions de la personne sont fermées');
+ok(srv.post({ action: 'moi', token: tLect2 }).code === 'session' && srv.post({ action: 'moi', token: tLect }).code === 'session', 'ses appareils sont déconnectés');
+ok(srv.post({ action: 'moi', token: tJB }).ok, 'les autres sessions restent ouvertes');
+ok(srv.post({ action: 'acces.deconnecter', token: tJoris, email: 'lecteur@example.lu' }).code === 'droits', 'réservé aux gestionnaires');
+const tLect3 = login('lecteur@example.lu');
+ok(srv.post({ action: 'inv.charger', token: tLect3 }).ok, 'la personne peut se reconnecter (droits inchangés)');
+
 console.log('Retrait d\'accès');
 ok(srv.post({ action: 'acces.supprimer', token: tJB, email: 'lecteur@example.lu' }).ok, 'suppression d\'un accès');
-ok(srv.post({ action: 'inv.charger', token: tLect }).code === 'session', 'la session de la personne retirée ne marche plus');
+ok(srv.post({ action: 'inv.charger', token: tLect3 }).code === 'session', 'la session de la personne retirée ne marche plus');
 srv.post({ action: 'acces.enregistrer', token: tJB, emailOriginal: 'joris@example.lu', personne: { email: 'joris@example.lu', nom: 'Joris Buyse', inv: 'contributeur', site: {}, actif: false } });
 ok(srv.post({ action: 'moi', token: tJoris }).code === 'session', 'désactiver un accès coupe la session');
 ok(srv.post({ action: 'auth.deconnexion', token: tChauf }).ok && srv.post({ action: 'moi', token: tChauf }).code === 'session', 'déconnexion');
