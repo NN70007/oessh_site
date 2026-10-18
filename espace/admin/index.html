@@ -59,31 +59,21 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:10
 #setup-err{display:none;font-size:13px;color:var(--cardinal);margin-top:10px;padding:10px;background:#fff0f0;border-radius:6px}
 
 #app{display:none;min-height:100vh}
-.topbar{
-  background:#faf7f0;
-  border-bottom:1px solid rgba(11,15,20,.08);
-  font-family:var(--sans);
-  font-size:11px;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  color:var(--ink-soft);
-}
-.topbar-inner{
-  max-width:var(--maxw); margin:0 auto;
-  padding:10px 32px;
-  display:flex; align-items:center; justify-content:flex-start; gap:24px;
-}
-.tb-left{display:flex; align-items:center; gap:10px; justify-self:start}
-.tb-dot{width:6px; height:6px; border-radius:50%; background:var(--cardinal); display:inline-block}
-.tb-center{justify-self:end; color:var(--ink-soft); font-weight:400; white-space:nowrap}
-.tb-center strong{font-weight:700; letter-spacing:.18em}
-.tb-sep{color:var(--ink-soft); margin:0 4px}
-.tb-accent{color:var(--ink-soft)}
-.tb-right{justify-self:end}
-@media (max-width:780px){
-  .topbar-inner{grid-template-columns:1fr; gap:6px; text-align:center; padding:10px 20px}
-  .tb-left{display:none}
-  .tb-center{justify-self:center; white-space:normal; line-height:1.35; text-wrap:balance}
+.topbar{background:#faf7f0;border-bottom:1px solid rgba(11,15,20,.08);font-family:var(--sans);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+.topbar-inner{max-width:var(--maxw);margin:0 auto;padding:10px 32px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:24px}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-dot{width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block}
+.tb-home{color:inherit;text-decoration:none;border-bottom:1px solid transparent;transition:color .15s,border-color .15s}
+.tb-home:hover,.tb-home:focus-visible{color:var(--cardinal);border-bottom-color:var(--cardinal)}
+.tb-sep{color:var(--ink-mute)}
+.tb-here{color:var(--ink)}
+.tb-right{display:flex;gap:18px;align-items:center}
+.tb-right button{background:none;border:0;padding:0;font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--ink-soft);cursor:pointer}
+.tb-right button:hover{color:var(--cardinal)}
+@media (max-width:760px){
+  .topbar-inner{grid-template-columns:auto 1fr;padding:10px 20px}
+  .tb-right{justify-content:flex-end;gap:14px}
+  .tb-right>span:first-child{display:none}
 }
 
 /* ---------- Header ---------- */
@@ -117,7 +107,8 @@ header.site{
   .brand-text .l1{font-size:18px; line-height:1.15; white-space:normal}
   .brand-text .l1 .w{display:block; white-space:nowrap}
   .brand-text .l2{font-size:9px;letter-spacing:.18em}
-  .brand{gap:12px}
+  .brand{gap:12px;flex:1 1 auto;min-width:0}
+  .brand-text{white-space:normal}
 }
 .nav-links{
   display:flex; flex-wrap:nowrap;
@@ -577,19 +568,16 @@ a.btn-sm:visited{color:var(--ink-soft)}
 
   <div class="topbar">
   <div class="topbar-inner">
-    <div id="session-indicator-top" style="display:flex;align-items:center;gap:8px;justify-self:start">
-      <span id="session-dot" style="width:7px;height:7px;border-radius:50%;background:#d1d5db;display:inline-block;flex-shrink:0"></span>
-      <span id="session-text" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase">—</span>
-    </div>
-
+    <nav class="tb-left" aria-label="Fil d’Ariane"><span class="tb-dot"></span><a class="tb-home" href="../">Espace membres</a><span class="tb-sep" aria-hidden="true">/</span><span class="tb-here" aria-current="page">Administration du site</span></nav>
+    <span class="tb-right"><span id="tb-user"></span><button type="button" onclick="logout()">Se déconnecter</button></span>
   </div>
 </div>
 
   <header class="site">
   <nav class="nav" aria-label="Navigation principale">
-    <a href="#" class="brand" onclick="reloadCurrentTab();return false;">
+    <a href="../" class="brand">
       <img class="cross" src="https://raw.githubusercontent.com/NN70007/oessh_site/main/assets/croix-jerusalem-cardinal-liseree.svg" alt="Croix de Jérusalem" decoding="async"/>
-      <span class="brand-text"><span class="l1">Admin · OESSH</span><span class="l2">Lieutenance pour le Luxembourg</span></span>
+      <span class="brand-text"><span class="l1">Ordre Équestre du Saint-Sépulcre de Jérusalem</span><span class="l2">Lieutenance pour le Luxembourg · Administration du site</span></span>
     </a>
     <div class="nav-links">
       <button class="nav-tab active" id="tab-articles" onclick="showTab('articles')">Articles</button>
@@ -601,10 +589,7 @@ a.btn-sm:visited{color:var(--ink-soft)}
     </div>
     <div class="nav-cta">
       <div class="admin-controls">
-        <img id="user-avatar" src="" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1px solid var(--line);display:none"/>
-        <span id="user-name" class="admin-username"></span>
         <button class="btn-sm" onclick="showSetup()">Clés API</button>
-        <button class="btn-sm" onclick="logout()">Déconnexion</button>
       </div>
       <button class="menu-btn" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu" onclick="toggleMobileMenu()">
         <span class="bars"><span></span><span></span><span></span></span>
@@ -3765,7 +3750,7 @@ function calPublish(){
 <!-- Connexion et publication via l'espace membres (aucune clé dans le navigateur) -->
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261018c"></script>
-<script src="espace-pont.js"></script>
+<script src="espace-pont.js?v=20261018g"></script>
 
 <!-- ====================== FOOTER ====================== -->
 <footer class="site">

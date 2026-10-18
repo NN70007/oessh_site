@@ -64,9 +64,7 @@
       document.querySelectorAll('#mobile-menu [onclick*="showTab(\'' + k + '\')"]').forEach(function (x) { x.style.display = droitsOnglets[k] ? "" : "none"; });
     });
     document.querySelectorAll('[onclick="showSetup()"]').forEach(function (x) { x.style.display = "none"; });
-    var un = document.getElementById("user-name"); if (un) un.textContent = u.nom;
-    var st = document.getElementById("session-text"); if (st) st.textContent = "Connecté · " + u.nom;
-    var dot = document.getElementById("session-dot"); if (dot) dot.style.background = "#16a34a";
+    var tu = document.getElementById("tb-user"); if (tu) tu.textContent = u.nom;
   }
 
   var showTabOrigine = window.showTab;
@@ -98,11 +96,6 @@
     document.getElementById("login-screen").style.display = "none";
     var setup = document.getElementById("setup-screen"); if (setup) setup.style.display = "none";
     document.getElementById("app").style.display = "block";
-    var ctrl = document.querySelector(".admin-controls");
-    if (ctrl && !document.getElementById("lien-espace")) {
-      var a = document.createElement("a"); a.id = "lien-espace"; a.href = "../"; a.className = "btn-sm"; a.textContent = "← Espace membres"; a.style.textDecoration = "none";
-      ctrl.insertBefore(a, ctrl.firstChild);
-    }
     appliquerDroits(u);
     var premier = ["articles", "lectures", "calendrier", "newsletters"].filter(function (k) { return droitsOnglets[k]; })[0];
     if (premier) showTabOrigine(premier);
