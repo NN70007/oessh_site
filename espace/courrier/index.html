@@ -112,6 +112,21 @@
 .spin { animation: spin .8s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Remarques de relecture (IA + vérification des dates) — jamais imprimées */
+#ia-remarques {
+  display: none; margin-top: 14px; padding: 12px 14px;
+  border: 1px solid #e8d9b0; border-left: 3px solid var(--cardinal);
+  background: #fffaf0; border-radius: 3px; font-size: 13px; line-height: 1.5;
+}
+#ia-remarques.visible { display: block; }
+#ia-remarques h4 {
+  margin: 0 0 6px; font-family: var(--sans); font-size: 11px; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--cardinal);
+}
+#ia-remarques ul { margin: 0; padding-left: 18px; }
+#ia-remarques li { margin: 3px 0; }
+#ia-remarques li.alerte { color: #a30000; font-weight: 600; }
+
 /* Bouton principal */
 .btn-print {
   width: 100%; padding: 14px; background: var(--cardinal); color: #fff;
@@ -204,7 +219,7 @@
   #chrome-top, #chrome-foot, .courrier-form-panel,
   .courrier-side-panel .historique-section,
   .btn-print, .btn-save, .ia-buttons, .lang-select-row,
-  .ia-spinner, .entite-tabs, .section-head,
+  .ia-spinner, #ia-remarques, .entite-tabs, .section-head,
   #side-preview-title, .toast, #toast { display: none !important; }
   html, body { margin: 0 !important; padding: 0 !important; background: white !important; }
   main, section, .container, .courrier-layout, .courrier-side-panel {
@@ -329,6 +344,9 @@
             <span class="spin">⟳</span> Traitement en cours…
           </div>
 
+          <!-- Remarques de relecture : dates incohérentes, points relevés par l'IA (non imprimées) -->
+          <div id="ia-remarques" aria-live="polite"></div>
+
           <!-- Boutons d'action -->
           <button class="btn-print" id="btn-print" type="button">🖨 Imprimer / Exporter en PDF</button>
           <button class="btn-save" id="btn-save" type="button">💾 Enregistrer dans mes courriers</button>
@@ -363,6 +381,6 @@
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261018h"></script>
 <script src="../admin/espace-pont.js"></script>
-<script src="page-courrier.js?v=20261018i"></script>
+<script src="page-courrier.js?v=20261018j"></script>
 </body>
 </html>

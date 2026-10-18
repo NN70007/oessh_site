@@ -253,6 +253,49 @@ window.addEventListener("afterprint", fitPreview);
   el.addEventListener("input", updatePreview);
   el.addEventListener("change", updatePreview);
 });
+
+/* ── Relecture : jour de la semaine ≠ date, et remarques de l'IA ── */
+var remarquesIA = [];
+var JOURS_FR = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+var MOIS_FR  = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+// Contrôle déterministe (pas l'IA) : « dimanche 12 juin 2017 » doit tomber un dimanche.
+// Sans année, on prend l'année de la ligne de date du courrier, sinon l'année en cours.
+function verifierDates(){
+  var alertes = [], vus = {};
+  var anneeLettre = (inDate.value.match(/\b(\d{4})\b/) || [])[1];
+  var texte = inObjet.value + "\n" + inCorps.value;
+  var re = /\b(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\s+(1er|\d{1,2})\s+(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre)(?:\s+(\d{4}))?/gi;
+  var m;
+  while ((m = re.exec(texte))) {
+    var jourEcrit = m[1].toLowerCase();
+    var jour = m[2] === "1er" ? 1 : parseInt(m[2], 10);
+    var moisTxt = m[3].toLowerCase().replace("fevrier","février").replace("aout","août").replace("decembre","décembre");
+    var mois = MOIS_FR.indexOf(moisTxt);
+    var annee = parseInt(m[4] || anneeLettre || new Date().getFullYear(), 10);
+    var d = new Date(annee, mois, jour);
+    var cle = m[0].toLowerCase();
+    if (vus[cle]) continue; vus[cle] = 1;
+    if (d.getMonth() !== mois) { alertes.push("La date « " + m[0] + " » n'existe pas."); continue; }
+    var jourReel = JOURS_FR[d.getDay()];
+    if (jourReel !== jourEcrit) {
+      alertes.push("« " + m[0] + " » : le " + m[2] + " " + moisTxt + " " + annee + " est un " + jourReel + ", pas un " + jourEcrit + "."
+        + (m[4] ? "" : " (année supposée : " + annee + ")"));
+    }
+  }
+  return alertes;
+}
+function afficherRemarques(){
+  var box = $("ia-remarques");
+  if (!box) return;
+  var alertes = verifierDates();
+  if (!alertes.length && !remarquesIA.length) { box.classList.remove("visible"); box.innerHTML = ""; return; }
+  var h = "<h4>À vérifier avant l'envoi</h4><ul>";
+  alertes.forEach(function(a){ h += '<li class="alerte">⚠ ' + E.esc(a) + "</li>"; });
+  remarquesIA.forEach(function(r){ h += "<li>" + E.esc(r) + "</li>"; });
+  box.innerHTML = h + "</ul>";
+  box.classList.add("visible");
+}
+[inDate, inObjet, inCorps].forEach(function(el){ el.addEventListener("input", afficherRemarques); });
 updateRoleSelect();
 
 /* ── Relire qualités et adresses dans l'onglet Acces (la session peut être ancienne) ── */
@@ -315,6 +358,17 @@ var REGLES_COURRIER =
   +"- Ordre de Malte : Grand Maître « Monseigneur, » ou « Altesse Éminentissime, » ; Chevalier « Monsieur le Chevalier, ».\n"
   +"La formule d'appel est reprise dans la formule finale. Formule au singulier (« Je vous prie ») quand une personne signe. Ne jamais faire précéder la signature de « Son Excellence », « Monsieur » ou « Monseigneur ».\n";
 
+// Cohérence du fond (skill oessh-style, section 6.13)
+var COHERENCE_COURRIER =
+  "COHÉRENCE DU COURRIER (aussi importante que le protocole) :\n"
+  +"1. Avant d'écrire, dégage l'INTENTION PRINCIPALE du courrier (inviter, remercier, informer, présenter des condoléances…) et les éléments secondaires. Le courrier entier sert cette intention.\n"
+  +"2. UN SEUL TON, accordé à l'élément le plus grave : après une mauvaise nouvelle (maladie, décès, épreuve), jamais de « joie », « allégresse », « jour béni » ni de formule festive ; l'invitation reste sobre et digne.\n"
+  +"3. RELIE les paragraphes : chaque idée découle de la précédente par une transition qui a du sens (par exemple, l'inquiétude pour une personne devient une intention de prière confiée lors de la célébration à laquelle on invite). Jamais deux sujets juxtaposés sans lien.\n"
+  +"4. UNE SEULE VOIX : « je » quand une personne signe (ne parle pas d'elle-même à la troisième personne, jamais « Le Secrétaire a l'honneur »), « nous » seulement pour la Lieutenance ou ses membres ; la formule finale s'accorde avec cette voix.\n"
+  +"5. NE RIEN INVENTER : ni lieu, ni heure, ni nom, ni fait. Si une information indispensable manque (lieu précis, heure, date), écris [à compléter] à sa place.\n"
+  +"6. VÉRIFIE les dates : si un jour de la semaine ne correspond pas à la date indiquée, ne corrige pas au hasard, mets [date à vérifier] et signale-le.\n"
+  +"7. Signale dans ###REMARQUES### (une remarque par ligne, commençant par « - ») ce que tu as harmonisé et ce que l'auteur doit vérifier ou compléter. Si tout est clair, écris « - Aucune remarque. ». Ces remarques ne font pas partie de la lettre.\n";
+
 var LANGUES = { fr: "français", de: "allemand", en: "anglais", it: "italien" };
 
 // Formules officielles en langue étrangère (skill oessh-style, section 6.8)
@@ -340,7 +394,9 @@ async function callIA(mode){
     + (mode === "ameliorer" ? "###DESTINATAIRE###\n(bloc destinataire)\n" : "")
     + "###OBJET###\n(objet)\n"
     + (mode === "traduire" ? "###DATE###\n(ligne de date)\n" : "")
-    + "###CORPS###\n(corps du courrier)\n###FIN###";
+    + "###CORPS###\n(corps du courrier)\n"
+    + (mode === "ameliorer" ? "###REMARQUES###\n(remarques pour l'auteur, une par ligne)\n" : "")
+    + "###FIN###";
 
   var systemMap = {
     corriger:
@@ -355,7 +411,7 @@ async function callIA(mode){
       +"si une indication de rang figure seule dans le texte, intègre-la dans ces formules au lieu de la laisser telle quelle. "
       +"Ne mets ni signature ni nom du signataire à la fin. Mets le bloc destinataire en forme selon la règle ci-dessous, "
       +"sans inventer d'adresse ni de nom absents. Le signataire écrit en qualité de : " + (getRoleLabel() || "membre de la Lieutenance") + ".\n"
-      + REGLES_COURRIER + sortie,
+      + REGLES_COURRIER + COHERENCE_COURRIER + sortie,
     traduire:
       "Tu traduis un courrier officiel de l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH), Lieutenance pour le Luxembourg. "
       +"Traduis l'objet, la ligne de date et le corps en " + (LANGUES[langCible] || "français") + " "
@@ -395,6 +451,11 @@ async function callIA(mode){
     var nvCorps = txt && sectionIA(txt, "CORPS");
     if (nvCorps){
       nvCorps = nvCorps.replace(/\s*###FIN###\s*$/, "");
+      if (mode === "ameliorer") {
+        remarquesIA = (sectionIA(txt, "REMARQUES") || "").replace(/\s*###FIN###\s*$/, "").split(/\n+/)
+          .map(function(l){ return l.replace(/^\s*[-•*]\s*/, "").trim(); })
+          .filter(function(l){ return l && !/^aucune remarque\.?$/i.test(l); });
+      }
       var nvObjet = sectionIA(txt, "OBJET");
       var nvDate  = sectionIA(txt, "DATE");
       var nvDest  = sectionIA(txt, "DESTINATAIRE");
@@ -403,6 +464,7 @@ async function callIA(mode){
       if (mode === "traduire" && nvDate && nvDate !== "(vide)") inDate.value = nvDate;
       if (mode === "ameliorer" && nvDest && nvDest !== "(non renseigné)") inDest.value = nvDest;
       updatePreview();
+      afficherRemarques();
       E.toast(mode === "corriger" ? "Texte corrigé ✓" : mode === "ameliorer" ? "Texte amélioré ✓" : "Texte traduit ✓");
     } else {
       E.toast("Erreur de l'IA. Réessayez.");
@@ -480,6 +542,7 @@ async function chargerHistorique(){
                               .filter(Boolean).join("\n\n");
           setLangue(c.lang || "fr");
           updatePreview();
+          remarquesIA = []; afficherRemarques();
           E.toast("Courrier rechargé.");
         } catch(e){}
       });
