@@ -63,7 +63,7 @@
     location.href = lien("./");
   }
 
-  function cross() { return '<img class="cross" src="' + lien("../assets/croix-jerusalem.svg") + '" alt="Croix de Jérusalem">'; }
+  function cross() { return '<img class="cross" src="' + lien("../assets/croix-jerusalem-cardinal-liseree.svg") + '" alt="Croix de Jérusalem">'; }
 
   function dateTopbar() {
     var d = new Date();
