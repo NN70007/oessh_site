@@ -79,7 +79,7 @@
     if (user && (user.media || user.admin || user.gestion)) L.push({ k: "media", href: lien("media/"), t: "Médiathèque" });
     if (user && (user.courrier || user.admin)) L.push({ k: "courrier", href: lien("courrier/"), t: "Courrier" });
     if (user && user.gestion) L.push({ k: "acces", href: lien("acces.html"), t: "Accès" });
-    if (user && user.site && (user.site.actualites || user.site.lectures || user.site.newsletter)) L.push({ k: "site", href: lien("admin/"), t: "Administration du site ↗" });
+    if (user && user.site && (user.site.actualites || user.site.lectures || user.site.newsletter)) L.push({ k: "site", href: lien("admin/"), t: "Édition du site ↗" });
     return L.map(function (l) { return '<a class="nav-tab' + (l.k === active ? " active" : "") + '" href="' + l.href + '">' + esc(l.t) + "</a>"; }).join("");
   }
 

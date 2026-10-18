@@ -79,7 +79,7 @@
     var setup = document.getElementById("setup-screen"); if (setup) setup.style.display = "none";
     login.innerHTML =
       '<div class="login-card" style="max-width:460px;text-align:left">' +
-      '<h2>Administration du site</h2>' +
+      '<h2>Édition du site</h2>' +
       '<p>' + E.esc(message) + '</p>' +
       '<p style="margin-top:18px"><a href="../" style="display:inline-block;background:#b10103;color:#fff;padding:11px 20px;border-radius:2px;text-decoration:none;font-weight:500">Aller à l’espace membres →</a></p>' +
       '</div>';
@@ -92,7 +92,7 @@
     var s = E.getSession(), u = s && s.user;
     if (!u) { ecranSansAcces("Connectez-vous d’abord à l’espace membres de la Lieutenance, avec votre compte Google ou un code reçu par e-mail."); return; }
     var d = u.site || {};
-    if (!(d.actualites || d.lectures || d.newsletter)) { ecranSansAcces("Votre accès ne comprend pas l’administration du site. Le secrétariat peut vous l’ouvrir depuis la page Accès."); return; }
+    if (!(d.actualites || d.lectures || d.newsletter)) { ecranSansAcces("Votre accès ne comprend pas l’édition du site. Le secrétariat peut vous l’ouvrir depuis la page Accès."); return; }
     document.getElementById("login-screen").style.display = "none";
     var setup = document.getElementById("setup-screen"); if (setup) setup.style.display = "none";
     document.getElementById("app").style.display = "block";
@@ -100,7 +100,7 @@
     var premier = ["articles", "lectures", "calendrier", "newsletters"].filter(function (k) { return droitsOnglets[k]; })[0];
     if (premier) showTabOrigine(premier);
     // Droits à jour depuis le serveur (un accès retiré est appliqué immédiatement).
-    E.api("moi").then(function (out) { appliquerDroits(out.user); var d2 = out.user.site || {}; if (!(d2.actualites || d2.lectures || d2.newsletter || d2.calendrier)) ecranSansAcces("Votre accès à l’administration du site a été retiré."); })
+    E.api("moi").then(function (out) { appliquerDroits(out.user); var d2 = out.user.site || {}; if (!(d2.actualites || d2.lectures || d2.newsletter || d2.calendrier)) ecranSansAcces("Votre accès à l’édition du site a été retiré."); })
       .catch(function (e) { if (e && e.code === "session") ecranSansAcces("Votre session a expiré. Reconnectez-vous à l’espace membres."); });
   }
 
