@@ -135,6 +135,9 @@
   transition: background .15s;
 }
 .btn-print:hover { background: #8a0102; }
+.btn-print:disabled { background: #b9b2a6; cursor: not-allowed; }
+/* Ctrl+P sur un courrier incomplet : on imprime un avertissement, pas la lettre */
+#print-bloque { display: none; }
 .btn-save {
   width: 100%; padding: 11px; background: var(--bg); color: var(--ink);
   border: 1.5px solid var(--line); border-radius: 3px; font-family: var(--sans);
@@ -232,12 +235,15 @@
     height: auto !important; min-height: 0 !important; margin: 0 !important;
   }
   .ltr-sheet { transform: none !important; min-height: 0; }
+  body.courrier-incomplet #letter-preview { display: none !important; }
+  body.courrier-incomplet #print-bloque { display: block !important; padding: 30mm 20mm; font: 14pt/1.5 Georgia, serif; color: #a30000; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
 </head>
 <body>
 <div id="chrome-top"></div>
+<div id="print-bloque">Courrier incomplet : remplacez les mentions [à compléter] ou [date à vérifier] avant d'imprimer.</div>
 
 <main>
   <section class="block" id="courrier-section">
@@ -381,6 +387,6 @@
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261018h"></script>
 <script src="../admin/espace-pont.js"></script>
-<script src="page-courrier.js?v=20261018k"></script>
+<script src="page-courrier.js?v=20261018l"></script>
 </body>
 </html>

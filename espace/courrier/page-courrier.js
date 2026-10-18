@@ -284,10 +284,29 @@ function verifierDates(){
   }
   return alertes;
 }
+// Champs encore à remplir : [à compléter], [date à vérifier] et leurs équivalents DE, EN, IT.
+// Tant qu'il en reste, l'impression / l'export PDF est bloqué.
+var RE_A_COMPLETER = /\[[^\]\n]*(compl[ée]t|v[ée]rifi|erg[äa]nz|vervollst|pr[üu]f|to be|complete|check|verify|completare|verificare)[^\]\n]*\]/gi;
+function champsACompleter(){
+  var vus = {}, out = [];
+  [inRef, inDate, inDest, inObjet, inCorps].forEach(function(el){
+    (el.value.match(RE_A_COMPLETER) || []).forEach(function(t){ if (!vus[t]) { vus[t] = 1; out.push(t); } });
+  });
+  return out;
+}
+function majBoutonImprimer(){
+  var manque = champsACompleter(), b = $("btn-print");
+  b.disabled = manque.length > 0;
+  b.title = manque.length ? "Complétez d'abord : " + manque.join(", ") : "";
+  document.body.classList.toggle("courrier-incomplet", manque.length > 0);
+  return manque;
+}
 function afficherRemarques(){
   var box = $("ia-remarques");
   if (!box) return;
   var alertes = verifierDates();
+  var manque = majBoutonImprimer();
+  if (manque.length) alertes.unshift("Impression bloquée : le courrier contient encore " + manque.join(", ") + ".");
   if (!alertes.length && !remarquesIA.length) { box.classList.remove("visible"); box.innerHTML = ""; return; }
   var h = "<h4>À vérifier avant l'envoi</h4><ul>";
   alertes.forEach(function(a){ h += '<li class="alerte">⚠ ' + E.esc(a) + "</li>"; });
@@ -295,7 +314,7 @@ function afficherRemarques(){
   box.innerHTML = h + "</ul>";
   box.classList.add("visible");
 }
-[inDate, inObjet, inCorps].forEach(function(el){ el.addEventListener("input", afficherRemarques); });
+[inRef, inDate, inDest, inObjet, inCorps].forEach(function(el){ el.addEventListener("input", afficherRemarques); });
 updateRoleSelect();
 
 /* ── Relire qualités et adresses dans l'onglet Acces (la session peut être ancienne) ── */
@@ -332,7 +351,7 @@ function setSpinner(on){
 }
 
 var REGLES_COURRIER =
-  "RÈGLES DE LA LIEUTENANCE (skill oessh-style) : sigle OESSH (jamais OESSJ) ; majuscules à Le Lieutenant, Le Chancelier, Le Trésorier, Le Secrétaire, Chevaliers et Dames ; « Patriarcat latin de Jérusalem (PLJ) » ; « Lieutenance pour le Luxembourg » ; pas de titres académiques ni de noblesse ; guillemets « » et apostrophes courbes ; pas d'anglicismes ni de superlatifs.\n"
+  "RÈGLES DE LA LIEUTENANCE (skill oessh-style) : sigle OESSH (jamais OESSJ) ; majuscules à Le Lieutenant, Le Chancelier, Le Trésorier, Le Secrétaire, Chevaliers et Dames ; « Patriarcat latin de Jérusalem (PLJ) » ; « Lieutenance pour le Luxembourg » ; pas de titres académiques ni de noblesse ; guillemets « » et apostrophes courbes ; JAMAIS de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-) ; pas d'anglicismes ni de superlatifs.\n"
   +"REGISTRE : TOUS les courriers de la Lieutenance sont SOLENNELS. Quand la grille distingue une forme solennelle et une forme administrative, emploie TOUJOURS la forme solennelle.\n"
   +"PROTOCOLE (grille officielle) : prédicats Sa Sainteté, Sa Béatitude, Son Éminence, Son Excellence réservés à qui y a droit ; le rang ecclésiastique ou princier prévaut sur le grade ; la fonction (Lieutenant, Chancelier, Président) prévaut sur le grade.\n"
   +"BLOC DESTINATAIRE : nom de famille en MAJUSCULES ; prédicat puis fonction sur la ligne suivante ; pour un membre, le grade peut suivre le nom (« Madame Marie DURAND, Dame de Commanderie »). Ne pas écrire « À l'attention de ».\n"
@@ -402,7 +421,7 @@ async function callIA(mode){
     corriger:
       "Tu es correcteur de texte pour l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH), Lieutenance pour le Luxembourg. "
       +"Corrige UNIQUEMENT les fautes d'orthographe, de grammaire, de ponctuation et de typographie (guillemets « », apostrophes courbes) "
-      +"dans l'objet et dans le corps du courrier. Ne change pas le style ni le contenu." + sortie,
+      +"dans l'objet et dans le corps du courrier ; remplace tout tiret long (—) ou demi-cadratin (–) par un tiret court (-). Ne change pas le style ni le contenu." + sortie,
     ameliorer:
       "Tu es rédacteur officiel de la Lieutenance pour le Luxembourg de l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH). "
       +"Améliore l'objet et le corps du courrier dans le style solennel mais accessible de l'Ordre : ton digne sans être pompeux, français soutenu. "
@@ -421,6 +440,8 @@ async function callIA(mode){
       +"EN : Equestrian Order of the Holy Sepulchre of Jerusalem / Lieutenancy for Luxembourg ; "
       +"IT : Ordine Equestre del Santo Sepolcro di Gerusalemme / Luogotenenza per il Lussemburgo. "
       +"Guillemets DE : „…“ / EN et IT : \"…\" / FR : « ». "
+      +"Traduis aussi les mentions entre crochets : [à compléter] = DE [zu ergänzen] / EN [to be completed] / IT [da completare] ; [date à vérifier] = DE [Datum zu prüfen] / EN [date to be checked] / IT [data da verificare]. "
+      +"Jamais de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-). "
       +"La ligne de date garde le lieu (Luxembourg) et la date, à la manière de la langue cible (ex. DE « Luxemburg, den 18. Oktober 2026 »).\n"
       + FORMULES_ETRANGERES + sortie
   };
@@ -448,6 +469,8 @@ async function callIA(mode){
     });
     var data = await res.json();
     var txt = data.content && data.content[0] && data.content[0].text;
+    // Style de la Lieutenance : uniquement le tiret court (-), jamais — ni –
+    if (txt) txt = txt.replace(/[\u2014\u2013]/g, "-");
     var nvCorps = txt && sectionIA(txt, "CORPS");
     if (nvCorps){
       nvCorps = nvCorps.replace(/\s*###FIN###\s*$/, "");
@@ -478,6 +501,8 @@ async function callIA(mode){
 
 /* ── Impression ── */
 $("btn-print").addEventListener("click", function(){
+  var manque = majBoutonImprimer();
+  if (manque.length){ afficherRemarques(); E.toast("Complétez d'abord : " + manque.join(", ")); return; }
   updatePreview();
   setTimeout(function(){ window.print(); }, 100);
 });
