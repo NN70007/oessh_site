@@ -486,7 +486,7 @@ function resumeDroits_(l) {
 function journal_(qui, action, detail) { ajouter_('Journal', { Date: String(Date.now()), Qui: qui, Action: action, Detail: detail }); }
 
 /* ======================= Publication sur le site (admin) ======================= */
-var FICHIERS_PUB = { 'actualites.json': 'actualites', 'lectures.json': 'lectures', 'newsletters.json': 'newsletter' };
+var FICHIERS_PUB = { 'actualites.json': 'actualites', 'lectures.json': 'lectures', 'newsletters.json': 'newsletter', 'calendrier.json': 'actualites' };
 var ASSET_RE = /^assets\/[A-Za-z0-9][A-Za-z0-9._-]{0,150}\.(jpe?g|png|webp|gif|pdf)$/i;
 
 function aUnDroitSite_(u) { return !!(u.site && (u.site.actualites || u.site.lectures || u.site.newsletter)); }
