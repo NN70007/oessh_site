@@ -198,7 +198,9 @@ function updatePreview(){
     '<div class="ltr-sheet">' +
     '<table class="ltr-flow">' +
       '<thead><tr><td><div class="ltr-sp-top"></div></td></tr></thead>' +
-      '<tfoot><tr><td><div class="ltr-sp-bot"></div></td></tr></tfoot>' +
+      // Pied de page dans le <tfoot> : le navigateur le répète au bas de chaque page imprimée
+      '<tfoot><tr><td><div class="ltr-sp-bot"><div class="ltr-footer">OESSH Luxembourg,&nbsp; 2, rue Christophe Plantin,&nbsp; L-2339 Luxembourg' +
+        (email ? '<br>'+E.esc(email) : '') + '</div></div></td></tr></tfoot>' +
       '<tbody><tr><td>' +
         // En-tête
         '<div class="ltr-header">' +
@@ -229,10 +231,6 @@ function updatePreview(){
         '</div>' +
       '</td></tr></tbody>' +
     '</table>' +
-    // Pied de page
-    // Pied de page : adresse postale + adresse e-mail choisie dans le menu
-    '<div class="ltr-footer">OESSH Luxembourg,&nbsp; 2, rue Christophe Plantin,&nbsp; L-2339 Luxembourg' +
-      (email ? '<br>'+E.esc(email) : '') + '</div>' +
     '</div>';
   fitPreview();
 }

@@ -166,10 +166,10 @@
   font-size: 11pt; line-height: 1.3;
   transform-origin: 0 0;
 }
-.ltr-flow { width: 100%; border-collapse: collapse; }
+.ltr-flow { width: 100%; height: 297mm; border-collapse: collapse; } /* une page au minimum : le pied tombe en bas */
 .ltr-flow td { padding: 0; vertical-align: top; }
 .ltr-sp-top { height: 12mm; }
-.ltr-sp-bot { height: 30mm; }
+.ltr-sp-bot { height: 30mm; box-sizing: border-box; padding-bottom: 12mm; display: flex; flex-direction: column; justify-content: flex-end; }
 
 /* En-tête : armoiries + qualité à gauche, intitulé sur toute la largeur restante */
 .ltr-header { display: flex; align-items: center; gap: 6mm; margin: 0 -10mm 10mm -10mm; }
@@ -192,9 +192,8 @@
 .ltr-body { margin-bottom: 12mm; white-space: pre-wrap; text-align: justify; }
 .ltr-signature { margin-left: 97mm; break-inside: avoid; }
 
-/* Pied de page : adresse officielle, en bas de chaque page */
+/* Pied de page : adresse officielle, dans le <tfoot> répété au bas de chaque page */
 .ltr-footer {
-  position: absolute; left: 0; right: 0; bottom: 12mm;
   text-align: center; color: #ff0000; font-weight: 700;
   font-size: 9pt; letter-spacing: 1pt; line-height: 1.5;
 }
@@ -218,7 +217,6 @@
     height: auto !important; min-height: 0 !important; margin: 0 !important;
   }
   .ltr-sheet { transform: none !important; min-height: 0; }
-  .ltr-footer { position: fixed; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
@@ -365,6 +363,6 @@
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261018c"></script>
 <script src="../admin/espace-pont.js"></script>
-<script src="page-courrier.js?v=20261018b"></script>
+<script src="page-courrier.js?v=20261018d"></script>
 </body>
 </html>
