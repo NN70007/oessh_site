@@ -22,7 +22,11 @@ var CONFIG = {
   CODES_PAR_HEURE_PAR_ADRESSE: 5,
   CODES_PAR_HEURE_TOTAL: 60,
   NOM_EXPEDITEUR: 'OESSH Luxembourg',
-  ACTIVITE_MAX: 40
+  ACTIVITE_MAX: 40,
+  // Courrier e-mail : fichier des membres (Google Sheets « 0_Fichier_Membres_actif ») et adresse d'envoi commune.
+  MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
+  ENVOI_ALIAS: 'envois@oessh.lu',
+  ENVOI_MAX: 200
 };
 
 var ONGLETS = {
@@ -37,8 +41,11 @@ var ONGLETS = {
   RetActivite: ['Date', 'Qui', 'Texte'],
   RetJalons: ['Date', 'Titre', 'Detail', 'Cle'],
   RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note'],
-  RetOrganisation: ['Fonction', 'Nom']
+  RetOrganisation: ['Fonction', 'Nom'],
+  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type']
 };
+// Colonne de droits du Courrier e-mail, ajoutée en fin d'onglet « Acces » par « installer ».
+var COL_ENVOIS = 'Envois';
 // Colonne de droits du week-end de retraite, ajoutée en fin d'onglet « Acces » par « installer » (les colonnes existantes ne bougent pas).
 var COL_RETRAITE = 'Retraite';
 
@@ -97,6 +104,9 @@ function route_(req) {
     case 'pub.claude': return pubClaude_(user, req.corps);
     case 'courrier.sauvegarder': return courrierSauvegarder_(user, req);
     case 'courrier.liste': return courrierListe_(user);
+    case 'mail.charger': return mailCharger_(user);
+    case 'mail.essai': return mailEssai_(user, req);
+    case 'mail.envoyer': return mailEnvoyer_(user, req);
     default: throw refus_('Action inconnue.', 'inconnu');
   }
 }
@@ -123,6 +133,12 @@ function installer() {
     CONFIG.ADMINS_INITIAUX.forEach(function (a) {
       var em = a.emails.map(norm_);
       ecrireColonne_('Acces', function (r) { return emails_(r.Email).some(function (x) { return em.indexOf(x) > -1; }); }, COL_RETRAITE, 'organisateur');
+    });
+  }
+  if (ajouterColonne_('Acces', COL_ENVOIS)) {
+    CONFIG.ADMINS_INITIAUX.forEach(function (a) {
+      var em = a.emails.map(norm_);
+      ecrireColonne_('Acces', function (r) { return emails_(r.Email).some(function (x) { return em.indexOf(x) > -1; }); }, COL_ENVOIS, 'oui');
     });
   }
   if (!lire_('RetJalons').length) {
@@ -267,7 +283,8 @@ function accesPour_(email) {
   if (!email) return null;
   var rows = lire_('Acces');
   for (var i = 0; i < rows.length; i++) {
-    if (emails_(rows[i].Email).indexOf(email) > -1 && oui_(rows[i].Actif)) return rows[i];
+    // Adresses de connexion : colonne Email (séparées par ; ou ,) et colonne Emails (séparées par |)
+    if ((emails_(rows[i].Email).indexOf(email) > -1 || emails_(String(rows[i].Emails || '').replace(/\|/g, ';')).indexOf(email) > -1) && oui_(rows[i].Actif)) return rows[i];
   }
   return null;
 }
@@ -298,6 +315,7 @@ function userFromRow_(r, loginEmail) {
     admin: oui_(r.Admin),
     media: oui_(r.Media),
     courrier: oui_(r.Courrier),
+    envois: oui_(r[COL_ENVOIS]),
     roles: String(r.Roles || ''),
     userEmails: String(r.Emails || '')
   };
@@ -315,6 +333,7 @@ function publicUser_(u) {
     admin: u.admin,
     media: u.media,
     courrier: u.courrier,
+    envois: u.envois,
     roles: u.roles,
     userEmails: u.userEmails
   };
@@ -649,7 +668,7 @@ function pubGithub_(u, methode, chemin, corps) {
 
 function pubClaude_(u, corps) {
   // Rédaction assistée : éditeurs du site et utilisateurs de l'outil courrier
-  if (!aUnDroitSite_(u) && !u.courrier) throw refus_("Vous n'avez pas accès à la rédaction assistée.", 'droits');
+  if (!aUnDroitSite_(u) && !u.courrier && !u.envois) throw refus_("Vous n'avez pas accès à la rédaction assistée.", 'droits');
   var key = prop_('CLAUDE_KEY');
   if (!key) throw refus_("La rédaction assistée n'est pas encore configurée (clé Claude manquante dans le script).", 'config');
   var cache = CacheService.getScriptCache(), k = 'claude:' + u.email, n = Number(cache.get(k) || 0);
@@ -732,6 +751,238 @@ function courrierListe_(u) {
   }
   result.reverse();
   return { ok: true, courriers: result.slice(0, 50) };
+}
+
+/* ======================= Courrier e-mail ======================= */
+/* Envoi de courriels personnalisés aux groupes du fichier des membres.
+   Tout part de l'adresse commune CONFIG.ENVOI_ALIAS (alias du compte qui exécute le script) ;
+   le nom affiché et l'adresse « Répondre à » dépendent de la casquette choisie par l'auteur.
+   Un courriel par ligne du fichier des membres, même quand deux personnes partagent une adresse. */
+
+var CASQUETTES = {
+  lieutenant:                  { e: 'lt',   t: 'Le Lieutenant',                     s: 'Lieutenant',                     r: 'lieutenant@oessh.lu' },
+  chancelier:                  { e: 'lt',   t: 'Le Chancelier',                     s: 'Chancelier',                     r: 'chancelier@oessh.lu' },
+  tresorier:                   { e: 'lt',   t: 'Le Trésorier',                      s: 'Trésorier',                      r: 'tresorier@oessh.lu' },
+  secretaire:                  { e: 'lt',   t: 'Le Secrétaire',                     s: 'Secrétaire',                     r: 'secretariat@oessh.lu' },
+  secretaire_adjoint:          { e: 'lt',   t: 'Le Secrétaire adjoint',             s: 'Secrétaire adjoint',             r: 'secretaire.adjoint@oessh.lu' },
+  ceremoniaire_laic:           { e: 'lt',   t: 'Le Cérémoniaire laïc',              s: 'Cérémoniaire laïc',              r: 'ceremoniaire.laic@oessh.lu' },
+  ceremoniaire_ecclesiastique: { e: 'lt',   t: 'Le Cérémoniaire ecclésiastique',    s: 'Cérémoniaire ecclésiastique',    r: 'ceremoniaire.ecclesiastique@oessh.lu' },
+  resp_informatique:           { e: 'lt',   t: 'Le Responsable de l’informatique',  s: 'Responsable de l’informatique',  r: 'webadmin@oessh.lu' },
+  resp_communication:          { e: 'lt',   t: 'La Responsable de la communication', s: 'Responsable de la communication', r: 'communication@oessh.lu' },
+  conseiller:                  { e: 'lt',   t: 'Le Conseiller',                     s: 'Conseiller',                     r: '' },
+  president_asbl:              { e: 'asbl', t: 'Le Président',                      s: 'Président',                      r: 'president@oessh.lu' },
+  vice_president_asbl:         { e: 'asbl', t: 'Le Vice-Président',                 s: 'Vice-Président',                 r: 'vice-president@oessh.lu' },
+  secretaire_asbl:             { e: 'asbl', t: 'Le Secrétaire',                     s: 'Secrétaire',                     r: 'secretariat.asbl@oessh.lu' },
+  tresorier_asbl:              { e: 'asbl', t: 'Le Trésorier',                      s: 'Trésorier',                      r: 'tresorier@oessh.lu' },
+  administrateur_asbl:         { e: 'asbl', t: 'L’Administrateur',                  s: 'Administrateur',                 r: '' },
+  administratrice_asbl:        { e: 'asbl', t: 'L’Administratrice',                 s: 'Administratrice',                r: '' }
+};
+// Codes déjà utilisés par l'outil Courrier papier (colonne Roles) : même casquette.
+var CASQUETTES_ALIAS = { ceremoniaire_eccl: 'ceremoniaire_ecclesiastique' };
+var ENTITES = { lt: 'Lieutenance pour le Luxembourg', asbl: 'Lieutenance pour le Luxembourg Asbl' };
+
+var GROUPES_ENVOI = [
+  { id: 'lt',           nom: 'Lieutenance',                 f: function (m) { return m.groupe === 'lt'; } },
+  { id: 'candidats',    nom: 'Candidats',                   f: function (m) { return m.groupe === 'candidat'; } },
+  { id: 'asbl',         nom: 'Asbl',                        f: function (m) { return m.groupe === 'asbl'; } },
+  { id: 'cognati',      nom: 'Cognati',                     f: function (m) { return m.groupe === 'cognati'; } },
+  { id: 'malte',        nom: 'Ordre de Malte',              f: function (m) { return m.groupe === 'malte'; } },
+  { id: 'conseil_lt',   nom: 'Conseil de la Lieutenance',   f: function (m) { return m.conseilLt; } },
+  { id: 'conseil_asbl', nom: 'Conseil de l’Asbl',           f: function (m) { return m.conseilAsbl; } }
+];
+
+function journalEnvoi_(obj) {
+  var ss = classeur_(false);
+  if (!ss.getSheetByName('JournalEnvois')) {
+    var sh = ss.insertSheet('JournalEnvois'), head = ONGLETS.JournalEnvois;
+    sh.getRange(1, 1, 1, head.length).setValues([head]);
+    sh.setFrozenRows(1);
+  }
+  ajouter_('JournalEnvois', obj);
+}
+function exigerEnvois_(u) { if (!u.envois && !u.admin) throw refus_("Vous n'avez pas accès au Courrier e-mail.", 'droits'); }
+
+/** Casquettes de la personne connectée, lues dans la colonne Roles (codes séparés par des virgules). */
+function casquettesDe_(u) {
+  var codes = String(u.roles || '').split(/[,;\s]+/).map(function (c) { c = norm_(c); return CASQUETTES_ALIAS[c] || c; }).filter(function (c) { return CASQUETTES[c]; });
+  return codes.filter(function (c, i) { return codes.indexOf(c) === i; }).map(function (c) {
+    var k = CASQUETTES[c];
+    return { code: c, entite: k.e, titre: k.t, signature: k.s, entiteNom: ENTITES[k.e], repondreA: repondreA_(u, c) };
+  });
+}
+/** Adresse « Répondre à » : adresse de fonction ; pour un conseiller ou un administrateur, son adresse @oessh.lu nominative. */
+function repondreA_(u, code) {
+  var k = CASQUETTES[code];
+  if (k.r) return k.r;
+  var fonctions = Object.keys(CASQUETTES).map(function (c) { return CASQUETTES[c].r; });
+  var perso = (u.emails || []).filter(function (e) { return /@oessh\.lu$/.test(e) && fonctions.indexOf(e) < 0 && e !== CONFIG.ENVOI_ALIAS; })[0];
+  return perso || (u.emails || [])[0] || u.email;
+}
+
+/** Lit le fichier des membres. Colonnes repérées par leur titre (accents, espaces et retours à la ligne ignorés) ;
+    les deux premières colonnes (sans titre stable) donnent le groupe principal et le sous-groupe. */
+function lireMembres_() {
+  var id = prop_('MEMBRES_SHEET_ID') || CONFIG.MEMBRES_SHEET_ID;
+  var sh = SpreadsheetApp.openById(id).getSheets()[0];
+  var vals = sh.getDataRange().getValues();
+  if (vals.length < 2) return [];
+  var cle = function (h) { return String(h || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z]/g, '').toUpperCase(); };
+  var col = {};
+  vals[0].forEach(function (h, j) { var k = cle(h); if (k && !(k in col)) col[k] = j; });
+  var v = function (row, k) { return k in col ? String(row[col[k]] == null ? '' : row[col[k]]).trim() : ''; };
+  var out = [], vus = {};
+  vals.slice(1).forEach(function (row) {
+    var nom = v(row, 'NOM');
+    if (!nom) return;
+    var m = {
+      groupe: norm_(row[0]), sousGroupe: String(row[1] || '').trim(),
+      conseilLt: oui_(v(row, 'CONSEILLT')), conseilAsbl: oui_(v(row, 'CONSEILASBL')),
+      nom: nom, prenom: v(row, 'PRENOMUSUEL'), civilite: v(row, 'CIVILITE'), titre: v(row, 'TITRE'),
+      email: norm_(v(row, 'COURRIEL'))
+    };
+    var base = hash_(norm_(m.nom) + '|' + norm_(m.prenom) + '|' + m.email).slice(0, 12), id2 = base, n = 2;
+    while (vus[id2]) id2 = base + '-' + (n++);
+    vus[id2] = 1;
+    m.id = id2;
+    m.appel = appel_(m);
+    out.push(m);
+  });
+  return out;
+}
+
+/** Formule d'appel selon la charte : clergé et dignitaires d'abord, puis Confrère / Consœur pour les membres de l'Ordre. */
+function appel_(m) {
+  var civ = norm_(m.civilite), titre = norm_(m.titre);
+  if (civ.indexOf('éminence') > -1) return 'Éminence,';
+  if (civ.indexOf('monseigneur') > -1) return 'Monseigneur,';
+  if (civ.indexOf('abbé') > -1) return 'Monsieur l’Abbé,';
+  if (titre.indexOf('son excellence') === 0) return 'Excellence,';
+  var femme = civ === 'madame' || civ === 'frau' || civ === 'mme';
+  var membreOrdre = m.groupe === 'lt' || m.groupe === 'cognati';
+  if (membreOrdre) return femme ? 'Chère Consœur,' : 'Cher Confrère,';
+  return femme ? 'Madame,' : 'Monsieur,';
+}
+
+function mailCharger_(u) {
+  exigerEnvois_(u);
+  var membres = lireMembres_();
+  var groupes = GROUPES_ENVOI.map(function (g) {
+    return { id: g.id, nom: g.nom, ids: membres.filter(g.f).map(function (m) { return m.id; }) };
+  });
+  var historique = [];
+  try {
+    historique = lire_('JournalEnvois').slice(-30).reverse().map(function (r) {
+      return { ts: Number(r.Date) || 0, qui: r.Qui, casquette: r.Casquette, objet: r.Objet, groupes: r.Groupes, nb: Number(r.Nb) || 0, erreurs: r.Erreurs, type: r.Type };
+    });
+  } catch (e) { historique = []; }
+  return {
+    ok: true,
+    casquettes: casquettesDe_(u),
+    groupes: groupes,
+    membres: membres.map(function (m) {
+      return { id: m.id, nom: m.nom, prenom: m.prenom, appel: m.appel, groupe: m.groupe, sousGroupe: m.sousGroupe, sansCourriel: !m.email };
+    }),
+    historique: historique,
+    quota: MailApp.getRemainingDailyQuota(),
+    essaiA: u.email
+  };
+}
+
+/** Vérifie et normalise le courriel demandé ; refuse les textes inachevés. */
+function preparerMail_(u, req) {
+  var casq = casquettesDe_(u).filter(function (c) { return c.code === norm_(req.casquette); })[0];
+  if (!casq) throw refus_('Choisissez une fonction au nom de laquelle vous écrivez.', 'donnees');
+  var objet = texte_(req.objet, 200), corps = String(req.corps == null ? '' : req.corps).replace(/\r\n?/g, '\n').slice(0, 20000).trim();
+  if (!objet) throw refus_('Indiquez un objet.', 'donnees');
+  if (!corps) throw refus_('Le message est vide.', 'donnees');
+  var reste = (objet + '\n' + corps).match(/\[[^\]\n]{0,60}\]/);
+  if (reste) throw refus_('Le texte contient encore « ' + reste[0] + ' » : complétez-le avant d’envoyer.', 'donnees');
+  if (/[–—]/.test(objet + corps)) throw refus_('Le texte contient un tiret long (— ou –) : la charte n’admet que le tiret court (-).', 'donnees');
+  return { casq: casq, objet: objet, corps: corps, empreinte: hash_(casq.code + '|' + objet + '|' + corps).slice(0, 24) };
+}
+
+function personnaliser_(texte, m) {
+  var t = texte;
+  var avecAppel = t.indexOf('{appel}') > -1;
+  t = t.replace(/\{appel\}/g, m.appel).replace(/\{prenom\}/g, m.prenom || '').replace(/\{nom\}/g, m.nom || '');
+  return avecAppel ? t : m.appel + '\n\n' + t;
+}
+
+function composerMail_(u, P, m) {
+  var corps = personnaliser_(P.corps, m);
+  var signature = [u.nom, P.casq.signature, P.casq.entiteNom, 'Ordre Équestre du Saint-Sépulcre de Jérusalem', P.casq.repondreA];
+  var pied = 'Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.';
+  var texte = corps + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
+  var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+  var paras = corps.split(/\n{2,}/).map(function (p) { return '<p style="margin:0 0 14px">' + esc(p).replace(/\n/g, '<br>') + '</p>'; }).join('');
+  var html =
+    '<div style="background:#f7f4ee;padding:24px 12px;font-family:Georgia,\'Times New Roman\',serif;color:#1a1a1a">' +
+    '<div style="max-width:640px;margin:0 auto;background:#ffffff;border-top:4px solid #b10103">' +
+    '<div style="padding:18px 28px 14px;border-bottom:1px solid #b08a4f">' +
+    '<div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a0102">Ordre Équestre du Saint-Sépulcre de Jérusalem</div>' +
+    '<div style="font-size:18px;margin-top:4px">' + esc(P.casq.entiteNom) + '</div></div>' +
+    '<div style="padding:22px 28px 8px;font-size:16px;line-height:1.55">' + paras + '</div>' +
+    '<div style="padding:4px 28px 22px;font-size:15px;line-height:1.45"><strong>' + esc(u.nom) + '</strong><br>' + esc(P.casq.signature) +
+    '<br>' + esc(P.casq.entiteNom) + '<br><a href="mailto:' + esc(P.casq.repondreA) + '" style="color:#8a0102">' + esc(P.casq.repondreA) + '</a></div>' +
+    '<div style="padding:12px 28px;background:#faf7f0;font-size:12px;color:#6e6e6e;font-family:Arial,sans-serif">' + esc(pied) + '</div>' +
+    '</div></div>';
+  return { texte: texte, html: html };
+}
+
+function expedier_(P, to, contenu, objet) {
+  GmailApp.sendEmail(to, objet, contenu.texte, {
+    from: CONFIG.ENVOI_ALIAS,
+    name: P.casq.entiteNom + ' - ' + P.casq.titre,
+    replyTo: P.casq.repondreA,
+    htmlBody: contenu.html
+  });
+}
+function verifierAlias_() {
+  var alias = [];
+  try { alias = GmailApp.getAliases().map(norm_); } catch (e) { alias = []; }
+  if (alias.indexOf(norm_(CONFIG.ENVOI_ALIAS)) < 0) throw refus_("L'adresse d'envoi " + CONFIG.ENVOI_ALIAS + " n'est pas configurée sur le compte du script (Gmail > « Envoyer en tant que »).", 'config');
+}
+
+/** Envoi d'essai à l'auteur, obligatoire avant l'envoi réel du même texte. */
+function mailEssai_(u, req) {
+  exigerEnvois_(u);
+  var P = preparerMail_(u, req);
+  verifierAlias_();
+  var membres = lireMembres_();
+  var modele = membres.filter(function (m) { return m.id === String(req.apercu || ''); })[0] ||
+    { nom: '', prenom: '', appel: 'Cher Confrère,', groupe: 'lt' };
+  var c = composerMail_(u, P, modele);
+  expedier_(P, u.email, c, '[ESSAI] ' + P.objet);
+  CacheService.getScriptCache().put('essai:' + u.email + ':' + P.empreinte, '1', 6 * 3600);
+  journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: 'essai', Nb: '1', Erreurs: '', Type: 'essai' });
+  return { ok: true, envoyeA: u.email, empreinte: P.empreinte };
+}
+
+/** Envoi réel : un courriel par destinataire, jamais de liste visible. */
+function mailEnvoyer_(u, req) {
+  exigerEnvois_(u);
+  var P = preparerMail_(u, req);
+  if (!CacheService.getScriptCache().get('essai:' + u.email + ':' + P.empreinte)) {
+    throw refus_('Faites d’abord un envoi d’essai de ce texte exact : il a changé depuis le dernier essai.', 'essai');
+  }
+  verifierAlias_();
+  var ids = (Array.isArray(req.ids) ? req.ids : []).map(String);
+  var membres = lireMembres_();
+  var cibles = membres.filter(function (m) { return ids.indexOf(m.id) > -1; });
+  if (!cibles.length) throw refus_('Aucun destinataire sélectionné.', 'donnees');
+  if (cibles.length > CONFIG.ENVOI_MAX) throw refus_('Trop de destinataires en une fois (' + cibles.length + ', maximum ' + CONFIG.ENVOI_MAX + ').', 'donnees');
+  var avec = cibles.filter(function (m) { return m.email; });
+  if (avec.length > MailApp.getRemainingDailyQuota()) throw refus_('Le quota d’envoi du jour est insuffisant. Réessayez demain.', 'limite');
+  var envoyes = 0, erreurs = [];
+  avec.forEach(function (m) {
+    try { expedier_(P, m.email, composerMail_(u, P, m), P.objet); envoyes++; }
+    catch (e) { erreurs.push((m.prenom ? m.prenom + ' ' : '') + m.nom); }
+  });
+  var sans = cibles.filter(function (m) { return !m.email; }).map(function (m) { return (m.prenom ? m.prenom + ' ' : '') + m.nom; });
+  var groupesTxt = texte_(Array.isArray(req.groupes) ? req.groupes.join(', ') : req.groupes, 200);
+  journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: groupesTxt, Nb: String(envoyes), Erreurs: erreurs.join(', '), Type: 'envoi' });
+  journal_(u.email, 'mail.envoi', P.objet + ' - ' + envoyes + ' destinataire(s)' + (erreurs.length ? ', ' + erreurs.length + ' erreur(s)' : ''));
+  return { ok: true, envoyes: envoyes, erreurs: erreurs, sansCourriel: sans };
 }
 
 /* ======================= Feuille : utilitaires ======================= */

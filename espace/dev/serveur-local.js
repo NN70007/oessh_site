@@ -13,7 +13,9 @@ const { charger } = require('./gas-fake');
 function demarrer(port, importPath) {
   const root = path.join(__dirname, '..', '..');
   const extra = importPath && fs.existsSync(importPath) ? fs.readFileSync(importPath, 'utf8') : '';
-  const srv = charger({ extra });
+  // Fichier des membres de test (Courrier e-mail) : variable MEMBRES_JSON = chemin d'un tableau de lignes, en-tête compris.
+  const membres = process.env.MEMBRES_JSON && fs.existsSync(process.env.MEMBRES_JSON) ? JSON.parse(fs.readFileSync(process.env.MEMBRES_JSON, 'utf8')) : null;
+  const srv = charger({ extra, membres });
   srv.run('installer');
   if (extra) srv.run('importerTaches');
   const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'application/javascript', '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg' };
@@ -31,6 +33,11 @@ function demarrer(port, importPath) {
         const out = srv.ctx.doPost({ postData: { contents: body } }).content;
         res.writeHead(200, { 'Content-Type': 'application/json' }); res.end(out);
       });
+      return;
+    }
+    if (url.pathname === '/__gmails') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(srv.gmails.map((m) => ({ to: m.to, subject: m.subject, from: m.from, name: m.name, replyTo: m.replyTo, body: m.body }))));
       return;
     }
     if (url.pathname === '/__mails') {

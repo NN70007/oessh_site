@@ -78,7 +78,8 @@
     if (user && user.inv) L.push({ k: "investiture", href: lien("investiture.html"), t: "Investiture 2027" });
     if (user && user.ret) L.push({ k: "retraite", href: lien("retraite.html"), t: "Week-end de retraite" });
     if (user && (user.media || user.admin || user.gestion)) L.push({ k: "media", href: lien("media/"), t: "Médiathèque" });
-    if (user && (user.courrier || user.admin)) L.push({ k: "courrier", href: lien("courrier/"), t: "Courrier" });
+    if (user && (user.courrier || user.admin)) L.push({ k: "courrier", href: lien("courrier/"), t: "Courrier papier" });
+    if (user && (user.envois || user.admin)) L.push({ k: "courrier-email", href: lien("courrier-email/"), t: "Courrier e-mail" });
     if (user && user.gestion) L.push({ k: "acces", href: lien("acces.html"), t: "Accès" });
     if (user && user.site && (user.site.actualites || user.site.lectures || user.site.newsletter)) L.push({ k: "site", href: lien("admin/"), t: "Édition du site ↗" });
     return L.map(function (l) { return '<a class="nav-tab' + (l.k === active ? " active" : "") + '" href="' + l.href + '">' + esc(l.t) + "</a>"; }).join("");

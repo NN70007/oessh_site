@@ -1,0 +1,94 @@
+/* Tests du Courrier e-mail (Code.gs) avec le simulateur. Lancer : node espace/dev/test-mail.js */
+'use strict';
+const assert = require('assert');
+const { charger } = require('./gas-fake');
+
+// Fichier des membres fictif, mêmes titres de colonnes que « 0_Fichier_Membres_actif ».
+const ENTETE = ['18/10/2026JBN', '', 'Conseil Lt', 'Conseil ASBL', 'NOM', 'PRENOM usuel', 'CIVILITE', 'FONCTION', 'TITRE', 'NOBLESSE DR', 'ADRESSE', 'CP', 'LIEU', 'PAYS', 'COURRIEL', 'COURRIEL \nOFFICIEL', 'TELEPHONE', 'GSM'];
+const L = (g, sg, clt, ca, nom, prenom, civ, titre, mail) => [g, sg, clt, ca, nom, prenom, civ, '', titre, '', '', '', '', '', mail, '', '', ''];
+const MEMBRES = [
+  ENTETE,
+  L('Lt', '', 1, 1, 'KLEIN', 'Jacques', 'Monsieur', 'Son Excellence le Chevalier Grand-Croix', 'jacques.klein@pt.lu'),
+  L('Lt', '', 1, '', 'GOEDERT', 'Alfred', 'Monsieur', 'le Grand Officier', 'goedert1@pt.lu'),
+  L('Lt', '', '', '', 'GOEDERT-DEWANS', 'Marie-Jeanne', 'Madame', 'la Dame de Commanderie', 'goedert1@pt.lu'),
+  L('Lt', '', 1, 1, 'CARDINAL HOLLERICH', 'Jean-Claude', 'Éminence', 'Son Éminence', 'archeveque@cathol.lu'),
+  L('Lt', '', '', 1, 'WEBER', 'Léon', "Monsieur l'Abbé", "l'Abbé", 'leon.weber@cathol.lu'),
+  L('Candidat', '', '', '', 'DAUPHIN', 'Michel', 'Monsieur', 'le Candidat', 'mdauphin@pt.lu'),
+  L('ASBL', 'Sympathisant', '', '', 'SPAUTZ', 'Jean', 'Monsieur', 'le Président honoraire', ''),
+  L('Cognati', 'Deutschland', '', '', 'OTTE', 'Regan', 'Frau', 'Komtur-Dame mit Stern', 'otte@pt.lu'),
+  L('Malte', 'Malte', '', '', 'MORBÉ', 'Jessy', 'Monsieur', '', 'jessy.morbe@malteser.lu')
+];
+
+const srv = charger({ membres: MEMBRES });
+let n = 0;
+function ok(cond, msg) { assert.ok(cond, msg); n++; console.log('  ✓ ' + msg); }
+
+console.log('Installation');
+srv.run('installer');
+const acc = srv.sheets.Acces.data;
+const iEnv = acc[0].indexOf('Envois');
+ok(iEnv > -1 && acc[1][iEnv] === 'oui', 'colonne Envois créée, l\'administrateur initial y a droit');
+ok(srv.sheets.JournalEnvois, 'onglet JournalEnvois créé');
+// Colonnes Roles et Emails, comme dans la vraie feuille
+acc[0].push('Roles', 'Emails');
+acc[1][acc[0].indexOf('Roles')] = 'secretaire';
+acc[1][acc[0].indexOf('Emails')] = 'secretariat@oessh.lu|jb@niedercorn.com';
+// Un membre du Conseil sans droit d'envoi
+acc.push(['joris.b@me.com', 'Joris Buyse', '', '', '', '', '', 'oui', '']);
+
+console.log('Connexion par la colonne Emails');
+srv.post({ action: 'auth.demanderCode', email: 'secretariat@oessh.lu' });
+let r = srv.post({ action: 'auth.verifierCode', email: 'secretariat@oessh.lu', code: srv.lastCode('secretariat@oessh.lu') });
+ok(r.ok && r.user.envois === true, 'adresse de la colonne Emails acceptée à la connexion, droit Envois exposé');
+const tJB = r.token;
+srv.post({ action: 'auth.demanderCode', email: 'joris.b@me.com' });
+r = srv.post({ action: 'auth.verifierCode', email: 'joris.b@me.com', code: srv.lastCode('joris.b@me.com') });
+const tJoris = r.token;
+ok(!srv.post({ action: 'mail.charger', token: tJoris }).ok, 'sans droit Envois : Courrier e-mail refusé');
+
+console.log('Chargement');
+r = srv.post({ action: 'mail.charger', token: tJB });
+ok(r.ok && r.membres.length === 9, 'les 9 membres du fichier sont lus');
+const G = {}; r.groupes.forEach(g => (G[g.id] = g.ids.length));
+ok(G.lt === 5 && G.candidats === 1 && G.asbl === 1 && G.cognati === 1 && G.malte === 1, 'groupes principaux corrects');
+ok(G.conseil_lt === 3 && G.conseil_asbl === 3, 'conseils corrects');
+ok(r.casquettes.length === 1 && r.casquettes[0].repondreA === 'secretariat@oessh.lu', 'casquette Secrétaire, réponse vers secretariat@');
+const par = {}; r.membres.forEach(m => (par[m.nom] = m));
+ok(par.KLEIN.appel === 'Excellence,', 'appel : Excellence pour le Lieutenant');
+ok(par['CARDINAL HOLLERICH'].appel === 'Éminence,', 'appel : Éminence pour le Cardinal');
+ok(par.WEBER.appel === 'Monsieur l’Abbé,', 'appel : Monsieur l’Abbé');
+ok(par['GOEDERT-DEWANS'].appel === 'Chère Consœur,' && par.GOEDERT.appel === 'Cher Confrère,', 'appel : Consœur / Confrère pour les membres');
+ok(par.DAUPHIN.appel === 'Monsieur,' && par.OTTE.appel === 'Chère Consœur,', 'appel : Monsieur pour un candidat, Consœur pour une Cognata');
+ok(par.SPAUTZ.sansCourriel === true, 'personne sans courriel signalée');
+ok(!JSON.stringify(r.membres).includes('@'), 'aucune adresse e-mail des membres envoyée au navigateur');
+
+console.log('Garde-fous');
+const base = { token: tJB, casquette: 'secretaire', objet: 'Messe du 9 janvier', corps: '{appel}\n\nNous vous invitons à la messe.' };
+ok(!srv.post(Object.assign({}, base, { action: 'mail.essai', casquette: 'lieutenant' })).ok, 'casquette non attribuée refusée');
+ok(!srv.post(Object.assign({}, base, { action: 'mail.essai', corps: 'Date : [à compléter]' })).ok, 'texte avec [à compléter] refusé');
+ok(!srv.post(Object.assign({}, base, { action: 'mail.essai', corps: 'Messe — samedi' })).ok, 'tiret long refusé');
+const ids = r.groupes.find(g => g.id === 'lt').ids;
+ok(srv.post(Object.assign({}, base, { action: 'mail.envoyer', ids })).code === 'essai', 'envoi réel refusé sans essai préalable');
+
+console.log('Essai');
+r = srv.post(Object.assign({}, base, { action: 'mail.essai', apercu: par.KLEIN.id }));
+let m = srv.gmails.pop();
+ok(r.ok && m.to === 'secretariat@oessh.lu' && m.subject === '[ESSAI] Messe du 9 janvier', 'essai envoyé à l\'auteur');
+ok(m.from === 'envois@oessh.lu' && m.replyTo === 'secretariat@oessh.lu' && m.name === 'Lieutenance pour le Luxembourg - Le Secrétaire', 'expéditeur, nom affiché et Répondre à corrects');
+ok(m.body.startsWith('Excellence,') && m.body.includes('Jean-Baptiste Niedercorn') && m.htmlBody.includes('Excellence,'), 'appel et signature personnalisés');
+ok(!srv.post(Object.assign({}, base, { action: 'mail.envoyer', ids, objet: 'Autre objet' })).ok, 'texte modifié après l\'essai : envoi refusé');
+
+console.log('Envoi réel');
+r = srv.post(Object.assign({}, base, { action: 'mail.envoyer', ids, groupes: ['Lieutenance'] }));
+ok(r.ok && r.envoyes === 5 && srv.gmails.length === 5, 'un courriel par membre de la Lieutenance (5)');
+ok(srv.gmails.filter(x => x.to === 'goedert1@pt.lu').length === 2, 'adresse partagée : deux courriels, un par personne');
+ok(srv.gmails.some(x => x.to === 'goedert1@pt.lu' && x.body.startsWith('Chère Consœur,')) && srv.gmails.some(x => x.to === 'goedert1@pt.lu' && x.body.startsWith('Cher Confrère,')), 'chacun reçoit son propre appel');
+ok(srv.gmails.every(x => !Array.isArray(x.to) && !x.cc && !x.bcc), 'aucune liste visible');
+const j = srv.sheets.JournalEnvois.data;
+ok(j[j.length - 1][7] === 'envoi' && j[j.length - 1][5] === '5', 'envoi consigné dans le journal');
+srv.gmails.length = 0;
+const idAsbl = srv.post({ action: 'mail.charger', token: tJB }).groupes.find(g => g.id === 'asbl').ids;
+r = srv.post(Object.assign({}, base, { action: 'mail.envoyer', ids: idAsbl }));
+ok(r.ok && r.envoyes === 0 && r.sansCourriel.length === 1 && srv.gmails.length === 0, 'personne sans courriel : rien envoyé, nom renvoyé pour envoi postal');
+
+console.log('\n' + n + ' vérifications réussies.');

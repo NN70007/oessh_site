@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Courrier e-mail · OESSH Luxembourg</title>
+<meta name="theme-color" content="#b10103">
+<link rel="icon" type="image/svg+xml" href="../../assets/croix-jerusalem-cardinal-liseree.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../espace.css?v=20261018c">
+<style>
+/* ── Courrier e-mail ── */
+.ce-layout { display: grid; grid-template-columns: minmax(0,1fr) 400px; gap: 40px; align-items: start; }
+@media (max-width: 960px) { .ce-layout { grid-template-columns: 1fr; } }
+.ce-side { position: sticky; top: 80px; }
+@media (max-width: 960px) { .ce-side { position: static; } }
+
+.fg { margin-bottom: 22px; }
+.fg > label, .fg > .fl {
+  display: block; font-family: var(--sans); font-size: 11px; letter-spacing: .18em;
+  text-transform: uppercase; font-weight: 500; color: var(--ink-mute); margin-bottom: 8px;
+}
+.fg input[type=text], .fg select, .fg textarea {
+  width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 3px;
+  padding: 10px 14px; font-family: var(--sans); font-size: 15px; color: var(--ink); background: var(--bg);
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus { outline: none; border-color: var(--cardinal); }
+.fg textarea { resize: vertical; min-height: 240px; line-height: 1.6; }
+.hint { font-size: 12.5px; color: var(--ink-mute); margin-top: 6px; line-height: 1.5; }
+.hint code { font-family: var(--mono); font-size: 12px; background: var(--bg-soft); padding: 1px 5px; border-radius: 3px; }
+
+.ce-btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 8px; }
+.btn-l {
+  display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: 3px;
+  border: 1.5px solid var(--line); background: var(--bg); font-family: var(--sans); font-size: 13px;
+  font-weight: 500; color: var(--ink); cursor: pointer;
+}
+.btn-l:hover { border-color: var(--cardinal); background: var(--cardinal-soft); }
+.btn-l:disabled { opacity: .45; cursor: not-allowed; }
+#ia-remarques { display: none; margin-top: 10px; padding: 12px 14px; border: 1px solid #e8d9b0;
+  border-left: 3px solid var(--cardinal); background: #fffaf0; border-radius: 3px; font-size: 13px; line-height: 1.5; }
+#ia-remarques.visible { display: block; }
+#ia-remarques ul { margin: 4px 0 0; padding-left: 18px; }
+
+/* Destinataires */
+.grp { border: 1px solid var(--line); border-radius: 4px; margin-bottom: 8px; background: var(--bg); }
+.grp-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; }
+.grp-head label { flex: 1; display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; }
+.grp-count { border: 1px solid var(--line); background: var(--bg-soft); border-radius: 12px; padding: 2px 10px;
+  font-family: var(--sans); font-size: 12px; cursor: pointer; color: var(--ink); }
+.grp-count:hover { border-color: var(--cardinal); color: var(--cardinal); }
+.grp-list { display: none; border-top: 1px solid var(--line); padding: 6px 14px 10px 40px; max-height: 320px; overflow: auto; }
+.grp.open .grp-list { display: block; }
+.pers { display: flex; align-items: baseline; gap: 10px; padding: 4px 0; font-size: 14px; }
+.pers .ap { color: var(--ink-mute); font-size: 12.5px; margin-left: auto; white-space: nowrap; }
+.pers.sans { color: var(--ink-mute); }
+.badge-sans { font-size: 11px; color: #a30000; border: 1px solid #e3b9b9; border-radius: 10px; padding: 0 7px; margin-left: 6px; }
+.ce-total { font-family: var(--serif); font-size: 22px; margin: 14px 0 4px; }
+.ce-total small { font-family: var(--sans); font-size: 13px; color: var(--ink-mute); }
+.recherche { position: relative; }
+#res-recherche { position: absolute; left: 0; right: 0; top: 100%; z-index: 5; background: var(--bg); border: 1px solid var(--line);
+  border-top: none; max-height: 240px; overflow: auto; display: none; }
+#res-recherche button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 8px 14px; cursor: pointer; font-size: 14px; }
+#res-recherche button:hover { background: var(--cardinal-soft); }
+#ajouts .pers { padding: 2px 0; }
+
+/* Aperçu : rendu proche du courriel envoyé */
+.mail-prev { background: #f7f4ee; padding: 14px; border-radius: 4px; }
+.mail-prev .mp-box { background: #fff; border-top: 4px solid #b10103; font-family: Georgia, 'Times New Roman', serif; }
+.mail-prev .mp-head { padding: 14px 18px 10px; border-bottom: 1px solid #b08a4f; }
+.mail-prev .mp-ordre { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #8a0102; }
+.mail-prev .mp-ent { font-size: 15px; margin-top: 3px; }
+.mail-prev .mp-body { padding: 14px 18px 4px; font-size: 14px; line-height: 1.55; }
+.mail-prev .mp-body p { margin: 0 0 11px; }
+.mail-prev .mp-sig { padding: 2px 18px 14px; font-size: 13.5px; line-height: 1.45; }
+.mail-prev .mp-foot { padding: 9px 18px; background: #faf7f0; font: 11px Arial, sans-serif; color: #6e6e6e; }
+.mp-meta { font-size: 12.5px; color: var(--ink-mute); margin-bottom: 8px; line-height: 1.5; }
+.mp-meta b { color: var(--ink); font-weight: 500; }
+
+.btn-main { width: 100%; padding: 13px; background: var(--cardinal); color: #fff; border: none; border-radius: 3px;
+  font-family: var(--sans); font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 10px; }
+.btn-main:hover { background: var(--cardinal-dark); }
+.btn-main:disabled { background: #b9b2a6; cursor: not-allowed; }
+.btn-sec { width: 100%; padding: 12px; background: var(--bg); color: var(--cardinal); border: 1.5px solid var(--cardinal);
+  border-radius: 3px; font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 14px; }
+.btn-sec:disabled { opacity: .45; cursor: not-allowed; }
+.etat { font-size: 13px; line-height: 1.5; margin-top: 10px; padding: 10px 12px; border-radius: 3px; display: none; }
+.etat.visible { display: block; }
+.etat.ok { background: var(--ok-soft); color: var(--ok); }
+.etat.ko { background: var(--cardinal-soft); color: #8a0102; }
+
+.hist { list-style: none; margin: 0; padding: 0; }
+.hist li { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; line-height: 1.45; }
+.hist .h-meta { font-size: 12px; color: var(--ink-mute); }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+
+<main>
+  <section class="block" id="ce-section">
+    <div class="container">
+      <div class="section-head">
+        <div class="meta">
+          <div class="num">— Espace membres</div>
+          <div class="label">Courrier e-mail</div>
+        </div>
+        <div>
+          <h2>Écrire aux membres.</h2>
+          <p class="lede">Rédigez un courriel, choisissez les groupes de destinataires : chacun le reçoit à son nom, avec la formule d'appel qui lui convient. Les réponses vous parviennent directement.</p>
+        </div>
+      </div>
+
+      <div class="ce-layout">
+        <div>
+          <!-- Rédiger -->
+          <div id="sec-rediger">
+            <div class="fg">
+              <label for="in-casq">J'écris en qualité de</label>
+              <select id="in-casq"></select>
+              <div class="hint" id="casq-info"></div>
+            </div>
+            <div class="fg">
+              <label for="in-modele">Partir d'un modèle</label>
+              <select id="in-modele"><option value="">Texte libre</option></select>
+            </div>
+            <div class="fg">
+              <label for="in-objet">Objet</label>
+              <input type="text" id="in-objet" maxlength="200" autocomplete="off">
+            </div>
+            <div class="fg">
+              <label for="in-corps">Message</label>
+              <textarea id="in-corps" maxlength="20000"></textarea>
+              <div class="hint">La formule d'appel de chaque destinataire est ajoutée en tête du message. Pour la placer ailleurs, écrivez <code>{appel}</code> ; <code>{prenom}</code> et <code>{nom}</code> sont aussi remplacés. La signature est ajoutée automatiquement.</div>
+            </div>
+            <div class="ce-btns">
+              <button type="button" class="btn-l" id="btn-corriger">Corriger l'orthographe</button>
+              <button type="button" class="btn-l" id="btn-ameliorer">Améliorer selon la charte</button>
+            </div>
+            <div id="ia-remarques"></div>
+          </div>
+
+          <!-- Destinataires -->
+          <div id="sec-dest" style="margin-top:36px">
+            <div class="fg">
+              <div class="fl">Destinataires</div>
+              <div id="groupes"></div>
+            </div>
+            <div class="fg recherche">
+              <label for="in-recherche">Ajouter une personne</label>
+              <input type="text" id="in-recherche" placeholder="Nom ou prénom" autocomplete="off">
+              <div id="res-recherche"></div>
+              <div id="ajouts"></div>
+            </div>
+            <div class="ce-total" id="total"></div>
+            <div class="hint" id="sans-courriel"></div>
+          </div>
+
+          <!-- Journal -->
+          <div id="sec-journal" style="margin-top:44px">
+            <div class="fg"><div class="fl">Derniers envois</div></div>
+            <ul class="hist" id="historique"><li class="h-meta">Chargement…</li></ul>
+          </div>
+        </div>
+
+        <!-- Aperçu et envoi -->
+        <aside class="ce-side" id="sec-envoi">
+          <div class="fg">
+            <label for="in-apercu">Aperçu pour</label>
+            <select id="in-apercu"></select>
+          </div>
+          <div class="mp-meta" id="mp-meta"></div>
+          <div class="mail-prev" id="apercu"></div>
+          <button type="button" class="btn-sec" id="btn-essai">Envoyer un essai à moi-même</button>
+          <button type="button" class="btn-main" id="btn-envoyer" disabled>Envoyer</button>
+          <div class="hint" id="envoi-aide">L'envoi réel s'active après un essai du texte exact.</div>
+          <div class="etat" id="etat"></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="chrome-foot"></div>
+<script src="../config.js"></script>
+<script src="../espace.js?v=20261020a"></script>
+<script src="page-courrier-email.js?v=20261020a"></script>
+</body>
+</html>

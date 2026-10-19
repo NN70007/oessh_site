@@ -17,6 +17,7 @@ function charger(opts) {
   const mails = [];
   const github = [];
   const claude = [];
+  const gmails = []; // courriels envoyés par GmailApp (Courrier e-mail)
   const googleTokens = opts.googleTokens || {}; // idToken -> infos tokeninfo
 
   function makeSheet(name) {
@@ -66,7 +67,8 @@ function charger(opts) {
     console,
     SpreadsheetApp: {
       getActiveSpreadsheet: () => (opts.autonome ? null : ss),
-      openById: () => ss,
+      // Fichier des membres (Courrier e-mail) : feuille distincte fournie par opts.membres (tableau de lignes, en-tête compris).
+      openById: (id) => (opts.membres && id !== 'fake' ? { getSheets: () => [{ getDataRange: () => ({ getValues: () => opts.membres.map(r => r.slice()) }) }] } : ss),
       create: () => ss
     },
     PropertiesService: {
@@ -85,6 +87,10 @@ function charger(opts) {
       })
     },
     LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock: () => {} }) },
+    GmailApp: {
+      sendEmail: (to, subject, body, o) => { gmails.push(Object.assign({ to, subject, body }, o || {})); },
+      getAliases: () => (opts.aliases || ['envois@oessh.lu'])
+    },
     MailApp: {
       sendEmail: (m) => { mails.push(m); },
       getRemainingDailyQuota: () => 100
@@ -140,7 +146,7 @@ function charger(opts) {
   if (opts.extra) vm.runInContext(opts.extra, ctx, { filename: 'extra.gs' });
 
   return {
-    ctx, sheets, props, cache, mails, github, claude,
+    ctx, sheets, props, cache, mails, github, claude, gmails,
     run: (fnName) => vm.runInContext(fnName + '()', ctx),
     post: (body) => JSON.parse(ctx.doPost({ postData: { contents: JSON.stringify(body) } }).content),
     lastCode: (email) => {
