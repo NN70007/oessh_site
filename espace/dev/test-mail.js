@@ -62,6 +62,9 @@ ok(par.DAUPHIN.appel === 'Monsieur,' && par.OTTE.appel === 'Chère Consœur,', '
 ok(par.SPAUTZ.sansCourriel === true, 'personne sans courriel signalée');
 ok(!JSON.stringify(r.membres).includes('@'), 'aucune adresse e-mail des membres envoyée au navigateur');
 
+const asbl = srv.run('(() => casquettesDe_({ roles: "secretaire_asbl", emails: [] })[0])');
+ok(asbl.expediteur === 'Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg, a.s.b.l. - Le Secrétaire', 'Asbl : expéditeur sous la dénomination officielle');
+
 console.log('Garde-fous');
 const base = { token: tJB, casquette: 'secretaire', objet: 'Messe du 9 janvier', corps: '{appel}\n\nNous vous invitons à la messe.' };
 ok(!srv.post(Object.assign({}, base, { action: 'mail.essai', casquette: 'lieutenant' })).ok, 'casquette non attribuée refusée');

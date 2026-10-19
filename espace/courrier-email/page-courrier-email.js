@@ -193,7 +193,7 @@ function dessinerApercu() {
   corps = corps.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || "").replace(/\{prenom\}/g, m.prenom || "").replace(/\{nom\}/g, m.nom || "");
   if (!avecAppel) corps = m.appel + "\n\n" + corps;
   var paras = corps.split(/\n{2,}/).map(function (p) { return "<p>" + E.esc(p).replace(/\n/g, "<br>") + "</p>"; }).join("");
-  $("mp-meta").innerHTML = "<b>De :</b> " + E.esc("OESSH " + c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) +
+  $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.expediteur || c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) +
     "<br><b>Objet :</b> " + E.esc($("in-objet").value.trim() || "(vide)");
   var lt = c.entite !== "asbl", img = "../../assets/email/";
   var embleme = '<img class="mp-emb" src="' + img + (lt ? 'entete-lieutenance.png" width="34' : 'entete-asbl.png" width="46') + '" height="43" alt="">';

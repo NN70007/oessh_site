@@ -782,6 +782,8 @@ var CASQUETTES = {
 // Codes déjà utilisés par l'outil Courrier papier (colonne Roles) : même casquette.
 var CASQUETTES_ALIAS = { ceremoniaire_eccl: 'ceremoniaire_ecclesiastique' };
 var ENTITES = { lt: 'Lieutenance pour le Luxembourg', asbl: 'Lieutenance pour le Luxembourg Asbl' };
+// Nom affiché comme expéditeur dans la boîte de réception (pour l'Asbl : sa dénomination officielle).
+var EXPEDITEURS = { lt: 'OESSH Lieutenance pour le Luxembourg', asbl: 'Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg, a.s.b.l.' };
 
 var GROUPES_ENVOI = [
   { id: 'lt',           nom: 'Lieutenance',                 f: function (m) { return m.groupe === 'lt'; } },
@@ -809,7 +811,7 @@ function casquettesDe_(u) {
   var codes = String(u.roles || '').split(/[,;\s]+/).map(function (c) { c = norm_(c); return CASQUETTES_ALIAS[c] || c; }).filter(function (c) { return CASQUETTES[c]; });
   return codes.filter(function (c, i) { return codes.indexOf(c) === i; }).map(function (c) {
     var k = CASQUETTES[c];
-    return { code: c, entite: k.e, titre: k.t, signature: k.s, ligneFonction: ligneFonction_(k), entiteNom: ENTITES[k.e], repondreA: repondreA_(u, c) };
+    return { code: c, entite: k.e, titre: k.t, signature: k.s, ligneFonction: ligneFonction_(k), entiteNom: ENTITES[k.e], expediteur: EXPEDITEURS[k.e] + ' - ' + k.t, repondreA: repondreA_(u, c) };
   });
 }
 /** Ligne de fonction de la signature (modèle du Lieutenant) : « Secrétaire pour le Luxembourg » ;
@@ -977,7 +979,7 @@ function composerMail_(u, P, m) {
 function expedier_(P, to, contenu, objet) {
   GmailApp.sendEmail(to, objet, contenu.texte, {
     from: CONFIG.ENVOI_ALIAS,
-    name: 'OESSH ' + P.casq.entiteNom + ' - ' + P.casq.titre,
+    name: P.casq.expediteur,
     replyTo: P.casq.repondreA,
     htmlBody: contenu.html
   });
