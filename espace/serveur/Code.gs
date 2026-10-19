@@ -783,7 +783,7 @@ var CASQUETTES = {
 var CASQUETTES_ALIAS = { ceremoniaire_eccl: 'ceremoniaire_ecclesiastique' };
 var ENTITES = { lt: 'Lieutenance pour le Luxembourg', asbl: 'Lieutenance pour le Luxembourg Asbl' };
 // Nom affiché comme expéditeur dans la boîte de réception (pour l'Asbl : sa dénomination officielle).
-var EXPEDITEURS = { lt: 'OESSH Lieutenance pour le Luxembourg', asbl: 'Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg, a.s.b.l.' };
+var EXPEDITEURS = { lt: 'OESSH, Lieutenance pour le Luxembourg', asbl: 'Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg, a.s.b.l.' };
 
 var GROUPES_ENVOI = [
   { id: 'lt',           nom: 'Lieutenance',                 f: function (m) { return m.groupe === 'lt'; } },
