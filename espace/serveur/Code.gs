@@ -811,12 +811,13 @@ function casquettesDe_(u) {
   var codes = String(u.roles || '').split(/[,;\s]+/).map(function (c) { c = norm_(c); return CASQUETTES_ALIAS[c] || c; }).filter(function (c) { return CASQUETTES[c]; });
   return codes.filter(function (c, i) { return codes.indexOf(c) === i; }).map(function (c) {
     var k = CASQUETTES[c];
-    return { code: c, entite: k.e, titre: k.t, signature: k.s, ligneFonction: ligneFonction_(k), entiteNom: ENTITES[k.e], expediteur: EXPEDITEURS[k.e] + ' - ' + k.t, repondreA: repondreA_(u, c) };
+    return { code: c, entite: k.e, titre: k.t, signature: k.s, ligneFonction: ligneFonction_(k), ligneOrdre: ligneOrdre_(k), entiteNom: ENTITES[k.e], expediteur: EXPEDITEURS[k.e] + ' - ' + k.t, repondreA: repondreA_(u, c) };
   });
 }
-/** Ligne de fonction de la signature (modèle du Lieutenant) : « Secrétaire pour le Luxembourg » ;
-    pour l'Asbl : « Secrétaire de la Lieutenance pour le Luxembourg Asbl ». */
-function ligneFonction_(k) { return k.e === 'asbl' ? k.s + ' de la Lieutenance pour le Luxembourg Asbl' : k.s + ' pour le Luxembourg'; }
+/** Ligne de fonction de la signature (modèle du Lieutenant) : « Secrétaire pour le Luxembourg » ; pour l'Asbl : « Secrétaire ». */
+function ligneFonction_(k) { return k.e === 'asbl' ? k.s : k.s + ' pour le Luxembourg'; }
+/** Ligne sous la fonction : rattachement à l'Ordre (Lieutenance) ou dénomination officielle (Asbl). */
+function ligneOrdre_(k) { return k.e === 'asbl' ? EXPEDITEURS.asbl : 'de l’Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)'; }
 /** Adresse « Répondre à » : adresse de fonction ; pour un conseiller ou un administrateur, son adresse @oessh.lu nominative. */
 function repondreA_(u, code) {
   var k = CASQUETTES[code];
@@ -945,7 +946,7 @@ function personnaliser_(texte, m) {
 
 function composerMail_(u, P, m) {
   var corps = personnaliser_(P.corps, m);
-  var OESSH = 'de l’Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)';
+  var OESSH = P.casq.ligneOrdre;
   var signature = [u.nom, P.casq.ligneFonction, OESSH, P.casq.repondreA];
   var pied = 'Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.';
   var texte = corps + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;

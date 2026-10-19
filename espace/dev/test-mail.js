@@ -64,6 +64,7 @@ ok(!JSON.stringify(r.membres).includes('@'), 'aucune adresse e-mail des membres 
 
 const asbl = srv.run('(() => casquettesDe_({ roles: "secretaire_asbl", emails: [] })[0])');
 ok(asbl.expediteur === 'Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg, a.s.b.l. - Le Secrétaire', 'Asbl : expéditeur sous la dénomination officielle');
+ok(asbl.ligneFonction === 'Secrétaire' && asbl.ligneOrdre === 'Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg, a.s.b.l.', 'Asbl : signature avec la fonction seule puis la dénomination officielle');
 
 console.log('Garde-fous');
 const base = { token: tJB, casquette: 'secretaire', objet: 'Messe du 9 janvier', corps: '{appel}\n\nNous vous invitons à la messe.' };
