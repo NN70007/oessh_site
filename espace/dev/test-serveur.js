@@ -164,6 +164,45 @@ ok(!s2.post({ action: 'acces.enregistrer', token: a1.token, emailOriginal: 'jb.n
 ok(s2.post({ action: 'acces.enregistrer', token: a1.token, emailOriginal: 'a@x.lu', personne: { email: 'a@x.lu', nom: 'Alice', inv: 'contributeur', site: {} } }).ok, 'retirer une adresse à quelqu\'un d\'autre');
 ok(!s2.post({ action: 'acces.supprimer', token: a2.token, email: 'jb.niedercorn@oessh.lu' }).ok, 'impossible de supprimer sa propre fiche, quelle que soit l\'adresse de connexion');
 
+console.log('Week-end de retraite');
+{
+  const s3 = charger({ googleTokens: { g: { aud: CLIENT, iss: 'accounts.google.com', email: 'jb.niedercorn@oessh.lu', email_verified: 'true', exp: futur } } });
+  s3.run('installer');
+  // Feuille existante : une colonne ajoutée à la main (ex. « Admin ») doit rester en place.
+  s3.sheets.Acces.data[0].splice(9); s3.sheets.Acces.data[0].push('Admin'); s3.sheets.Acces.data[1].splice(9); s3.sheets.Acces.data[1].push('oui');
+  s3.run('installer');
+  const head = s3.sheets.Acces.data[0];
+  ok(head[9] === 'Admin' && head[10] === 'Retraite' && s3.sheets.Acces.data[1][9] === 'oui', 'installer ajoute la colonne Retraite en fin d\'onglet sans déplacer les autres');
+  ok(s3.sheets.RetJalons.data.length === 5 && s3.sheets.RetProgramme && s3.sheets.RetTaches, 'onglets de la retraite créés, jalons par défaut');
+  const tA = s3.post({ action: 'auth.google', idToken: 'g' }).token;
+  let x = s3.post({ action: 'ret.charger', token: tA });
+  ok(x.ok && x.user.ret === 'organisateur' && Array.isArray(x.programme), 'l\'administrateur initial est organisateur de la retraite');
+  const add3 = (p) => s3.post({ action: 'acces.enregistrer', token: tA, personne: p });
+  ok(add3({ email: 'inv@x.lu', nom: 'Ivan Investiture', inv: 'contributeur', ret: '', site: {} }).ok, 'ajout d\'un membre investiture seulement');
+  ok(add3({ email: 'ret@x.lu', nom: 'Rose Retraite', inv: '', ret: 'contributeur', site: {} }).ok, 'ajout d\'une contributrice retraite seulement');
+  ok(s3.post({ action: 'acces.lister', token: tA }).personnes.find(p => p.nom === 'Rose Retraite').ret === 'contributeur', 'le droit Retraite est enregistré et relu');
+  const lg = (e) => { s3.cache = {}; s3.post({ action: 'auth.demanderCode', email: e }); return s3.post({ action: 'auth.verifierCode', email: e, code: s3.lastCode(e) }).token; };
+  const tI = lg('inv@x.lu'), tR = lg('ret@x.lu');
+  ok(s3.post({ action: 'ret.charger', token: tI }).code === 'droits', 'droit investiture seul : pas d\'accès à la retraite');
+  ok(s3.post({ action: 'inv.charger', token: tR }).code === 'droits', 'droit retraite seul : pas d\'accès à l\'investiture');
+  x = s3.post({ action: 'ret.enregistrer', token: tA, tache: { titre: 'Lettres d\'inscription', pole: 'inscriptions', resp: [] } });
+  ok(x.ok, 'organisateur crée une tâche de la retraite');
+  const idR = x.id;
+  ok(s3.post({ action: 'ret.enregistrer', token: tA, tache: { titre: 'Pôle inconnu', pole: 'candidats' } }).ok && s3.post({ action: 'ret.charger', token: tA }).taches.some(t => t.titre === 'Pôle inconnu' && t.pole === 'programme'), 'pôle inconnu ramené au premier pôle de la retraite');
+  ok(s3.post({ action: 'ret.prendre', token: tR, id: idR }).ok && s3.post({ action: 'ret.statut', token: tR, id: idR, statut: 'fait' }).ok, 'contributrice prend une tâche libre et la termine');
+  ok(s3.sheets.Taches.data.length === 1 && s3.sheets.RetTaches.data.length === 3, 'les tâches de la retraite restent dans leurs propres onglets');
+  x = s3.post({ action: 'ret.creneau', token: tA, creneau: { jour: '2027-01-09', debut: '19:00', fin: '20:00', titre: '=Conférence', qui: 'Intervenant fictif', statut: 'principe', note: '' } });
+  ok(x.ok, 'organisateur ajoute un créneau au programme');
+  const idC = x.id;
+  ok(s3.post({ action: 'ret.creneau', token: tR, creneau: { jour: '2027-01-09', titre: 'x' } }).code === 'droits', 'contributeur ne modifie pas le programme');
+  ok(s3.post({ action: 'ret.creneau', token: tA, creneau: { id: idC, jour: '2027-01-09', debut: '19h', fin: '20:00', titre: '=Conférence', qui: 'Intervenant fictif', statut: 'nimporte', note: '' } }).ok, 'modification d\'un créneau');
+  x = s3.post({ action: 'ret.charger', token: tR }).programme.find(c => c.id === idC);
+  ok(x.titre === '=Conférence' && x.debut === '' && x.statut === '', 'heures et statuts invalides ignorés, saisies neutralisées');
+  ok(s3.post({ action: 'ret.creneau', token: tA, creneau: { jour: 'n-importe', titre: 'Remarque' } }).ok && s3.post({ action: 'ret.charger', token: tA }).programme.some(c => c.jour === 'notes'), 'jour inconnu : enregistré comme remarque');
+  ok(s3.post({ action: 'ret.creneauSupprimer', token: tA, id: idC }).ok && !s3.post({ action: 'ret.charger', token: tA }).programme.some(c => c.id === idC), 'suppression d\'un créneau');
+  ok(s3.sheets.RetActivite.data.length > 3 && s3.sheets.Activite.data.length === 1, 'activité de la retraite séparée de celle de l\'investiture');
+}
+
 console.log('Script autonome (hors feuille)');
 const auto = charger({ autonome: true });
 ok(/Installation terminée/.test(auto.run('installer')) && auto.props.SHEET_ID === 'fake', 'installer crée et mémorise la feuille si le script n\'est pas rattaché');

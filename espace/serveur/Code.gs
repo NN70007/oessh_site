@@ -6,7 +6,8 @@
  * obtenue soit par connexion Google (jeton vérifié auprès de Google), soit par code envoyé par e-mail.
  *
  * Ce fichier ne contient AUCUNE donnée : il peut être publié sans risque.
- * Les données vivent uniquement dans la feuille (onglets Acces, Taches, Intervenants, Activite, Jalons, Journal).
+ * Les données vivent uniquement dans la feuille (onglets Acces, Taches, Intervenants, Activite, Jalons, Journal,
+ * et pour le week-end de retraite : RetTaches, RetIntervenants, RetActivite, RetJalons, RetProgramme).
  *
  * Installation : voir espace/INSTALLATION.md
  */
@@ -30,11 +31,19 @@ var ONGLETS = {
   Intervenants: ['TacheId', 'Nom', 'Role', 'Telephone', 'Email'],
   Activite: ['Date', 'Qui', 'Texte'],
   Jalons: ['Date', 'Titre', 'Detail', 'Cle'],
-  Journal: ['Date', 'Qui', 'Action', 'Detail']
+  Journal: ['Date', 'Qui', 'Action', 'Detail'],
+  RetTaches: ['Id', 'Titre', 'Pole', 'Responsables', 'Echeance', 'Statut', 'Note', 'Source', 'MajLe', 'MajPar'],
+  RetIntervenants: ['TacheId', 'Nom', 'Role', 'Telephone', 'Email'],
+  RetActivite: ['Date', 'Qui', 'Texte'],
+  RetJalons: ['Date', 'Titre', 'Detail', 'Cle'],
+  RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note']
 };
+// Colonne de droits du week-end de retraite, ajoutée en fin d'onglet « Acces » par « installer » (les colonnes existantes ne bougent pas).
+var COL_RETRAITE = 'Retraite';
 
 var ROLES_INV = ['organisateur', 'contributeur', 'lecture', 'intervenant'];
 var POLES = ['liturgie', 'lieux', 'invites', 'accueil', 'com', 'finances', 'candidats'];
+var POLES_RET = ['programme', 'temoignages', 'liturgie', 'lieu', 'inscriptions', 'com'];
 var STATUTS = ['afaire', 'encours', 'fait'];
 
 /* ======================= Points d'entrée ======================= */
@@ -67,11 +76,18 @@ function route_(req) {
   switch (a) {
     case 'auth.deconnexion': return deconnexion_(req.token);
     case 'moi': return { ok: true, user: publicUser_(user) };
-    case 'inv.charger': return invCharger_(user);
-    case 'inv.statut': return invStatut_(user, req.id, req.statut);
-    case 'inv.prendre': return invPrendre_(user, req.id, req.nom);
-    case 'inv.enregistrer': return invEnregistrer_(user, req.tache);
-    case 'inv.supprimer': return invSupprimer_(user, req.id);
+    case 'inv.charger': return chargerProjet_(PROJETS.inv, user);
+    case 'inv.statut': return statutTache_(PROJETS.inv, user, req.id, req.statut);
+    case 'inv.prendre': return prendreTache_(PROJETS.inv, user, req.id, req.nom);
+    case 'inv.enregistrer': return enregistrerTache_(PROJETS.inv, user, req.tache);
+    case 'inv.supprimer': return supprimerTache_(PROJETS.inv, user, req.id);
+    case 'ret.charger': return chargerProjet_(PROJETS.ret, user);
+    case 'ret.statut': return statutTache_(PROJETS.ret, user, req.id, req.statut);
+    case 'ret.prendre': return prendreTache_(PROJETS.ret, user, req.id, req.nom);
+    case 'ret.enregistrer': return enregistrerTache_(PROJETS.ret, user, req.tache);
+    case 'ret.supprimer': return supprimerTache_(PROJETS.ret, user, req.id);
+    case 'ret.creneau': return enregistrerCreneau_(PROJETS.ret, user, req.creneau);
+    case 'ret.creneauSupprimer': return supprimerCreneau_(PROJETS.ret, user, req.id);
     case 'acces.lister': return accesLister_(user);
     case 'acces.enregistrer': return accesEnregistrer_(user, req.personne, req.emailOriginal);
     case 'acces.supprimer': return accesSupprimer_(user, req.email);
@@ -101,6 +117,21 @@ function installer() {
       ajouter_('Acces', { Email: em.join('; '), Nom: a.nom, Investiture: 'organisateur', Actualites: 'oui', Lectures: 'oui', Newsletter: 'oui', Gestion: 'oui', Actif: 'oui', Note: 'Administrateur initial' });
     }
   });
+  // Week-end de retraite : colonne de droits (créée une fois), l'administrateur initial y est organisateur.
+  if (ajouterColonne_('Acces', COL_RETRAITE)) {
+    CONFIG.ADMINS_INITIAUX.forEach(function (a) {
+      var em = a.emails.map(norm_);
+      ecrireColonne_('Acces', function (r) { return emails_(r.Email).some(function (x) { return em.indexOf(x) > -1; }); }, COL_RETRAITE, 'organisateur');
+    });
+  }
+  if (!lire_('RetJalons').length) {
+    [
+      ['2026-11-14', 'Conseil de la Lieutenance', 'Programme du week-end de formation', ''],
+      ['2027-01-09', 'Ouverture du week-end · messe', 'Maison d\u2019Accueil des Franciscaines · samedi 9h00', 'oui'],
+      ['2027-01-10', 'Messe de clôture avec les membres', 'Maison d\u2019Accueil des Franciscaines · dimanche 16h00', 'oui'],
+      ['2027-01-31', 'Dossiers des candidats finalisés', 'Échéance fixée par le Conseil', '']
+    ].forEach(function (j) { ajouter_('RetJalons', { Date: j[0], Titre: j[1], Detail: j[2], Cle: j[3] }); });
+  }
   if (!lire_('Jalons').length) {
     [
       ['2026-09-26', 'Conseil de la Lieutenance', "Lancement de l'organisation des cérémonies", ''],
@@ -134,6 +165,13 @@ function effacerContactsIntervenants() {
   var sh = feuille_('Intervenants'), last = sh.getLastRow();
   if (last > 1) sh.getRange(2, 4, last - 1, 2).setValues(new Array(last - 1).fill(['', '']));
   journal_('installation', 'rgpd', 'Contacts des intervenants effacés');
+  return 'Contacts effacés';
+}
+
+function effacerContactsRetraite() {
+  var sh = feuille_('RetIntervenants'), last = sh.getLastRow();
+  if (last > 1) sh.getRange(2, 4, last - 1, 2).setValues(new Array(last - 1).fill(['', '']));
+  journal_('installation', 'rgpd', 'Contacts des intervenants du week-end de retraite effacés');
   return 'Contacts effacés';
 }
 
@@ -241,6 +279,7 @@ function cle_(r) { return emails_(r.Email)[0] || ''; }
 
 function userFromRow_(r, loginEmail) {
   var inv = String(r.Investiture || '').toLowerCase().trim();
+  var ret = String(r[COL_RETRAITE] || '').toLowerCase().trim();
   var ems = emails_(r.Email);
   // Emails supplémentaires (colonne Emails, séparés par |)
   var extraEmails = String(r.Emails || '').split('|').map(function(e){ return norm_(e); }).filter(Boolean);
@@ -252,6 +291,7 @@ function userFromRow_(r, loginEmail) {
     cle: emails_(r.Email)[0] || '',
     nom: String(r.Nom || ems[0] || ''),
     inv: ROLES_INV.indexOf(inv) > -1 ? inv : '',
+    ret: ROLES_INV.indexOf(ret) > -1 ? ret : '',
     site: { actualites: oui_(r.Actualites), lectures: oui_(r.Lectures), newsletter: oui_(r.Newsletter) },
     gestion: oui_(r.Gestion),
     admin: oui_(r.Admin),
@@ -268,6 +308,7 @@ function publicUser_(u) {
     emails: u.emails,
     nom: u.nom,
     inv: u.inv,
+    ret: u.ret,
     site: u.site,
     gestion: u.gestion,
     admin: u.admin,
@@ -278,68 +319,81 @@ function publicUser_(u) {
   };
 }
 
-function exigerInv_(u, roles) {
-  if (roles.indexOf(u.inv) < 0) throw refus_("Vous n'avez pas les droits pour cette action.", 'droits');
+function exigerProjet_(u, P, roles) {
+  if (roles.indexOf(u[P.droit]) < 0) throw refus_("Vous n'avez pas les droits pour cette action.", 'droits');
 }
 function exigerGestion_(u) { if (!u.gestion) throw refus_("Vous n'avez pas les droits pour gérer les accès.", 'droits'); }
 
-function peutModifier_(u, t) {
-  if (u.inv === 'organisateur') return true;
-  if (u.inv !== 'contributeur') return false;
+function peutModifier_(u, t, P) {
+  var role = u[P.droit];
+  if (role === 'organisateur') return true;
+  if (role !== 'contributeur') return false;
   return !t.resp.length || t.resp.indexOf(u.nom) > -1;
 }
 
-/* ======================= Investiture ======================= */
-function invCharger_(u) {
-  exigerInv_(u, ROLES_INV);
-  var taches = toutesTaches_();
-  if (u.inv === 'intervenant') {
+/* ======================= Projets (investiture, retraite) ======================= */
+/* Les deux tableaux de bord partagent le même fonctionnement : chaque projet a ses propres onglets,
+   sa colonne de droits dans « Acces » et ses pôles. */
+var PROJETS = {
+  inv: { droit: 'inv', col: 'Investiture', T: 'Taches', I: 'Intervenants', A: 'Activite', J: 'Jalons', poles: POLES },
+  ret: { droit: 'ret', col: 'Retraite', T: 'RetTaches', I: 'RetIntervenants', A: 'RetActivite', J: 'RetJalons', poles: POLES_RET, programme: 'RetProgramme' }
+};
+
+function chargerProjet_(P, u) {
+  exigerProjet_(u, P, ROLES_INV);
+  var role = u[P.droit];
+  var taches = toutesTaches_(P);
+  if (role === 'intervenant') {
     taches = taches.filter(function (t) {
       return t.equipe.some(function (m) { return (m.email && u.emails.indexOf(norm_(m.email)) > -1) || (m.nom && m.nom === u.nom); });
     });
   }
-  var activite = u.inv === 'intervenant' ? [] : lire_('Activite').slice(-CONFIG.ACTIVITE_MAX).reverse().map(function (r) { return { ts: Number(r.Date) || 0, qui: r.Qui, texte: r.Texte }; });
-  var jalons = lire_('Jalons').map(function (r) { return { d: dateTxt_(r.Date), t: r.Titre, w: r.Detail, key: oui_(r.Cle) }; });
+  var activite = role === 'intervenant' ? [] : lire_(P.A).slice(-CONFIG.ACTIVITE_MAX).reverse().map(function (r) { return { ts: Number(r.Date) || 0, qui: r.Qui, texte: r.Texte }; });
+  var jalons = lire_(P.J).map(function (r) { return { d: dateTxt_(r.Date), t: r.Titre, w: r.Detail, key: oui_(r.Cle) }; });
   var noms = {};
-  lire_('Acces').forEach(function (r) { if (oui_(r.Actif) && r.Investiture && String(r.Investiture).toLowerCase() !== 'intervenant') noms[r.Nom] = 1; });
+  lire_('Acces').forEach(function (r) { var x = String(r[P.col] || '').toLowerCase().trim(); if (oui_(r.Actif) && x && x !== 'intervenant') noms[r.Nom] = 1; });
   taches.forEach(function (t) { t.resp.forEach(function (n) { noms[n] = 1; }); });
-  return { ok: true, user: publicUser_(u), taches: taches, activite: activite, jalons: jalons, personnes: Object.keys(noms).filter(Boolean), peutModifierTout: u.inv === 'organisateur' };
+  var out = { ok: true, user: publicUser_(u), taches: taches, activite: activite, jalons: jalons, personnes: Object.keys(noms).filter(Boolean), peutModifierTout: role === 'organisateur' };
+  if (P.programme) out.programme = toutProgramme_(P);
+  return out;
 }
 
-function invStatut_(u, id, statut) {
-  exigerInv_(u, ['organisateur', 'contributeur']);
+function statutTache_(P, u, id, statut) {
+  exigerProjet_(u, P, ['organisateur', 'contributeur']);
   if (STATUTS.indexOf(statut) < 0) throw refus_('Statut inconnu.', 'donnees');
   return verrou_(function () {
-    var t = tache_(id);
-    if (!peutModifier_(u, t)) throw refus_("Seul le responsable de cette tâche ou un organisateur peut la modifier.", 'droits');
+    var t = tache_(P, id);
+    if (!peutModifier_(u, t, P)) throw refus_("Seul le responsable de cette tâche ou un organisateur peut la modifier.", 'droits');
     if (t.statut === statut) return { ok: true };
-    majTache_(id, { Statut: statut, MajLe: String(Date.now()), MajPar: u.nom });
+    majTache_(P, id, { Statut: statut, MajLe: String(Date.now()), MajPar: u.nom });
     var verbe = { afaire: 'remis « à faire »', encours: 'passé « en cours »', fait: 'terminé' }[statut];
-    activite_(u.nom, '« ' + t.titre + ' » : ' + verbe);
+    activite_(P, u.nom, '« ' + t.titre + ' » : ' + verbe);
     return { ok: true };
   });
 }
 
-function invPrendre_(u, id, nom) {
-  exigerInv_(u, ['organisateur', 'contributeur']);
+function prendreTache_(P, u, id, nom) {
+  exigerProjet_(u, P, ['organisateur', 'contributeur']);
+  var org = u[P.droit] === 'organisateur';
   nom = texte_(nom || u.nom, 80);
-  if (u.inv !== 'organisateur' && nom !== u.nom) throw refus_('Vous ne pouvez inscrire que vous-même.', 'droits');
+  if (!org && nom !== u.nom) throw refus_('Vous ne pouvez inscrire que vous-même.', 'droits');
   return verrou_(function () {
-    var t = tache_(id);
-    if (u.inv !== 'organisateur' && t.resp.length) throw refus_('Cette tâche a déjà un responsable.', 'droits');
+    var t = tache_(P, id);
+    if (!org && t.resp.length) throw refus_('Cette tâche a déjà un responsable.', 'droits');
     if (t.resp.indexOf(nom) < 0) t.resp.push(nom);
-    majTache_(id, { Responsables: t.resp.join('; '), MajLe: String(Date.now()), MajPar: u.nom });
-    activite_(u.nom, (nom === u.nom ? 'prend en charge' : 'attribue à ' + nom) + ' « ' + t.titre + ' »');
+    majTache_(P, id, { Responsables: t.resp.join('; '), MajLe: String(Date.now()), MajPar: u.nom });
+    activite_(P, u.nom, (nom === u.nom ? 'prend en charge' : 'attribue à ' + nom) + ' « ' + t.titre + ' »');
     return { ok: true };
   });
 }
 
-function invEnregistrer_(u, x) {
-  exigerInv_(u, ['organisateur', 'contributeur']);
+function enregistrerTache_(P, u, x) {
+  exigerProjet_(u, P, ['organisateur', 'contributeur']);
+  var org = u[P.droit] === 'organisateur';
   if (!x || typeof x !== 'object') throw refus_('Tâche invalide.', 'donnees');
   var titre = texte_(x.titre, 160);
   if (!titre) throw refus_('Le titre est obligatoire.', 'donnees');
-  var pole = POLES.indexOf(x.pole) > -1 ? x.pole : 'liturgie';
+  var pole = P.poles.indexOf(x.pole) > -1 ? x.pole : P.poles[0];
   var statut = STATUTS.indexOf(x.statut) > -1 ? x.statut : 'afaire';
   var ech = /^\d{4}-\d{2}-\d{2}$/.test(String(x.echeance || '')) ? x.echeance : '';
   var resp = (Array.isArray(x.resp) ? x.resp : []).map(function (n) { return texte_(n, 80); }).filter(Boolean).slice(0, 8);
@@ -350,40 +404,40 @@ function invEnregistrer_(u, x) {
 
   return verrou_(function () {
     if (x.id) {
-      var t = tache_(x.id);
-      if (!peutModifier_(u, t)) throw refus_("Seul le responsable de cette tâche ou un organisateur peut la modifier.", 'droits');
-      if (u.inv !== 'organisateur') resp = t.resp.length ? t.resp : resp.filter(function (n) { return n === u.nom; });
-      majTache_(x.id, { Titre: titre, Pole: pole, Responsables: resp.join('; '), Echeance: ech, Statut: statut, Note: note, MajLe: String(Date.now()), MajPar: u.nom });
-      ecrireEquipe_(x.id, equipe);
-      activite_(u.nom, 'met à jour « ' + titre + ' »');
+      var t = tache_(P, x.id);
+      if (!peutModifier_(u, t, P)) throw refus_("Seul le responsable de cette tâche ou un organisateur peut la modifier.", 'droits');
+      if (!org) resp = t.resp.length ? t.resp : resp.filter(function (n) { return n === u.nom; });
+      majTache_(P, x.id, { Titre: titre, Pole: pole, Responsables: resp.join('; '), Echeance: ech, Statut: statut, Note: note, MajLe: String(Date.now()), MajPar: u.nom });
+      ecrireEquipe_(P, x.id, equipe);
+      activite_(P, u.nom, 'met à jour « ' + titre + ' »');
       return { ok: true, id: x.id };
     }
-    if (u.inv !== 'organisateur') resp = [u.nom];
+    if (!org) resp = [u.nom];
     var id = 't' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
-    ajouter_('Taches', { Id: id, Titre: titre, Pole: pole, Responsables: resp.join('; '), Echeance: ech, Statut: statut, Note: note, Source: 'Ajout', MajLe: String(Date.now()), MajPar: u.nom });
-    ecrireEquipe_(id, equipe);
-    activite_(u.nom, 'ajoute « ' + titre + ' »');
+    ajouter_(P.T, { Id: id, Titre: titre, Pole: pole, Responsables: resp.join('; '), Echeance: ech, Statut: statut, Note: note, Source: 'Ajout', MajLe: String(Date.now()), MajPar: u.nom });
+    ecrireEquipe_(P, id, equipe);
+    activite_(P, u.nom, 'ajoute « ' + titre + ' »');
     return { ok: true, id: id };
   });
 }
 
-function invSupprimer_(u, id) {
-  exigerInv_(u, ['organisateur']);
+function supprimerTache_(P, u, id) {
+  exigerProjet_(u, P, ['organisateur']);
   return verrou_(function () {
-    var t = tache_(id);
-    supprimerLignes_('Taches', function (r) { return r.Id === id; });
-    supprimerLignes_('Intervenants', function (r) { return r.TacheId === id; });
-    activite_(u.nom, 'supprime « ' + t.titre + ' »');
+    var t = tache_(P, id);
+    supprimerLignes_(P.T, function (r) { return r.Id === id; });
+    supprimerLignes_(P.I, function (r) { return r.TacheId === id; });
+    activite_(P, u.nom, 'supprime « ' + t.titre + ' »');
     return { ok: true };
   });
 }
 
-function toutesTaches_() {
+function toutesTaches_(P) {
   var eq = {};
-  lire_('Intervenants').forEach(function (r) {
+  lire_(P.I).forEach(function (r) {
     (eq[r.TacheId] = eq[r.TacheId] || []).push({ nom: r.Nom, role: r.Role, tel: r.Telephone, email: r.Email });
   });
-  return lire_('Taches').filter(function (r) { return r.Id; }).map(function (r) {
+  return lire_(P.T).filter(function (r) { return r.Id; }).map(function (r) {
     return {
       id: String(r.Id), titre: r.Titre, pole: r.Pole,
       resp: String(r.Responsables || '').split(';').map(function (s) { return s.trim(); }).filter(Boolean),
@@ -393,20 +447,69 @@ function toutesTaches_() {
     };
   });
 }
-function tache_(id) {
-  var ts = toutesTaches_();
+function tache_(P, id) {
+  var ts = toutesTaches_(P);
   for (var i = 0; i < ts.length; i++) if (ts[i].id === String(id)) return ts[i];
   throw refus_('Tâche introuvable (elle a peut-être été supprimée).', 'introuvable');
 }
-function majTache_(id, champs) { majLigne_('Taches', function (r) { return r.Id === String(id); }, champs); }
-function ecrireEquipe_(id, equipe) {
-  supprimerLignes_('Intervenants', function (r) { return r.TacheId === id; });
-  equipe.forEach(function (m) { ajouter_('Intervenants', { TacheId: id, Nom: m.nom, Role: m.role, Telephone: m.tel, Email: m.email }); });
+function majTache_(P, id, champs) { majLigne_(P.T, function (r) { return r.Id === String(id); }, champs); }
+function ecrireEquipe_(P, id, equipe) {
+  supprimerLignes_(P.I, function (r) { return r.TacheId === id; });
+  equipe.forEach(function (m) { ajouter_(P.I, { TacheId: id, Nom: m.nom, Role: m.role, Telephone: m.tel, Email: m.email }); });
 }
-function activite_(qui, texte) {
-  ajouter_('Activite', { Date: String(Date.now()), Qui: qui, Texte: texte });
-  var sh = feuille_('Activite'), extra = sh.getLastRow() - 1 - 500;
+function activite_(P, qui, texte) {
+  ajouter_(P.A, { Date: String(Date.now()), Qui: qui, Texte: texte });
+  var sh = feuille_(P.A), extra = sh.getLastRow() - 1 - 500;
   if (extra > 0) sh.deleteRows(2, extra);
+}
+
+/* ---------- Programme du week-end de retraite (créneaux horaires) ---------- */
+var STATUTS_CRENEAU = ['confirme', 'principe', 'aconfirmer', 'atrouver', ''];
+
+function toutProgramme_(P) {
+  return lire_(P.programme).filter(function (r) { return r.Id; }).map(function (r) {
+    var st = String(r.Statut || '').toLowerCase().trim();
+    return {
+      id: String(r.Id), jour: String(r.Jour || '').slice(0, 10), debut: String(r.Debut || ''), fin: String(r.Fin || ''),
+      titre: r.Titre, qui: r.Intervenant, statut: STATUTS_CRENEAU.indexOf(st) > -1 ? st : '', note: r.Note
+    };
+  });
+}
+
+function enregistrerCreneau_(P, u, x) {
+  exigerProjet_(u, P, ['organisateur']);
+  if (!x || typeof x !== 'object') throw refus_('Créneau invalide.', 'donnees');
+  var titre = texte_(x.titre, 300);
+  if (!titre) throw refus_('Le titre est obligatoire.', 'donnees');
+  var heure = function (h) { h = String(h || '').trim(); return /^\d{2}:\d{2}$/.test(h) ? h : ''; };
+  var jour = /^\d{4}-\d{2}-\d{2}$/.test(String(x.jour || '')) ? x.jour : 'notes';
+  var ligne = {
+    Jour: jour, Debut: heure(x.debut), Fin: heure(x.fin), Titre: titre, Intervenant: texte_(x.qui, 200),
+    Statut: STATUTS_CRENEAU.indexOf(x.statut) > -1 ? x.statut : '', Note: texte_(x.note, 400)
+  };
+  return verrou_(function () {
+    if (x.id) {
+      majLigne_(P.programme, function (r) { return r.Id === String(x.id); }, ligne);
+      activite_(P, u.nom, 'modifie le programme : « ' + titre + ' »');
+      return { ok: true, id: x.id };
+    }
+    var id = 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+    ligne.Id = id;
+    ajouter_(P.programme, ligne);
+    activite_(P, u.nom, 'ajoute au programme « ' + titre + ' »');
+    return { ok: true, id: id };
+  });
+}
+
+function supprimerCreneau_(P, u, id) {
+  exigerProjet_(u, P, ['organisateur']);
+  return verrou_(function () {
+    var c = toutProgramme_(P).filter(function (x) { return x.id === String(id); })[0];
+    if (!c) throw refus_('Créneau introuvable.', 'introuvable');
+    supprimerLignes_(P.programme, function (r) { return r.Id === String(id); });
+    activite_(P, u.nom, 'retire du programme « ' + c.titre + ' »');
+    return { ok: true };
+  });
 }
 
 /* ======================= Accès ======================= */
@@ -428,6 +531,7 @@ function accesEnregistrer_(u, p, cleOriginale) {
   if (ems.length > 5) throw refus_('Cinq adresses au maximum par personne.', 'donnees');
   var orig = norm_(cleOriginale);
   var inv = ROLES_INV.indexOf(p.inv) > -1 ? p.inv : '';
+  var ret = ROLES_INV.indexOf(p.ret) > -1 ? p.ret : '';
   var site = p.site || {};
   var ligne = {
     Email: ems.join('; '), Nom: texte_(p.nom, 80) || ems[0], Investiture: inv,
@@ -445,6 +549,10 @@ function accesEnregistrer_(u, p, cleOriginale) {
     if (doublon) throw refus_('Une de ces adresses est déjà attribuée à ' + (doublon.Nom || cle_(doublon)) + '.', 'donnees');
     if (cible) majLigne_('Acces', function (r) { return cle_(r) === orig; }, ligne);
     else ajouter_('Acces', ligne);
+    if (!ecrireColonne_('Acces', function (r) { return cle_(r) === ems[0]; }, COL_RETRAITE, ret) && ret) {
+      throw refus_("La colonne « Retraite » manque dans l'onglet Acces : lancez « installer » dans le script.", 'installation');
+    }
+    ligne.Retraite = ret;
     journal_(u.email, cible ? 'acces.modifie' : 'acces.ajoute', resumeDroits_(ligne));
     return { ok: true };
   });
@@ -479,6 +587,7 @@ function accesDeconnecter_(u, cle) {
 function resumeDroits_(l) {
   var d = [];
   if (l.Investiture) d.push('investiture : ' + l.Investiture);
+  if (l.Retraite) d.push('retraite : ' + l.Retraite);
   ['Actualites', 'Lectures', 'Newsletter'].forEach(function (k) { if (l[k]) d.push(k.toLowerCase()); });
   if (l.Gestion) d.push('gestion des accès');
   return l.Email + ' — ' + (d.join(', ') || 'aucun droit') + (l.Actif !== 'oui' ? ' (désactivé)' : '');
@@ -669,6 +778,27 @@ function majLigne_(nom, pred, champs) {
     return true;
   }
   throw refus_('Ligne introuvable.', 'introuvable');
+}
+/** Ajoute une colonne en fin d'onglet si elle n'existe pas. Renvoie true si elle vient d'être créée. */
+function ajouterColonne_(nom, entete) {
+  var sh = feuille_(nom), head = sh.getDataRange().getValues()[0] || [];
+  if (head.indexOf(entete) > -1) return false;
+  var n = head.length; while (n > 0 && String(head[n - 1]) === '') n--;
+  sh.getRange(1, n + 1, 1, 1).setNumberFormat('@').setValues([[entete]]);
+  return true;
+}
+/** Écrit une seule cellule, repérée par le nom de sa colonne, dans la première ligne qui satisfait pred. */
+function ecrireColonne_(nom, pred, entete, val) {
+  var sh = feuille_(nom), head = sh.getDataRange().getValues()[0] || [];
+  var c = head.indexOf(entete);
+  if (c < 0) return false;
+  var rows = lire_(nom);
+  for (var i = 0; i < rows.length; i++) {
+    if (!pred(rows[i])) continue;
+    sh.getRange(rows[i]._ligne, c + 1, 1, 1).setNumberFormat('@').setValues([[sur_(val)]]);
+    return true;
+  }
+  return false;
 }
 function supprimerLignes_(nom, pred) {
   var sh = feuille_(nom), rows = lire_(nom);

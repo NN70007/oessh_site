@@ -14,10 +14,11 @@ function yes(b){ return b?'<span class="yes" aria-label="oui">✓</span>':'<span
 function render(){
   if(!personnes.length){ $("#list").innerHTML='<div class="notice"><h4>Personne n\'est inscrit.</h4></div>'; return; }
   var rows=personnes.slice().sort(function(a,b){return a.nom.localeCompare(b.nom,"fr");});
-  $("#list").innerHTML='<div class="acc-scroll"><table class="acc"><thead><tr><th>Personne</th><th>Investiture</th><th class="c">Actualités</th><th class="c">Lectures</th><th class="c">Newsletter</th><th class="c">Gestion</th><th></th></tr></thead><tbody>'+
+  $("#list").innerHTML='<div class="acc-scroll"><table class="acc"><thead><tr><th>Personne</th><th>Investiture</th><th>Retraite</th><th class="c">Actualités</th><th class="c">Lectures</th><th class="c">Newsletter</th><th class="c">Gestion</th><th></th></tr></thead><tbody>'+
     rows.map(function(p){
       return '<tr class="'+(p.actif?"":"off")+'"><td><div class="nm">'+esc(p.nom)+(isSelf(p)?' <span class="role-pill">vous</span>':'')+'</div><div class="em">'+p.emails.map(esc).join('<br>')+'</div>'+(p.note?'<div style="font-size:12.5px;color:var(--ink-mute);font-style:italic">'+esc(p.note)+'</div>':"")+(p.actif?"":'<div style="font-size:12px;color:var(--cardinal)">Accès désactivé</div>')+'</td>'+
         '<td>'+(p.inv?'<span class="role-pill">'+INV[p.inv]+'</span>':'<span class="no">—</span>')+'</td>'+
+        '<td>'+(p.ret?'<span class="role-pill">'+INV[p.ret]+'</span>':'<span class="no">—</span>')+'</td>'+
         '<td class="c">'+yes(p.site.actualites)+'</td><td class="c">'+yes(p.site.lectures)+'</td><td class="c">'+yes(p.site.newsletter)+'</td><td class="c">'+yes(p.gestion)+'</td>'+
         '<td><button class="btn btn-ghost btn-sm" type="button" data-email="'+esc(p.cle)+'">Modifier</button></td></tr>';
     }).join("")+'</tbody></table></div>';
@@ -38,6 +39,7 @@ function open(p){
   $("#dlg-title").textContent=p?"Modifier l'accès":"Ajouter une personne";
   $("#p-nom").value=p?p.nom:""; $("#p-email").value=p?p.emails.join(", "):"";
   $("#p-inv").value=p?p.inv:"";
+  $("#p-ret").value=p?(p.ret||""):"";
   $("#p-act").checked=!!(p&&p.site.actualites); $("#p-lec").checked=!!(p&&p.site.lectures); $("#p-nl").checked=!!(p&&p.site.newsletter);
   $("#p-gest").checked=!!(p&&p.gestion); $("#p-actif").checked=p?p.actif:true; $("#p-note").value=p?p.note:"";
   var self=p&&isSelf(p);
@@ -70,7 +72,7 @@ $("#p-del").addEventListener("click",async function(){
 });
 $("#f").addEventListener("submit",async function(e){
   e.preventDefault();
-  var p={nom:$("#p-nom").value.trim(),email:$("#p-email").value.trim(),inv:$("#p-inv").value,
+  var p={nom:$("#p-nom").value.trim(),email:$("#p-email").value.trim(),inv:$("#p-inv").value,ret:$("#p-ret").value,
     site:{actualites:$("#p-act").checked,lectures:$("#p-lec").checked,newsletter:$("#p-nl").checked},
     gestion:$("#p-gest").checked,actif:$("#p-actif").checked,note:$("#p-note").value.trim()};
   var ems=p.email.split(/[;,\s]+/).filter(Boolean);

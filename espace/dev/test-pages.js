@@ -56,7 +56,7 @@ function ok(c, m) { assert.ok(c, m); n++; console.log('  ✓ ' + m); }
   await p.waitForSelector('#f-code:not([hidden])');
   ok(srv.mails.length === 0, 'adresse inconnue : aucun e-mail, même écran');
   await login(p, 'jb.niedercorn@gmail.com');
-  ok(await p.locator('.tile').count() === 3, 'trois tuiles pour l\'administrateur (investiture, site, accès)');
+  ok(await p.locator('.tile').count() === 5, 'cinq tuiles pour l\'administrateur (investiture, retraite, site, médiathèque, accès)');
   if (shots) await p.screenshot({ path: shots + '/1-accueil.png', fullPage: true });
 
   await p.click('a.tile[href="investiture.html"]');

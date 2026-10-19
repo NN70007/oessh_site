@@ -365,3 +365,40 @@ a{color:inherit;text-decoration:none}
 @media (max-width:760px){.topbar-inner{grid-template-columns:auto 1fr}.tb-right{justify-content:flex-end;gap:14px}.tb-right>span:first-child{display:none}}
 .login-form{display:flex;flex-direction:column;gap:12px}
 .login-form label{display:block}
+
+/* ===== Week-end de retraite : programme (retraite.html) ===== */
+.prog-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;margin-bottom:28px}
+.prog-bar .filters{margin:0}
+.prog-days{display:grid;grid-template-columns:1fr 1fr;gap:56px}
+.prog-day .subhead{padding-top:0}
+.slots{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.slot{display:grid;grid-template-columns:76px minmax(0,1fr) auto auto;gap:14px;align-items:start;padding:14px 0 14px 12px;border-bottom:1px solid var(--line-soft);border-left:3px solid transparent}
+.slot.is-pending{border-left-color:var(--cardinal);background:linear-gradient(90deg,var(--cardinal-soft),transparent 60%)}
+.slot .hr{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink);padding-top:3px;line-height:1.35}
+.slot .hr span{display:block;color:var(--ink-mute);font-size:11.5px}
+.slot .hr span::before{content:"→ "}
+.slot .title{font-family:var(--serif);font-size:19px;line-height:1.25;color:var(--ink)}
+.slot .by{margin-top:4px;font-size:13px;font-weight:500;color:var(--ink-soft)}
+.slot .note{margin-top:3px;font-size:12.5px;font-style:italic;color:var(--ink-mute)}
+.slot .icon-btn{margin-top:-2px}
+.cs-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;letter-spacing:.06em;font-weight:500;padding:5px 9px;border-radius:2px;border:1px solid var(--line);white-space:nowrap;margin-top:2px}
+.cs-pill.confirme{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+.cs-pill.principe{background:var(--gold-soft);border-color:transparent;color:#7a5c2e}
+.cs-pill.aconfirmer{border-color:var(--cardinal);color:var(--cardinal)}
+.cs-pill.atrouver{background:var(--cardinal);border-color:var(--cardinal);color:var(--white)}
+.seg button.on[data-cs="confirme"]{background:var(--ok);color:var(--white)}
+.seg button.on[data-cs="principe"]{background:var(--gold);color:var(--white)}
+.seg button.on[data-cs="aconfirmer"],.seg button.on[data-cs="atrouver"]{background:var(--cardinal);color:var(--white)}
+.seg button.on[data-cs=""]{background:var(--ink);color:var(--white)}
+#c-statut{flex-wrap:wrap}
+.prog-notes{margin-top:56px;max-width:860px}
+.prog-notes ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.prog-notes li{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--line-soft);font-size:14.5px;color:var(--ink-soft)}
+.prog-notes li em{color:var(--ink-mute)}
+.field input[type=time]{border:1px solid var(--line);background:var(--white);padding:11px 12px;border-radius:2px;font-size:15px;width:100%}
+@media (max-width:960px){.prog-days{grid-template-columns:1fr;gap:44px}}
+@media (max-width:520px){
+  .slot{grid-template-columns:58px minmax(0,1fr) auto;padding-left:8px}
+  .slot .cs-pill{grid-column:2;grid-row:2;justify-self:start;margin-top:0}
+  .slot .icon-btn{grid-column:3;grid-row:1}
+}

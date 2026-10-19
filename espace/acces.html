@@ -21,9 +21,9 @@
         <div><h2>Qui peut faire quoi.</h2><p class="lede">Inscrivez une personne avec son adresse e-mail, puis cochez ce qu'elle peut voir ou modifier. Les changements s'appliquent dès sa prochaine action.</p></div></div>
 
       <div class="roles-help" id="sec-roles">
-        <div><b>Organisateur</b>Crée, attribue et supprime les tâches de l'investiture, gère les équipes.</div>
+        <div><b>Organisateur</b>Crée, attribue et supprime les tâches (investiture ou week-end de retraite), gère les équipes et, pour la retraite, le programme.</div>
         <div><b>Contributeur</b>Met à jour les tâches dont il est responsable et peut prendre une tâche libre.</div>
-        <div><b>Lecture</b>Voit tout le tableau de l'investiture sans rien modifier.</div>
+        <div><b>Lecture</b>Voit tout le tableau sans rien modifier.</div>
         <div><b>Intervenant</b>Ne voit que les tâches où il intervient (par exemple un chauffeur) et les contacts de son équipe.</div>
       </div>
 
@@ -47,15 +47,26 @@
       <label class="field"><span>Adresse(s) e-mail</span><input type="text" id="p-email" maxlength="400" required placeholder="nom@exemple.lu, autre@gmail.com" autocomplete="off"></label>
     </div>
     <p class="help" style="margin-top:-8px">Une personne peut avoir plusieurs adresses (séparées par une virgule) : elle pourra se connecter avec n'importe laquelle et reste une seule personne.</p>
-    <label class="field"><span>Investiture 2027</span>
-      <select id="p-inv">
-        <option value="">Pas d'accès</option>
-        <option value="organisateur">Organisateur</option>
-        <option value="contributeur">Contributeur</option>
-        <option value="lecture">Lecture</option>
-        <option value="intervenant">Intervenant</option>
-      </select>
-    </label>
+    <div class="field-row">
+      <label class="field"><span>Investiture 2027</span>
+        <select id="p-inv">
+          <option value="">Pas d'accès</option>
+          <option value="organisateur">Organisateur</option>
+          <option value="contributeur">Contributeur</option>
+          <option value="lecture">Lecture</option>
+          <option value="intervenant">Intervenant</option>
+        </select>
+      </label>
+      <label class="field"><span>Week-end de retraite</span>
+        <select id="p-ret">
+          <option value="">Pas d'accès</option>
+          <option value="organisateur">Organisateur</option>
+          <option value="contributeur">Contributeur</option>
+          <option value="lecture">Lecture</option>
+          <option value="intervenant">Intervenant</option>
+        </select>
+      </label>
+    </div>
     <div class="field"><span>Édition du site</span>
       <div class="checks">
         <label><input type="checkbox" id="p-act"> Actualités</label>
@@ -80,7 +91,7 @@
 </dialog>
 
 <script src="config.js"></script>
-<script src="espace.js?v=20261018h"></script>
-<script src="page-acces.js?v=20261018c"></script>
+<script src="espace.js?v=20261019a"></script>
+<script src="page-acces.js?v=20261019a"></script>
 </body>
 </html>

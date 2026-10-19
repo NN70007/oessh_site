@@ -76,6 +76,7 @@
   function pageLinks(user, active) {
     var L = [{ k: "accueil", href: lien("./"), t: "Accueil" }];
     if (user && user.inv) L.push({ k: "investiture", href: lien("investiture.html"), t: "Investiture 2027" });
+    if (user && user.ret) L.push({ k: "retraite", href: lien("retraite.html"), t: "Week-end de retraite" });
     if (user && (user.media || user.admin || user.gestion)) L.push({ k: "media", href: lien("media/"), t: "Médiathèque" });
     if (user && (user.courrier || user.admin)) L.push({ k: "courrier", href: lien("courrier/"), t: "Courrier" });
     if (user && user.gestion) L.push({ k: "acces", href: lien("acces.html"), t: "Accès" });

@@ -98,6 +98,18 @@ Les anciennes clés collées dans les navigateurs peuvent ensuite être révoqu�
 
 Ce que vérifie le serveur à chaque publication : la session, le droit de la personne sur la rubrique (actualités, lectures, newsletters), le fichier visé (uniquement ces trois fichiers et des images ou PDF dans `assets/`), et la validité du contenu. Chaque publication est signée du nom de la personne dans l'historique GitHub et inscrite au journal.
 
+## 11. Week-end de retraite (9 et 10 janvier 2027)
+
+La page `espace/retraite.html` fonctionne comme celle de l'investiture (tâches, responsables, intervenants, qui s'en charge), avec en plus une vue **Programme** : les créneaux des deux journées, l'intervenant et l'état de sa confirmation (confirmé, accord de principe, à confirmer, à trouver). Ses données sont dans des onglets séparés : `RetTaches`, `RetIntervenants`, `RetActivite`, `RetJalons`, `RetProgramme`.
+
+1. Coller la nouvelle version de `Code.gs` dans l'éditeur Apps Script, enregistrer.
+2. Exécuter **`installer`** : crée les onglets `Ret…` et ajoute une colonne **`Retraite`** à la fin de l'onglet `Acces` (les colonnes existantes ne bougent pas). L'administrateur initial y est inscrit comme organisateur.
+3. Importer le programme : fichier `ImportRetraite.gs` fourni à part (il contient des données : **pas sur GitHub**). Dans l'éditeur : **+** → Script → `ImportRetraite`, coller, exécuter **`importerRetraite`** (résultat attendu : « 35 créneaux et 16 tâches importés »), puis supprimer le fichier.
+4. Déployer une **nouvelle version** (Déployer → Gérer les déploiements → ✏️ → Nouvelle version).
+5. Page **Accès** : choisir pour chacun un rôle « Week-end de retraite » (organisateur, contributeur, lecture, intervenant). Seuls les organisateurs modifient le programme.
+
+Après le week-end (RGPD) : exécuter `effacerContactsRetraite`.
+
 ## Entretien
 
 - **Modifier le script** (nouvelle version de `Code.gs`) : coller le nouveau code, enregistrer, puis **Déployer → Gérer les déploiements → ✏️ → Version : Nouvelle version → Déployer**. L'URL ne change pas.

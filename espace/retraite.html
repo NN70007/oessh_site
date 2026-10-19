@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Week-end de retraite · Espace membres OESSH</title>
+<meta name="theme-color" content="#b10103">
+<link rel="icon" type="image/svg+xml" href="../assets/croix-jerusalem-cardinal-liseree.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="espace.css?v=20261019a">
+</head>
+<body>
+<div id="chrome-top"></div>
+<main id="view"></main>
+<div id="chrome-foot"></div>
+
+<dialog id="dlg-c" aria-labelledby="c-title">
+  <form class="dlg" id="c-form" method="dialog">
+    <div>
+      <div class="eyebrow">Programme</div>
+      <h3 id="c-title">Modifier le créneau</h3>
+    </div>
+    <label class="field"><span>Jour</span><select id="c-jour"></select></label>
+    <div class="field-row" id="c-heures">
+      <label class="field"><span>Début</span><input type="time" id="c-debut" step="300"></label>
+      <label class="field"><span>Fin (facultatif)</span><input type="time" id="c-fin" step="300"></label>
+    </div>
+    <label class="field"><span>Intitulé</span><textarea id="c-titre" required maxlength="300" rows="2" placeholder="Ex. Actualité des chrétiens en Terre sainte"></textarea></label>
+    <label class="field" id="c-qui-field"><span>Intervenant</span><input type="text" id="c-qui" maxlength="200" placeholder="Prénom Nom, qualité"></label>
+    <div class="field" id="c-statut-field"><span>Confirmation</span>
+      <div class="seg" id="c-statut" role="group" aria-label="Confirmation">
+        <button type="button" data-cs="confirme">Confirmé</button><button type="button" data-cs="principe">Accord de principe</button><button type="button" data-cs="aconfirmer">À confirmer</button><button type="button" data-cs="atrouver">À trouver</button><button type="button" data-cs="">Sans objet</button>
+      </div>
+    </div>
+    <label class="field"><span>Note</span><input type="text" id="c-note" maxlength="400" placeholder="Ex. contacté par Jacques le 20 octobre"></label>
+    <div class="dlg-actions">
+      <div><button type="button" class="link-danger" id="c-del">Supprimer</button></div>
+      <div class="right">
+        <button type="button" class="btn btn-ghost" id="c-cancel">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <form class="dlg" id="dlg-form" method="dialog">
+    <div>
+      <div class="eyebrow" id="dlg-eyebrow">Tâche</div>
+      <h3 id="dlg-title">Modifier la tâche</h3>
+    </div>
+    <label class="field"><span>Ce qu'il faut faire</span><input type="text" id="f-titre" required maxlength="160"></label>
+    <div class="field-row">
+      <label class="field"><span>Pôle</span><select id="f-pole"></select></label>
+      <label class="field"><span>À faire pour le</span><input type="date" id="f-echeance"></label>
+    </div>
+    <div class="field" id="f-resp-field"><span>Responsable</span><p class="help">La personne qui pilote et répond de la tâche devant le Conseil.</p><div class="people" id="f-people"></div>
+      <input type="text" id="f-autre" placeholder="Autre responsable (prénom, nom)…" style="border:1px solid var(--line);padding:9px 12px;border-radius:2px;font-size:14px;margin-top:4px">
+    </div>
+    <div class="field"><span>Intervenants</span><p class="help">Les personnes qui exécutent la tâche sur le terrain (par exemple les chauffeurs), avec leur téléphone.</p>
+      <div class="crew" id="f-crew"></div>
+      <button type="button" class="add-mate" id="f-add-mate">+ Ajouter un intervenant</button>
+    </div>
+    <div class="field"><span>Où en est-on</span>
+      <div class="seg" id="f-statut" role="group" aria-label="Statut">
+        <button type="button" data-st="afaire">À faire</button><button type="button" data-st="encours">En cours</button><button type="button" data-st="fait">✓ Fait</button>
+      </div>
+    </div>
+    <label class="field"><span>Note</span><textarea id="f-note" maxlength="600" placeholder="Ex. capacité de la salle vérifiée sur place le 12 novembre"></textarea></label>
+    <div class="dlg-actions">
+      <div><button type="button" class="link-danger" id="f-del">Supprimer cette tâche</button></div>
+      <div class="right">
+        <button type="button" class="btn btn-ghost" id="f-cancel">Annuler</button>
+        <button type="submit" class="btn btn-primary" id="f-save">Enregistrer</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<script src="config.js"></script>
+<script src="espace.js?v=20261019a"></script>
+<script src="page-retraite.js?v=20261019a"></script>
+</body>
+</html>
