@@ -197,7 +197,7 @@ function dessinerApercu() {
     "<br><b>Objet :</b> " + E.esc($("in-objet").value.trim() || "(vide)");
   var lt = c.entite !== "asbl", img = "../../assets/email/";
   var embleme = '<img class="mp-emb" src="' + img + (lt ? 'entete-lieutenance.png" width="34' : 'entete-asbl.png" width="46') + '" height="43" alt="">';
-  var croix = lt ? '<img class="mp-croix" src="' + img + 'croix-signature.png" width="26" height="24" alt="">' : "";
+  var croix = lt ? '<img class="mp-croix" src="' + img + 'croix-signature.png" width="14" height="13" alt="">' : "";
   var ligne = c.ligneFonction || c.signature;
   $("apercu").innerHTML = '<div class="mp-box"><div class="mp-head">' + embleme + '<div><div class="mp-ordre">Ordre Équestre du Saint-Sépulcre de Jérusalem</div><div class="mp-ent">' + E.esc(c.entiteNom) + "</div></div></div>" +
     '<div class="mp-body">' + paras + '</div><div class="mp-sig"><div class="mp-nom">' + croix + "<strong>" + E.esc(u.nom) + "</strong></div><div class=\"mp-fn\">" + E.esc(ligne) +

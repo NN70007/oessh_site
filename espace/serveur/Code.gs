@@ -954,7 +954,7 @@ function composerMail_(u, P, m) {
   var embleme = lt ? '<img src="' + img + 'entete-lieutenance.png" width="44" height="56" alt="" style="display:block;border:0">'
                    : '<img src="' + img + 'entete-asbl.png" width="60" height="56" alt="" style="display:block;border:0">';
   // Signature : croix rouge devant le nom pour la Lieutenance, sans croix pour l'Asbl.
-  var croix = lt ? '<img src="' + img + 'croix-signature.png" width="32" height="30" alt="" style="vertical-align:middle;margin-right:10px;border:0">' : '';
+  var croix = lt ? '<img src="' + img + 'croix-signature.png" width="16" height="15" alt="" style="vertical-align:-2px;margin-right:6px;border:0">' : '';
   var html =
     '<div style="background:#f7f4ee;padding:24px 12px;font-family:Georgia,\'Times New Roman\',serif;color:#1a1a1a">' +
     '<div style="max-width:640px;margin:0 auto;background:#ffffff;border-top:4px solid #b10103">' +
@@ -962,12 +962,12 @@ function composerMail_(u, P, m) {
     '<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>' +
     '<td style="padding-right:18px;vertical-align:middle">' + embleme + '</td>' +
     '<td style="vertical-align:middle;font-family:Georgia,\'Times New Roman\',serif">' +
-    '<div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a0102">Ordre Équestre du Saint-Sépulcre de Jérusalem</div>' +
-    '<div style="font-size:18px;margin-top:4px;color:#1a1a1a">' + esc(P.casq.entiteNom) + '</div></td></tr></table></div>' +
+    '<div style="font-size:18px;color:#8a0102">Ordre Équestre du Saint-Sépulcre de Jérusalem</div>' +
+    '<div style="font-size:18px;margin-top:2px;color:#1a1a1a">' + esc(P.casq.entiteNom) + '</div></td></tr></table></div>' +
     '<div style="padding:22px 28px 8px;font-size:16px;line-height:1.55">' + paras + '</div>' +
     '<div style="padding:6px 28px 24px;font-size:15px;line-height:1.45">' +
-    '<div style="font-size:16px">' + croix + '<strong style="font-weight:600;vertical-align:middle">' + esc(u.nom) + '</strong></div>' +
-    '<div style="padding-top:12px">' + esc(P.casq.ligneFonction) + '<br>' + esc(OESSH) + '<br>' +
+    '<div>' + croix + '<strong style="font-weight:bold">' + esc(u.nom) + '</strong></div>' +
+    '<div>' + esc(P.casq.ligneFonction) + '<br>' + esc(OESSH) + '<br>' +
     '<a href="mailto:' + esc(P.casq.repondreA) + '" style="color:#8a0102;text-decoration:underline">' + esc(P.casq.repondreA) + '</a></div></div>' +
     '<div style="padding:12px 28px;background:#faf7f0;font-size:12px;color:#6e6e6e;font-family:Arial,sans-serif">' + esc(pied) + '</div>' +
     '</div></div>';
