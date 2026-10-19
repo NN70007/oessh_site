@@ -91,4 +91,19 @@ const idAsbl = srv.post({ action: 'mail.charger', token: tJB }).groupes.find(g =
 r = srv.post(Object.assign({}, base, { action: 'mail.envoyer', ids: idAsbl }));
 ok(r.ok && r.envoyes === 0 && r.sansCourriel.length === 1 && srv.gmails.length === 0, 'personne sans courriel : rien envoyé, nom renvoyé pour envoi postal');
 
+console.log('Formule de politesse et adresse de réponse');
+srv.gmails.length = 0;
+const base2 = { token: tJB, casquette: 'secretaire', objet: 'Vœux', corps: '{appel}\n\nMeilleurs vœux.\n\n{politesse}', repondreA: 'jb@niedercorn.com' };
+const ch = srv.post({ action: 'mail.charger', token: tJB });
+ok(ch.adresses.indexOf('jb@niedercorn.com') > -1 && ch.adresses.indexOf('envois@oessh.lu') < 0, 'adresses personnelles proposées en Répondre à');
+const pk = {}; ch.membres.forEach(x => (pk[x.nom] = x));
+ok(pk.KLEIN.politesse.indexOf('Excellence') > -1 && pk.GOEDERT.politesse === 'Avec mes sentiments fraternels et chevaleresques.' && pk.DAUPHIN.politesse.indexOf('Monsieur, l’expression de mes sentiments distingués') > -1, 'formule de politesse selon la qualité');
+ok(!srv.post(Object.assign({}, base2, { action: 'mail.essai', repondreA: 'pirate@example.com' })).ok, 'adresse de réponse étrangère refusée');
+r = srv.post(Object.assign({}, base2, { action: 'mail.essai' }));
+ok(r.ok && srv.gmails.pop().replyTo === 'jb@niedercorn.com', 'essai avec l’adresse de réponse choisie');
+ok(srv.post(Object.assign({}, base2, { action: 'mail.envoyer', ids: [pk.KLEIN.id], repondreA: '' })).code === 'essai', 'changer l’adresse de réponse après l’essai impose un nouvel essai');
+r = srv.post(Object.assign({}, base2, { action: 'mail.envoyer', ids: [pk.KLEIN.id, pk.WEBER.id] }));
+const mk = srv.gmails.find(x => x.to === 'jacques.klein@pt.lu'), mw = srv.gmails.find(x => x.to === 'leon.weber@cathol.lu');
+ok(r.ok && mk.body.indexOf('Je vous prie d’agréer, Excellence') > -1 && mw.body.indexOf('Monsieur l’Abbé, l’expression de mes sentiments respectueux') > -1 && mk.replyTo === 'jb@niedercorn.com', 'chaque destinataire reçoit sa formule de politesse');
+
 console.log('\n' + n + ' vérifications réussies.');

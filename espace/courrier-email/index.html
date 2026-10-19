@@ -124,6 +124,10 @@
               <div class="hint" id="casq-info"></div>
             </div>
             <div class="fg">
+              <label for="in-repondre">Les réponses arrivent à</label>
+              <select id="in-repondre"></select>
+            </div>
+            <div class="fg">
               <label for="in-modele">Partir d'un modèle</label>
               <select id="in-modele"><option value="">Texte libre</option></select>
             </div>
@@ -134,7 +138,7 @@
             <div class="fg">
               <label for="in-corps">Message</label>
               <textarea id="in-corps" maxlength="20000"></textarea>
-              <div class="hint">La formule d'appel de chaque destinataire est ajoutée en tête du message. Pour la placer ailleurs, écrivez <code>{appel}</code> ; <code>{prenom}</code> et <code>{nom}</code> sont aussi remplacés. La signature est ajoutée automatiquement.</div>
+              <div class="hint"><code>{appel}</code> et <code>{politesse}</code> sont remplacés pour chaque destinataire par la formule d'appel et la formule de politesse qui conviennent à sa qualité (Excellence, Monsieur l'Abbé, Cher Confrère…). Sans <code>{appel}</code>, la formule d'appel est ajoutée en tête. <code>{prenom}</code> et <code>{nom}</code> sont aussi remplacés. La signature est ajoutée automatiquement.</div>
             </div>
             <div class="ce-btns">
               <button type="button" class="btn-l" id="btn-corriger">Corriger l'orthographe</button>
@@ -187,6 +191,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="page-courrier-email.js?v=20261020a"></script>
+<script src="page-courrier-email.js?v=20261020b"></script>
 </body>
 </html>

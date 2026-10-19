@@ -845,6 +845,7 @@ function lireMembres_() {
     vus[id2] = 1;
     m.id = id2;
     m.appel = appel_(m);
+    m.politesse = politesse_(m.appel);
     out.push(m);
   });
   return out;
@@ -861,6 +862,19 @@ function appel_(m) {
   var membreOrdre = m.groupe === 'lt' || m.groupe === 'cognati';
   if (membreOrdre) return femme ? 'Chère Consœur,' : 'Cher Confrère,';
   return femme ? 'Madame,' : 'Monsieur,';
+}
+
+/** Formule de politesse finale, liée à la formule d'appel (charte, § 6). */
+function politesse_(appel) {
+  switch (appel) {
+    case 'Éminence,': return 'Je vous prie d’agréer, Éminence, l’expression de mon profond respect.';
+    case 'Monseigneur,': return 'Je vous prie d’agréer, Monseigneur, l’expression de mon profond respect.';
+    case 'Monsieur l’Abbé,': return 'Je vous prie d’agréer, Monsieur l’Abbé, l’expression de mes sentiments respectueux.';
+    case 'Excellence,': return 'Je vous prie d’agréer, Excellence, l’expression de ma haute et respectueuse considération.';
+    case 'Cher Confrère,': case 'Chère Consœur,': return 'Avec mes sentiments fraternels et chevaleresques.';
+    case 'Madame,': return 'Je vous prie d’agréer, Madame, l’expression de mes sentiments distingués.';
+    default: return 'Je vous prie d’agréer, Monsieur, l’expression de mes sentiments distingués.';
+  }
 }
 
 function mailCharger_(u) {
@@ -880,12 +894,20 @@ function mailCharger_(u) {
     casquettes: casquettesDe_(u),
     groupes: groupes,
     membres: membres.map(function (m) {
-      return { id: m.id, nom: m.nom, prenom: m.prenom, appel: m.appel, groupe: m.groupe, sousGroupe: m.sousGroupe, sansCourriel: !m.email };
+      return { id: m.id, nom: m.nom, prenom: m.prenom, appel: m.appel, politesse: m.politesse, groupe: m.groupe, sousGroupe: m.sousGroupe, sansCourriel: !m.email };
     }),
     historique: historique,
+    adresses: adressesReponse_(u),
     quota: MailApp.getRemainingDailyQuota(),
     essaiA: u.email
   };
+}
+
+/** Adresses personnelles de l'auteur, proposées en « Répondre à » à la place de l'adresse de fonction. */
+function adressesReponse_(u) {
+  var out = [];
+  (u.emails || []).concat([u.email]).forEach(function (e) { e = norm_(e); if (e && e !== norm_(CONFIG.ENVOI_ALIAS) && out.indexOf(e) < 0) out.push(e); });
+  return out;
 }
 
 /** Vérifie et normalise le courriel demandé ; refuse les textes inachevés. */
@@ -898,13 +920,19 @@ function preparerMail_(u, req) {
   var reste = (objet + '\n' + corps).match(/\[[^\]\n]{0,60}\]/);
   if (reste) throw refus_('Le texte contient encore « ' + reste[0] + ' » : complétez-le avant d’envoyer.', 'donnees');
   if (/[–—]/.test(objet + corps)) throw refus_('Le texte contient un tiret long (— ou –) : la charte n’admet que le tiret court (-).', 'donnees');
-  return { casq: casq, objet: objet, corps: corps, empreinte: hash_(casq.code + '|' + objet + '|' + corps).slice(0, 24) };
+  // Adresse de réponse : celle de la fonction, ou l'une des adresses de l'auteur
+  var rep = norm_(req.repondreA);
+  if (rep && rep !== norm_(casq.repondreA)) {
+    if (adressesReponse_(u).indexOf(rep) < 0) throw refus_('Cette adresse de réponse ne vous est pas attribuée.', 'donnees');
+    casq.repondreA = rep;
+  }
+  return { casq: casq, objet: objet, corps: corps, empreinte: hash_(casq.code + '|' + casq.repondreA + '|' + objet + '|' + corps).slice(0, 24) };
 }
 
 function personnaliser_(texte, m) {
   var t = texte;
   var avecAppel = t.indexOf('{appel}') > -1;
-  t = t.replace(/\{appel\}/g, m.appel).replace(/\{prenom\}/g, m.prenom || '').replace(/\{nom\}/g, m.nom || '');
+  t = t.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || politesse_(m.appel)).replace(/\{prenom\}/g, m.prenom || '').replace(/\{nom\}/g, m.nom || '');
   return avecAppel ? t : m.appel + '\n\n' + t;
 }
 

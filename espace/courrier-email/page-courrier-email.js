@@ -26,17 +26,17 @@ E.renderFoot();
 /* ── Modèles (les mentions entre crochets doivent être complétées : l'envoi est bloqué sinon) ── */
 var MODELES = [
   { id: "messe", t: "Invitation à une messe ou cérémonie", objet: "Invitation - [cérémonie] du [date]",
-    corps: "{appel}\n\nJ’ai l’honneur de vous inviter à [cérémonie], qui sera célébrée le [jour et date] à [heure] en [église, lieu].\n\nNous serions heureux de vous compter parmi nous. Je vous remercie de bien vouloir confirmer votre présence en répondant à ce courriel avant le [date limite].\n\nAvec mes sentiments fraternels et chevaleresques." },
+    corps: "{appel}\n\nJ’ai l’honneur de vous inviter à [cérémonie], qui sera célébrée le [jour et date] à [heure] en [église, lieu].\n\nNous serions heureux de vous compter parmi nous. Je vous remercie de bien vouloir confirmer votre présence en répondant à ce courriel avant le [date limite].\n\n{politesse}" },
   { id: "rappel", t: "Rappel d’un événement", objet: "Rappel - [événement] du [date]",
-    corps: "{appel}\n\nJe me permets de vous rappeler que [événement] aura lieu le [jour et date] à [heure] en [lieu].\n\nSi vous ne l’avez pas encore fait, je vous remercie de bien vouloir nous faire savoir si vous pourrez être présent.\n\nAvec mes sentiments fraternels et chevaleresques." },
+    corps: "{appel}\n\nJe me permets de vous rappeler que [événement] aura lieu le [jour et date] à [heure] en [lieu].\n\nSi vous ne l’avez pas encore fait, je vous remercie de bien vouloir nous faire savoir si vous pourrez être présent.\n\n{politesse}" },
   { id: "noel", t: "Vœux de Noël", objet: "Vœux de Noël de la Lieutenance",
-    corps: "{appel}\n\nEn ce temps de Noël, nos pensées se tournent vers Bethléem et vers les chrétiens de Terre Sainte, que notre Ordre a la mission de soutenir.\n\n[message personnel]\n\nJe vous souhaite, ainsi qu’à vos proches, un saint et joyeux Noël et une heureuse année.\n\nAvec mes sentiments fraternels et chevaleresques." },
+    corps: "{appel}\n\nEn ce temps de Noël, nos pensées se tournent vers Bethléem et vers les chrétiens de Terre Sainte, que notre Ordre a la mission de soutenir.\n\n[message personnel]\n\nJe vous souhaite, ainsi qu’à vos proches, un saint et joyeux Noël et une heureuse année.\n\n{politesse}" },
   { id: "paques", t: "Vœux de Pâques", objet: "Vœux de Pâques de la Lieutenance",
-    corps: "{appel}\n\nEn cette fête de la Résurrection, nous nous unissons dans la prière à l’Église de Jérusalem, gardienne du Tombeau vide.\n\n[message personnel]\n\nJe vous souhaite de saintes et joyeuses fêtes de Pâques.\n\nAvec mes sentiments fraternels et chevaleresques." },
+    corps: "{appel}\n\nEn cette fête de la Résurrection, nous nous unissons dans la prière à l’Église de Jérusalem, gardienne du Tombeau vide.\n\n[message personnel]\n\nJe vous souhaite de saintes et joyeuses fêtes de Pâques.\n\n{politesse}" },
   { id: "memoriam", t: "In memoriam", objet: "In memoriam - [prénom et nom]",
-    corps: "{appel}\n\nC’est avec tristesse que nous vous faisons part du décès de [titre, prénom et nom], survenu le [date].\n\n[quelques mots sur le défunt]\n\nLes funérailles seront célébrées le [date] à [heure] en [église, lieu]. Nous le confions à vos prières.\n\nAvec mes sentiments fraternels et chevaleresques." },
+    corps: "{appel}\n\nC’est avec tristesse que nous vous faisons part du décès de [titre, prénom et nom], survenu le [date].\n\n[quelques mots sur le défunt]\n\nLes funérailles seront célébrées le [date] à [heure] en [église, lieu]. Nous le confions à vos prières.\n\n{politesse}" },
   { id: "circulaire", t: "Circulaire", objet: "[objet de la circulaire]",
-    corps: "{appel}\n\n[texte de la circulaire]\n\nAvec mes sentiments fraternels et chevaleresques." }
+    corps: "{appel}\n\n[texte de la circulaire]\n\n{politesse}" }
 ];
 
 /* ── État ── */
@@ -47,8 +47,9 @@ var groupesCoches = {};    // id de groupe -> true
 var essaiOk = "";          // empreinte du texte dont l'essai a été envoyé
 
 function nomComplet(m) { return (m.prenom ? m.prenom + " " : "") + m.nom; }
+function repondre() { return $("in-repondre").value; }
 function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter(function (x) { return x.code === c; })[0]; }
-function empreinte() { return [$("in-casq").value, $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim()].join("\u0001"); }
+function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim()].join("\u0001"); }
 
 /* ── Chargement ── */
 E.api("mail.charger").then(function (r) {
@@ -74,7 +75,17 @@ function remplirCasquettes() {
   }
   sel.innerHTML = D.casquettes.map(function (c) { return '<option value="' + E.esc(c.code) + '">' + E.esc(c.titre + " - " + c.entiteNom) + "</option>"; }).join("");
   sel.disabled = D.casquettes.length < 2;
-  sel.addEventListener("change", maj);
+  sel.addEventListener("change", function () { remplirRepondre(); maj(); });
+  remplirRepondre();
+}
+/** « Répondre à » : l'adresse de la fonction est proposée par défaut, les autres adresses de l'auteur au choix. */
+function remplirRepondre() {
+  var c = casq(), sel = $("in-repondre");
+  if (!c) { sel.innerHTML = ""; sel.disabled = true; return; }
+  var autres = (D.adresses || []).filter(function (a) { return a !== c.repondreA; });
+  sel.innerHTML = '<option value="' + E.esc(c.repondreA) + '">' + E.esc(c.repondreA) + " (adresse de la fonction)</option>" +
+    autres.map(function (a) { return '<option value="' + E.esc(a) + '">' + E.esc(a) + "</option>"; }).join("");
+  sel.disabled = !autres.length;
 }
 function remplirModeles() {
   $("in-modele").innerHTML += MODELES.map(function (m) { return '<option value="' + m.id + '">' + E.esc(m.t) + "</option>"; }).join("");
@@ -172,25 +183,26 @@ function maj() {
 }
 ["in-objet", "in-corps"].forEach(function (id) { $(id).addEventListener("input", maj); });
 $("in-apercu").addEventListener("change", dessinerApercu);
+$("in-repondre").addEventListener("change", maj);
 
 function dessinerApercu() {
   var c = casq(), m = MEMBRES[$("in-apercu").value];
   if (!c || !m) { $("apercu").innerHTML = '<div class="hint">Choisissez une fonction et des destinataires.</div>'; $("mp-meta").innerHTML = ""; return; }
   var corps = $("in-corps").value.replace(/\r\n?/g, "\n").trim();
   var avecAppel = corps.indexOf("{appel}") > -1;
-  corps = corps.replace(/\{appel\}/g, m.appel).replace(/\{prenom\}/g, m.prenom || "").replace(/\{nom\}/g, m.nom || "");
+  corps = corps.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || "").replace(/\{prenom\}/g, m.prenom || "").replace(/\{nom\}/g, m.nom || "");
   if (!avecAppel) corps = m.appel + "\n\n" + corps;
   var paras = corps.split(/\n{2,}/).map(function (p) { return "<p>" + E.esc(p).replace(/\n/g, "<br>") + "</p>"; }).join("");
-  $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(c.repondreA) +
+  $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) +
     "<br><b>Objet :</b> " + E.esc($("in-objet").value.trim() || "(vide)");
   $("apercu").innerHTML = '<div class="mp-box"><div class="mp-head"><div class="mp-ordre">Ordre Équestre du Saint-Sépulcre de Jérusalem</div><div class="mp-ent">' + E.esc(c.entiteNom) + "</div></div>" +
-    '<div class="mp-body">' + paras + '</div><div class="mp-sig"><strong>' + E.esc(u.nom) + "</strong><br>" + E.esc(c.signature) + "<br>" + E.esc(c.entiteNom) + "<br>" + E.esc(c.repondreA) + "</div>" +
+    '<div class="mp-body">' + paras + '</div><div class="mp-sig"><strong>' + E.esc(u.nom) + "</strong><br>" + E.esc(c.signature) + "<br>" + E.esc(c.entiteNom) + "<br>" + E.esc(repondre()) + "</div>" +
     '<div class="mp-foot">Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.</div></div>';
 }
 
 /* ── Essai et envoi ── */
 function etat(txt, ok) { var el = $("etat"); el.textContent = txt; el.className = "etat visible " + (ok ? "ok" : "ko"); }
-function demande() { return { casquette: $("in-casq").value, objet: $("in-objet").value.trim(), corps: $("in-corps").value }; }
+function demande() { return { casquette: $("in-casq").value, repondreA: repondre(), objet: $("in-objet").value.trim(), corps: $("in-corps").value }; }
 
 $("btn-essai").addEventListener("click", function () {
   var b = this, f = empreinte();
@@ -237,7 +249,8 @@ function rafraichirHistorique() {
 /* ── Aide à la rédaction (charte OESSH) ── */
 var CHARTE = "Règles de la Lieutenance : sigle OESSH ; « Lieutenance pour le Luxembourg » ; majuscules à Le Lieutenant, Le Chancelier, Le Secrétaire, Chevaliers et Dames ; " +
   "guillemets « » et apostrophes courbes ; JAMAIS de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-) ; pas d’anglicismes ni de superlatifs ; registre digne et fraternel. " +
-  "Le message commence par {appel} (à laisser tel quel : il est remplacé par la formule d’appel de chaque destinataire) ; ne mets ni signature ni nom à la fin ; " +
+  "Le message commence par la ligne {appel} et se termine par la ligne {politesse}, à laisser tels quels : ils sont remplacés pour chaque destinataire par la formule d’appel et la formule de politesse qui correspondent à sa qualité (Excellence, Monsieur l’Abbé, Cher Confrère, Madame…). " +
+  "N’écris donc AUCUNE formule d’appel ni AUCUNE formule de politesse toi-même, et jamais de choix entre crochets comme [Chevalier / Dame] ; si le texte contient déjà une formule de politesse, remplace-la par {politesse}. Ne mets ni signature ni nom à la fin ; " +
   "laisse intactes les mentions entre crochets [..] qui restent à compléter, et vérifie que les jours de la semaine correspondent aux dates.";
 var SORTIE = "\nRéponds UNIQUEMENT dans ce format :\n###OBJET###\n(objet)\n###CORPS###\n(message)\n###REMARQUES###\n(remarques pour l’auteur, une par ligne, ou rien)\n###FIN###";
 
