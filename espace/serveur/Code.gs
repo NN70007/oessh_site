@@ -26,6 +26,8 @@ var CONFIG = {
   // Courrier e-mail : fichier des membres (Google Sheets « 0_Fichier_Membres_actif ») et adresse d'envoi commune.
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
+  // Images des courriels (en-tête, croix de signature), servies par le site public
+  IMAGES_MAIL: 'https://luxembourg.oessh.lu/assets/email/',
   ENVOI_MAX: 200
 };
 
@@ -807,9 +809,12 @@ function casquettesDe_(u) {
   var codes = String(u.roles || '').split(/[,;\s]+/).map(function (c) { c = norm_(c); return CASQUETTES_ALIAS[c] || c; }).filter(function (c) { return CASQUETTES[c]; });
   return codes.filter(function (c, i) { return codes.indexOf(c) === i; }).map(function (c) {
     var k = CASQUETTES[c];
-    return { code: c, entite: k.e, titre: k.t, signature: k.s, entiteNom: ENTITES[k.e], repondreA: repondreA_(u, c) };
+    return { code: c, entite: k.e, titre: k.t, signature: k.s, ligneFonction: ligneFonction_(k), entiteNom: ENTITES[k.e], repondreA: repondreA_(u, c) };
   });
 }
+/** Ligne de fonction de la signature (modèle du Lieutenant) : « Secrétaire pour le Luxembourg » ;
+    pour l'Asbl : « Secrétaire de la Lieutenance pour le Luxembourg Asbl ». */
+function ligneFonction_(k) { return k.e === 'asbl' ? k.s + ' de la Lieutenance pour le Luxembourg Asbl' : k.s + ' pour le Luxembourg'; }
 /** Adresse « Répondre à » : adresse de fonction ; pour un conseiller ou un administrateur, son adresse @oessh.lu nominative. */
 function repondreA_(u, code) {
   var k = CASQUETTES[code];
@@ -938,20 +943,32 @@ function personnaliser_(texte, m) {
 
 function composerMail_(u, P, m) {
   var corps = personnaliser_(P.corps, m);
-  var signature = [u.nom, P.casq.signature, P.casq.entiteNom, 'Ordre Équestre du Saint-Sépulcre de Jérusalem', P.casq.repondreA];
+  var OESSH = 'de l’Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)';
+  var signature = [u.nom, P.casq.ligneFonction, OESSH, P.casq.repondreA];
   var pied = 'Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.';
   var texte = corps + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+  var img = CONFIG.IMAGES_MAIL, lt = P.casq.entite !== 'asbl';
   var paras = corps.split(/\n{2,}/).map(function (p) { return '<p style="margin:0 0 14px">' + esc(p).replace(/\n/g, '<br>') + '</p>'; }).join('');
+  // En-tête : armoiries (Lieutenance) ou croix de Jérusalem (Asbl), puis l'Ordre et l'entité.
+  var embleme = lt ? '<img src="' + img + 'entete-lieutenance.png" width="44" height="56" alt="" style="display:block;border:0">'
+                   : '<img src="' + img + 'entete-asbl.png" width="60" height="56" alt="" style="display:block;border:0">';
+  // Signature : croix rouge devant le nom pour la Lieutenance, sans croix pour l'Asbl.
+  var croix = lt ? '<img src="' + img + 'croix-signature.png" width="32" height="30" alt="" style="vertical-align:middle;margin-right:10px;border:0">' : '';
   var html =
     '<div style="background:#f7f4ee;padding:24px 12px;font-family:Georgia,\'Times New Roman\',serif;color:#1a1a1a">' +
     '<div style="max-width:640px;margin:0 auto;background:#ffffff;border-top:4px solid #b10103">' +
-    '<div style="padding:18px 28px 14px;border-bottom:1px solid #b08a4f">' +
+    '<div style="padding:16px 28px 14px;border-bottom:1px solid #b08a4f">' +
+    '<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>' +
+    '<td style="padding-right:18px;vertical-align:middle">' + embleme + '</td>' +
+    '<td style="vertical-align:middle;font-family:Georgia,\'Times New Roman\',serif">' +
     '<div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a0102">Ordre Équestre du Saint-Sépulcre de Jérusalem</div>' +
-    '<div style="font-size:18px;margin-top:4px">' + esc(P.casq.entiteNom) + '</div></div>' +
+    '<div style="font-size:18px;margin-top:4px;color:#1a1a1a">' + esc(P.casq.entiteNom) + '</div></td></tr></table></div>' +
     '<div style="padding:22px 28px 8px;font-size:16px;line-height:1.55">' + paras + '</div>' +
-    '<div style="padding:4px 28px 22px;font-size:15px;line-height:1.45"><strong>' + esc(u.nom) + '</strong><br>' + esc(P.casq.signature) +
-    '<br>' + esc(P.casq.entiteNom) + '<br><a href="mailto:' + esc(P.casq.repondreA) + '" style="color:#8a0102">' + esc(P.casq.repondreA) + '</a></div>' +
+    '<div style="padding:6px 28px 24px;font-size:15px;line-height:1.45">' +
+    '<div style="font-size:16px">' + croix + '<strong style="font-weight:600;vertical-align:middle">' + esc(u.nom) + '</strong></div>' +
+    '<div style="padding-top:12px">' + esc(P.casq.ligneFonction) + '<br>' + esc(OESSH) + '<br>' +
+    '<a href="mailto:' + esc(P.casq.repondreA) + '" style="color:#8a0102;text-decoration:underline">' + esc(P.casq.repondreA) + '</a></div></div>' +
     '<div style="padding:12px 28px;background:#faf7f0;font-size:12px;color:#6e6e6e;font-family:Arial,sans-serif">' + esc(pied) + '</div>' +
     '</div></div>';
   return { texte: texte, html: html };

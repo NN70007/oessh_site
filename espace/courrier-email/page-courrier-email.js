@@ -195,8 +195,13 @@ function dessinerApercu() {
   var paras = corps.split(/\n{2,}/).map(function (p) { return "<p>" + E.esc(p).replace(/\n/g, "<br>") + "</p>"; }).join("");
   $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) +
     "<br><b>Objet :</b> " + E.esc($("in-objet").value.trim() || "(vide)");
-  $("apercu").innerHTML = '<div class="mp-box"><div class="mp-head"><div class="mp-ordre">Ordre Équestre du Saint-Sépulcre de Jérusalem</div><div class="mp-ent">' + E.esc(c.entiteNom) + "</div></div>" +
-    '<div class="mp-body">' + paras + '</div><div class="mp-sig"><strong>' + E.esc(u.nom) + "</strong><br>" + E.esc(c.signature) + "<br>" + E.esc(c.entiteNom) + "<br>" + E.esc(repondre()) + "</div>" +
+  var lt = c.entite !== "asbl", img = "../../assets/email/";
+  var embleme = '<img class="mp-emb" src="' + img + (lt ? 'entete-lieutenance.png" width="34' : 'entete-asbl.png" width="46') + '" height="43" alt="">';
+  var croix = lt ? '<img class="mp-croix" src="' + img + 'croix-signature.png" width="26" height="24" alt="">' : "";
+  var ligne = c.ligneFonction || c.signature;
+  $("apercu").innerHTML = '<div class="mp-box"><div class="mp-head">' + embleme + '<div><div class="mp-ordre">Ordre Équestre du Saint-Sépulcre de Jérusalem</div><div class="mp-ent">' + E.esc(c.entiteNom) + "</div></div></div>" +
+    '<div class="mp-body">' + paras + '</div><div class="mp-sig"><div class="mp-nom">' + croix + "<strong>" + E.esc(u.nom) + "</strong></div><div class=\"mp-fn\">" + E.esc(ligne) +
+    "<br>de l’Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)<br><a href=\"mailto:" + E.esc(repondre()) + "\">" + E.esc(repondre()) + "</a></div></div>" +
     '<div class="mp-foot">Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.</div></div>';
 }
 
