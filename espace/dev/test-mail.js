@@ -74,7 +74,7 @@ console.log('Essai');
 r = srv.post(Object.assign({}, base, { action: 'mail.essai', apercu: par.KLEIN.id }));
 let m = srv.gmails.pop();
 ok(r.ok && m.to === 'secretariat@oessh.lu' && m.subject === '[ESSAI] Messe du 9 janvier', 'essai envoyé à l\'auteur');
-ok(m.from === 'envois@oessh.lu' && m.replyTo === 'secretariat@oessh.lu' && m.name === 'Lieutenance pour le Luxembourg - Le Secrétaire', 'expéditeur, nom affiché et Répondre à corrects');
+ok(m.from === 'envois@oessh.lu' && m.replyTo === 'secretariat@oessh.lu' && m.name === 'OESSH Lieutenance pour le Luxembourg - Le Secrétaire', 'expéditeur, nom affiché et Répondre à corrects');
 ok(m.body.startsWith('Excellence,') && m.body.includes('Jean-Baptiste Niedercorn') && m.htmlBody.includes('Excellence,'), 'appel et signature personnalisés');
 ok(m.body.includes('Secrétaire pour le Luxembourg\nde l’Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)\nsecretariat@oessh.lu'), 'signature selon le modèle du Lieutenant');
 ok(m.htmlBody.includes('assets/email/entete-lieutenance.png') && m.htmlBody.includes('assets/email/croix-signature.png'), 'Lieutenance : armoiries en en-tête, croix devant le nom');

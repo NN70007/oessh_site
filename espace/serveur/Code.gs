@@ -977,7 +977,7 @@ function composerMail_(u, P, m) {
 function expedier_(P, to, contenu, objet) {
   GmailApp.sendEmail(to, objet, contenu.texte, {
     from: CONFIG.ENVOI_ALIAS,
-    name: P.casq.entiteNom + ' - ' + P.casq.titre,
+    name: 'OESSH ' + P.casq.entiteNom + ' - ' + P.casq.titre,
     replyTo: P.casq.repondreA,
     htmlBody: contenu.html
   });
