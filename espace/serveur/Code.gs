@@ -7,7 +7,7 @@
  *
  * Ce fichier ne contient AUCUNE donnée : il peut être publié sans risque.
  * Les données vivent uniquement dans la feuille (onglets Acces, Taches, Intervenants, Activite, Jalons, Journal,
- * et pour le week-end de retraite : RetTaches, RetIntervenants, RetActivite, RetJalons, RetProgramme).
+ * et pour le week-end de retraite : RetTaches, RetIntervenants, RetActivite, RetJalons, RetProgramme, RetOrganisation).
  *
  * Installation : voir espace/INSTALLATION.md
  */
@@ -36,7 +36,8 @@ var ONGLETS = {
   RetIntervenants: ['TacheId', 'Nom', 'Role', 'Telephone', 'Email'],
   RetActivite: ['Date', 'Qui', 'Texte'],
   RetJalons: ['Date', 'Titre', 'Detail', 'Cle'],
-  RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note']
+  RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note'],
+  RetOrganisation: ['Fonction', 'Nom']
 };
 // Colonne de droits du week-end de retraite, ajoutée en fin d'onglet « Acces » par « installer » (les colonnes existantes ne bougent pas).
 var COL_RETRAITE = 'Retraite';
@@ -336,7 +337,7 @@ function peutModifier_(u, t, P) {
    sa colonne de droits dans « Acces » et ses pôles. */
 var PROJETS = {
   inv: { droit: 'inv', col: 'Investiture', T: 'Taches', I: 'Intervenants', A: 'Activite', J: 'Jalons', poles: POLES },
-  ret: { droit: 'ret', col: 'Retraite', T: 'RetTaches', I: 'RetIntervenants', A: 'RetActivite', J: 'RetJalons', poles: POLES_RET, programme: 'RetProgramme' }
+  ret: { droit: 'ret', col: 'Retraite', T: 'RetTaches', I: 'RetIntervenants', A: 'RetActivite', J: 'RetJalons', poles: POLES_RET, programme: 'RetProgramme', organisation: 'RetOrganisation' }
 };
 
 function chargerProjet_(P, u) {
@@ -355,6 +356,8 @@ function chargerProjet_(P, u) {
   taches.forEach(function (t) { t.resp.forEach(function (n) { noms[n] = 1; }); });
   var out = { ok: true, user: publicUser_(u), taches: taches, activite: activite, jalons: jalons, personnes: Object.keys(noms).filter(Boolean), peutModifierTout: role === 'organisateur' };
   if (P.programme) out.programme = toutProgramme_(P);
+  // Qui organise (affiché sous le titre) : renseigné dans l'onglet, une ligne par personne.
+  if (P.organisation) out.organisation = lire_(P.organisation).filter(function (r) { return r.Nom; }).map(function (r) { return { fonction: r.Fonction, nom: r.Nom }; });
   return out;
 }
 

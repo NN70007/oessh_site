@@ -17,7 +17,7 @@ var EVENT_DAY="2027-01-09";
 var REFRESH_MS=30000;
 
 var user=S.user, me=user.nom;
-var tasks=[], activity=[], jalons=[], personnes=[], programme=[], loaded=false, loadErr="";
+var tasks=[], activity=[], jalons=[], personnes=[], programme=[], organisation=[], loaded=false, loadErr="";
 var view="ensemble", poleFocus=null, poleFilter="tous", progFilter="tout", editing=null, busy={};
 try{ var v=localStorage.getItem("ret27_view"); if(v) view=v; }catch(e){}
 
@@ -96,6 +96,10 @@ function stateNotice(){
   if(!tasks.length) return '<div class="notice"><h4>'+(user.ret==="intervenant"?"Aucune tâche ne vous est confiée pour l'instant.":"Aucune tâche pour l'instant.")+'</h4>'+(canWrite()?'<p>Ajoutez la première avec le bouton « Nouvelle tâche ».</p><button class="btn btn-primary btn-sm" data-act="new" type="button">+ Nouvelle tâche</button>':'')+'</div>';
   return "";
 }
+function orgHTML(){
+  if(!organisation.length) return "";
+  return '<div class="org-line">'+organisation.map(function(o){return '<div><span class="eyebrow">'+esc(o.fonction||"Organisation")+'</span><b>'+esc(o.nom)+'</b></div>';}).join("")+'</div>';
+}
 function roleNote(){
   if(user.ret==="lecture") return '<p class="readonly-note">Vous consultez le tableau en lecture seule.</p>';
   if(user.ret==="intervenant") return '<p class="readonly-note">Vous voyez les tâches sur lesquelles vous intervenez, avec les contacts de votre équipe.</p>';
@@ -120,7 +124,7 @@ function vEnsemble(){
   var notice=stateNotice();
 
   var h='<section class="block"><div class="container">'+
-    head("— 9 & 10 janvier 2027","Retraite","Formation et retraite des impétrants.","Un week-end de formation, de prière et de témoignages à la Maison d\'Accueil des Franciscaines, 50 avenue Gaston Diderich, à Luxembourg.")+roleNote()+
+    head("— 9 & 10 janvier 2027","Retraite","Formation et retraite des impétrants.","Un week-end de formation, de prière et de témoignages à la Maison d\'Accueil des Franciscaines, 50 avenue Gaston Diderich, à Luxembourg.")+orgHTML()+roleNote()+
     '<div class="hero-grid">'+
       '<div class="hero-cell"><div class="eyebrow">Compte à rebours</div><div class="countdown"><span class="n">'+dleft+'</span><span class="u">jours</span></div><p class="cap">avant la <strong>messe d\'ouverture</strong>, samedi 9 janvier 2027 à 9h00, chez les Sœurs franciscaines.</p></div>'+
       '<div class="hero-cell"><div class="eyebrow">Avancement'+(user.ret==="intervenant"?" de vos tâches":" général")+'</div><div class="ring-wrap">'+
@@ -311,7 +315,7 @@ async function load(quiet){
   if(loading) return; loading=true;
   try{
     var out=await E.api("ret.charger");
-    tasks=out.taches; activity=out.activite; jalons=out.jalons; personnes=out.personnes; programme=out.programme||[];
+    tasks=out.taches; activity=out.activite; jalons=out.jalons; personnes=out.personnes; programme=out.programme||[]; organisation=out.organisation||[];
     user=out.user; me=user.nom; loaded=true; loadErr="";
     if(!user.ret){ location.replace("./"); return; }
   }catch(e){

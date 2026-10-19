@@ -104,7 +104,7 @@ La page `espace/retraite.html` fonctionne comme celle de l'investiture (tâches,
 
 1. Coller la nouvelle version de `Code.gs` dans l'éditeur Apps Script, enregistrer.
 2. Exécuter **`installer`** : crée les onglets `Ret…` et ajoute une colonne **`Retraite`** à la fin de l'onglet `Acces` (les colonnes existantes ne bougent pas). L'administrateur initial y est inscrit comme organisateur.
-3. Importer le programme : fichier `ImportRetraite.gs` fourni à part (il contient des données : **pas sur GitHub**). Dans l'éditeur : **+** → Script → `ImportRetraite`, coller, exécuter **`importerRetraite`** (résultat attendu : « 35 créneaux et 16 tâches importés »), puis supprimer le fichier.
+3. Importer le programme : fichier `ImportRetraite.gs` fourni à part (il contient des données : **pas sur GitHub**). Dans l'éditeur : **+** → Script → `ImportRetraite`, coller, exécuter **`importerRetraite`** (résultat attendu : « 35 créneaux et 16 tâches importés. Organisation renseignée. »), puis supprimer le fichier. L'onglet `RetOrganisation` (Fonction, Nom) indique qui organise ; il s'affiche sous le titre de la page et se modifie directement dans la feuille.
 4. Déployer une **nouvelle version** (Déployer → Gérer les déploiements → ✏️ → Nouvelle version).
 5. Page **Accès** : choisir pour chacun un rôle « Week-end de retraite » (organisateur, contributeur, lecture, intervenant). Seuls les organisateurs modifient le programme.
 
