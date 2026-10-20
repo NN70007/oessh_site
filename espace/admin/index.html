@@ -1646,7 +1646,7 @@ async function translateDEEN(){
     +'\n- DE : « das Heilige Land » ; EN : « the Holy Land » (majuscules conservées)'
     +'\n- Guillemets allemands : „…" ; guillemets anglais : "…"'
     +'\n- Tirets : jamais de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-)'
-    +'\n- Titres des fonctions : Le Lieutenant / Der Leutnant / The Lieutenant, avec majuscule initiale'
+    +'\n- Titres des fonctions : Le Lieutenant / Der Statthalter / The Lieutenant, avec majuscule initiale. DE : toujours Statthalter (pluriel : die Statthalter) et Statthalterei, jamais Leutnant ni Leutnantschaft'
     +'\n- PLJ = Patriarcat latin de Jérusalem / Lateinisches Patriarchat von Jerusalem / Latin Patriarchate of Jerusalem'
     +'\n- IMPORTANT pour les intitulés de liens : traduis le texte descriptif, ne le remplace pas par un verbe générique.'
     +'\n\nRéponds UNIQUEMENT avec ce format (balises ###CHAMP### et ###FIN###) :';
@@ -1677,9 +1677,9 @@ async function translateDEEN(){
       return text.replace(/--/g, '-');
     }
 
-    // Fonction de nettoyage pour l'allemand : Leutnantschaft → Statthalterei + -- → -
+    // Fonction de nettoyage pour l'allemand : Leutnant(schaft) → Statthalter(ei) + -- → -
     function cleanGerman(text){
-      return cleanDashes(text).replace(/Leutnantschaften/g, 'Statthaltereien').replace(/Leutnantschaft/g, 'Statthalterei');
+      return cleanDashes(text).replace(/Leutnantschaften/g, 'Statthaltereien').replace(/Leutnantschaft/g, 'Statthalterei').replace(/\bdes Leutnants\b/g, 'des Statthalters').replace(/\bLeutnants\b/g, 'Statthalter').replace(/\bLeutnant\b/g, 'Statthalter');
     }
 
     // Champ retraduit → nouvelle traduction ; champ inchangé → traduction déjà publiée.
@@ -2790,7 +2790,7 @@ async function translateLivre2(){
   var system = "Tu traduis des fiches d'ouvrages de l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH), Lieutenance pour le Luxembourg, en allemand et en anglais, en conservant le registre solennel."
     +"\n\nCONVENTIONS OESSH :"
     +"\n- DE : « Ritterorden vom Heiligen Grab zu Jerusalem » / EN : « Equestrian Order of the Holy Sepulchre of Jerusalem »"
-    +"\n- DE : Statthalterei Luxemburg (jamais Leutnantschaft) / EN : Lieutenancy for Luxembourg"
+    +"\n- DE : Statthalterei Luxemburg, Statthalter (jamais Leutnant ni Leutnantschaft) / EN : Lieutenancy for Luxembourg"
     +"\n- DE : « das Heilige Land » / EN : « the Holy Land » (majuscules conservées)"
     +"\n- Guillemets DE : „…“ / EN : \"…\""
     +"\n- Tirets : jamais de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-)"
