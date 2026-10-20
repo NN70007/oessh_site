@@ -32,10 +32,10 @@ const iEnv = acc[0].indexOf('Envois');
 ok(iEnv > -1 && acc[1][iEnv] === 'oui', 'colonne Envois créée, l\'administrateur initial y a droit');
 ok(srv.sheets.JournalEnvois, 'onglet JournalEnvois créé');
 // Colonnes Roles et Emails, comme dans la vraie feuille
-acc[0].push('Roles', 'Emails', 'Signature');
+acc[0].push('Roles', 'Emails', 'Signature ');
 acc[1][acc[0].indexOf('Roles')] = 'secretaire';
 acc[1][acc[0].indexOf('Emails')] = 'secretariat@oessh.lu|jb@niedercorn.com';
-acc[1][acc[0].indexOf('Signature')] = 'Dr Jean-Baptiste Niedercorn';
+acc[1][acc[0].indexOf('Signature ')] = 'Dr Jean-Baptiste Niedercorn';
 // Un membre du Conseil sans droit d'envoi
 acc.push(['joris.b@me.com', 'Joris Buyse', '', '', '', '', '', 'oui', '']);
 
@@ -55,6 +55,7 @@ ok(r.ok && r.membres.length === 9, 'les 9 membres du fichier sont lus, les défu
 const G = {}; r.groupes.forEach(g => (G[g.id] = g.ids.length));
 ok(G.lt === 5 && G.candidats === 1 && G.asbl === 1 && G.cognati === 1 && G.malte === 1, 'groupes principaux corrects');
 ok(G.conseil_lt === 3 && G.conseil_asbl === 3, 'conseils corrects');
+ok(r.signataire === 'Dr Jean-Baptiste Niedercorn', 'signature lue à chaque chargement (titre de colonne avec espace toléré)');
 ok(r.casquettes.length === 1 && r.casquettes[0].repondreA === 'secretariat@oessh.lu', 'casquette Secrétaire, réponse vers secretariat@');
 const par = {}; r.membres.forEach(m => (par[m.nom] = m));
 ok(par.KLEIN.appel === 'Excellence,', 'appel : Excellence pour le Lieutenant');

@@ -297,6 +297,11 @@ function emails_(v) {
 }
 function cle_(r) { return emails_(r.Email)[0] || ''; }
 
+/** Colonne facultative « Signature » de l'onglet Acces (titre lu sans tenir compte des majuscules ni des espaces). */
+function colSignature_(r) {
+  for (var k in r) if (String(k).trim().toLowerCase() === 'signature') return String(r[k] || '').trim();
+  return '';
+}
 function userFromRow_(r, loginEmail) {
   var inv = String(r.Investiture || '').toLowerCase().trim();
   var ret = String(r[COL_RETRAITE] || '').toLowerCase().trim();
@@ -320,7 +325,7 @@ function userFromRow_(r, loginEmail) {
     envois: oui_(r[COL_ENVOIS]),
     roles: String(r.Roles || ''),
     // Nom tel qu'il est signé dans le Courrier e-mail (colonne facultative Signature, ex. « Dr Jean-Baptiste Niedercorn »)
-    signature: String(r.Signature || '').trim() || String(r.Nom || ems[0] || ''),
+    signature: colSignature_(r) || String(r.Nom || ems[0] || ''),
     userEmails: String(r.Emails || '')
   };
 }
@@ -912,6 +917,7 @@ function mailCharger_(u) {
     }),
     historique: historique,
     adresses: adressesReponse_(u),
+    signataire: u.signature || u.nom,
     quota: MailApp.getRemainingDailyQuota(),
     essaiA: u.email
   };
