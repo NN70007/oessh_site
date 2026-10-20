@@ -53,7 +53,7 @@ function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter
 function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(",")].join("\u0001"); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-20p";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-20q";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -250,7 +250,7 @@ function dessinerApercu() {
   var c = casq(), m = MEMBRES[$("in-apercu").value];
   if (!c || !m) { $("apercu").innerHTML = '<div class="hint">Choisissez une fonction et des destinataires.</div>'; $("mp-meta").innerHTML = ""; return; }
   var corps = $("in-corps").value.replace(/\r\n?/g, "\n").trim();
-  var avecAppel = corps.indexOf("{appel}") > -1;
+  var avecAppel = corps.indexOf("{appel}") > -1 || /^\s*(Cher|Chère|Chers|Chères|Madame|Monsieur|Mesdames|Messieurs|Mademoiselle|Excellence|Éminence|Monseigneur|Mon Père|Révérend|Bonjour|Bonsoir|Liebe|Lieber|Sehr geehrte|Dear)\b/i.test(corps);   // même règle que le serveur
   corps = corps.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || "").replace(/\{prenom\}/g, m.prenom || "").replace(/\{nom\}/g, m.nom || "");
   if (!avecAppel) corps = m.appel + "\n\n" + corps;
   var paras = corpsHtml(corps);

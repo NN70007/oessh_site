@@ -156,7 +156,7 @@
             <div class="fg">
               <label for="in-corps">Message</label>
               <textarea id="in-corps" maxlength="20000"></textarea>
-              <div class="hint"><code>{appel}</code> et <code>{politesse}</code> sont remplacés pour chaque destinataire par la formule d'appel et la formule de politesse qui conviennent à sa qualité (Excellence, Monsieur l'Abbé, Cher Confrère…). Sans <code>{appel}</code>, la formule d'appel est ajoutée en tête. <code>{prenom}</code> et <code>{nom}</code> sont aussi remplacés. La signature est ajoutée automatiquement.<br>Mise en forme : une ligne commençant par <code>- </code> devient une puce, <code>**texte**</code> s’affiche en gras. Un texte collé depuis un document garde ainsi ses listes et son gras.</div>
+              <div class="hint"><code>{appel}</code> et <code>{politesse}</code> sont remplacés pour chaque destinataire par la formule d'appel et la formule de politesse qui conviennent à sa qualité (Excellence, Monsieur l'Abbé, Cher Confrère…). Sans <code>{appel}</code>, la formule d'appel est ajoutée en tête, sauf si le message commence déjà par la vôtre (« Cher Carlo, »…). <code>{prenom}</code> et <code>{nom}</code> sont aussi remplacés. La signature est ajoutée automatiquement.<br>Mise en forme : une ligne commençant par <code>- </code> devient une puce, <code>**texte**</code> s’affiche en gras. Un texte collé depuis un document garde ainsi ses listes et son gras.</div>
             </div>
             <div class="ce-btns">
               <button type="button" class="btn-l" id="btn-corriger">Corriger l'orthographe</button>
@@ -216,6 +216,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="page-courrier-email.js?v=20261020p"></script>
+<script src="page-courrier-email.js?v=20261020q"></script>
 </body>
 </html>

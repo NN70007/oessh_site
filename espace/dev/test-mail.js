@@ -150,6 +150,16 @@ m = srv.gmails.pop();
 ok(r.ok && /<p[^>]*><strong>Pour le public<\/strong><\/p><ul[^>]*><li[^>]*>Un site en <strong>trois<\/strong> langues\.<\/li><li[^>]*>Les actualités\.<\/li><\/ul>/.test(m.htmlBody), 'puces et gras rendus en HTML');
 ok(m.body.includes('Pour le public\n• Un site en trois langues.') && !m.body.includes('**'), 'version texte : puces « • », sans astérisques');
 
+console.log('Formule d’appel déjà écrite et en-tête téléphone');
+srv.gmails.length = 0;
+srv.post({ action: 'mail.essai', token: tJB, casquette: 'secretaire', objet: 'Programme', corps: 'Cher Carlo,\n\nMerci pour tes propositions.' });
+m = srv.gmails.pop();
+ok(m.body.startsWith('Cher Carlo,') && !m.body.includes('Cher Confrère'), 'formule d’appel déjà écrite : rien n’est ajouté');
+srv.post({ action: 'mail.essai', token: tJB, casquette: 'secretaire', objet: 'Programme', corps: 'Merci pour vos propositions.' });
+m = srv.gmails.pop();
+ok(/^(Cher Confrère|Monsieur|Excellence|Éminence|Monsieur l’Abbé|Chère Consœur|Madame),/.test(m.body), 'sans formule : la formule d’appel est ajoutée');
+ok(m.htmlBody.startsWith('<style>@media only screen and (max-width:480px)') && m.htmlBody.includes('class="oe-img"'), 'en-tête adapté aux téléphones');
+
 console.log('Ménage des pièces jointes');
 const j2 = srv.post({ action: 'mail.joindre', token: tJB, nom: 'Bulletin.pdf', contenu: pdf });
 srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: [j2.id] }));

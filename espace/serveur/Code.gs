@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-20p',
+  VERSION: '2026-10-20q',
   // Pièces jointes du Courrier e-mail : 10 Mo au total, 5 fichiers au plus
   PJ_MAX: 10 * 1024 * 1024,
   PJ_NB_MAX: 5,
@@ -962,9 +962,11 @@ function preparerMail_(u, req) {
   return { casq: casq, objet: objet, corps: corps, pj: pj, empreinte: hash_(casq.code + '|' + casq.repondreA + '|' + objet + '|' + corps + '|' + pj.ids.join(',')).slice(0, 24) };
 }
 
+var APPEL_ECRIT = /^\s*(Cher|Chère|Chers|Chères|Madame|Monsieur|Mesdames|Messieurs|Mademoiselle|Excellence|Éminence|Monseigneur|Mon Père|Révérend|Bonjour|Bonsoir|Liebe|Lieber|Sehr geehrte|Dear)\b/i;
 function personnaliser_(texte, m) {
   var t = texte;
-  var avecAppel = t.indexOf('{appel}') > -1;
+  // Formule d'appel ajoutée en tête seulement si le texte n'a ni {appel} ni sa propre formule (« Cher Carlo, »…).
+  var avecAppel = t.indexOf('{appel}') > -1 || APPEL_ECRIT.test(t);
   t = t.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || politesse_(m.appel)).replace(/\{prenom\}/g, m.prenom || '').replace(/\{nom\}/g, m.nom || '');
   return avecAppel ? t : m.appel + '\n\n' + t;
 }
@@ -980,21 +982,25 @@ function composerMail_(u, P, m) {
   var img = CONFIG.IMAGES_MAIL, lt = P.casq.entite !== 'asbl';
   var paras = corpsHtml_(corps, esc);
   // En-tête : armoiries (Lieutenance) ou croix de Jérusalem (Asbl), puis l'Ordre et l'entité.
-  var embleme = lt ? '<img src="' + img + 'entete-lieutenance.png" width="44" height="56" alt="" style="display:block;border:0">'
-                   : '<img src="' + img + 'entete-asbl.png" width="60" height="56" alt="" style="display:block;border:0">';
+  var embleme = lt ? '<img src="' + img + 'entete-lieutenance.png" width="44" height="56" alt="" class="oe-img" style="display:block;border:0">'
+                   : '<img src="' + img + 'entete-asbl.png" width="60" height="56" alt="" class="oe-img" style="display:block;border:0">';
   // Signature : croix rouge devant le nom pour la Lieutenance, sans croix pour l'Asbl.
   var croix = lt ? '<img src="' + img + 'croix-signature.png" width="16" height="15" alt="" style="vertical-align:-2px;margin-right:6px;border:0">' : '';
-  var html =
-    '<div style="background:#f7f4ee;padding:24px 12px;font-family:Georgia,\'Times New Roman\',serif;color:#1a1a1a">' +
+  var styleMobile = '<style>@media only screen and (max-width:480px){' +
+    '.oe-fond{padding:12px 6px !important}.oe-tete{padding:16px 18px 14px !important}.oe-pad{padding-left:18px !important;padding-right:18px !important}' +
+    '.oe-emb{padding-right:14px !important}.oe-img{width:' + (lt ? 66 : 90) + 'px !important;height:84px !important}' +
+    '.oe-l1,.oe-l2{font-size:16px !important}}</style>';
+  var html = styleMobile +
+    '<div class="oe-fond" style="background:#f7f4ee;padding:24px 12px;font-family:Georgia,\'Times New Roman\',serif;color:#1a1a1a">' +
     '<div style="max-width:640px;margin:0 auto;background:#ffffff;border-top:4px solid #b10103">' +
-    '<div style="padding:16px 28px 14px;border-bottom:1px solid #b08a4f">' +
+    '<div class="oe-tete" style="padding:16px 28px 14px;border-bottom:1px solid #b08a4f">' +
     '<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>' +
-    '<td style="padding-right:18px;vertical-align:middle">' + embleme + '</td>' +
+    '<td class="oe-emb" style="padding-right:18px;vertical-align:middle">' + embleme + '</td>' +
     '<td style="vertical-align:middle;font-family:Georgia,\'Times New Roman\',serif">' +
-    '<div style="font-size:18px;color:#8a0102">Ordre Équestre du Saint-Sépulcre de Jérusalem</div>' +
-    '<div style="font-size:18px;margin-top:2px;color:#1a1a1a">' + esc(P.casq.entiteNom) + '</div></td></tr></table></div>' +
-    '<div style="padding:22px 28px 8px;font-size:16px;line-height:1.55">' + paras + '</div>' +
-    '<div style="padding:6px 28px 24px;font-size:15px;line-height:1.45">' +
+    '<div class="oe-l1" style="font-size:18px;color:#8a0102">Ordre Équestre du Saint-Sépulcre de Jérusalem</div>' +
+    '<div class="oe-l2" style="font-size:18px;margin-top:2px;color:#1a1a1a">' + esc(P.casq.entiteNom) + '</div></td></tr></table></div>' +
+    '<div class="oe-pad" style="padding:22px 28px 8px;font-size:16px;line-height:1.55">' + paras + '</div>' +
+    '<div class="oe-pad" style="padding:6px 28px 24px;font-size:15px;line-height:1.45">' +
     '<div>' + croix + '<strong style="font-weight:bold">' + esc(signataire) + '</strong></div>' +
     '<div>' + esc(P.casq.ligneFonction) + '<br>' + esc(OESSH) + '<br>' +
     '<a href="mailto:' + esc(P.casq.repondreA) + '" style="color:#8a0102;text-decoration:underline">' + esc(P.casq.repondreA) + '</a></div></div>' +
