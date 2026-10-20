@@ -557,7 +557,7 @@
       </div>
     </div>
 
-    <div class="calendar">
+    <div id="calendrier-slot" class="calendar">
       <div class="cal-row" data-date="2025-11-20">
         <div class="date"><span class="month">NOV</span> 20</div>
         <div class="ev">Formation meeting · "By virtue of our commitments…"</div>
@@ -704,6 +704,38 @@
     var dt = new Date(row.getAttribute('data-date'));
     if(dt < today){ row.classList.add('past'); }
   });
+  // Calendrier dynamique — même source que la page française (calendrier.json, fenêtre roulante 12 mois).
+  // En cas d'échec du chargement, la liste écrite dans la page reste affichée.
+  (function(){
+    var slot = document.getElementById('calendrier-slot');
+    if(!slot || !window.fetch) return;
+    var MOIS = {"FEV": "FEB", "AVR": "APR", "MAI": "MAY", "DEC": "DEC", "OCT": "OCT"};
+    function fmtDate(t){ return String(t||'').replace(/[A-ZÉÈ]{3}/g, function(m){ return MOIS[m] || m; }); }
+    var horizon = new Date(today); horizon.setDate(horizon.getDate() + 365);
+    var cutoff = new Date(today); cutoff.setFullYear(cutoff.getFullYear() - 1);
+    fetch('calendrier.json?v=' + Date.now())
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(data){
+        var evs = (data.evenements || []).filter(function(e){
+          if(e.published === false) return false;
+          var d = new Date(e.date_iso);
+          return d >= cutoff && d <= horizon;
+        });
+        if(!evs.length) return;
+        evs.sort(function(a,b){ return a.date_iso < b.date_iso ? -1 : 1; });
+        slot.innerHTML = evs.map(function(e){
+          var titre = (e.titre && (e.titre.en || e.titre.fr)) || '';
+          var lieu  = (e.lieu && (e.lieu.en || e.lieu.fr)) || '';
+          var past  = new Date(e.date_iso) < today ? ' past' : '';
+          return '<div class="cal-row' + past + '" data-date="' + e.date_iso + '">'
+            + '<div class="date">' + fmtDate(e.date_affichee) + '</div>'
+            + '<div class="ev">' + titre + '</div>'
+            + '<div class="where">' + lieu + '</div>'
+            + '</div>';
+        }).join('');
+      })
+      .catch(function(){ /* on garde la liste statique */ });
+  })();
 })();
 </script>
 </main>

@@ -422,9 +422,26 @@
         "en": "Formation and retreat weekend for the postulants"
       },
       "lieu": {
-        "fr": "Maison d'Accueil des Franciscaines · 50, avenue Gaston Diderich · Luxembourg",
-        "de": "Gästehaus der Franziskanerinnen · 50, avenue Gaston Diderich · Luxemburg",
-        "en": "Franciscan Sisters' Guest House · 50, avenue Gaston Diderich · Luxembourg"
+        "fr": "Luxembourg",
+        "de": "Luxemburg",
+        "en": "Luxembourg"
+      }
+    },
+    {
+      "id": "2027-01-10-messe",
+      "date_iso": "2027-01-10",
+      "date_affichee": "JAN 10",
+      "type": "messe",
+      "published": true,
+      "titre": {
+        "fr": "Première messe de l'année",
+        "de": "Erste Messe des Jahres",
+        "en": "First Mass of the year"
+      },
+      "lieu": {
+        "fr": "Chapelle des Sœurs Franciscaines · 50, avenue Gaston Diderich · Luxembourg · 16h00",
+        "de": "Kapelle der Franziskanerinnen · 50, avenue Gaston Diderich · Luxemburg · 16:00 Uhr",
+        "en": "Chapel of the Franciscan Sisters · 50, avenue Gaston Diderich · Luxembourg · 4:00 p.m."
       }
     },
     {
