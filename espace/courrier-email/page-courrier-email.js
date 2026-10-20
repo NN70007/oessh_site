@@ -61,6 +61,7 @@ E.api("mail.charger").then(function (r) {
   dessinerGroupes();
   dessinerHistorique();
   maj();
+  if (D.version !== VERSION_SERVEUR) etat("Le serveur Apps Script n’est pas à jour (version " + (D.version || "ancienne") + ", attendue " + VERSION_SERVEUR + ") : collez le dernier Code.gs, enregistrez, puis Déployer > Gérer les déploiements > Modifier > Nouvelle version.", false);
 }).catch(function (e) {
   if (e && e.code === "session") { location.replace("../?expire=1"); return; }
   $("ce-section").querySelector(".ce-layout").innerHTML = '<div class="notice"><h4>Chargement impossible.</h4><p>' + E.esc(e && e.message || "Erreur inconnue.") + "</p></div>";
