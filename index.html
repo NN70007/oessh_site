@@ -658,7 +658,7 @@
           var lieu  = (e.lieu[lang]  || e.lieu.fr)  || '';
           var past  = new Date(e.date_iso) < today ? ' past' : '';
           return '<div class="cal-row' + past + '" data-date="' + e.date_iso + '">'
-            + '<div class="date">' + e.date_affichee + '</div>'
+            + '<div class="date">' + String(e.date_affichee||'').replace(/[A-ZÉÈÄ]{3}/g, function(m){ return '<span class="month">' + m + '</span>'; }) + '</div>'
             + '<div class="ev">' + titre + '</div>'
             + '<div class="where">' + lieu + '</div>'
             + '</div>';

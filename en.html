@@ -710,7 +710,7 @@
     var slot = document.getElementById('calendrier-slot');
     if(!slot || !window.fetch) return;
     var MOIS = {"FEV": "FEB", "AVR": "APR", "MAI": "MAY", "DEC": "DEC", "OCT": "OCT"};
-    function fmtDate(t){ return String(t||'').replace(/[A-ZÉÈ]{3}/g, function(m){ return MOIS[m] || m; }); }
+    function fmtDate(t){ return String(t||'').replace(/[A-ZÉÈ]{3}/g, function(m){ return '<span class="month">' + (MOIS[m] || m) + '</span>'; }); }
     var horizon = new Date(today); horizon.setDate(horizon.getDate() + 365);
     var cutoff = new Date(today); cutoff.setFullYear(cutoff.getFullYear() - 1);
     fetch('calendrier.json?v=' + Date.now())
