@@ -409,6 +409,40 @@
         "de": "Walferdingen · 11:00 Uhr",
         "en": "Walferdange · 11:00 a.m."
       }
+    },
+    {
+      "id": "2027-01-09-retraite",
+      "date_iso": "2027-01-09",
+      "date_affichee": "JAN 09 → 10",
+      "type": "formation",
+      "published": true,
+      "titre": {
+        "fr": "Week-end de formation et de retraite des impétrants",
+        "de": "Bildungs- und Einkehrwochenende der Postulanten",
+        "en": "Formation and retreat weekend for the postulants"
+      },
+      "lieu": {
+        "fr": "Maison d'Accueil des Franciscaines · 50, avenue Gaston Diderich · Luxembourg",
+        "de": "Gästehaus der Franziskanerinnen · 50, avenue Gaston Diderich · Luxemburg",
+        "en": "Franciscan Sisters' Guest House · 50, avenue Gaston Diderich · Luxembourg"
+      }
+    },
+    {
+      "id": "2027-07-09-investiture",
+      "date_iso": "2027-07-09",
+      "date_affichee": "JUL 09 → 10",
+      "type": "autre",
+      "published": true,
+      "titre": {
+        "fr": "Cérémonies d'investiture · Veillée de prière et adoubements",
+        "de": "Investiturfeierlichkeiten · Gebetsvigil und Ritterschlag",
+        "en": "Investiture ceremonies · Prayer vigil and dubbing"
+      },
+      "lieu": {
+        "fr": "Église Saint-Michel · Luxembourg",
+        "de": "Kirche Saint-Michel · Luxemburg",
+        "en": "Saint-Michel Church · Luxembourg"
+      }
     }
   ]
 }
