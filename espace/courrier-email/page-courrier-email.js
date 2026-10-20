@@ -52,6 +52,7 @@ function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter
 function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim()].join("\u0001"); }
 
 /* ── Chargement ── */
+var VERSION_SERVEUR = "2026-10-20k";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });

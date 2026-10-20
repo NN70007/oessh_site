@@ -26,6 +26,8 @@ var CONFIG = {
   // Courrier e-mail : fichier des membres (Google Sheets « 0_Fichier_Membres_actif ») et adresse d'envoi commune.
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
+  // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
+  VERSION: '2026-10-20k',
   // Images des courriels (en-tête, croix de signature), servies par le site public
   IMAGES_MAIL: 'https://luxembourg.oessh.lu/assets/email/',
   ENVOI_MAX: 200
@@ -918,6 +920,7 @@ function mailCharger_(u) {
     historique: historique,
     adresses: adressesReponse_(u),
     signataire: u.signature || u.nom,
+    version: CONFIG.VERSION,
     quota: MailApp.getRemainingDailyQuota(),
     essaiA: u.email
   };
