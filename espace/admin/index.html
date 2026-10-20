@@ -1292,6 +1292,32 @@ function handlePDF(input, idx){
   reader.readAsDataURL(file);
 }
 
+/** Première et dernière phrase (FR) des articles publiés, pour interdire leur répétition dans le prompt. */
+async function ouverturesRecentes(){
+  try {
+    var data = articlesData;
+    if(!data || !data.articles){
+      var r = await fetch('../../actualites.json?t=' + Date.now(), { cache: 'no-store' });
+      data = await r.json();
+    }
+    var phrase = function(t, derniere){
+      var p = String(t || '').split(/\n+/).map(function(x){ return x.trim(); }).filter(function(x){ return x && !/^Chers Confr/.test(x) && x.length > 40; });
+      if(!p.length) return '';
+      var bloc = derniere ? p[p.length - 1] : p[0];
+      var ph = bloc.match(/[^.!?]+[.!?]/g) || [bloc];
+      return (derniere ? ph[ph.length - 1] : ph[0]).trim().slice(0, 160);
+    };
+    var lignes = [];
+    (data.articles || []).slice(0, 15).forEach(function(a){
+      var fr = a && a.texte && (a.texte.fr || '');
+      var o = phrase(fr, false), c = phrase(fr, true);
+      if(o) lignes.push('  · ouverture : « ' + o + ' »');
+      if(c && c !== o) lignes.push('  · clôture : « ' + c + ' »');
+    });
+    return lignes.length ? lignes.join('\n') : '  (aucun article publié)';
+  } catch(e) { return '  (liste indisponible)'; }
+}
+
 async function generateFR(){
   editingId = null; editOriginal = null; editPDFs = []; // fresh article
   var desc=document.getElementById('desc').value.trim();
@@ -1299,6 +1325,9 @@ async function generateFR(){
   if(!getSettings().claudeKey){ showErr('err1','Clé Claude manquante.'); return; }
   setLoading('load1','btn1',true);
   hideErr('err1');
+
+  // Ouvertures et clôtures des articles publiés, pour que le nouvel article ne les répète pas.
+  var ouvertures = await ouverturesRecentes();
 
   // ── PROMPT STYLE OESSH (issu du skill oessh-style §7) ──────────────────
   var system = [
@@ -1317,10 +1346,14 @@ async function generateFR(){
     'CHAMP LEXICAL À PRIVILÉGIER :',
     '- « engagement », « dévouement », « fidélité », « témoignage », « recueillement », « fraternité »',
     '- « pierres vivantes », « chrétiens de Terre Sainte », « soutien spirituel et matériel »',
-    '- Formules d\'ouverture selon le type :',
-    '  événement heureux → « C\'est dans la joie et le recueillement que… »',
-    '  pèlerinage → « Du [date] au [date], la Lieutenance pour le Luxembourg a pris part à… »',
-    '  in memoriam → « C\'est avec une profonde tristesse que la Lieutenance pour le Luxembourg fait mémoire de… »',
+    '',
+    'OUVERTURE ET CLÔTURE - LIÉES AU SUJET, JAMAIS RÉPÉTITIVES :',
+    '- La première phrase naît du sujet lui-même : le fait concret qui rend cet événement unique (un geste, une parole, une personne, un lieu, une fête liturgique). Elle ne doit pouvoir servir qu\'à cet article.',
+    '- Formules passe-partout INTERDITES en ouverture : « C\'est dans la joie et le recueillement que… », « C\'est avec joie que… », « C\'est dans un esprit de… », « C\'est un moment… », « C\'est un événement… ».',
+    '- Seules exceptions : méditation (salutation « Chers Confrères et Consœurs, Chers Amis de la Terre Sainte, ») et in memoriam (« C\'est avec une profonde tristesse que la Lieutenance pour le Luxembourg fait mémoire de… »).',
+    '- Le dernier paragraphe découle de ce qui précède (pas de vœu générique plaqué).',
+    '- Voici les ouvertures et clôtures des articles déjà publiés. N\'en reprends ni la tournure ni les premiers mots :',
+    ouvertures,
     '',
     'STRUCTURE SELON LE TYPE D\'ARTICLE :',
     '- Événement/investiture/pèlerinage : ouverture contextuelle (date, lieu, contexte spirituel) → chronologie des moments clés → citations de l\'homélie ou du discours → clôture fraternelle',
@@ -1331,7 +1364,7 @@ async function generateFR(){
     'RÈGLES TYPOGRAPHIQUES :',
     '- Guillemets français uniquement : « »',
     '- Tirets : jamais de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-)',
-    '- Dates en toutes lettres dans le corps du texte : « le 15 juin 2026 »',
+    '- Dates : jour et année en chiffres, mois en lettres (« le 15 juin 2026 ») ; jamais l\'année ni le jour écrits en toutes lettres',
     '- Références bibliques entre parenthèses compactes : (Lc 2,11)',
     '- Montants : 50 000 € (avec espace)',
     '- Titres complets à la première mention, abrégés ensuite : « Son Éminence le Cardinal Hollerich » → « le Cardinal Hollerich »',
