@@ -200,7 +200,7 @@ function dessinerApercu() {
   var croix = lt ? '<img class="mp-croix" src="' + img + 'croix-signature.png" width="14" height="13" alt="">' : "";
   var ligne = c.ligneFonction || c.signature;
   $("apercu").innerHTML = '<div class="mp-box"><div class="mp-head">' + embleme + '<div><div class="mp-ordre">Ordre Équestre du Saint-Sépulcre de Jérusalem</div><div class="mp-ent">' + E.esc(c.entiteNom) + "</div></div></div>" +
-    '<div class="mp-body">' + paras + '</div><div class="mp-sig"><div class="mp-nom">' + croix + "<strong>" + E.esc(u.nom) + "</strong></div><div class=\"mp-fn\">" + E.esc(ligne) +
+    '<div class="mp-body">' + paras + '</div><div class="mp-sig"><div class="mp-nom">' + croix + "<strong>" + E.esc(u.signature || u.nom) + "</strong></div><div class=\"mp-fn\">" + E.esc(ligne) +
     "<br>" + E.esc(c.ligneOrdre || "de l’Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)") + "<br><a href=\"mailto:" + E.esc(repondre()) + "\">" + E.esc(repondre()) + "</a></div></div>" +
     '<div class="mp-foot">Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.</div></div>';
 }

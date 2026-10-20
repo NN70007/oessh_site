@@ -319,6 +319,8 @@ function userFromRow_(r, loginEmail) {
     courrier: oui_(r.Courrier),
     envois: oui_(r[COL_ENVOIS]),
     roles: String(r.Roles || ''),
+    // Nom tel qu'il est signé dans le Courrier e-mail (colonne facultative Signature, ex. « Dr Jean-Baptiste Niedercorn »)
+    signature: String(r.Signature || '').trim() || String(r.Nom || ems[0] || ''),
     userEmails: String(r.Emails || '')
   };
 }
@@ -328,6 +330,7 @@ function publicUser_(u) {
     email: u.email,
     emails: u.emails,
     nom: u.nom,
+    signature: u.signature || u.nom,
     inv: u.inv,
     ret: u.ret,
     site: u.site,
@@ -812,7 +815,7 @@ function casquettesDe_(u) {
   var codes = String(u.roles || '').split(/[,;\s]+/).map(function (c) { c = norm_(c); return CASQUETTES_ALIAS[c] || c; }).filter(function (c) { return CASQUETTES[c]; });
   return codes.filter(function (c, i) { return codes.indexOf(c) === i; }).map(function (c) {
     var k = CASQUETTES[c];
-    return { code: c, entite: k.e, titre: k.t, signature: k.s, ligneFonction: ligneFonction_(k), ligneOrdre: ligneOrdre_(k), entiteNom: ENTITES[k.e], expediteur: (k.e === 'asbl' ? u.nom : k.t) + ' - ' + EXPEDITEURS[k.e], repondreA: repondreA_(u, c) };
+    return { code: c, entite: k.e, titre: k.t, signature: k.s, ligneFonction: ligneFonction_(k), ligneOrdre: ligneOrdre_(k), entiteNom: ENTITES[k.e], expediteur: (k.e === 'asbl' ? (u.signature || u.nom) : k.t) + ' - ' + EXPEDITEURS[k.e], repondreA: repondreA_(u, c) };
   });
 }
 /** Ligne de fonction de la signature (modèle du Lieutenant) : « Secrétaire pour le Luxembourg » ; pour l'Asbl : « Secrétaire ». */
@@ -950,7 +953,8 @@ function personnaliser_(texte, m) {
 function composerMail_(u, P, m) {
   var corps = personnaliser_(P.corps, m);
   var OESSH = P.casq.ligneOrdre;
-  var signature = [u.nom, P.casq.ligneFonction, OESSH, P.casq.repondreA];
+  var signataire = u.signature || u.nom;
+  var signature = [signataire, P.casq.ligneFonction, OESSH, P.casq.repondreA];
   var pied = 'Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.';
   var texte = corps + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
@@ -972,7 +976,7 @@ function composerMail_(u, P, m) {
     '<div style="font-size:18px;margin-top:2px;color:#1a1a1a">' + esc(P.casq.entiteNom) + '</div></td></tr></table></div>' +
     '<div style="padding:22px 28px 8px;font-size:16px;line-height:1.55">' + paras + '</div>' +
     '<div style="padding:6px 28px 24px;font-size:15px;line-height:1.45">' +
-    '<div>' + croix + '<strong style="font-weight:bold">' + esc(u.nom) + '</strong></div>' +
+    '<div>' + croix + '<strong style="font-weight:bold">' + esc(signataire) + '</strong></div>' +
     '<div>' + esc(P.casq.ligneFonction) + '<br>' + esc(OESSH) + '<br>' +
     '<a href="mailto:' + esc(P.casq.repondreA) + '" style="color:#8a0102;text-decoration:underline">' + esc(P.casq.repondreA) + '</a></div></div>' +
     '<div style="padding:12px 28px;background:#faf7f0;font-size:12px;color:#6e6e6e;font-family:Arial,sans-serif">' + esc(pied) + '</div>' +

@@ -32,9 +32,10 @@ const iEnv = acc[0].indexOf('Envois');
 ok(iEnv > -1 && acc[1][iEnv] === 'oui', 'colonne Envois créée, l\'administrateur initial y a droit');
 ok(srv.sheets.JournalEnvois, 'onglet JournalEnvois créé');
 // Colonnes Roles et Emails, comme dans la vraie feuille
-acc[0].push('Roles', 'Emails');
+acc[0].push('Roles', 'Emails', 'Signature');
 acc[1][acc[0].indexOf('Roles')] = 'secretaire';
 acc[1][acc[0].indexOf('Emails')] = 'secretariat@oessh.lu|jb@niedercorn.com';
+acc[1][acc[0].indexOf('Signature')] = 'Dr Jean-Baptiste Niedercorn';
 // Un membre du Conseil sans droit d'envoi
 acc.push(['joris.b@me.com', 'Joris Buyse', '', '', '', '', '', 'oui', '']);
 
@@ -82,7 +83,7 @@ let m = srv.gmails.pop();
 ok(r.ok && m.to === 'secretariat@oessh.lu' && m.subject === '[ESSAI] Messe du 9 janvier', 'essai envoyé à l\'auteur');
 ok(m.from === 'envois@oessh.lu' && m.replyTo === 'secretariat@oessh.lu' && m.name === 'Le Secrétaire - Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg', 'expéditeur, nom affiché et Répondre à corrects');
 ok(m.body.startsWith('Excellence,') && m.body.includes('Jean-Baptiste Niedercorn') && m.htmlBody.includes('Excellence,'), 'appel et signature personnalisés');
-ok(m.body.includes('Secrétaire pour le Luxembourg\nde l’Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)\nsecretariat@oessh.lu'), 'signature selon le modèle du Lieutenant');
+ok(m.body.includes('Dr Jean-Baptiste Niedercorn\nSecrétaire pour le Luxembourg\nde l’Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)\nsecretariat@oessh.lu'), 'signature selon le modèle du Lieutenant');
 ok(m.htmlBody.includes('assets/email/entete-lieutenance.png') && m.htmlBody.includes('assets/email/croix-signature.png'), 'Lieutenance : armoiries en en-tête, croix devant le nom');
 ok(!srv.post(Object.assign({}, base, { action: 'mail.envoyer', ids, objet: 'Autre objet' })).ok, 'texte modifié après l\'essai : envoi refusé');
 
