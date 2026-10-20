@@ -27,10 +27,11 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-20m',
+  VERSION: '2026-10-20n',
   // Pièces jointes du Courrier e-mail : 10 Mo au total, 5 fichiers au plus
   PJ_MAX: 10 * 1024 * 1024,
   PJ_NB_MAX: 5,
+  PJ_JOURS: 7,   // pièces jointes jamais envoyées : mises à la corbeille après ce délai
   // Images des courriels (en-tête, croix de signature), servies par le site public
   IMAGES_MAIL: 'https://luxembourg.oessh.lu/assets/email/',
   ENVOI_MAX: 200
@@ -907,6 +908,7 @@ function politesse_(appel) {
 
 function mailCharger_(u) {
   exigerEnvois_(u);
+  nettoyerPJ_();
   var membres = lireMembres_();
   var groupes = GROUPES_ENVOI.map(function (g) {
     return { id: g.id, nom: g.nom, ids: membres.filter(g.f).map(function (m) { return m.id; }) };
@@ -1051,11 +1053,13 @@ function mailEnvoyer_(u, req) {
     try { expedier_(P, m.email, composerMail_(u, P, m), P.objet); envoyes++; }
     catch (e) { erreurs.push((m.prenom ? m.prenom + ' ' : '') + m.nom); }
   });
+  // Pièces jointes envoyées à tous : plus utiles, mises à la corbeille de Drive (gardées en cas d'échec, pour renvoyer).
+  var pjSupprimees = !erreurs.length && P.pj.ids.length ? corbeillePJ_(P.pj.ids) : false;
   var sans = cibles.filter(function (m) { return !m.email; }).map(function (m) { return (m.prenom ? m.prenom + ' ' : '') + m.nom; });
   var groupesTxt = texte_(Array.isArray(req.groupes) ? req.groupes.join(', ') : req.groupes, 200);
   journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: groupesTxt, Nb: String(envoyes), Erreurs: erreurs.join(', '), Type: 'envoi', PJ: P.pj.noms.join(', ') });
   journal_(u.email, 'mail.envoi', P.objet + ' - ' + envoyes + ' destinataire(s)' + (erreurs.length ? ', ' + erreurs.length + ' erreur(s)' : ''));
-  return { ok: true, envoyes: envoyes, erreurs: erreurs, sansCourriel: sans };
+  return { ok: true, envoyes: envoyes, erreurs: erreurs, sansCourriel: sans, pjSupprimees: pjSupprimees };
 }
 
 /* ======================= Courrier e-mail : pièces jointes ======================= */
@@ -1072,6 +1076,20 @@ function dossierPJ_() {
   var d = DriveApp.createFolder('Courrier e-mail - pièces jointes');
   PropertiesService.getScriptProperties().setProperty('PJ_DOSSIER_ID', d.getId());
   return d;
+}
+/** Met à la corbeille les pièces jointes données (récupérables 30 jours dans la corbeille de Drive). */
+function corbeillePJ_(ids) {
+  var ok = true;
+  ids.forEach(function (id) { try { DriveApp.getFileById(id).setTrashed(true); } catch (e) { ok = false; } });
+  return ok;
+}
+/** Pièces jointes déposées mais jamais envoyées : à la corbeille après CONFIG.PJ_JOURS jours. */
+function nettoyerPJ_() {
+  if (!prop_('PJ_DOSSIER_ID')) return;   // aucune pièce jointe encore déposée
+  try {
+    var limite = Date.now() - CONFIG.PJ_JOURS * 24 * 3600 * 1000, it = dossierPJ_().getFiles();
+    while (it.hasNext()) { var f = it.next(); if (f.getDateCreated().getTime() < limite) f.setTrashed(true); }
+  } catch (e) { /* le ménage ne doit jamais empêcher d'ouvrir la page */ }
 }
 /** À lancer une fois depuis l'éditeur Apps Script après la mise à jour : demande l'autorisation Google Drive et crée le dossier. */
 function autoriserPiecesJointes() {
@@ -1107,7 +1125,7 @@ function piecesJointes_(u, ids) {
     var dansDossier = false;
     if (f) { var it = f.getParents(); while (it.hasNext()) { if (it.next().getId() === dossier) dansDossier = true; } }
     var auteur = f ? String(f.getDescription() || '').replace(/^auteur:/, '') : '';
-    if (!f || !dansDossier || mes.indexOf(auteur) < 0) throw refus_('Une pièce jointe est introuvable : retirez-la et joignez-la de nouveau.', 'donnees');
+    if (!f || f.isTrashed() || !dansDossier || mes.indexOf(auteur) < 0) throw refus_('Une pièce jointe est introuvable : retirez-la et joignez-la de nouveau.', 'donnees');
     total += f.getSize();
     out.ids.push(id); out.noms.push(f.getName()); out.blobs.push(f.getBlob());
   });

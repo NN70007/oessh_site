@@ -53,7 +53,7 @@ function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter
 function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(",")].join("\u0001"); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-20m";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-20n";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -234,6 +234,7 @@ $("btn-envoyer").addEventListener("click", function () {
     var txt = "Courriel envoyé à " + r.envoyes + " personne" + (r.envoyes > 1 ? "s" : "") + ".";
     if (r.erreurs && r.erreurs.length) txt += " Échec pour : " + r.erreurs.join(", ") + ".";
     if (r.sansCourriel && r.sansCourriel.length) txt += " À prévenir par la poste : " + r.sansCourriel.join(", ") + ".";
+    if (r.pjSupprimees) { txt += " Pièces jointes retirées du Drive."; PIECES = []; dessinerPieces(); }
     etat(txt, !(r.erreurs && r.erreurs.length));
     essaiOk = "";
     rafraichirHistorique();

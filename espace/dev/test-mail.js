@@ -117,6 +117,7 @@ const mk = srv.gmails.find(x => x.to === 'jacques.klein@pt.lu'), mw = srv.gmails
 ok(r.ok && mk.body.indexOf('Je vous prie d’agréer, Excellence') > -1 && mw.body.indexOf('Monsieur l’Abbé, l’expression de mes sentiments respectueux') > -1 && mk.replyTo === 'jb@niedercorn.com', 'chaque destinataire reçoit sa formule de politesse');
 
 console.log('Pièces jointes');
+let drive_vieux;
 const pdf = Buffer.from('%PDF-1.4 programme').toString('base64');
 let j1 = srv.post({ action: 'mail.joindre', token: tJB, nom: 'Programme.pdf', contenu: pdf });
 ok(j1.ok && j1.id && j1.taille > 0, 'PDF déposé dans le dossier des pièces jointes');
@@ -142,6 +143,20 @@ autre.setDescription('auteur:secretariat@oessh.lu');
 ok(!srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: [autre.getId()] })).ok, 'fichier hors du dossier des pièces jointes refusé');
 const ids6 = [1, 2, 3, 4, 5, 6].map(i => srv.post({ action: 'mail.joindre', token: tJB, nom: 'p' + i + '.pdf', contenu: pdf }).id);
 ok(!srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: ids6 })).ok, 'plus de 5 pièces jointes refusé');
+console.log('Ménage des pièces jointes');
+const j2 = srv.post({ action: 'mail.joindre', token: tJB, nom: 'Bulletin.pdf', contenu: pdf });
+srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: [j2.id] }));
+ok(!srv.drive.fichiers[j2.id].isTrashed(), 'après l’essai, la pièce jointe est gardée');
+r = srv.post(Object.assign({}, base3, { action: 'mail.envoyer', ids: [pk.KLEIN.id], pieces: [j2.id] }));
+ok(r.ok && r.pjSupprimees === true && srv.drive.fichiers[j2.id].isTrashed(), 'après l’envoi réel, la pièce jointe est mise à la corbeille');
+ok(!srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: [j2.id] })).ok, 'une pièce jointe à la corbeille ne peut plus être envoyée');
+drive_vieux = srv.drive; drive_vieux.maintenant = Date.now() - 8 * 24 * 3600 * 1000;
+const vieux = srv.post({ action: 'mail.joindre', token: tJB, nom: 'Oublie.pdf', contenu: pdf });
+drive_vieux.maintenant = 0;
+const recent = srv.post({ action: 'mail.joindre', token: tJB, nom: 'Recent.pdf', contenu: pdf });
+srv.post({ action: 'mail.charger', token: tJB });
+ok(srv.drive.fichiers[vieux.id].isTrashed() && !srv.drive.fichiers[recent.id].isTrashed(), 'fichier jamais envoyé : corbeille après 7 jours, les récents sont gardés');
+
 jr[0][8] = '';
 srv.post(Object.assign({}, base3, { action: 'mail.essai' }));
 ok(jr[0][8] === 'PJ', 'onglet JournalEnvois ancien : colonne PJ ajoutée');

@@ -27,10 +27,12 @@ function charger(opts) {
   function dossier(id, nom) {
     return {
       getId: () => id, getName: () => nom, getUrl: () => 'https://drive.google.com/drive/folders/' + id,
+      getFiles: () => { const l = Object.values(drive.fichiers).filter((f) => f.getParents().next().getId() === id && !f.isTrashed()); let i = 0; return { hasNext: () => i < l.length, next: () => l[i++] }; },
       createFile: (bl) => {
-        const fid = 'f' + (++drive.n); let desc = '';
+        const fid = 'f' + (++drive.n); let desc = '', corbeille = false; const cree = new Date(drive.maintenant || Date.now());
         const f = { getId: () => fid, getName: () => bl.getName(), getSize: () => bl.taille, getBlob: () => bl,
           getDescription: () => desc, setDescription: (d) => { desc = d; },
+          isTrashed: () => corbeille, setTrashed: (v) => { corbeille = !!v; }, getDateCreated: () => cree,
           getParents: () => { let fait = false; return { hasNext: () => !fait, next: () => { fait = true; return drive.dossiers[id]; } }; } };
         drive.fichiers[fid] = f; return f;
       }
