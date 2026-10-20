@@ -37,7 +37,7 @@ function demarrer(port, importPath) {
     }
     if (url.pathname === '/__gmails') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(srv.gmails.map((m) => ({ to: m.to, subject: m.subject, from: m.from, name: m.name, replyTo: m.replyTo, body: m.body }))));
+      res.end(JSON.stringify(srv.gmails.map((m) => ({ to: m.to, subject: m.subject, from: m.from, name: m.name, replyTo: m.replyTo, body: m.body, attachments: (m.attachments || []).map((x) => x.getName()) }))));
       return;
     }
     if (url.pathname === '/__mails') {

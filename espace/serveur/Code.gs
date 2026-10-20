@@ -27,7 +27,10 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-20k',
+  VERSION: '2026-10-20m',
+  // Pièces jointes du Courrier e-mail : 10 Mo au total, 5 fichiers au plus
+  PJ_MAX: 10 * 1024 * 1024,
+  PJ_NB_MAX: 5,
   // Images des courriels (en-tête, croix de signature), servies par le site public
   IMAGES_MAIL: 'https://luxembourg.oessh.lu/assets/email/',
   ENVOI_MAX: 200
@@ -46,7 +49,7 @@ var ONGLETS = {
   RetJalons: ['Date', 'Titre', 'Detail', 'Cle'],
   RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note'],
   RetOrganisation: ['Fonction', 'Nom'],
-  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type']
+  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type', 'PJ']
 };
 // Colonne de droits du Courrier e-mail, ajoutée en fin d'onglet « Acces » par « installer ».
 var COL_ENVOIS = 'Envois';
@@ -111,6 +114,7 @@ function route_(req) {
     case 'mail.charger': return mailCharger_(user);
     case 'mail.essai': return mailEssai_(user, req);
     case 'mail.envoyer': return mailEnvoyer_(user, req);
+    case 'mail.joindre': return mailJoindre_(user, req);
     default: throw refus_('Action inconnue.', 'inconnu');
   }
 }
@@ -808,10 +812,13 @@ var GROUPES_ENVOI = [
 
 function journalEnvoi_(obj) {
   var ss = classeur_(false);
-  if (!ss.getSheetByName('JournalEnvois')) {
-    var sh = ss.insertSheet('JournalEnvois'), head = ONGLETS.JournalEnvois;
+  var head = ONGLETS.JournalEnvois, sh = ss.getSheetByName('JournalEnvois');
+  if (!sh) {
+    sh = ss.insertSheet('JournalEnvois');
     sh.getRange(1, 1, 1, head.length).setValues([head]);
     sh.setFrozenRows(1);
+  } else if (sh.getRange(1, head.length).getValue() !== head[head.length - 1]) {
+    sh.getRange(1, head.length).setValue(head[head.length - 1]);   // colonne PJ ajoutée après coup
   }
   ajouter_('JournalEnvois', obj);
 }
@@ -949,7 +956,8 @@ function preparerMail_(u, req) {
     if (adressesReponse_(u).indexOf(rep) < 0) throw refus_('Cette adresse de réponse ne vous est pas attribuée.', 'donnees');
     casq.repondreA = rep;
   }
-  return { casq: casq, objet: objet, corps: corps, empreinte: hash_(casq.code + '|' + casq.repondreA + '|' + objet + '|' + corps).slice(0, 24) };
+  var pj = piecesJointes_(u, req.pieces);
+  return { casq: casq, objet: objet, corps: corps, pj: pj, empreinte: hash_(casq.code + '|' + casq.repondreA + '|' + objet + '|' + corps + '|' + pj.ids.join(',')).slice(0, 24) };
 }
 
 function personnaliser_(texte, m) {
@@ -998,7 +1006,8 @@ function expedier_(P, to, contenu, objet) {
     from: CONFIG.ENVOI_ALIAS,
     name: P.casq.expediteur,
     replyTo: P.casq.repondreA,
-    htmlBody: contenu.html
+    htmlBody: contenu.html,
+    attachments: P.pj.blobs
   });
 }
 function verifierAlias_() {
@@ -1018,7 +1027,7 @@ function mailEssai_(u, req) {
   var c = composerMail_(u, P, modele);
   expedier_(P, u.email, c, '[ESSAI] ' + P.objet);
   CacheService.getScriptCache().put('essai:' + u.email + ':' + P.empreinte, '1', 6 * 3600);
-  journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: 'essai', Nb: '1', Erreurs: '', Type: 'essai' });
+  journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: 'essai', Nb: '1', Erreurs: '', Type: 'essai', PJ: P.pj.noms.join(', ') });
   return { ok: true, envoyeA: u.email, empreinte: P.empreinte };
 }
 
@@ -1044,9 +1053,66 @@ function mailEnvoyer_(u, req) {
   });
   var sans = cibles.filter(function (m) { return !m.email; }).map(function (m) { return (m.prenom ? m.prenom + ' ' : '') + m.nom; });
   var groupesTxt = texte_(Array.isArray(req.groupes) ? req.groupes.join(', ') : req.groupes, 200);
-  journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: groupesTxt, Nb: String(envoyes), Erreurs: erreurs.join(', '), Type: 'envoi' });
+  journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: groupesTxt, Nb: String(envoyes), Erreurs: erreurs.join(', '), Type: 'envoi', PJ: P.pj.noms.join(', ') });
   journal_(u.email, 'mail.envoi', P.objet + ' - ' + envoyes + ' destinataire(s)' + (erreurs.length ? ', ' + erreurs.length + ' erreur(s)' : ''));
   return { ok: true, envoyes: envoyes, erreurs: erreurs, sansCourriel: sans };
+}
+
+/* ======================= Courrier e-mail : pièces jointes ======================= */
+// Types acceptés, reconnus par l'extension du nom de fichier.
+var PJ_TYPES = {
+  pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png',
+  doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+};
+/** Dossier Drive où sont déposées les pièces jointes (créé au premier usage). */
+function dossierPJ_() {
+  var id = prop_('PJ_DOSSIER_ID');
+  if (id) { try { return DriveApp.getFolderById(id); } catch (e) { /* dossier supprimé : on le recrée */ } }
+  var d = DriveApp.createFolder('Courrier e-mail - pièces jointes');
+  PropertiesService.getScriptProperties().setProperty('PJ_DOSSIER_ID', d.getId());
+  return d;
+}
+/** À lancer une fois depuis l'éditeur Apps Script après la mise à jour : demande l'autorisation Google Drive et crée le dossier. */
+function autoriserPiecesJointes() {
+  var d = dossierPJ_();
+  Logger.log('Dossier des pièces jointes : ' + d.getUrl());
+}
+/** Dépose un fichier envoyé par la page (contenu en base64) ; renvoie son identifiant. */
+function mailJoindre_(u, req) {
+  exigerEnvois_(u);
+  var nom = texte_(req.nom, 150).replace(/[\\\/:*?"<>|]/g, '_');
+  var ext = (nom.match(/\.([A-Za-z0-9]+)$/) || [])[1];
+  var type = ext && PJ_TYPES[ext.toLowerCase()];
+  if (!nom || !type) throw refus_('Type de fichier non accepté : PDF, images (JPG, PNG), Word ou Excel uniquement.', 'donnees');
+  var b64 = String(req.contenu || '');
+  if (!b64 || b64.length > Math.ceil(CONFIG.PJ_MAX / 3) * 4 + 8) throw refus_('Fichier trop lourd : 10 Mo au maximum.', 'donnees');
+  var octets = Utilities.base64Decode(b64);
+  if (!octets.length || octets.length > CONFIG.PJ_MAX) throw refus_('Fichier vide ou trop lourd : 10 Mo au maximum.', 'donnees');
+  var f = dossierPJ_().createFile(Utilities.newBlob(octets, type, nom));
+  f.setDescription('auteur:' + norm_(u.email));
+  return { ok: true, id: f.getId(), nom: nom, taille: octets.length };
+}
+/** Pièces jointes d'un courriel : seulement des fichiers du dossier, déposés par la même personne, 10 Mo au total. */
+function piecesJointes_(u, ids) {
+  ids = (Array.isArray(ids) ? ids : []).map(String).filter(Boolean);
+  ids = ids.filter(function (id, i) { return ids.indexOf(id) === i; });
+  var out = { ids: [], noms: [], blobs: [] };
+  if (!ids.length) return out;
+  if (ids.length > CONFIG.PJ_NB_MAX) throw refus_('Trop de pièces jointes : ' + CONFIG.PJ_NB_MAX + ' au maximum.', 'donnees');
+  var dossier = dossierPJ_().getId(), mes = (u.emails || []).concat([u.email]).map(norm_), total = 0;
+  ids.forEach(function (id) {
+    var f;
+    try { f = DriveApp.getFileById(id); } catch (e) { f = null; }
+    var dansDossier = false;
+    if (f) { var it = f.getParents(); while (it.hasNext()) { if (it.next().getId() === dossier) dansDossier = true; } }
+    var auteur = f ? String(f.getDescription() || '').replace(/^auteur:/, '') : '';
+    if (!f || !dansDossier || mes.indexOf(auteur) < 0) throw refus_('Une pièce jointe est introuvable : retirez-la et joignez-la de nouveau.', 'donnees');
+    total += f.getSize();
+    out.ids.push(id); out.noms.push(f.getName()); out.blobs.push(f.getBlob());
+  });
+  if (total > CONFIG.PJ_MAX) throw refus_('Pièces jointes trop lourdes : 10 Mo au total au maximum.', 'donnees');
+  return out;
 }
 
 /* ======================= Feuille : utilitaires ======================= */

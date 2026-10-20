@@ -45,14 +45,15 @@ var MEMBRES = {};          // id -> membre
 var choisis = {};          // id -> true (destinataires cochés)
 var groupesCoches = {};    // id de groupe -> true
 var essaiOk = "";          // empreinte du texte dont l'essai a été envoyé
+var PIECES = [];           // pièces jointes déposées : { id, nom, taille }
 
 function nomComplet(m) { return (m.prenom ? m.prenom + " " : "") + m.nom; }
 function repondre() { return $("in-repondre").value; }
 function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter(function (x) { return x.code === c; })[0]; }
-function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim()].join("\u0001"); }
+function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(",")].join("\u0001"); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-20k";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-20m";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -177,9 +178,9 @@ function maj() {
   dessinerApercu();
   // Boutons
   var c = casq(), pret = !!(c && $("in-objet").value.trim() && $("in-corps").value.trim());
-  $("btn-essai").disabled = !pret;
+  $("btn-essai").disabled = !pret || pjEnCours > 0;
   var essaiValide = essaiOk && essaiOk === empreinte();
-  $("btn-envoyer").disabled = !(pret && essaiValide && avec > 0);
+  $("btn-envoyer").disabled = !(pret && essaiValide && avec > 0) || pjEnCours > 0;
   $("btn-envoyer").textContent = "Envoyer à " + avec + " personne" + (avec > 1 ? "s" : "");
   $("envoi-aide").textContent = essaiValide ? "Essai fait pour ce texte : vous pouvez envoyer." : "L’envoi réel s’active après un essai du texte exact.";
 }
@@ -196,7 +197,8 @@ function dessinerApercu() {
   if (!avecAppel) corps = m.appel + "\n\n" + corps;
   var paras = corps.split(/\n{2,}/).map(function (p) { return "<p>" + E.esc(p).replace(/\n/g, "<br>") + "</p>"; }).join("");
   $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.expediteur || c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) +
-    "<br><b>Objet :</b> " + E.esc($("in-objet").value.trim() || "(vide)");
+    "<br><b>Objet :</b> " + E.esc($("in-objet").value.trim() || "(vide)") +
+    (PIECES.length ? "<br><b>Pièces jointes :</b> " + E.esc(PIECES.map(function (p) { return p.nom; }).join(", ")) : "");
   var lt = c.entite !== "asbl", img = "../../assets/email/";
   var embleme = '<img class="mp-emb" src="' + img + (lt ? 'entete-lieutenance.png" width="34' : 'entete-asbl.png" width="46') + '" height="43" alt="">';
   var croix = lt ? '<img class="mp-croix" src="' + img + 'croix-signature.png" width="14" height="13" alt="">' : "";
@@ -209,7 +211,7 @@ function dessinerApercu() {
 
 /* ── Essai et envoi ── */
 function etat(txt, ok) { var el = $("etat"); el.textContent = txt; el.className = "etat visible " + (ok ? "ok" : "ko"); }
-function demande() { return { casquette: $("in-casq").value, repondreA: repondre(), objet: $("in-objet").value.trim(), corps: $("in-corps").value }; }
+function demande() { return { casquette: $("in-casq").value, repondreA: repondre(), objet: $("in-objet").value.trim(), corps: $("in-corps").value, pieces: PIECES.map(function (p) { return p.id; }) }; }
 
 $("btn-essai").addEventListener("click", function () {
   var b = this, f = empreinte();
@@ -225,7 +227,7 @@ $("btn-essai").addEventListener("click", function () {
 $("btn-envoyer").addEventListener("click", function () {
   var b = this, c = casq();
   var ids = Object.keys(choisis), avec = ids.filter(function (id) { return !MEMBRES[id].sansCourriel; }).length;
-  if (!confirm("Vous allez envoyer ce courriel à " + avec + " personne" + (avec > 1 ? "s" : "") + ", en qualité de " + c.signature + " (" + c.entiteNom + ").\n\nConfirmer l’envoi ?")) return;
+  if (!confirm("Vous allez envoyer ce courriel à " + avec + " personne" + (avec > 1 ? "s" : "") + ", en qualité de " + c.signature + " (" + c.entiteNom + ")" + (PIECES.length ? ", avec " + PIECES.length + " pièce" + (PIECES.length > 1 ? "s jointes" : " jointe") : "") + ".\n\nConfirmer l’envoi ?")) return;
   var groupes = D.groupes.filter(function (g) { return groupesCoches[g.id]; }).map(function (g) { return g.nom; });
   b.disabled = true; b.textContent = "Envoi en cours…";
   E.api("mail.envoyer", Object.assign(demande(), { ids: ids, groupes: groupes.length ? groupes : ["sélection individuelle"] })).then(function (r) {
@@ -237,6 +239,54 @@ $("btn-envoyer").addEventListener("click", function () {
     rafraichirHistorique();
   }).catch(function (e) { etat(e && e.message || "L’envoi a échoué.", false); })
     .then(function () { maj(); });
+});
+
+/* ── Pièces jointes : déposées sur le serveur dès qu'elles sont choisies ── */
+var PJ_EXT = /\.(pdf|jpe?g|png|docx?|xlsx?)$/i, PJ_MAX = 10 * 1024 * 1024, PJ_NB_MAX = 5;
+var pjEnCours = 0;
+function taille(o) { return o < 1024 * 1024 ? Math.max(1, Math.round(o / 1024)) + " Ko" : (o / 1024 / 1024).toFixed(1).replace(".", ",") + " Mo"; }
+function dessinerPieces() {
+  $("pj-liste").innerHTML = PIECES.map(function (p, i) {
+    return '<li><span class="pj-nom">' + E.esc(p.nom) + '</span><span class="pj-taille">' + taille(p.taille) + '</span>' +
+      '<button type="button" data-retirer="' + i + '" title="Retirer" aria-label="Retirer ' + E.esc(p.nom) + '">×</button></li>';
+  }).join("") + (pjEnCours ? '<li class="encours">Envoi de ' + pjEnCours + " fichier" + (pjEnCours > 1 ? "s" : "") + "…</li>" : "");
+  $("btn-pj").disabled = pjEnCours > 0 || PIECES.length >= PJ_NB_MAX;
+}
+function lireBase64(fichier) {
+  return new Promise(function (ok, ko) {
+    var r = new FileReader();
+    r.onload = function () { ok(String(r.result).split(",")[1] || ""); };
+    r.onerror = function () { ko({ message: "Impossible de lire « " + fichier.name + " »." }); };
+    r.readAsDataURL(fichier);
+  });
+}
+$("btn-pj").addEventListener("click", function () { $("in-pj").click(); });
+$("in-pj").addEventListener("change", function () {
+  var fichiers = Array.prototype.slice.call(this.files || []);
+  this.value = "";
+  var total = PIECES.reduce(function (t, p) { return t + p.taille; }, 0);
+  var refus = [];
+  fichiers = fichiers.filter(function (f) {
+    if (!PJ_EXT.test(f.name)) { refus.push("« " + f.name + " » : type non accepté"); return false; }
+    if (PIECES.length + pjEnCours + 1 > PJ_NB_MAX) { refus.push("« " + f.name + " » : 5 fichiers au maximum"); return false; }
+    if (total + f.size > PJ_MAX) { refus.push("« " + f.name + " » : 10 Mo au total dépassés"); return false; }
+    total += f.size; pjEnCours++;
+    return true;
+  });
+  if (refus.length) etat("Fichier non ajouté : " + refus.join(" ; ") + ".", false);
+  dessinerPieces();
+  fichiers.forEach(function (f) {
+    lireBase64(f).then(function (b64) { return E.api("mail.joindre", { nom: f.name, contenu: b64 }); })
+      .then(function (r) { PIECES.push({ id: r.id, nom: r.nom, taille: r.taille }); })
+      .catch(function (e) { etat(e && e.message || "Le fichier « " + f.name + " » n’a pas pu être joint.", false); })
+      .then(function () { pjEnCours--; dessinerPieces(); maj(); });
+  });
+});
+$("pj-liste").addEventListener("click", function (ev) {
+  var b = ev.target.closest("[data-retirer]");
+  if (!b) return;
+  PIECES.splice(Number(b.dataset.retirer), 1);
+  dessinerPieces(); maj();
 });
 
 /* ── Journal ── */

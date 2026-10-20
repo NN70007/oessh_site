@@ -45,6 +45,16 @@
 #ia-remarques.visible { display: block; }
 #ia-remarques ul { margin: 4px 0 0; padding-left: 18px; }
 
+/* Pièces jointes */
+.pj-liste { list-style: none; margin: 0 0 10px; padding: 0; }
+.pj-liste li { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 3px;
+  margin-bottom: 6px; font-size: 14px; background: var(--bg); }
+.pj-liste .pj-nom { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pj-liste .pj-taille { color: var(--ink-mute); font-size: 12.5px; white-space: nowrap; }
+.pj-liste button { border: 0; background: none; color: var(--ink-mute); font-size: 18px; line-height: 1; cursor: pointer; padding: 0 2px; }
+.pj-liste button:hover { color: var(--cardinal); }
+.pj-liste li.encours { color: var(--ink-mute); font-style: italic; }
+
 /* Destinataires */
 .grp { border: 1px solid var(--line); border-radius: 4px; margin-bottom: 8px; background: var(--bg); }
 .grp-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; }
@@ -151,6 +161,13 @@
               <button type="button" class="btn-l" id="btn-ameliorer">Améliorer selon la charte</button>
             </div>
             <div id="ia-remarques"></div>
+            <div class="fg" id="bloc-pj" style="margin-top:22px">
+              <div class="fl">Pièces jointes</div>
+              <input type="file" id="in-pj" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx" hidden>
+              <ul class="pj-liste" id="pj-liste"></ul>
+              <button type="button" class="btn-l" id="btn-pj">Joindre un fichier</button>
+              <div class="hint">PDF, images (JPG, PNG), Word ou Excel : 5 fichiers et 10 Mo au total au maximum. Pour un fichier plus lourd, mettez plutôt un lien Google Drive dans le message.</div>
+            </div>
           </div>
 
           <!-- Destinataires -->
@@ -197,6 +214,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="page-courrier-email.js?v=20261020k"></script>
+<script src="page-courrier-email.js?v=20261020m"></script>
 </body>
 </html>

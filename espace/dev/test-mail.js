@@ -116,4 +116,34 @@ r = srv.post(Object.assign({}, base2, { action: 'mail.envoyer', ids: [pk.KLEIN.i
 const mk = srv.gmails.find(x => x.to === 'jacques.klein@pt.lu'), mw = srv.gmails.find(x => x.to === 'leon.weber@cathol.lu');
 ok(r.ok && mk.body.indexOf('Je vous prie d’agréer, Excellence') > -1 && mw.body.indexOf('Monsieur l’Abbé, l’expression de mes sentiments respectueux') > -1 && mk.replyTo === 'jb@niedercorn.com', 'chaque destinataire reçoit sa formule de politesse');
 
+console.log('Pièces jointes');
+const pdf = Buffer.from('%PDF-1.4 programme').toString('base64');
+let j1 = srv.post({ action: 'mail.joindre', token: tJB, nom: 'Programme.pdf', contenu: pdf });
+ok(j1.ok && j1.id && j1.taille > 0, 'PDF déposé dans le dossier des pièces jointes');
+ok(!srv.post({ action: 'mail.joindre', token: tJB, nom: 'virus.exe', contenu: pdf }).ok, 'type de fichier non accepté refusé');
+ok(!srv.post({ action: 'mail.joindre', token: tJB, nom: 'lourd.pdf', contenu: Buffer.alloc(10 * 1024 * 1024 + 10).toString('base64') }).ok, 'fichier de plus de 10 Mo refusé');
+ok(!srv.post({ action: 'mail.joindre', token: tJoris, nom: 'a.pdf', contenu: pdf }).ok, 'sans droit Envois : dépôt refusé');
+srv.gmails.length = 0;
+const base3 = { token: tJB, casquette: 'secretaire', objet: 'Programme', corps: '{appel}\n\nVeuillez trouver le programme ci-joint.\n\n{politesse}' };
+r = srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: [j1.id] }));
+m = srv.gmails.pop();
+ok(r.ok && m.attachments && m.attachments.length === 1 && m.attachments[0].getName() === 'Programme.pdf', 'essai envoyé avec la pièce jointe');
+ok(srv.post(Object.assign({}, base3, { action: 'mail.envoyer', ids: [pk.KLEIN.id] })).code === 'essai', 'retirer la pièce jointe après l’essai impose un nouvel essai');
+r = srv.post(Object.assign({}, base3, { action: 'mail.envoyer', ids: [pk.KLEIN.id, pk.WEBER.id], pieces: [j1.id] }));
+ok(r.ok && r.envoyes === 2 && srv.gmails.every(x => x.attachments && x.attachments.length === 1), 'chaque destinataire reçoit la pièce jointe');
+const jr = srv.sheets.JournalEnvois.data;
+ok(jr[0][8] === 'PJ' && jr[jr.length - 1][8] === 'Programme.pdf', 'pièce jointe notée dans le journal');
+ok(!srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: ['inexistant'] })).ok, 'identifiant de fichier inconnu refusé');
+srv.drive.fichiers[j1.id].setDescription('auteur:autre@oessh.lu');
+ok(!srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: [j1.id] })).ok, 'fichier déposé par quelqu’un d’autre refusé');
+srv.drive.fichiers[j1.id].setDescription('auteur:secretariat@oessh.lu');
+const autre = srv.ctx.DriveApp.createFolder('Autre').createFile(srv.ctx.Utilities.newBlob([1, 2], 'application/pdf', 'prive.pdf'));
+autre.setDescription('auteur:secretariat@oessh.lu');
+ok(!srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: [autre.getId()] })).ok, 'fichier hors du dossier des pièces jointes refusé');
+const ids6 = [1, 2, 3, 4, 5, 6].map(i => srv.post({ action: 'mail.joindre', token: tJB, nom: 'p' + i + '.pdf', contenu: pdf }).id);
+ok(!srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: ids6 })).ok, 'plus de 5 pièces jointes refusé');
+jr[0][8] = '';
+srv.post(Object.assign({}, base3, { action: 'mail.essai' }));
+ok(jr[0][8] === 'PJ', 'onglet JournalEnvois ancien : colonne PJ ajoutée');
+
 console.log('\n' + n + ' vérifications réussies.');

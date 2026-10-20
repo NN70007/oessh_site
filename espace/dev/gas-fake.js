@@ -18,6 +18,24 @@ function charger(opts) {
   const github = [];
   const claude = [];
   const gmails = []; // courriels envoyés par GmailApp (Courrier e-mail)
+  // Google Drive simulé (pièces jointes du Courrier e-mail)
+  const drive = { dossiers: {}, fichiers: {}, n: 0 };
+  function blob(bytes, type, name) {
+    const b = Buffer.from(bytes || []);
+    return { getBytes: () => Array.from(b), getContentType: () => type, getName: () => name, getDataAsString: () => b.toString('utf8'), taille: b.length };
+  }
+  function dossier(id, nom) {
+    return {
+      getId: () => id, getName: () => nom, getUrl: () => 'https://drive.google.com/drive/folders/' + id,
+      createFile: (bl) => {
+        const fid = 'f' + (++drive.n); let desc = '';
+        const f = { getId: () => fid, getName: () => bl.getName(), getSize: () => bl.taille, getBlob: () => bl,
+          getDescription: () => desc, setDescription: (d) => { desc = d; },
+          getParents: () => { let fait = false; return { hasNext: () => !fait, next: () => { fait = true; return drive.dossiers[id]; } }; } };
+        drive.fichiers[fid] = f; return f;
+      }
+    };
+  }
   const googleTokens = opts.googleTokens || {}; // idToken -> infos tokeninfo
 
   function makeSheet(name) {
@@ -33,6 +51,8 @@ function charger(opts) {
         nr = nr || 1; nc = nc || 1;
         const rg = {
           setNumberFormat: () => rg,
+          getValue: () => { const row = data[r - 1] || []; return row[c - 1] == null ? '' : row[c - 1]; },
+          setValue: (v) => { while (data.length < r) data.push([]); data[r - 1][c - 1] = v; return rg; },
           setValues: (vals) => {
             for (let i = 0; i < nr; i++) {
               while (data.length < r + i) data.push([]);
@@ -87,6 +107,12 @@ function charger(opts) {
       })
     },
     LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock: () => {} }) },
+    DriveApp: {
+      createFolder: (nom) => { const id = 'd' + (++drive.n); drive.dossiers[id] = dossier(id, nom); return drive.dossiers[id]; },
+      getFolderById: (id) => { if (!drive.dossiers[id]) throw new Error('introuvable'); return drive.dossiers[id]; },
+      getFileById: (id) => { if (!drive.fichiers[id]) throw new Error('introuvable'); return drive.fichiers[id]; }
+    },
+    Logger: { log: () => {} },
     GmailApp: {
       sendEmail: (to, subject, body, o) => { gmails.push(Object.assign({ to, subject, body }, o || {})); },
       getAliases: () => (opts.aliases || ['envois@oessh.lu'])
@@ -129,7 +155,7 @@ function charger(opts) {
     Utilities: {
       DigestAlgorithm: { SHA_256: 'sha256' },
       Charset: { UTF_8: 'utf8' },
-      newBlob: (bytes) => ({ getDataAsString: () => Buffer.from(bytes).toString('utf8') }),
+      newBlob: (bytes, type, name) => blob(bytes, type, name),
       base64Decode: (b64) => Array.from(Buffer.from(b64, 'base64')),
       computeDigest: (alg, s) => Array.from(crypto.createHash('sha256').update(String(s), 'utf8').digest()).map(b => (b > 127 ? b - 256 : b)),
       getUuid: () => crypto.randomUUID(),
@@ -146,7 +172,7 @@ function charger(opts) {
   if (opts.extra) vm.runInContext(opts.extra, ctx, { filename: 'extra.gs' });
 
   return {
-    ctx, sheets, props, cache, mails, github, claude, gmails,
+    ctx, sheets, props, cache, mails, github, claude, gmails, drive,
     run: (fnName) => vm.runInContext(fnName + '()', ctx),
     post: (body) => JSON.parse(ctx.doPost({ postData: { contents: JSON.stringify(body) } }).content),
     lastCode: (email) => {
