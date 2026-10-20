@@ -16,7 +16,9 @@ const MEMBRES = [
   L('Candidat', '', '', '', 'DAUPHIN', 'Michel', 'Monsieur', 'le Candidat', 'mdauphin@pt.lu'),
   L('ASBL', 'Sympathisant', '', '', 'SPAUTZ', 'Jean', 'Monsieur', 'le Président honoraire', ''),
   L('Cognati', 'Deutschland', '', '', 'OTTE', 'Regan', 'Frau', 'Komtur-Dame mit Stern', 'otte@pt.lu'),
-  L('Malte', 'Malte', '', '', 'MORBÉ', 'Jessy', 'Monsieur', '', 'jessy.morbe@malteser.lu')
+  L('Malte', 'Malte', '', '', 'MORBÉ', 'Jessy', 'Monsieur', '', 'jessy.morbe@malteser.lu'),
+  L('Lt', 'Défunt', 1, '', 'ANCIEN', 'Paul', 'Monsieur', 'le Chevalier', 'paul.ancien@pt.lu'),
+  L('ASBL', 'décédée', '', '', 'ANCIENNE', 'Anne', 'Madame', '', 'anne@pt.lu')
 ];
 
 const srv = charger({ membres: MEMBRES });
@@ -48,7 +50,7 @@ ok(!srv.post({ action: 'mail.charger', token: tJoris }).ok, 'sans droit Envois :
 
 console.log('Chargement');
 r = srv.post({ action: 'mail.charger', token: tJB });
-ok(r.ok && r.membres.length === 9, 'les 9 membres du fichier sont lus');
+ok(r.ok && r.membres.length === 9, 'les 9 membres du fichier sont lus, les défunts sont écartés');
 const G = {}; r.groupes.forEach(g => (G[g.id] = g.ids.length));
 ok(G.lt === 5 && G.candidats === 1 && G.asbl === 1 && G.cognati === 1 && G.malte === 1, 'groupes principaux corrects');
 ok(G.conseil_lt === 3 && G.conseil_asbl === 3, 'conseils corrects');

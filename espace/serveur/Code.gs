@@ -843,6 +843,8 @@ function lireMembres_() {
   vals.slice(1).forEach(function (row) {
     var nom = v(row, 'NOM');
     if (!nom) return;
+    // « Défunt » ou « Décédé(e) » dans la 1re ou la 2e colonne : la personne n'est plus proposée à l'envoi.
+    if (/d[ée]funt|d[ée]c[ée]d/i.test(String(row[0] || '') + ' ' + String(row[1] || ''))) return;
     var m = {
       groupe: norm_(row[0]), sousGroupe: String(row[1] || '').trim(),
       conseilLt: oui_(v(row, 'CONSEILLT')), conseilAsbl: oui_(v(row, 'CONSEILASBL')),
