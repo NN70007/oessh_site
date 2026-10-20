@@ -53,7 +53,7 @@ function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter
 function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(",")].join("\u0001"); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-20n";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-20p";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -185,6 +185,64 @@ function maj() {
   $("envoi-aide").textContent = essaiValide ? "Essai fait pour ce texte : vous pouvez envoyer." : "L’envoi réel s’active après un essai du texte exact.";
 }
 ["in-objet", "in-corps"].forEach(function (id) { $(id).addEventListener("input", maj); });
+
+/* ── Mise en forme légère : « - » en début de ligne = puce, **texte** = gras (même règle que le serveur) ── */
+function corpsHtml(corps) {
+  var gras = function (t) { return E.esc(t).replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>"); };
+  return corps.split(/\n{2,}/).map(function (bloc) {
+    var out = "", para = [], liste = [];
+    var finPara = function () { if (para.length) { out += "<p>" + para.map(gras).join("<br>") + "</p>"; para = []; } };
+    var finListe = function () { if (liste.length) { out += "<ul>" + liste.map(function (l) { return "<li>" + gras(l) + "</li>"; }).join("") + "</ul>"; liste = []; } };
+    bloc.split("\n").forEach(function (l) {
+      var m = l.match(/^\s*[-•]\s+(.*)$/);
+      if (m) { finPara(); liste.push(m[1]); } else { finListe(); para.push(l); }
+    });
+    finPara(); finListe();
+    return out;
+  }).join("");
+}
+/* Collage depuis un document (Claude, Word, Google Docs, page web) : listes et gras convertis en « - » et **…** */
+function htmlVersTexte(html) {
+  var doc = new DOMParser().parseFromString(html, "text/html");
+  var estGras = function (n) {
+    var fw = n.style && n.style.fontWeight;
+    if (fw) return fw === "bold" || fw === "bolder" || Number(fw) >= 600;
+    return /^(B|STRONG)$/.test(n.tagName) || /^H[1-6]$/.test(n.tagName);
+  };
+  // Texte d'un nœud ; dansLi : un paragraphe dans un élément de liste ne crée pas de ligne vide.
+  function texte(n, dejaGras, dansLi) {
+    if (n.nodeType === 3) return n.nodeValue.replace(/\s+/g, " ");
+    if (n.nodeType !== 1 || /^(SCRIPT|STYLE|META|TITLE|HEAD)$/.test(n.tagName)) return "";
+    var t = n.tagName;
+    if (t === "BR") return "\n";
+    var g = !dejaGras && estGras(n);
+    var li = t === "LI";
+    var dedans = Array.prototype.map.call(n.childNodes, function (c) { return texte(c, dejaGras || g, dansLi || li); }).join("");
+    if (g) {   // gras ligne par ligne, espaces laissés hors des astérisques
+      dedans = dedans.split("\n").map(function (l) {
+        var m = l.match(/^(\s*)([\s\S]*?)(\s*)$/);
+        return m[2] ? m[1] + "**" + m[2] + "**" + m[3] : l;
+      }).join("\n");
+    }
+    if (li) return "\n- " + dedans.replace(/\n+/g, " ").trim() + "\n";
+    if (/^(P|DIV|H[1-6]|UL|OL|TABLE|TR|BLOCKQUOTE|SECTION|ARTICLE)$/.test(t)) return dansLi ? " " + dedans + " " : "\n\n" + dedans + "\n\n";
+    return dedans;
+  }
+  return texte(doc.body, false, false)
+    .replace(/ /g, " ").replace(/[–—]/g, "-")
+    .replace(/[ \t]+\n/g, "\n").replace(/\n[ \t]+/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/(\n- [^\n]*)\n\n(?=- )/g, "$1\n")     // pas de ligne vide entre deux puces
+    .trim();
+}
+$("in-corps").addEventListener("paste", function (ev) {
+  var html = ev.clipboardData && ev.clipboardData.getData("text/html");
+  if (!html || !/<(li|b|strong|h[1-6])\b|font-weight/i.test(html)) return;   // texte simple : collage normal
+  ev.preventDefault();
+  var texte = htmlVersTexte(html);
+  this.setRangeText(texte, this.selectionStart, this.selectionEnd, "end");
+  maj();
+});
 $("in-apercu").addEventListener("change", dessinerApercu);
 $("in-repondre").addEventListener("change", maj);
 
@@ -195,7 +253,7 @@ function dessinerApercu() {
   var avecAppel = corps.indexOf("{appel}") > -1;
   corps = corps.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || "").replace(/\{prenom\}/g, m.prenom || "").replace(/\{nom\}/g, m.nom || "");
   if (!avecAppel) corps = m.appel + "\n\n" + corps;
-  var paras = corps.split(/\n{2,}/).map(function (p) { return "<p>" + E.esc(p).replace(/\n/g, "<br>") + "</p>"; }).join("");
+  var paras = corpsHtml(corps);
   $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.expediteur || c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) +
     "<br><b>Objet :</b> " + E.esc($("in-objet").value.trim() || "(vide)") +
     (PIECES.length ? "<br><b>Pièces jointes :</b> " + E.esc(PIECES.map(function (p) { return p.nom; }).join(", ")) : "");
@@ -309,7 +367,8 @@ var CHARTE = "Règles de la Lieutenance : sigle OESSH ; « Lieutenance pour le L
   "guillemets « » et apostrophes courbes ; JAMAIS de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-) ; pas d’anglicismes ni de superlatifs ; registre digne et fraternel. " +
   "Le message commence par la ligne {appel} et se termine par la ligne {politesse}, à laisser tels quels : ils sont remplacés pour chaque destinataire par la formule d’appel et la formule de politesse qui correspondent à sa qualité (Excellence, Monsieur l’Abbé, Cher Confrère, Madame…). " +
   "N’écris donc AUCUNE formule d’appel ni AUCUNE formule de politesse toi-même, et jamais de choix entre crochets comme [Chevalier / Dame] ; si le texte contient déjà une formule de politesse, remplace-la par {politesse}. Ne mets ni signature ni nom à la fin ; " +
-  "laisse intactes les mentions entre crochets [..] qui restent à compléter, et vérifie que les jours de la semaine correspondent aux dates.";
+  "laisse intactes les mentions entre crochets [..] qui restent à compléter, et vérifie que les jours de la semaine correspondent aux dates. " +
+  "Mise en forme : garde les listes (lignes commençant par « - ») et le gras écrit **ainsi** ; n’utilise aucune autre mise en forme (pas de titres #, pas d’italique).";
 var SORTIE = "\nRéponds UNIQUEMENT dans ce format :\n###OBJET###\n(objet)\n###CORPS###\n(message)\n###REMARQUES###\n(remarques pour l’auteur, une par ligne, ou rien)\n###FIN###";
 
 function ia(mode) {

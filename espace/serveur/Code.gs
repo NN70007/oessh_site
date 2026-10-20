@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-20n',
+  VERSION: '2026-10-20p',
   // Pièces jointes du Courrier e-mail : 10 Mo au total, 5 fichiers au plus
   PJ_MAX: 10 * 1024 * 1024,
   PJ_NB_MAX: 5,
@@ -975,10 +975,10 @@ function composerMail_(u, P, m) {
   var signataire = u.signature || u.nom;
   var signature = [signataire, P.casq.ligneFonction, OESSH, P.casq.repondreA];
   var pied = 'Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.';
-  var texte = corps + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
+  var texte = texteBrut_(corps) + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   var img = CONFIG.IMAGES_MAIL, lt = P.casq.entite !== 'asbl';
-  var paras = corps.split(/\n{2,}/).map(function (p) { return '<p style="margin:0 0 14px">' + esc(p).replace(/\n/g, '<br>') + '</p>'; }).join('');
+  var paras = corpsHtml_(corps, esc);
   // En-tête : armoiries (Lieutenance) ou croix de Jérusalem (Asbl), puis l'Ordre et l'entité.
   var embleme = lt ? '<img src="' + img + 'entete-lieutenance.png" width="44" height="56" alt="" style="display:block;border:0">'
                    : '<img src="' + img + 'entete-asbl.png" width="60" height="56" alt="" style="display:block;border:0">';
@@ -1002,6 +1002,24 @@ function composerMail_(u, P, m) {
     '</div></div>';
   return { texte: texte, html: html };
 }
+
+/** Mise en forme légère du message : lignes commençant par « - » ou « • » = liste à puces, **texte** = gras. */
+function corpsHtml_(corps, esc) {
+  var gras = function (t) { return esc(t).replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>'); };
+  return corps.split(/\n{2,}/).map(function (bloc) {
+    var out = '', para = [], liste = [];
+    var finPara = function () { if (para.length) { out += '<p style="margin:0 0 14px">' + para.map(gras).join('<br>') + '</p>'; para = []; } };
+    var finListe = function () { if (liste.length) { out += '<ul style="margin:0 0 14px;padding-left:24px">' + liste.map(function (l) { return '<li style="margin:0 0 6px">' + gras(l) + '</li>'; }).join('') + '</ul>'; liste = []; } };
+    bloc.split('\n').forEach(function (l) {
+      var m = l.match(/^\s*[-•]\s+(.*)$/);
+      if (m) { finPara(); liste.push(m[1]); } else { finListe(); para.push(l); }
+    });
+    finPara(); finListe();
+    return out;
+  }).join('');
+}
+/** Version texte (messageries sans HTML) : gras retiré, puces « • ». */
+function texteBrut_(corps) { return corps.replace(/\*\*([^*\n]+?)\*\*/g, '$1').replace(/^(\s*)[-•]\s+/gm, '$1• '); }
 
 function expedier_(P, to, contenu, objet) {
   GmailApp.sendEmail(to, objet, contenu.texte, {

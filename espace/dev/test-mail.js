@@ -143,6 +143,13 @@ autre.setDescription('auteur:secretariat@oessh.lu');
 ok(!srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: [autre.getId()] })).ok, 'fichier hors du dossier des pièces jointes refusé');
 const ids6 = [1, 2, 3, 4, 5, 6].map(i => srv.post({ action: 'mail.joindre', token: tJB, nom: 'p' + i + '.pdf', contenu: pdf }).id);
 ok(!srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: ids6 })).ok, 'plus de 5 pièces jointes refusé');
+console.log('Mise en forme');
+srv.gmails.length = 0;
+r = srv.post({ action: 'mail.essai', token: tJB, casquette: 'secretaire', objet: 'Outil', corps: '{appel}\n\n**Pour le public**\n- Un site en **trois** langues.\n- Les actualités.\n\n{politesse}' });
+m = srv.gmails.pop();
+ok(r.ok && /<p[^>]*><strong>Pour le public<\/strong><\/p><ul[^>]*><li[^>]*>Un site en <strong>trois<\/strong> langues\.<\/li><li[^>]*>Les actualités\.<\/li><\/ul>/.test(m.htmlBody), 'puces et gras rendus en HTML');
+ok(m.body.includes('Pour le public\n• Un site en trois langues.') && !m.body.includes('**'), 'version texte : puces « • », sans astérisques');
+
 console.log('Ménage des pièces jointes');
 const j2 = srv.post({ action: 'mail.joindre', token: tJB, nom: 'Bulletin.pdf', contenu: pdf });
 srv.post(Object.assign({}, base3, { action: 'mail.essai', pieces: [j2.id] }));

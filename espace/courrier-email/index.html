@@ -86,6 +86,8 @@
 .mail-prev .mp-ent { font-size: 15px; margin-top: 1px; }
 .mail-prev .mp-body { padding: 14px 18px 4px; font-size: 14px; line-height: 1.55; }
 .mail-prev .mp-body p { margin: 0 0 11px; }
+.mail-prev .mp-body ul { margin: 0 0 11px; padding-left: 20px; }
+.mail-prev .mp-body li { margin: 0 0 4px; }
 .mail-prev .mp-sig { padding: 2px 18px 14px; font-size: 13.5px; line-height: 1.45; }
 .mail-prev .mp-nom { }
 .mail-prev .mp-nom strong { font-weight: bold; }
@@ -154,7 +156,7 @@
             <div class="fg">
               <label for="in-corps">Message</label>
               <textarea id="in-corps" maxlength="20000"></textarea>
-              <div class="hint"><code>{appel}</code> et <code>{politesse}</code> sont remplacés pour chaque destinataire par la formule d'appel et la formule de politesse qui conviennent à sa qualité (Excellence, Monsieur l'Abbé, Cher Confrère…). Sans <code>{appel}</code>, la formule d'appel est ajoutée en tête. <code>{prenom}</code> et <code>{nom}</code> sont aussi remplacés. La signature est ajoutée automatiquement.</div>
+              <div class="hint"><code>{appel}</code> et <code>{politesse}</code> sont remplacés pour chaque destinataire par la formule d'appel et la formule de politesse qui conviennent à sa qualité (Excellence, Monsieur l'Abbé, Cher Confrère…). Sans <code>{appel}</code>, la formule d'appel est ajoutée en tête. <code>{prenom}</code> et <code>{nom}</code> sont aussi remplacés. La signature est ajoutée automatiquement.<br>Mise en forme : une ligne commençant par <code>- </code> devient une puce, <code>**texte**</code> s’affiche en gras. Un texte collé depuis un document garde ainsi ses listes et son gras.</div>
             </div>
             <div class="ce-btns">
               <button type="button" class="btn-l" id="btn-corriger">Corriger l'orthographe</button>
@@ -214,6 +216,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="page-courrier-email.js?v=20261020n"></script>
+<script src="page-courrier-email.js?v=20261020p"></script>
 </body>
 </html>
