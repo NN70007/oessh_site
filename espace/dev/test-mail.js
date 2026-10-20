@@ -62,8 +62,8 @@ ok(par.DAUPHIN.appel === 'Monsieur,' && par.OTTE.appel === 'Chère Consœur,', '
 ok(par.SPAUTZ.sansCourriel === true, 'personne sans courriel signalée');
 ok(!JSON.stringify(r.membres).includes('@'), 'aucune adresse e-mail des membres envoyée au navigateur');
 
-const asbl = srv.run('(() => casquettesDe_({ roles: "secretaire_asbl", emails: [] })[0])');
-ok(asbl.expediteur === 'Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg, a.s.b.l. - Le Secrétaire', 'Asbl : expéditeur sous la dénomination officielle');
+const asbl = srv.run('(() => casquettesDe_({ nom: "Serge de Cillia", roles: "secretaire_asbl", emails: [] })[0])');
+ok(asbl.expediteur === 'Serge de Cillia - Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg, a.s.b.l.', 'Asbl : expéditeur sous la dénomination officielle');
 ok(asbl.ligneFonction === 'Secrétaire' && asbl.ligneOrdre === 'Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg, a.s.b.l.', 'Asbl : signature avec la fonction seule puis la dénomination officielle');
 
 console.log('Garde-fous');
@@ -78,7 +78,7 @@ console.log('Essai');
 r = srv.post(Object.assign({}, base, { action: 'mail.essai', apercu: par.KLEIN.id }));
 let m = srv.gmails.pop();
 ok(r.ok && m.to === 'secretariat@oessh.lu' && m.subject === '[ESSAI] Messe du 9 janvier', 'essai envoyé à l\'auteur');
-ok(m.from === 'envois@oessh.lu' && m.replyTo === 'secretariat@oessh.lu' && m.name === 'OESSH, Lieutenance pour le Luxembourg - Le Secrétaire', 'expéditeur, nom affiché et Répondre à corrects');
+ok(m.from === 'envois@oessh.lu' && m.replyTo === 'secretariat@oessh.lu' && m.name === 'Le Secrétaire - Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg', 'expéditeur, nom affiché et Répondre à corrects');
 ok(m.body.startsWith('Excellence,') && m.body.includes('Jean-Baptiste Niedercorn') && m.htmlBody.includes('Excellence,'), 'appel et signature personnalisés');
 ok(m.body.includes('Secrétaire pour le Luxembourg\nde l’Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)\nsecretariat@oessh.lu'), 'signature selon le modèle du Lieutenant');
 ok(m.htmlBody.includes('assets/email/entete-lieutenance.png') && m.htmlBody.includes('assets/email/croix-signature.png'), 'Lieutenance : armoiries en en-tête, croix devant le nom');
