@@ -683,6 +683,48 @@ function pubGithub_(u, methode, chemin, corps) {
   return { ok: true, status: code, data: data };
 }
 
+/* ---------- Guide de style OESSH : modules lus dans le Drive, mis en cache chez Anthropic ----------
+   Dossier « Modules lus par le site » (Drive de Jean-Baptiste, partagé en lecture avec ce compte).
+   Le fichier lu est celui dont le nom commence par « Style OESSH - modules - vN » avec le plus grand N.
+   Une nouvelle version du style = un nouveau fichier vN+1 dans ce dossier (les anciennes restent comme historique). */
+var STYLE_DOSSIER_DEFAUT = '1tUwF3dtK7JJJfMfvILfmIyR9FRabm9D1';
+var STYLE_FICHIER_RE = /^Style OESSH - modules - v(\d+)\b/;
+// Par tâche : modules du guide (toujours dans l'ordre 1 → 2 → 3 → 4) et modèle Claude.
+var TACHES_CLAUDE = {
+  'article':            { modules: [1, 2],    modele: 'claude-sonnet-5-5' },
+  'article-pdf':        { modules: [1, 3],    modele: 'claude-haiku-5-5' },
+  'article-traduction': { modules: [1, 3],    modele: 'claude-haiku-5-5' },
+  'lecture':            { modules: [1, 2],    modele: 'claude-sonnet-5-5' },
+  'lecture-traduction': { modules: [1, 3],    modele: 'claude-haiku-5-5' },
+  'calendrier':         { modules: [1, 3],    modele: 'claude-haiku-5-5' },
+  'courrier-corriger':  { modules: [1],       modele: 'claude-haiku-5-5' },
+  'courrier-ameliorer': { modules: [1, 4],    modele: 'claude-sonnet-5-5' },
+  'courrier-traduire':  { modules: [1, 3, 4], modele: 'claude-sonnet-5-5' }
+};
+
+function styleModules_() {
+  var cache = CacheService.getScriptCache(), c = cache.get('style:modules');
+  if (c) { try { return JSON.parse(c); } catch (e) { /* relu ci-dessous */ } }
+  var dossier;
+  try { dossier = DriveApp.getFolderById(prop_('STYLE_DOSSIER_ID') || STYLE_DOSSIER_DEFAUT); }
+  catch (e) { throw refus_("Le guide de style OESSH est inaccessible (dossier Drive non partagé avec ce compte ?).", 'config'); }
+  var it = dossier.getFiles(), choisi = null, version = -1;
+  while (it.hasNext()) {
+    var f = it.next(), m = String(f.getName()).match(STYLE_FICHIER_RE);
+    if (m && !f.isTrashed() && Number(m[1]) > version) { version = Number(m[1]); choisi = f; }
+  }
+  if (!choisi) throw refus_('Le guide de style OESSH est introuvable dans le dossier Drive.', 'config');
+  var txt = choisi.getBlob().getDataAsString('UTF-8').replace(/\r\n/g, '\n'), modules = {};
+  txt.split(/^(?=# MODULE \d)/m).forEach(function (p) {
+    var m = p.match(/^# MODULE (\d)/);
+    if (m) modules[m[1]] = p.replace(/\s+$/, '');
+  });
+  if (!modules['1']) throw refus_('Le guide de style OESSH est mal formé (module 1 absent).', 'config');
+  var out = { version: version, modules: modules };
+  try { cache.put('style:modules', JSON.stringify(out), 600); } catch (e) { /* trop gros pour le cache : relu à chaque appel */ }
+  return out;
+}
+
 function pubClaude_(u, corps) {
   // Rédaction assistée : éditeurs du site et utilisateurs de l'outil courrier
   if (!aUnDroitSite_(u) && !u.courrier && !u.envois) throw refus_("Vous n'avez pas accès à la rédaction assistée.", 'droits');
@@ -697,7 +739,23 @@ function pubClaude_(u, corps) {
   }).slice(0, 20);
   if (!messages.length) throw refus_('Demande vide.', 'donnees');
   var body = { model: prop_('CLAUDE_MODEL') || 'claude-sonnet-4-6', max_tokens: Math.min(Math.max(Number(corps.max_tokens) || 2000, 1), 8000), messages: messages };
-  if (typeof corps.system === 'string') body.system = corps.system.slice(0, 50000);
+  var consignes = typeof corps.system === 'string' ? corps.system.slice(0, 50000) : '';
+  var tache = TACHES_CLAUDE.hasOwnProperty(String(corps.tache || '')) ? TACHES_CLAUDE[corps.tache] : null;
+  if (tache) {
+    // Guide de style OESSH (modules du Drive) en tête, mis en cache chez Anthropic ; consignes de la tâche ensuite.
+    var style = styleModules_(), blocs = [];
+    tache.modules.forEach(function (n) {
+      if (!style.modules[n]) throw refus_('Le style OESSH est incomplet (module ' + n + ' absent).', 'config');
+      blocs.push({ type: 'text', text: style.modules[n] });
+    });
+    blocs[0].cache_control = { type: 'ephemeral' };
+    blocs[blocs.length - 1].cache_control = { type: 'ephemeral' };
+    if (consignes) blocs.push({ type: 'text', text: consignes });
+    body.system = blocs;
+    body.model = prop_('CLAUDE_MODELE_' + String(corps.tache).toUpperCase().replace(/-/g, '_')) || tache.modele;
+  } else if (consignes) {
+    body.system = consignes;
+  }
   var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
     method: 'post', contentType: 'application/json', muteHttpExceptions: true,
     headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' },

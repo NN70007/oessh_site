@@ -1240,12 +1240,12 @@ function goStep(n){
 }
 
 // ── Claude API call ───────────────────────────────
-async function claudeCall(system, user, maxTokens){
+async function claudeCall(system, user, maxTokens, tache){
   var s=getSettings();
   var resp=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':s.claudeKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTokens||2000,system:system,messages:[{role:'user',content:user}]})
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTokens||2000,system:system,messages:[{role:'user',content:user}],tache:tache||''})
   });
   var data=await resp.json();
   if(data.error) throw new Error(data.error.message);
@@ -1329,57 +1329,14 @@ async function generateFR(){
   // Ouvertures et clôtures des articles publiés, pour que le nouvel article ne les répète pas.
   var ouvertures = await ouverturesRecentes();
 
-  // ── PROMPT STYLE OESSH (issu du skill oessh-style §7) ──────────────────
+  // ── CONSIGNES DE LA TÂCHE (le guide de style OESSH est ajouté par le serveur) ──
   var system = [
     'Tu rédiges un article pour la newsletter et le site de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem, Lieutenance pour le Luxembourg.',
     '',
-    'TON : solennel et chaleureux, français soutenu, jamais bureaucratique ni familier.',
-    'La Lieutenance parle à la première personne du pluriel (« notre Lieutenance », « nous »).',
+    'Le guide de style OESSH (tronc commun et règles des articles) est fourni ci-dessus : applique-le strictement.',
     '',
-    'VOCABULAIRE OBLIGATOIRE :',
-    '- « Chevaliers et Dames » (majuscules, toujours ensemble)',
-    '- « Terre Sainte » (majuscules)',
-    '- « confrères et consœurs » pour désigner les membres',
-    '- Titres ecclésiastiques complets à la première mention (ex : Son Éminence le Cardinal Grand Maître Fernando Filoni)',
-    '- « le Cardinal Grand Maître », « la Lieutenance pour le Luxembourg », « le Patriarcat latin de Jérusalem »',
-    '',
-    'CHAMP LEXICAL À PRIVILÉGIER :',
-    '- « engagement », « dévouement », « fidélité », « témoignage », « recueillement », « fraternité »',
-    '- « pierres vivantes », « chrétiens de Terre Sainte », « soutien spirituel et matériel »',
-    '',
-    'OUVERTURE ET CLÔTURE - LIÉES AU SUJET, JAMAIS RÉPÉTITIVES :',
-    '- La première phrase naît du sujet lui-même : le fait concret qui rend cet événement unique (un geste, une parole, une personne, un lieu, une fête liturgique). Elle ne doit pouvoir servir qu\'à cet article.',
-    '- Formules passe-partout INTERDITES en ouverture : « C\'est dans la joie et le recueillement que… », « C\'est avec joie que… », « C\'est dans un esprit de… », « C\'est un moment… », « C\'est un événement… ».',
-    '- Seules exceptions : méditation (salutation « Chers Confrères et Consœurs, Chers Amis de la Terre Sainte, ») et in memoriam (« C\'est avec une profonde tristesse que la Lieutenance pour le Luxembourg fait mémoire de… »).',
-    '- Le dernier paragraphe découle de ce qui précède (pas de vœu générique plaqué).',
-    '- Voici les ouvertures et clôtures des articles déjà publiés. N\'en reprends ni la tournure ni les premiers mots :',
+    'Ouvertures et clôtures des articles déjà publiés. N\'en reprends ni la tournure ni les premiers mots :',
     ouvertures,
-    '',
-    'STRUCTURE SELON LE TYPE D\'ARTICLE :',
-    '- Événement/investiture/pèlerinage : ouverture contextuelle (date, lieu, contexte spirituel) → chronologie des moments clés → citations de l\'homélie ou du discours → clôture fraternelle',
-    '- Méditation/message spirituel : salutation « Chers Confrères et Consœurs, Chers Amis de la Terre Sainte, » → ancrage dans le temps liturgique → lien avec la mission de l\'Ordre → appel → signature (prénom Nom + titre)',
-    '- In memoriam : annonce (« C\'est avec une profonde tristesse… ») → biographie condensée (adoubement, grade, rôle) → qualités humaines → condoléances → « Requiescat in pace. »',
-    '- Projet humanitaire : contexte géographique et institution bénéficiaire → objectifs chiffrés → financement → appel aux dons (IBAN si fourni)',
-    '',
-    'RÈGLES TYPOGRAPHIQUES :',
-    '- Guillemets français uniquement : « »',
-    '- Tirets : jamais de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-)',
-    '- Dates : jour et année en chiffres, mois en lettres (« le 15 juin 2026 ») ; jamais l\'année ni le jour écrits en toutes lettres',
-    '- Références bibliques entre parenthèses compactes : (Lc 2,11)',
-    '- Montants : 50 000 € (avec espace)',
-    '- Titres complets à la première mention, abrégés ensuite : « Son Éminence le Cardinal Hollerich » → « le Cardinal Hollerich »',
-    '',
-    'INTERDICTIONS :',
-    '- Pas de superlatifs marketing (« incroyable », « exceptionnel » à outrance)',
-    '- Pas d\'anglicismes ni de jargon managérial',
-    '- Pas de bullet points dans le récit narratif (uniquement pour projets humanitaires et listes factuelles)',
-    '- Ne pas commencer l\'article par le nom complet de l\'Ordre — commencer par le contexte',
-    '- Pas de répétition du même mot dans le même paragraphe',
-    '',
-    'DIMENSION LUXEMBOURGEOISE (si pertinent) :',
-    '- Notre-Dame Consolatrice des Affligés (Tréischterin am Leed), Saint Willibrord',
-    '- La Maison Grand-Ducale (S.A.R. le Grand-Duc Guillaume)',
-    '- Lieux : cathédrale de Luxembourg, église Saint-Michel, Manternach, Walferdange, Grevenmacher',
     '',
     'Réponds UNIQUEMENT en français avec ce format exact (balises ###CHAMP### et ###FIN###) :',
     '',
@@ -1425,7 +1382,7 @@ async function generateFR(){
   // ── FIN PROMPT STYLE OESSH ─────────────────────────────────────────────
 
   try {
-    var txt = await claudeCall(system, desc, 2500);
+    var txt = await claudeCall(system, desc, 2500, 'article');
     var fr = parseFields(txt);
     fillFRForm(fr);
     // Auto-name PDFs from step1 if any (creation mode)
@@ -1589,7 +1546,7 @@ async function namePDFsWithClaude(){
   var system = 'Tu proposes des intitulés courts et descriptifs pour des liens vers des documents PDF liés à des articles de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH), Lieutenance pour le Luxembourg. Les intitulés doivent être concis (3-6 mots max), clairs et décrire le contenu du document. Utilise le style solennel de l\'Ordre.';
 
   try {
-    var txt = aNommer.length ? await claudeCall(system, prompt, 500) : '';
+    var txt = aNommer.length ? await claudeCall(system, prompt, 500, 'article-pdf') : '';
     function getPdfField(name){
       var open = '###'+name+'###', close = '###FIN###';
       var s = txt.indexOf(open); if(s===-1) return '';
@@ -1671,18 +1628,8 @@ async function translateDEEN(){
 
   var system = 'Tu es traducteur officiel de l\'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH), Lieutenance pour le Luxembourg.'
     +' Tu traduis des articles en allemand et en anglais en conservant le registre solennel et élégant propre aux publications de l\'Ordre.'
-    +'\n\nCONVENTIONS OESSH OBLIGATOIRES :'
-    +'\n- Sigle : OESSH (jamais OESSJ ni OESS)'
-    +'\n- DE : « Ritterorden vom Heiligen Grab zu Jerusalem », « Statthalterei Luxemburg » (jamais Leutnantschaft)'
-    +'\n- EN : « Equestrian Order of the Holy Sepulchre of Jerusalem », « Lieutenancy for Luxembourg »'
-    +'\n- DE : « Ritter und Damen » ; EN : « Knights and Dames » (majuscules conservées)'
-    +'\n- Vocabulaire DE : Cardinal Grand Maître = Kardinal-Großmeister ; Grand Prieur = Großprior ; Grand Magistère = Großmagisterium ; Gouverneur général = Generalgouverneur ; Lieutenant général = Generalstatthalter ; Chancelier = Kanzler ; Trésorier = Schatzmeister ; Secrétaire = Sekretär ; Candidats = Kandidaten ; Investiture = Investitur ; confrères et consœurs = Mitbrüder und Mitschwestern'
-    +'\n- Vocabulaire EN : Cardinal Grand Master ; Grand Prior ; Grand Magisterium ; Governor General ; Lieutenant General ; Chancellor ; Treasurer ; Secretary ; Candidates ; Investiture'
-    +'\n- DE : « das Heilige Land » ; EN : « the Holy Land » (majuscules conservées)'
+    +'\n\nLe guide de style OESSH (tronc commun et terminologie allemande et anglaise) est fourni ci-dessus : applique-le strictement.'
     +'\n- Guillemets allemands : „…" ; guillemets anglais : "…"'
-    +'\n- Tirets : jamais de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-)'
-    +'\n- Titres des fonctions : Le Lieutenant / Der Statthalter / The Lieutenant, avec majuscule initiale. DE : toujours Statthalter (pluriel : die Statthalter) et Statthalterei, jamais Leutnant ni Leutnantschaft'
-    +'\n- PLJ = Patriarcat latin de Jérusalem / Lateinisches Patriarchat von Jerusalem / Latin Patriarchate of Jerusalem'
     +'\n- IMPORTANT pour les intitulés de liens : traduis le texte descriptif, ne le remplace pas par un verbe générique.'
     +'\n\nRéponds UNIQUEMENT avec ce format (balises ###CHAMP### et ###FIN###) :';
 
@@ -1697,7 +1644,7 @@ async function translateDEEN(){
   var rienATraduire = !champsFaits.length && !liensAFaire.length;
 
   try {
-    var txt = rienATraduire ? '' : await claudeCall(system, userPrompt, 3000);
+    var txt = rienATraduire ? '' : await claudeCall(system, userPrompt, 3000, 'article-traduction');
 
     function get(name){
       var open='###'+name+'###', close='###FIN###';
@@ -2718,20 +2665,11 @@ async function generateLivreFR(){
 
   var system = "Tu es le rédacteur de la Lieutenance pour le Luxembourg de l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)."
     +" Tu rédiges des fiches de présentation d'ouvrages recommandés pour le site luxembourg.oessh.lu."
-    +"\n\nSTYLE RÉDACTIONNEL OESSH :"
-    +"\n- Ton solennel et chaleureux, français soutenu, jamais familier ni marketing"
-    +"\n- Guillemets français : « », jamais de guillemets droits"
-    +"\n- Tirets : jamais de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-)"
-    +"\n- Sigle : OESSH (jamais OESSJ)"
-    +"\n- Désignations officielles : « l'Ordre Équestre du Saint-Sépulcre de Jérusalem », « la Lieutenance pour le Luxembourg »"
-    +"\n- « le Patriarcat latin de Jérusalem » (PLJ) — toujours en entier à la première mention"
-    +"\n- Fonctions avec majuscule : « le Lieutenant », « le Chancelier », « le Grand Maître »"
-    +"\n- Pour les résumés : vocabulaire catholique précis (pèlerinage, Terre Sainte, chrétiens d'Orient, mission de l'Ordre)"
-    +"\n- Jamais de Dr., MSc. ni titres académiques dans les noms d'auteurs sauf si c'est un titre ecclésiastique"
+    +"\n\nLe guide de style OESSH (tronc commun et règles des articles) est fourni ci-dessus : applique-le strictement, y compris pour les noms d'auteurs (pas de titres académiques sauf titre ecclésiastique)."
     +"\n\nRéponds UNIQUEMENT avec ce format :\n\n###TITRE###\n[titre exact de l'ouvrage]\n###FIN###\n###AUTEUR###\n[nom complet de l'auteur avec titre ecclésiastique si applicable]\n###FIN###\n###CATEGORIE###\n[catégorie courte, ex: Spiritualité de l'Ordre]\n###FIN###\n###RESUME###\n[présentation de l'ouvrage en 2-3 paragraphes, style OESSH, guillemets « »]\n###FIN###\n###CITATION###\n[extrait marquant entre guillemets « » ou laisser vide]\n###FIN###\n###CITATION_SOURCE###\n[source de la citation ou laisser vide]\n###FIN###\n###LIEN1_LABEL###\n[intitulé du lien, ex: Commander sur Amazon]\n###FIN###\n###LIEN1_URL###\n[https://...]\n###FIN###\n###META1_LABEL###\n[ex: Éditeur]\n###FIN###\n###META1_VALEUR###\n[valeur]\n###FIN###\n###META2_LABEL###\n[ex: Année]\n###FIN###\n###META2_VALEUR###\n[valeur]\n###FIN###";
 
   try {
-    var txt = await claudeCall(system, desc, 2000);
+    var txt = await claudeCall(system, desc, 2000, 'lecture');
     function get(n){ var o='###'+n+'###',c='###FIN###'; var s=txt.indexOf(o); if(s===-1) return ''; s+=o.length; var e=txt.indexOf(c,s); return e===-1?txt.substring(s).trim():txt.substring(s,e).trim(); }
     document.getElementById('lf-titre').value = get('TITRE');
     document.getElementById('lf-auteur').value = get('AUTEUR');
@@ -2823,13 +2761,8 @@ async function translateLivre2(){
   var liensText = liensAFaire.map(function(i){ return 'Lien '+(i+1)+' FR: '+fr.liens[i].label; }).join('\n');
 
   var system = "Tu traduis des fiches d'ouvrages de l'Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH), Lieutenance pour le Luxembourg, en allemand et en anglais, en conservant le registre solennel."
-    +"\n\nCONVENTIONS OESSH :"
-    +"\n- DE : « Ritterorden vom Heiligen Grab zu Jerusalem » / EN : « Equestrian Order of the Holy Sepulchre of Jerusalem »"
-    +"\n- DE : Statthalterei Luxemburg, Statthalter (jamais Leutnant ni Leutnantschaft) / EN : Lieutenancy for Luxembourg"
-    +"\n- DE : « das Heilige Land » / EN : « the Holy Land » (majuscules conservées)"
+    +"\n\nLe guide de style OESSH (tronc commun et terminologie allemande et anglaise) est fourni ci-dessus : applique-le strictement."
     +"\n- Guillemets DE : „…“ / EN : \"…\""
-    +"\n- Tirets : jamais de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-)"
-    +"\n- PLJ = Lateinisches Patriarchat von Jerusalem (DE) / Latin Patriarchate of Jerusalem (EN)"
     +"\n- IMPORTANT : traduis aussi les intitulés de liens (texte descriptif, pas un verbe générique).";
   var prompt = 'Traduis en ALLEMAND et ANGLAIS uniquement les éléments suivants'+(aFaire.indexOf('titre')<0 ? ' (ouvrage : '+fr.titre+')' : '')+' :\n\n'+
     champsFaits.map(function(c){ return c.lib+':'+(c.k==='resume'?'\n':' ')+fr[c.k]; }).join('\n')+(liensText?'\n'+liensText:'')+'\n\n'+
@@ -2841,7 +2774,7 @@ async function translateLivre2(){
   var rienATraduire = !champsFaits.length && !liensAFaire.length;
 
   try {
-    var txt = rienATraduire ? '' : await claudeCall(system, prompt, 2500);
+    var txt = rienATraduire ? '' : await claudeCall(system, prompt, 2500, 'lecture-traduction');
     function get(n){ var o='###'+n+'###',c='###FIN###'; var s=txt.indexOf(o); if(s===-1) return ''; s+=o.length; var e=txt.indexOf(c,s); return e===-1?txt.substring(s).trim():txt.substring(s,e).trim(); }
     // Champ retraduit → nouvelle traduction ; champ inchangé → traduction déjà publiée.
     function val(c, lang){ return aFaire.indexOf(c) > -1 ? get(lang.toUpperCase()+'_'+c.toUpperCase()) : (fr[c] ? champOrig(orig && orig[c], lang) : ''); }
@@ -3693,7 +3626,7 @@ function calParseEvents(){
   fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':claudeKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:2000,messages:[{role:'user',content:prompt}]})
+    body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:2000,messages:[{role:'user',content:prompt}],tache:'calendrier'})
   })
   .then(function(r){return r.json();})
   .then(function(data){

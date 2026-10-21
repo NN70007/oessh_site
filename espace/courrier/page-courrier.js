@@ -351,52 +351,19 @@ function setSpinner(on){
 }
 
 var REGLES_COURRIER =
-  "RÈGLES DE LA LIEUTENANCE (skill oessh-style) : sigle OESSH (jamais OESSJ) ; majuscules à Le Lieutenant, Le Chancelier, Le Trésorier, Le Secrétaire, Chevaliers et Dames ; « Patriarcat latin de Jérusalem (PLJ) » ; « Lieutenance pour le Luxembourg » ; pas de titres académiques ni de noblesse ; guillemets « » et apostrophes courbes ; JAMAIS de tiret long (—) ni demi-cadratin (–), uniquement le tiret court (-) ; pas d'anglicismes ni de superlatifs.\n"
-  +"REGISTRE : TOUS les courriers de la Lieutenance sont SOLENNELS. Quand la grille distingue une forme solennelle et une forme administrative, emploie TOUJOURS la forme solennelle.\n"
-  +"PROTOCOLE (grille officielle) : prédicats Sa Sainteté, Sa Béatitude, Son Éminence, Son Excellence réservés à qui y a droit ; le rang ecclésiastique ou princier prévaut sur le grade ; la fonction (Lieutenant, Chancelier, Président) prévaut sur le grade.\n"
-  +"BLOC DESTINATAIRE : nom de famille en MAJUSCULES ; prédicat puis fonction sur la ligne suivante ; pour un membre, le grade peut suivre le nom (« Madame Marie DURAND, Dame de Commanderie »). Ne pas écrire « À l'attention de ».\n"
-  +"Format : destinataire — bloc | appel | formule finale.\n"
-  +"- Saint-Père — « Sa Sainteté le pape [Nom] » | « Très Saint-Père, » | « Je prie Votre Sainteté de bien vouloir agréer l'hommage de mon profond respect et de mon filial dévouement. »\n"
-  +"- Cardinal Grand Maître — « Son Éminence le cardinal [Prénom NOM] / Grand Maître de l'Ordre Équestre du Saint-Sépulcre de Jérusalem » | « Éminence, » ou « Monsieur le Cardinal, » | « Je vous prie d'agréer, Éminence, l'expression de mon profond respect et de mon fidèle dévouement. »\n"
-  +"- Patriarche latin, Grand Prieur de l'Ordre — « Sa Béatitude le cardinal [Prénom NOM] / Patriarche latin de Jérusalem et Grand Prieur de l'Ordre » | « Votre Béatitude, » ou « Béatitude, » | « Je prie Votre Béatitude d'agréer l'expression de mon profond et respectueux dévouement. »\n"
-  +"- Assesseur cardinal — « Son Éminence le cardinal [Prénom NOM] / Assesseur de l'Ordre » | « Éminence, » | « Je vous prie d'agréer, Éminence, l'expression de mon profond respect. » ; Assesseur évêque — « Son Excellence Révérendissime Monseigneur [Prénom NOM] / Assesseur de l'Ordre » | « Monseigneur, » | « Je vous prie d'agréer, Monseigneur, l'expression de mon profond et respectueux dévouement. »\n"
-  +"- Lieutenant général — « Son Excellence Monsieur/Madame [Prénom NOM] / Lieutenant général(e) de l'Ordre » | « Excellence, » | « Je vous prie d'agréer, Excellence, l'expression de ma très haute considération. »\n"
-  +"- Gouverneur général — « Son Excellence Monsieur [Prénom NOM] / Gouverneur général de l'Ordre » | « Excellence, » ou « Monsieur le Gouverneur général, » | « Je vous prie d'agréer, Excellence, l'expression de ma très haute considération. »\n"
-  +"- Vice-Gouverneur général, Chancelier ou Trésorier de l'Ordre — appel par la fonction (« Monsieur le Chancelier, ») | « Je vous prie d'agréer, Monsieur le Chancelier, l'expression de ma haute considération. » ; membre du Grand Magistère — « Monsieur, » | « …l'expression de ma considération distinguée. » (Excellence non automatique au Grand Magistère).\n"
-  +"- Lieutenant — « Son Excellence Monsieur/Madame [Prénom NOM] / Lieutenant(e) pour [territoire] » | « Excellence, » | « Je vous prie d'agréer, Excellence, l'expression de ma haute et respectueuse considération. » (forme solennelle, TOUJOURS).\n"
-  +"- Grand Prieur cardinal — « Son Éminence le cardinal [Prénom NOM] / Grand Prieur de la Lieutenance pour [territoire] » | « Éminence, » ou « Monsieur le Cardinal, » | « Je vous prie d'agréer, Éminence, l'expression de mon profond respect. » (évêque : « Monseigneur, » ; prêtre : « Mon Père, » ou « Monsieur l'Abbé, »).\n"
-  +"- Chancelier de Lieutenance — « Monsieur le Chancelier, » / « Madame la Chancelière, » | « Je vous prie d'agréer, Monsieur le Chancelier, l'expression de ma considération distinguée. » ; Trésorier — « Monsieur le Trésorier, » | « Je vous prie d'agréer, Monsieur, l'expression de ma considération distinguée. » ; Secrétaire ou Conseiller — « Monsieur, » / « Madame, » | « Je vous prie d'agréer, Monsieur, l'expression de ma considération distinguée. »\n"
-  +"- Délégué magistral — « Monsieur le Délégué magistral, » | « …l'expression de ma haute considération. » ; Régent, Président de Section, Délégué local — appel par la fonction | « …l'expression de ma considération distinguée. » ; Prieurs — selon leur titre ecclésiastique.\n"
-  +"- Membre de l'Ordre, courrier administratif — « Monsieur, » / « Madame, » | « Je vous prie d'agréer, Monsieur, l'expression de mes sentiments distingués. » ; membre connu personnellement — « Cher Confrère, » / « Chère Consœur, » | « Avec mes sentiments fraternels et chevaleresques. » ; plusieurs membres — « Chères Consœurs, chers Confrères, » ; ensemble de l'Ordre — « Chères Dames, chers Chevaliers, » | « Fraternellement dans le Christ et au service de la Terre Sainte. » ; candidat non investi — « Monsieur, » | « …mes sentiments distingués. » JAMAIS « Monsieur le Chevalier, » ni le grade dans l'appel.\n"
-  +"- Cardinal — « Son Éminence le cardinal [Prénom NOM] » | « Éminence, » ou « Monsieur le Cardinal, » | « Je vous prie d'agréer, Éminence, l'expression de mon profond respect. »\n"
-  +"- Archevêque / Évêque — « Son Excellence Révérendissime Monseigneur [Prénom NOM] » | « Monseigneur, » | « Je vous prie d'agréer, Monseigneur, l'expression de mon profond et respectueux dévouement. » ; prélat — « Monseigneur [Prénom NOM] » | « …l'expression de mon profond respect. »\n"
-  +"- Nonce apostolique — « Monseigneur, » ou « Excellence, » | « Je prie Votre Excellence d'agréer l'expression de ma très haute considération. »\n"
-  +"- Prêtre diocésain — « Monsieur l'Abbé [Prénom NOM] » | « Monsieur l'Abbé, » | « Je vous prie d'agréer, Monsieur l'Abbé, l'expression de mon respectueux dévouement. » ; prêtre religieux — « Révérend Père [Prénom NOM] » | « Mon Père, » ; diacre — « Monsieur le Diacre, » | « …l'expression de mes sentiments respectueux. » ; religieuse — « Ma Mère, » ou « Ma Sœur, » | « …l'expression de mon profond respect. »\n"
-  +"- Grand-Duc / Grande-Duchesse et Famille grand-ducale — « Monseigneur, » / « Madame, » | « Je prie Votre Altesse Royale d'agréer l'expression de mon plus profond respect. » (princes : « …de mes hommages les plus respectueux. ») ; corps à la troisième personne (Votre Altesse Royale).\n"
-  +"- Ambassadeur étranger — « Monsieur l'Ambassadeur, » ou « Excellence, » | « Je prie Votre Excellence d'agréer l'assurance de ma très haute considération. » ; Consul général — « Monsieur le Consul général, » | « Je vous prie d'agréer, Monsieur le Consul général, l'assurance de ma haute considération. »\n"
-  +"- Ordre de Malte : Grand Maître « Monseigneur, » ou « Altesse Éminentissime, » ; Chevalier « Monsieur le Chevalier, ».\n"
-  +"La formule d'appel est reprise dans la formule finale. Formule au singulier (« Je vous prie ») quand une personne signe. Ne jamais faire précéder la signature de « Son Excellence », « Monsieur » ou « Monseigneur ».\n";
+  "RÈGLES : applique le guide de style OESSH fourni ci-dessus (tronc commun et module 4, Courriers officiels). TOUS les courriers de la Lieutenance sont SOLENNELS : quand la grille distingue une forme solennelle et une forme administrative, emploie TOUJOURS la forme solennelle.\n"
+  +"BLOC DESTINATAIRE : nom de famille en MAJUSCULES ; prédicat puis fonction sur la ligne suivante ; pour un membre, le grade peut suivre le nom. Ne pas écrire « À l'attention de ».\n";
 
 // Cohérence du fond (skill oessh-style, section 6.13)
 var COHERENCE_COURRIER =
-  "COHÉRENCE DU COURRIER (aussi importante que le protocole) :\n"
-  +"1. Avant d'écrire, dégage l'INTENTION PRINCIPALE du courrier (inviter, remercier, informer, présenter des condoléances…) et les éléments secondaires. Le courrier entier sert cette intention.\n"
-  +"2. UN SEUL TON, accordé à l'élément le plus grave : après une mauvaise nouvelle (maladie, décès, épreuve), jamais de « joie », « allégresse », « jour béni » ni de formule festive ; l'invitation reste sobre et digne.\n"
-  +"3. RELIE les paragraphes : chaque idée découle de la précédente par une transition qui a du sens (par exemple, l'inquiétude pour une personne devient une intention de prière confiée lors de la célébration à laquelle on invite). Jamais deux sujets juxtaposés sans lien.\n"
-  +"4. UNE SEULE VOIX : « je » quand une personne signe (ne parle pas d'elle-même à la troisième personne, jamais « Le Secrétaire a l'honneur »), « nous » seulement pour la Lieutenance ou ses membres ; la formule finale s'accorde avec cette voix.\n"
-  +"5. NE RIEN INVENTER : ni lieu, ni heure, ni nom, ni fait. Si une information indispensable manque (lieu précis, heure, date), écris [à compléter] à sa place.\n"
-  +"6. VÉRIFIE les dates : si un jour de la semaine ne correspond pas à la date indiquée, ne corrige pas au hasard, mets [date à vérifier] et signale-le.\n"
-  +"7. Signale dans ###REMARQUES### (une remarque par ligne, commençant par « - ») ce que tu as harmonisé et ce que l'auteur doit vérifier ou compléter. Si tout est clair, écris « - Aucune remarque. ». Ces remarques ne font pas partie de la lettre.\n";
+  "COHÉRENCE DU COURRIER : applique la section 6.13 du guide (module 4), aussi importante que le protocole.\n"
+  +"Signale dans ###REMARQUES### (une remarque par ligne, commençant par « - ») ce que tu as harmonisé et ce que l'auteur doit vérifier ou compléter. Si tout est clair, écris « - Aucune remarque. ». Ces remarques ne font pas partie de la lettre.\n";
 
 var LANGUES = { fr: "français", de: "allemand", en: "anglais", it: "italien" };
 
 // Formules officielles en langue étrangère (skill oessh-style, section 6.8)
 var FORMULES_ETRANGERES =
-  "FORMULES OFFICIELLES POUR UN CARDINAL, à utiliser telles quelles (ne pas traduire mot à mot la formule française) :\n"
-  +"- DE : appel « Eure Eminenz, » ou « Hochwürdigster Herr Kardinal, » — formule finale « Mit dem Ausdruck meiner tiefen Hochachtung und Ehrerbietung verbleibe ich Eurer Eminenz sehr ergebener » (sans point final, « sehr ergebene » pour une signataire).\n"
-  +"- EN : appel « Your Eminence, » ou « My Lord Cardinal, » — formule finale « I have the honor to be, Your Eminence, your most obedient servant. »\n"
-  +"- IT : appel « Eminentissimo Signor Cardinale, » ou « Eminenza, » — formule finale « Voglia la Vostra Eminenza gradire i sensi del mio più profondo rispetto. »\n"
-  +"- FR : appel « Éminence, » ou « Monsieur le Cardinal, » — formule finale « Je vous prie d'agréer, Éminence, l'expression de mon profond respect. »\n";
+  "FORMULES EN LANGUE ÉTRANGÈRE : pour un cardinal, utilise telles quelles les formules officielles de la section 6.12 du guide (module 4), sans traduire mot à mot la formule française.\n";
 
 function sectionIA(txt, nom){
   var m = txt.match(new RegExp("###" + nom + "###\\s*([\\s\\S]*?)\\s*(?=###[A-Z]+###|$)"));
@@ -462,6 +429,7 @@ async function callIA(mode){
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
+        tache: "courrier-" + mode,
         max_tokens: 3000,
         system: systemMap[mode],
         messages: [{ role: "user", content: message }]

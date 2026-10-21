@@ -35,7 +35,7 @@
       var b = {};
       try { b = JSON.parse(init.body || "{}"); } catch (e) {}
       try {
-        var o = await E.api("pub.claude", { corps: { system: b.system, messages: b.messages, max_tokens: b.max_tokens } });
+        var o = await E.api("pub.claude", { corps: { system: b.system, messages: b.messages, max_tokens: b.max_tokens, tache: b.tache } });
         return reponse(o.status, o.data);
       } catch (e) {
         return reponse(500, { error: { message: e.message } });
