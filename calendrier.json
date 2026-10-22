@@ -460,23 +460,6 @@
         "de": "Kirche Saint-Michel · Luxemburg",
         "en": "Saint-Michel Church · Luxembourg"
       }
-    },
-    {
-      "id": "2027-10-02-rome",
-      "date_iso": "2027-10-02",
-      "date_affichee": "OCT 02",
-      "type": "autre",
-      "published": true,
-      "titre": {
-        "fr": "Rome",
-        "de": "Rome",
-        "en": "Rome"
-      },
-      "lieu": {
-        "fr": "10h00 · St Pierre",
-        "de": "10h00 · St Pierre",
-        "en": "10h00 · St Pierre"
-      }
     }
   ]
 }
