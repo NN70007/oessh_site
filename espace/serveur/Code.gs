@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-22c',
+  VERSION: '2026-10-22d',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -1008,10 +1008,13 @@ function composerMail_(u, P, m, lien) {
   var pied = P.suivi ? PIED_SUIVI : 'Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.';
   var esc0 = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   var invit = P.evt && lien ? blocInvitation_(P.evt, lien, esc0) : null;
-  var texte = texteBrut_(corps) + (invit ? invit.texte : '') + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
+  // L'encadré d'invitation se place avant la formule de politesse quand elle termine le message
+  var pol = m.politesse || politesse_(m.appel), coupe = invit ? corps.lastIndexOf(pol) : -1;
+  var avantPol = coupe > 0 ? corps.slice(0, coupe).trim() : corps, apresPol = coupe > 0 ? corps.slice(coupe).trim() : '';
+  var texte = texteBrut_(avantPol) + (invit ? invit.texte : '') + (apresPol ? '\n\n' + texteBrut_(apresPol) : '') + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   var img = CONFIG.IMAGES_MAIL, lt = P.casq.entite !== 'asbl';
-  var paras = corpsHtml_(corps, esc);
+  var paras = corpsHtml_(avantPol, esc) + (invit ? invit.html : '') + (apresPol ? corpsHtml_(apresPol, esc) : '');
   // En-tête : armoiries (Lieutenance) ou croix de Jérusalem (Asbl), puis l'Ordre et l'entité.
   var embleme = lt ? '<img src="' + img + 'entete-lieutenance.png" width="44" height="56" alt="" class="oe-img" style="display:block;border:0">'
                    : '<img src="' + img + 'entete-asbl.png" width="60" height="56" alt="" class="oe-img" style="display:block;border:0">';
@@ -1030,7 +1033,7 @@ function composerMail_(u, P, m, lien) {
     '<td style="vertical-align:middle;font-family:Georgia,\'Times New Roman\',serif">' +
     '<div class="oe-l1" style="font-size:18px;color:#8a0102">Ordre Équestre du Saint-Sépulcre de Jérusalem</div>' +
     '<div class="oe-l2" style="font-size:18px;margin-top:2px;color:#1a1a1a">' + esc(P.casq.entiteNom) + '</div></td></tr></table></div>' +
-    '<div class="oe-pad" style="padding:22px 28px 8px;font-size:16px;line-height:1.55">' + paras + (invit ? invit.html : '') + '</div>' +
+    '<div class="oe-pad" style="padding:22px 28px 8px;font-size:16px;line-height:1.55">' + paras + '</div>' +
     '<div class="oe-pad" style="padding:6px 28px 24px;font-size:15px;line-height:1.45">' +
     '<div>' + croix + '<strong style="font-weight:bold">' + esc(signataire) + '</strong></div>' +
     '<div>' + esc(P.casq.ligneFonction) + '<br>' + esc(OESSH) + '<br>' +
