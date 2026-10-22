@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-22b',
+  VERSION: '2026-10-22c',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -54,7 +54,7 @@ var ONGLETS = {
   RetJalons: ['Date', 'Titre', 'Detail', 'Cle'],
   RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note'],
   RetOrganisation: ['Fonction', 'Nom'],
-  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type', 'PJ', 'Id', 'RepondreA', 'Destinataires']
+  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type', 'PJ', 'Id', 'RepondreA', 'Destinataires', 'Evenement']
 };
 // Colonne de droits du Courrier e-mail, ajoutée en fin d'onglet « Acces » par « installer ».
 var COL_ENVOIS = 'Envois';
@@ -90,6 +90,9 @@ function route_(req) {
   if (a === 'auth.google') return authGoogle_(req.idToken);
   if (a === 'auth.demanderCode') return demanderCode_(req.email);
   if (a === 'auth.verifierCode') return verifierCode_(req.email, req.code);
+  // Page publique d'inscription : lien personnel signé, sans session
+  if (a === 'insc.lire') return inscLire_(req);
+  if (a === 'insc.repondre') return inscRepondre_(req);
 
   // Actions avec session
   var user = userFromToken_(req.token);
@@ -121,6 +124,9 @@ function route_(req) {
     case 'mail.envoyer': return mailEnvoyer_(user, req);
     case 'mail.joindre': return mailJoindre_(user, req);
     case 'mail.reponses': return mailReponses_(user, req);
+    case 'mail.evenements': return mailEvenements_(user);
+    case 'mail.creerEvenement': return mailCreerEvenement_(user, req);
+    case 'mail.inscriptions': return mailInscriptions_(user, req);
     default: throw refus_('Action inconnue.', 'inconnu');
   }
 }
@@ -924,6 +930,7 @@ function mailCharger_(u) {
   var historique = [];
   try {
     var index = suiviActif_() ? indexReponses_() : {};
+    var stats = statsInscriptions_();
     historique = lire_('JournalEnvois').slice(-30).reverse().map(function (r) {
       var h = { ts: Number(r.Date) || 0, qui: r.Qui, casquette: r.Casquette, objet: r.Objet, groupes: r.Groupes, nb: Number(r.Nb) || 0, erreurs: r.Erreurs, type: r.Type };
       // Suivi des réponses : visible par l'auteur de l'envoi et par l'administrateur
@@ -933,6 +940,8 @@ function mailCharger_(u) {
         h.expire = h.ts ? h.ts + joursMs_(CONFIG.REPONSES_JOURS) : 0;
         h.efface = !!h.expire && Date.now() > h.expire;
         h.repondreA = r.RepondreA || '';
+        var evt = evtDeLigne_(r);
+        if (evt) { h.evenement = evt; h.insc = stats[r.Id] || { total: h.nb, oui: 0, personnes: 0, non: 0, sans: h.nb }; }
       }
       return h;
     });
@@ -978,7 +987,8 @@ function preparerMail_(u, req) {
     casq.repondreA = rep;
   }
   var pj = piecesJointes_(u, req.pieces);
-  return { casq: casq, objet: objet, corps: corps, pj: pj, empreinte: hash_(casq.code + '|' + casq.repondreA + '|' + objet + '|' + corps + '|' + pj.ids.join(',')).slice(0, 24) };
+  var evt = evenementDe_(req.evenement);
+  return { casq: casq, objet: objet, corps: corps, pj: pj, evt: evt, empreinte: hash_(casq.code + '|' + casq.repondreA + '|' + objet + '|' + corps + '|' + pj.ids.join(',') + '|' + (evt ? evt.id : '')).slice(0, 24) };
 }
 
 var APPEL_ECRIT = /^\s*(Cher|Chère|Chers|Chères|Madame|Monsieur|Mesdames|Messieurs|Mademoiselle|Excellence|Éminence|Monseigneur|Mon Père|Révérend|Bonjour|Bonsoir|Liebe|Lieber|Sehr geehrte|Dear)\b/i;
@@ -990,13 +1000,15 @@ function personnaliser_(texte, m) {
   return avecAppel ? t : m.appel + '\n\n' + t;
 }
 
-function composerMail_(u, P, m) {
+function composerMail_(u, P, m, lien) {
   var corps = personnaliser_(P.corps, m);
   var OESSH = P.casq.ligneOrdre;
   var signataire = u.signature || u.nom;
   var signature = [signataire, P.casq.ligneFonction, OESSH, P.casq.repondreA];
   var pied = P.suivi ? PIED_SUIVI : 'Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.';
-  var texte = texteBrut_(corps) + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
+  var esc0 = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
+  var invit = P.evt && lien ? blocInvitation_(P.evt, lien, esc0) : null;
+  var texte = texteBrut_(corps) + (invit ? invit.texte : '') + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   var img = CONFIG.IMAGES_MAIL, lt = P.casq.entite !== 'asbl';
   var paras = corpsHtml_(corps, esc);
@@ -1018,7 +1030,7 @@ function composerMail_(u, P, m) {
     '<td style="vertical-align:middle;font-family:Georgia,\'Times New Roman\',serif">' +
     '<div class="oe-l1" style="font-size:18px;color:#8a0102">Ordre Équestre du Saint-Sépulcre de Jérusalem</div>' +
     '<div class="oe-l2" style="font-size:18px;margin-top:2px;color:#1a1a1a">' + esc(P.casq.entiteNom) + '</div></td></tr></table></div>' +
-    '<div class="oe-pad" style="padding:22px 28px 8px;font-size:16px;line-height:1.55">' + paras + '</div>' +
+    '<div class="oe-pad" style="padding:22px 28px 8px;font-size:16px;line-height:1.55">' + paras + (invit ? invit.html : '') + '</div>' +
     '<div class="oe-pad" style="padding:6px 28px 24px;font-size:15px;line-height:1.45">' +
     '<div>' + croix + '<strong style="font-weight:bold">' + esc(signataire) + '</strong></div>' +
     '<div>' + esc(P.casq.ligneFonction) + '<br>' + esc(OESSH) + '<br>' +
@@ -1071,7 +1083,7 @@ function mailEssai_(u, req) {
   var modele = membres.filter(function (m) { return m.id === String(req.apercu || ''); })[0] ||
     { nom: '', prenom: '', appel: 'Cher Confrère,', groupe: 'lt' };
   P.suivi = adresseSuivi_('essai');   // l'essai montre exactement ce que recevront les destinataires
-  var c = composerMail_(u, P, modele);
+  var c = composerMail_(u, P, modele, P.evt ? URL_INSCRIPTION + '?t=essai' : '');
   expedier_(P, u.email, c, '[ESSAI] ' + P.objet);
   CacheService.getScriptCache().put('essai:' + u.email + ':' + P.empreinte, '1', 6 * 3600);
   journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: 'essai', Nb: '1', Erreurs: '', Type: 'essai', PJ: P.pj.noms.join(', ') });
@@ -1095,9 +1107,11 @@ function mailEnvoyer_(u, req) {
   if (avec.length > MailApp.getRemainingDailyQuota()) throw refus_('Le quota d’envoi du jour est insuffisant. Réessayez demain.', 'limite');
   var envoiId = 'e' + Date.now().toString(36);
   P.suivi = adresseSuivi_(envoiId);
+  // Événement : une ligne d'inscription par destinataire, créée avant l'envoi pour que les liens fonctionnent aussitôt
+  if (P.evt) creerInscriptions_(envoiId, avec);
   var envoyes = 0, erreurs = [], recus = [];
   avec.forEach(function (m) {
-    try { expedier_(P, m.email, composerMail_(u, P, m), P.objet); envoyes++; recus.push([(m.prenom ? m.prenom + ' ' : '') + m.nom, m.email]); }
+    try { expedier_(P, m.email, composerMail_(u, P, m, P.evt ? URL_INSCRIPTION + '?t=' + jetonInsc_(envoiId, m.id) : ''), P.objet); envoyes++; recus.push([(m.prenom ? m.prenom + ' ' : '') + m.nom, m.email]); }
     catch (e) { erreurs.push((m.prenom ? m.prenom + ' ' : '') + m.nom); }
   });
   // Pièces jointes envoyées à tous : plus utiles, mises à la corbeille de Drive (gardées en cas d'échec, pour renvoyer).
@@ -1105,7 +1119,8 @@ function mailEnvoyer_(u, req) {
   var sans = cibles.filter(function (m) { return !m.email; }).map(function (m) { return (m.prenom ? m.prenom + ' ' : '') + m.nom; });
   var groupesTxt = texte_(Array.isArray(req.groupes) ? req.groupes.join(', ') : req.groupes, 200);
   journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: groupesTxt, Nb: String(envoyes), Erreurs: erreurs.join(', '), Type: 'envoi', PJ: P.pj.noms.join(', '),
-    Id: P.suivi ? envoiId : '', RepondreA: P.casq.repondreA, Destinataires: P.suivi ? JSON.stringify(recus) : '' });
+    Id: P.suivi || P.evt ? envoiId : '', RepondreA: P.casq.repondreA, Destinataires: P.suivi || P.evt ? JSON.stringify(recus) : '',
+    Evenement: P.evt ? JSON.stringify(P.evt) : '' });
   journal_(u.email, 'mail.envoi', P.objet + ' - ' + envoyes + ' destinataire(s)' + (erreurs.length ? ', ' + erreurs.length + ' erreur(s)' : ''));
   return { ok: true, envoyes: envoyes, erreurs: erreurs, sansCourriel: sans, pjSupprimees: pjSupprimees };
 }
@@ -1405,4 +1420,263 @@ function dateTxt_(v) {
 function hash_(s) {
   var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(s), Utilities.Charset.UTF_8);
   return bytes.map(function (b) { return ((b + 256) % 256).toString(16).padStart(2, '0'); }).join('');
+}
+
+/* ======================= Courrier e-mail : événement et inscriptions ======================= */
+/* Un envoi peut être rattaché à un événement du calendrier du site (calendrier.json), existant ou créé ici.
+   Chaque destinataire reçoit deux boutons « Je viendrai » / « Je ne viendrai pas » menant à la page
+   espace/inscription/ (lien personnel signé : aucune connexion nécessaire). La réponse n'est enregistrée
+   qu'après un clic sur « Confirmer » (les antivirus qui ouvrent les liens ne peuvent donc pas répondre à la place).
+   Rappels (déclencheur quotidien « rappelsInscriptions ») : 7 jours avant à ceux qui n'ont pas répondu,
+   la veille à ceux qui viennent. Onglet « Inscriptions » de la feuille, créé au premier envoi. */
+var URL_INSCRIPTION = 'https://luxembourg.oessh.lu/espace/inscription/';
+var COLS_INSC = ['EnvoiId', 'Membre', 'Nom', 'Email', 'Reponse', 'Accompagnants', 'NomsAccompagnants', 'RepLe', 'Rappel7', 'Rappel1'];
+var MOIS_CAL = ['JAN', 'FEV', 'MAR', 'AVR', 'MAI', 'JUN', 'JUL', 'AOU', 'SEP', 'OCT', 'NOV', 'DEC'];
+var MOIS_LONGS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+var JOURS_LONGS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+var ACCOMP_MAX = 6;
+
+function sansHtml_(s) { return String(s || '').replace(/<br\s*\/?>/gi, ' · ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(); }
+function dateEvt_(iso) {
+  var p = String(iso || '').split('-').map(Number);
+  if (p.length !== 3 || !p[0]) return iso;
+  var d = new Date(Date.UTC(p[0], p[1] - 1, p[2], 12));
+  return JOURS_LONGS[d.getUTCDay()] + ' ' + p[2] + (p[2] === 1 ? 'er' : '') + ' ' + MOIS_LONGS[p[1] - 1] + ' ' + p[0];
+}
+function quandEvt_(e) { return dateEvt_(e.date) + (e.heure ? ' à ' + e.heure.replace(':', 'h') : '') + (e.lieu ? ', ' + e.lieu : ''); }
+function aujourdhui_() { return Utilities.formatDate(new Date(), 'Europe/Luxembourg', 'yyyy-MM-dd'); }
+function joursAvant_(iso) {
+  var a = aujourdhui_().split('-').map(Number), b = String(iso).split('-').map(Number);
+  return Math.round((Date.UTC(b[0], b[1] - 1, b[2]) - Date.UTC(a[0], a[1] - 1, a[2])) / 86400000);
+}
+
+/** Événement joint au courriel : contrôlé et normalisé (id, date, heure, titre, lieu). */
+function evenementDe_(x) {
+  if (!x || !x.id) return null;
+  var e = {
+    id: texte_(x.id, 80), date: texte_(x.date, 10), heure: texte_(x.heure, 5),
+    titre: texte_(x.titre, 160), lieu: texte_(x.lieu, 160)
+  };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) throw refus_("La date de l'événement est invalide.", 'donnees');
+  if (e.heure && !/^\d{2}:\d{2}$/.test(e.heure)) e.heure = '';
+  if (!e.titre) throw refus_("L'événement n'a pas de titre.", 'donnees');
+  return e;
+}
+
+/* ---- Calendrier du site (calendrier.json, dépôt GitHub) ---- */
+function githubFichier_(chemin) {
+  var token = prop_('GITHUB_TOKEN');
+  if (!token) throw refus_("La publication n'est pas configurée (jeton GitHub manquant dans le script).", 'config');
+  var repo = prop_('GITHUB_REPO') || 'NN70007/oessh_site';
+  return {
+    url: 'https://api.github.com/repos/' + repo + '/contents/' + chemin,
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'oessh-espace-membres' }
+  };
+}
+function lireCalendrier_() {
+  var g = githubFichier_('calendrier.json');
+  var res = UrlFetchApp.fetch(g.url, { headers: g.headers, muteHttpExceptions: true });
+  if (res.getResponseCode() !== 200) throw refus_('Calendrier du site illisible (' + res.getResponseCode() + ').', 'config');
+  var data = JSON.parse(res.getContentText());
+  var txt = Utilities.newBlob(Utilities.base64Decode(String(data.content || '').replace(/\s/g, ''))).getDataAsString('UTF-8');
+  return { cal: JSON.parse(txt), sha: data.sha };
+}
+function mailEvenements_(u) {
+  exigerEnvois_(u);
+  var cache = CacheService.getScriptCache(), c = cache.get('cal:liste');
+  if (c) return { ok: true, evenements: JSON.parse(c) };
+  var auj = aujourdhui_();
+  var liste = (lireCalendrier_().cal.evenements || []).filter(function (e) { return e.date_iso >= auj; }).map(function (e) {
+    var lieu = sansHtml_(e.lieu && e.lieu.fr), heure = (lieu.match(/^(\d{1,2})h(\d{2})\b/) || []);
+    return { id: e.id, date: e.date_iso, heure: heure[0] ? ('0' + heure[1]).slice(-2) + ':' + heure[2] : '', titre: sansHtml_(e.titre && e.titre.fr), lieu: heure[0] ? lieu.replace(/^\d{1,2}h\d{2}\s*·\s*/, '') : lieu, publie: e.published !== false };
+  }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  cache.put('cal:liste', JSON.stringify(liste), 300);
+  return { ok: true, evenements: liste };
+}
+/** Ajoute un événement au calendrier du site (publié ou non), puis le renvoie pour le rattacher au courriel. */
+function mailCreerEvenement_(u, req) {
+  exigerEnvois_(u);
+  var date = texte_(req.date, 10), heure = texte_(req.heure, 5), titre = texte_(req.titre, 150), lieu = texte_(req.lieu, 150);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw refus_('Indiquez la date de l’événement.', 'donnees');
+  if (date < aujourdhui_()) throw refus_('La date de l’événement est déjà passée.', 'donnees');
+  if (heure && !/^\d{2}:\d{2}$/.test(heure)) throw refus_('Heure invalide (format 18:30).', 'donnees');
+  if (!titre) throw refus_('Indiquez le titre de l’événement.', 'donnees');
+  if (/[<>]/.test(titre + lieu)) throw refus_('Le titre et le lieu ne doivent pas contenir < ou >.', 'donnees');
+  var lieuTxt = (heure ? heure.replace(':', 'h') + ' · ' : '') + lieu;
+  return verrou_(function () {
+    var l = lireCalendrier_(), evts = l.cal.evenements || [];
+    var slug = titre.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'evenement';
+    var id = date + '-' + slug, n = 2;
+    while (evts.some(function (e) { return e.id === id; })) id = date + '-' + slug + '-' + (n++);
+    var p = date.split('-');
+    var e = {
+      id: id, date_iso: date, date_affichee: MOIS_CAL[Number(p[1]) - 1] + ' ' + p[2], type: 'autre', published: req.publier !== false,
+      titre: { fr: titre, de: titre, en: titre }, lieu: { fr: lieuTxt, de: lieuTxt, en: lieuTxt }
+    };
+    evts.push(e);
+    evts.sort(function (a, b) { return a.date_iso < b.date_iso ? -1 : a.date_iso > b.date_iso ? 1 : 0; });
+    l.cal.evenements = evts;
+    var g = githubFichier_('calendrier.json');
+    var res = UrlFetchApp.fetch(g.url, {
+      method: 'put', headers: g.headers, contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({ message: 'Calendrier : ajout « ' + titre + ' » (Courrier e-mail) — par ' + u.nom, sha: l.sha, content: Utilities.base64Encode(JSON.stringify(l.cal, null, 2) + '\n', Utilities.Charset.UTF_8) })
+    });
+    if (res.getResponseCode() >= 300) throw refus_('Le calendrier du site n’a pas pu être mis à jour (' + res.getResponseCode() + ').', 'config');
+    CacheService.getScriptCache().remove('cal:liste');
+    journal_(u.email, 'calendrier.ajout', id + (e.published ? '' : ' (non publié)'));
+    return { ok: true, evenement: { id: id, date: date, heure: heure, titre: titre, lieu: lieu, publie: e.published } };
+  });
+}
+
+/* ---- Liens personnels et feuille « Inscriptions » ---- */
+function secretInsc_() {
+  var p = PropertiesService.getScriptProperties(), s = p.getProperty('INSC_SECRET');
+  if (!s) { s = Utilities.getUuid() + Utilities.getUuid(); p.setProperty('INSC_SECRET', s); }
+  return s;
+}
+function jetonInsc_(envoiId, membreId) { return envoiId + '.' + membreId + '.' + hash_(secretInsc_() + '|' + envoiId + '|' + membreId).slice(0, 20); }
+function lireJeton_(t) {
+  var p = String(t || '').split('.');
+  if (p.length !== 3 || jetonInsc_(p[0], p[1]) !== String(t)) throw refus_('Ce lien d’inscription n’est pas valide. Utilisez le lien reçu par e-mail.', 'lien');
+  return { envoi: p[0], membre: p[1] };
+}
+function feuilleInsc_() {
+  var ss = classeur_(false), sh = ss.getSheetByName('Inscriptions');
+  if (!sh) { sh = ss.insertSheet('Inscriptions'); sh.getRange(1, 1, 1, COLS_INSC.length).setValues([COLS_INSC]); sh.setFrozenRows(1); }
+  return sh;
+}
+function lignesInsc_() {
+  var vals = feuilleInsc_().getDataRange().getValues();
+  return vals.slice(1).map(function (r, i) { var o = { _ligne: i + 2 }; COLS_INSC.forEach(function (h, j) { o[h] = r[j] == null ? '' : String(r[j]); }); return o; });
+}
+function majInsc_(ligne, champs) {
+  var sh = feuilleInsc_();
+  Object.keys(champs).forEach(function (k) { var c = COLS_INSC.indexOf(k); if (c > -1) sh.getRange(ligne, c + 1).setNumberFormat('@').setValue(sur_(champs[k])); });
+}
+/** Une ligne par destinataire au moment de l'envoi (écriture groupée). */
+function creerInscriptions_(envoiId, cibles) {
+  if (!cibles.length) return;
+  var sh = feuilleInsc_();
+  var rows = cibles.map(function (m) { return [envoiId, m.id, (m.prenom ? m.prenom + ' ' : '') + m.nom, m.email, '', '', '', '', '', ''].map(sur_); });
+  sh.getRange(sh.getLastRow() + 1, 1, rows.length, COLS_INSC.length).setNumberFormat('@').setValues(rows);
+}
+function envoiParId_(id) {
+  return lire_('JournalEnvois').filter(function (x) { return norm_(x.Id) === norm_(id) && x.Type === 'envoi'; })[0];
+}
+function evtDeLigne_(r) { try { return r && r.Evenement ? JSON.parse(r.Evenement) : null; } catch (e) { return null; } }
+
+/** Bloc « Je viendrai / Je ne viendrai pas » ajouté au courriel (HTML et texte). */
+function blocInvitation_(evt, lien, esc) {
+  var bouton = function (txt, url, plein) {
+    return '<a href="' + esc(url) + '" style="display:inline-block;margin:0 8px 8px 0;padding:11px 20px;border-radius:3px;font-family:Arial,sans-serif;font-size:15px;text-decoration:none;' +
+      (plein ? 'background:#b10103;color:#ffffff;border:1px solid #b10103' : 'background:#ffffff;color:#8a0102;border:1px solid #8a0102') + '">' + esc(txt) + '</a>';
+  };
+  var html = '<div style="margin:6px 0 18px;padding:16px 18px;background:#faf7f0;border-left:3px solid #b08a4f">' +
+    '<div style="font-size:16px;margin-bottom:4px"><strong>' + esc(evt.titre) + '</strong></div>' +
+    '<div style="font-size:14px;color:#444;margin-bottom:12px">' + esc(quandEvt_(evt)) + '</div>' +
+    bouton('Je viendrai', lien + '&r=oui', true) + bouton('Je ne viendrai pas', lien + '&r=non', false) +
+    '<div style="font-size:12px;color:#6e6e6e;font-family:Arial,sans-serif">Vous pourrez indiquer le nombre et le nom des personnes qui vous accompagnent.</div></div>';
+  var texte = '\n\n' + evt.titre + '\n' + quandEvt_(evt) + '\nJe viendrai : ' + lien + '&r=oui\nJe ne viendrai pas : ' + lien + '&r=non';
+  return { html: html, texte: texte };
+}
+
+/* ---- Page publique d'inscription (sans connexion, lien signé) ---- */
+function inscLire_(req) {
+  var j = lireJeton_(req.t);
+  var r = lignesInsc_().filter(function (x) { return x.EnvoiId === j.envoi && x.Membre === j.membre; })[0];
+  var envoi = envoiParId_(j.envoi), evt = evtDeLigne_(envoi);
+  if (!r || !evt) throw refus_('Cette invitation est introuvable.', 'introuvable');
+  return {
+    ok: true, nom: r.Nom, reponse: r.Reponse, accompagnants: Number(r.Accompagnants) || 0,
+    noms: r.NomsAccompagnants ? r.NomsAccompagnants.split(' | ') : [], evenement: evt, quand: quandEvt_(evt),
+    ferme: joursAvant_(evt.date) < 0, max: ACCOMP_MAX
+  };
+}
+function inscRepondre_(req) {
+  var j = lireJeton_(req.t);
+  var rep = req.reponse === 'oui' ? 'oui' : req.reponse === 'non' ? 'non' : '';
+  if (!rep) throw refus_('Choisissez « Je viendrai » ou « Je ne viendrai pas ».', 'donnees');
+  var n = rep === 'oui' ? Math.max(0, Math.min(ACCOMP_MAX, parseInt(req.accompagnants, 10) || 0)) : 0;
+  var noms = (Array.isArray(req.noms) ? req.noms : []).slice(0, n).map(function (s) { return texte_(s, 80).replace(/\|/g, '/'); });
+  if (noms.length < n || noms.some(function (s) { return !s; })) throw refus_('Indiquez le nom de chaque personne qui vous accompagne.', 'donnees');
+  return verrou_(function () {
+    var r = lignesInsc_().filter(function (x) { return x.EnvoiId === j.envoi && x.Membre === j.membre; })[0];
+    var evt = evtDeLigne_(envoiParId_(j.envoi));
+    if (!r || !evt) throw refus_('Cette invitation est introuvable.', 'introuvable');
+    if (joursAvant_(evt.date) < 0) throw refus_('Cet événement est passé : les réponses sont closes.', 'ferme');
+    majInsc_(r._ligne, { Reponse: rep, Accompagnants: n ? String(n) : '', NomsAccompagnants: noms.join(' | '), RepLe: String(Date.now()) });
+    return { ok: true, reponse: rep, accompagnants: n, noms: noms, quand: quandEvt_(evt), evenement: evt };
+  });
+}
+
+/* ---- Tableau de bord de l'auteur ---- */
+function statsInscriptions_() {
+  var out = {};
+  try {
+    lignesInsc_().forEach(function (r) {
+      var s = out[r.EnvoiId] = out[r.EnvoiId] || { total: 0, oui: 0, personnes: 0, non: 0, sans: 0 };
+      s.total++;
+      if (r.Reponse === 'oui') { s.oui++; s.personnes += 1 + (Number(r.Accompagnants) || 0); }
+      else if (r.Reponse === 'non') s.non++;
+      else s.sans++;
+    });
+  } catch (e) { /* onglet absent */ }
+  return out;
+}
+function mailInscriptions_(u, req) {
+  exigerEnvois_(u);
+  var r = envoiParId_(req.id);
+  if (!r) throw refus_('Envoi introuvable.', 'introuvable');
+  if (!peutVoirReponses_(u, r)) throw refus_("Seul l'auteur de l'envoi peut en voir les inscriptions.", 'droits');
+  var lignes = lignesInsc_().filter(function (x) { return x.EnvoiId === r.Id; });
+  var oui = lignes.filter(function (x) { return x.Reponse === 'oui'; }).map(function (x) {
+    return { nom: x.Nom, accompagnants: Number(x.Accompagnants) || 0, noms: x.NomsAccompagnants ? x.NomsAccompagnants.split(' | ') : [], le: Number(x.RepLe) || 0 };
+  });
+  return {
+    ok: true, evenement: evtDeLigne_(r), oui: oui,
+    personnes: oui.reduce(function (t, x) { return t + 1 + x.accompagnants; }, 0),
+    non: lignes.filter(function (x) { return x.Reponse === 'non'; }).map(function (x) { return x.Nom; }),
+    sans: lignes.filter(function (x) { return !x.Reponse; }).map(function (x) { return x.Nom; }),
+    total: lignes.length
+  };
+}
+
+/* ---- Rappels : déclencheur quotidien (Déclencheurs > Ajouter > rappelsInscriptions > tous les jours, 8 h - 9 h) ---- */
+function rappelsInscriptions() {
+  var envois = lire_('JournalEnvois').filter(function (r) { return r.Type === 'envoi' && r.Id && r.Evenement; });
+  if (!envois.length) return;
+  var lignes = lignesInsc_(), membres = null, journal = [];
+  envois.forEach(function (r) {
+    var evt = evtDeLigne_(r);
+    if (!evt) return;
+    var j = joursAvant_(evt.date);
+    var j7 = j >= 2 && j <= 7 && Date.now() - (Number(r.Date) || 0) > joursMs_(2);   // pas de rappel juste après l'invitation
+    var j1 = j >= 0 && j <= 1;
+    if (!j7 && !j1) return;
+    var acces = accesPour_(r.Qui);
+    if (!acces) return;
+    var u = userFromRow_(acces, r.Qui);
+    var casq = casquettesDe_(u).filter(function (c) { return c.code === r.Casquette; })[0];
+    if (!casq) return;
+    if (r.RepondreA) casq.repondreA = r.RepondreA;
+    membres = membres || lireMembres_();
+    var parId = {};
+    membres.forEach(function (m) { parId[m.id] = m; });
+    lignes.filter(function (x) { return x.EnvoiId === r.Id; }).forEach(function (x) {
+      var cas = j1 && x.Reponse === 'oui' && !x.Rappel1 ? 'veille' : (j7 && !x.Reponse && !x.Rappel7 ? 'relance' : '');
+      if (!cas || !x.Email) return;
+      var m = parId[x.Membre] || { id: x.Membre, nom: x.Nom, prenom: '', appel: 'Madame, Monsieur,', groupe: '' };
+      var corps = cas === 'veille'
+        ? '{appel}\n\nNous nous réjouissons de vous accueillir ' + (j === 0 ? 'aujourd’hui' : 'demain') + ' :\n\n**' + evt.titre + '**\n' + quandEvt_(evt) +
+          (Number(x.Accompagnants) ? '\n\nVous serez accompagné(e) de : ' + x.NomsAccompagnants.split(' | ').join(', ') + '.' : '') + '\n\n{politesse}'
+        : '{appel}\n\nNous n’avons pas encore reçu votre réponse pour l’événement ci-dessous. Merci de nous dire si vous serez des nôtres, d’un simple clic.\n\n{politesse}';
+      var P = { casq: casq, objet: (cas === 'veille' ? 'Rappel : ' : 'Votre réponse : ') + evt.titre, corps: corps, pj: { ids: [], noms: [], blobs: [] }, suivi: adresseSuivi_(r.Id), evt: cas === 'relance' ? evt : null };
+      try {
+        expedier_(P, x.Email, composerMail_(u, P, m, URL_INSCRIPTION + '?t=' + jetonInsc_(r.Id, x.Membre)), P.objet);
+        majInsc_(x._ligne, cas === 'veille' ? { Rappel1: aujourdhui_() } : { Rappel7: aujourdhui_() });
+        journal.push(cas + ' ' + r.Id + ' ' + x.Nom);
+      } catch (e) { console.error('Rappel non envoyé à ' + x.Nom + ' : ' + e); }
+    });
+  });
+  if (journal.length) journal_('système', 'inscriptions.rappels', journal.length + ' rappel(s) : ' + journal.slice(0, 20).join(', '));
 }
