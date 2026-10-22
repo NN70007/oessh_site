@@ -54,14 +54,15 @@
 .li-h { font-size: 12pt; font-weight: 700; margin: 0 0 2.5mm; padding-bottom: 1.2mm; border-bottom: 1.2pt solid var(--ltr-red); display: flex; justify-content: space-between; gap: 4mm; }
 .li-h small { font-size: 10.5pt; font-weight: 400; }
 .li-sous { margin: -1mm 0 3mm; font-size: 10pt; }
-.li-t { width: 100%; border-collapse: collapse; margin-bottom: 9mm; font-size: 10.5pt; }
+.li-t { width: 100%; border-collapse: collapse; margin-bottom: 9mm; font-size: 10.5pt; table-layout: fixed; }
+/* Mêmes colonnes dans les deux tableaux : « Nom » et « Inscrit par » commencent au même endroit */
+.li-t col.n { width: 11mm; } .li-t col.nom { width: 72mm; } .li-t col.c { width: 18mm; }
 .li-t th { text-align: left; font-weight: 700; font-size: 9pt; text-transform: uppercase; letter-spacing: .5pt; padding: 0 2mm 1.5mm; border-bottom: .6pt solid #000; }
 .li-t td { padding: 1.6mm 2mm; border-bottom: .4pt solid #c9c9c9; vertical-align: top; }
 .li-t tr { break-inside: avoid; }
-.li-t .n { width: 9mm; text-align: right; color: #555; }
-.li-t .c { width: 16mm; text-align: center; }
+.li-t .n { text-align: right; color: #555; }
+.li-t .c { text-align: center; }
 .li-t .avec { color: #444; }
-.li-t .acc td:nth-child(2) { padding-left: 6mm; }
 .li-case { display: inline-block; width: 3.6mm; height: 3.6mm; border: .7pt solid #000; vertical-align: middle; }
 .li-vide { font-style: italic; color: #555; margin: 0 0 9mm; }
 .li-bilan { font-size: 10pt; color: #333; break-inside: avoid; }
@@ -106,6 +107,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="liste.js?v=20261023a"></script>
+<script src="liste.js?v=20261023b"></script>
 </body>
 </html>

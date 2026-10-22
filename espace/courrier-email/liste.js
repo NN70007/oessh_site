@@ -58,10 +58,12 @@ function dessiner(F) {
   var montant = isFinite(prix) && prix > 0 ? Math.round(prix * lignesRepas.length * 100) / 100 : null;
 
   function tableau(lignes, pointage) {
-    return '<table class="li-t"><thead><tr><th class="n">N°</th><th>Nom</th><th>Inscrit par</th>' + (pointage ? '<th class="c">Présent</th>' : "") + "</tr></thead><tbody>" +
+    // Les deux tableaux ont toujours 4 colonnes de même largeur (la dernière reste vide pour le repas)
+    return '<table class="li-t"><colgroup><col class="n"><col class="nom"><col><col class="c"></colgroup>' +
+      '<thead><tr><th class="n">N°</th><th>Nom</th><th>Inscrit par</th><th class="c">' + (pointage ? "Présent" : "") + "</th></tr></thead><tbody>" +
       lignes.map(function (l, i) {
         return "<tr" + (l.acc ? ' class="acc"' : "") + '><td class="n">' + (i + 1) + "</td><td>" + E.esc(l.nom) + '</td><td class="avec">' + E.esc(l.avec) + "</td>" +
-          (pointage ? '<td class="c"><span class="li-case"></span></td>' : "") + "</tr>";
+          '<td class="c">' + (pointage ? '<span class="li-case"></span>' : "") + "</td></tr>";
       }).join("") + "</tbody></table>";
   }
 
