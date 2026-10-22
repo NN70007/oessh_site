@@ -377,6 +377,23 @@
       }
     },
     {
+      "id": "2026-11-13-test-repas-a-effacer",
+      "date_iso": "2026-11-13",
+      "date_affichee": "NOV 13",
+      "type": "autre",
+      "published": false,
+      "titre": {
+        "fr": "TEST repas – à effacer",
+        "de": "TEST repas – à effacer",
+        "en": "TEST repas – à effacer"
+      },
+      "lieu": {
+        "fr": "18h30 · Test",
+        "de": "18h30 · Test",
+        "en": "18h30 · Test"
+      }
+    },
+    {
       "id": "2026-11-17-formation-17922668797181",
       "date_iso": "2026-11-17",
       "date_affichee": "NOV 17",
