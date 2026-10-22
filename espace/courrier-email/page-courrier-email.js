@@ -417,7 +417,7 @@ var MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "a
 function dateEvt(iso) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2], 12)); return JOURS[d.getUTCDay()] + " " + p[2] + (p[2] === 1 ? "er" : "") + " " + MOIS[p[1] - 1] + " " + p[0]; }
 function quandEvt(e) { return dateEvt(e.date) + (e.heure ? " à " + e.heure.replace(":", "h") : "") + (e.lieu ? ", " + e.lieu : ""); }
 function remplirEvenements(choisir) {
-  $("in-evt").innerHTML = '<option value="">Aucun : simple courriel</option>' +
+  $("in-evt").innerHTML = '<option value="">Aucune : simple courriel</option>' +
     EVTS.map(function (e) { return '<option value="' + E.esc(e.id) + '">' + E.esc(dateEvt(e.date) + " · " + e.titre) + (e.publie === false ? " (non publié)" : "") + "</option>"; }).join("") +
     '<option value="__nouveau">+ Créer un nouvel événement…</option>';
   if (choisir) $("in-evt").value = choisir;
@@ -426,8 +426,21 @@ function chargerEvenements() {
   E.api("mail.evenements").then(function (r) { EVTS = r.evenements || []; remplirEvenements($("in-evt").value); })
     .catch(function () { remplirEvenements(); });
 }
+/* Texte d'invitation proposé dès qu'un événement est choisi (si l'objet et le message sont vides ou encore ceux proposés) */
+var AUTO = { objet: "", corps: "" };
+function proposerTexte(ev) {
+  var o = $("in-objet").value.trim(), c = $("in-corps").value.trim();
+  var libre = (!o || o === AUTO.objet) && (!c || c === AUTO.corps);
+  if (!libre || !ev) return;
+  AUTO.objet = "Invitation - " + ev.titre;
+  AUTO.corps = "{appel}\n\nJ’ai l’honneur de vous inviter à : **" + ev.titre + "**, le " + quandEvt(ev) + ".\n\n" +
+    "Nous serions heureux de vous compter parmi nous. Je vous remercie de bien vouloir nous indiquer votre présence d’un simple clic, à l’aide des boutons ci-dessous.\n\n{politesse}";
+  $("in-objet").value = AUTO.objet; $("in-corps").value = AUTO.corps;
+  $("in-modele").value = "";
+}
 $("in-evt").addEventListener("change", function () {
   $("evt-nouveau").hidden = this.value !== "__nouveau";
+  proposerTexte(evtChoisi());
   maj();
 });
 $("btn-evt-creer").addEventListener("click", function () {
@@ -440,6 +453,7 @@ $("btn-evt-creer").addEventListener("click", function () {
     EVTS.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
     remplirEvenements(r.evenement.id);
     $("evt-nouveau").hidden = true;
+    proposerTexte(r.evenement);
     etat("Événement créé" + (r.evenement.publie ? " et ajouté au calendrier du site." : " (non publié sur le site).") + " Il est joint à ce courriel.", true);
     maj();
   }).catch(function (e) { etat(e && e.message || "L’événement n’a pas pu être créé.", false); })

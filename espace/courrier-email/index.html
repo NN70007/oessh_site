@@ -127,7 +127,9 @@
 .rep-texte { font-size: 13.5px; line-height: 1.55; padding: 0 0 10px; white-space: normal; }
 .h-exp { color: var(--ink-mute); }
 /* Invitation à un événement */
-.evt-nouveau { border: 1px solid var(--line); border-radius: 4px; padding: 14px; margin-top: 10px; background: var(--bg-soft); }
+.fg-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .fg-duo { grid-template-columns: 1fr; gap: 0; } }
+.evt-nouveau { border: 1px solid var(--line); border-radius: 4px; padding: 14px; margin: -4px 0 18px; background: var(--bg-soft); }
 .evt-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 10px; }
 .evt-grille .large { grid-column: 1 / -1; }
 .evt-grille label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute); display: block; margin-bottom: 4px; }
@@ -176,10 +178,27 @@
               <label for="in-repondre">Les réponses arrivent à</label>
               <select id="in-repondre"></select>
             </div>
-            <div class="fg">
-              <label for="in-modele">Partir d'un modèle</label>
-              <select id="in-modele"><option value="">Texte libre</option></select>
+            <div class="fg-duo" id="bloc-evt">
+              <div class="fg">
+                <label for="in-modele">Partir d'un modèle</label>
+                <select id="in-modele"><option value="">Texte libre</option></select>
+              </div>
+              <div class="fg">
+                <label for="in-evt">Invitation à un événement</label>
+                <select id="in-evt"><option value="">Aucune : simple courriel</option></select>
+              </div>
             </div>
+            <div id="evt-nouveau" class="evt-nouveau" hidden>
+                <div class="evt-grille">
+                  <div><label for="ev-date">Date</label><input type="date" id="ev-date"></div>
+                  <div><label for="ev-heure">Heure</label><input type="time" id="ev-heure"></div>
+                  <div class="large"><label for="ev-titre">Titre</label><input type="text" id="ev-titre" maxlength="150" placeholder="Ex. Messe de la Lieutenance"></div>
+                  <div class="large"><label for="ev-lieu">Lieu</label><input type="text" id="ev-lieu" maxlength="150" placeholder="Ex. Église Saint-Michel, Luxembourg"></div>
+                </div>
+                <label class="pers"><input type="checkbox" id="ev-publier" checked> Afficher aussi dans le calendrier public du site</label>
+                <button type="button" class="btn-l" id="btn-evt-creer">Créer l'événement</button>
+              </div>
+            <div class="hint" id="evt-aide" style="margin:-6px 0 18px">Avec un événement, les destinataires répondent « Je viendrai » ou « Je ne viendrai pas » d'un clic et indiquent le nom de leurs accompagnants. Rappel automatique 7 jours avant à ceux qui n'ont pas répondu, et la veille à ceux qui viennent.</div>
             <div class="fg">
               <label for="in-objet">Objet</label>
               <input type="text" id="in-objet" maxlength="200" autocomplete="off">
@@ -200,21 +219,6 @@
               <ul class="pj-liste" id="pj-liste"></ul>
               <button type="button" class="btn-l" id="btn-pj">Joindre un fichier</button>
               <div class="hint">PDF, images (JPG, PNG), Word ou Excel : 5 fichiers et 10 Mo au total au maximum. Pour un fichier plus lourd, mettez plutôt un lien Google Drive dans le message.</div>
-            </div>
-            <div class="fg" id="bloc-evt" style="margin-top:22px">
-              <label for="in-evt">Invitation à un événement (facultatif)</label>
-              <select id="in-evt"><option value="">Aucun : simple courriel</option></select>
-              <div id="evt-nouveau" class="evt-nouveau" hidden>
-                <div class="evt-grille">
-                  <div><label for="ev-date">Date</label><input type="date" id="ev-date"></div>
-                  <div><label for="ev-heure">Heure</label><input type="time" id="ev-heure"></div>
-                  <div class="large"><label for="ev-titre">Titre</label><input type="text" id="ev-titre" maxlength="150" placeholder="Ex. Messe de la Lieutenance"></div>
-                  <div class="large"><label for="ev-lieu">Lieu</label><input type="text" id="ev-lieu" maxlength="150" placeholder="Ex. Église Saint-Michel, Luxembourg"></div>
-                </div>
-                <label class="pers"><input type="checkbox" id="ev-publier" checked> Afficher aussi dans le calendrier public du site</label>
-                <button type="button" class="btn-l" id="btn-evt-creer">Créer l'événement</button>
-              </div>
-              <div class="hint">Les destinataires répondent « Je viendrai » ou « Je ne viendrai pas » d'un clic et indiquent le nom de leurs accompagnants. Rappel automatique 7 jours avant à ceux qui n'ont pas répondu, et la veille à ceux qui viennent.</div>
             </div>
           </div>
 
@@ -262,6 +266,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="page-courrier-email.js?v=20261022d"></script>
+<script src="page-courrier-email.js?v=20261022e"></script>
 </body>
 </html>
