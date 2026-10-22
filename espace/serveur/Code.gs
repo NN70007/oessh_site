@@ -27,7 +27,11 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-20q',
+  VERSION: '2026-10-22a',
+  // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
+  // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
+  REPONSES_JOURS: 30,
+  REPONSES_LABEL: 'Réponses courrier',
   // Pièces jointes du Courrier e-mail : 10 Mo au total, 5 fichiers au plus
   PJ_MAX: 10 * 1024 * 1024,
   PJ_NB_MAX: 5,
@@ -50,7 +54,7 @@ var ONGLETS = {
   RetJalons: ['Date', 'Titre', 'Detail', 'Cle'],
   RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note'],
   RetOrganisation: ['Fonction', 'Nom'],
-  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type', 'PJ']
+  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type', 'PJ', 'Id', 'RepondreA', 'Destinataires']
 };
 // Colonne de droits du Courrier e-mail, ajoutée en fin d'onglet « Acces » par « installer ».
 var COL_ENVOIS = 'Envois';
@@ -116,6 +120,7 @@ function route_(req) {
     case 'mail.essai': return mailEssai_(user, req);
     case 'mail.envoyer': return mailEnvoyer_(user, req);
     case 'mail.joindre': return mailJoindre_(user, req);
+    case 'mail.reponses': return mailReponses_(user, req);
     default: throw refus_('Action inconnue.', 'inconnu');
   }
 }
@@ -818,8 +823,10 @@ function journalEnvoi_(obj) {
     sh = ss.insertSheet('JournalEnvois');
     sh.getRange(1, 1, 1, head.length).setValues([head]);
     sh.setFrozenRows(1);
-  } else if (sh.getRange(1, head.length).getValue() !== head[head.length - 1]) {
-    sh.getRange(1, head.length).setValue(head[head.length - 1]);   // colonne PJ ajoutée après coup
+  } else {
+    // Colonnes ajoutées après coup (PJ, puis Id, RepondreA, Destinataires) : en-têtes complétés à leur place
+    var actuel = sh.getRange(1, 1, 1, head.length).getValues()[0];
+    head.forEach(function (h, j) { if (actuel[j] !== h) sh.getRange(1, j + 1).setValue(h); });
   }
   ajouter_('JournalEnvois', obj);
 }
@@ -909,14 +916,23 @@ function politesse_(appel) {
 function mailCharger_(u) {
   exigerEnvois_(u);
   nettoyerPJ_();
+  entretienLeger_();
   var membres = lireMembres_();
   var groupes = GROUPES_ENVOI.map(function (g) {
     return { id: g.id, nom: g.nom, ids: membres.filter(g.f).map(function (m) { return m.id; }) };
   });
   var historique = [];
   try {
+    var index = suiviActif_() ? indexReponses_() : {};
     historique = lire_('JournalEnvois').slice(-30).reverse().map(function (r) {
-      return { ts: Number(r.Date) || 0, qui: r.Qui, casquette: r.Casquette, objet: r.Objet, groupes: r.Groupes, nb: Number(r.Nb) || 0, erreurs: r.Erreurs, type: r.Type };
+      var h = { ts: Number(r.Date) || 0, qui: r.Qui, casquette: r.Casquette, objet: r.Objet, groupes: r.Groupes, nb: Number(r.Nb) || 0, erreurs: r.Erreurs, type: r.Type };
+      // Suivi des réponses : visible par l'auteur de l'envoi et par l'administrateur
+      if (r.Id && r.Type === 'envoi' && peutVoirReponses_(u, r)) {
+        h.id = r.Id;
+        h.reponses = (index[r.Id] || []).length;
+        h.efface = h.ts && (Date.now() - h.ts > CONFIG.REPONSES_JOURS * 24 * 3600 * 1000);
+      }
+      return h;
     });
   } catch (e) { historique = []; }
   return {
@@ -930,6 +946,7 @@ function mailCharger_(u) {
     adresses: adressesReponse_(u),
     signataire: u.signature || u.nom,
     version: CONFIG.VERSION,
+    suivi: suiviActif_(),
     quota: MailApp.getRemainingDailyQuota(),
     essaiA: u.email
   };
@@ -976,7 +993,7 @@ function composerMail_(u, P, m) {
   var OESSH = P.casq.ligneOrdre;
   var signataire = u.signature || u.nom;
   var signature = [signataire, P.casq.ligneFonction, OESSH, P.casq.repondreA];
-  var pied = 'Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.';
+  var pied = P.suivi ? PIED_SUIVI : 'Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.';
   var texte = texteBrut_(corps) + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
   var img = CONFIG.IMAGES_MAIL, lt = P.casq.entite !== 'asbl';
@@ -1031,7 +1048,8 @@ function expedier_(P, to, contenu, objet) {
   GmailApp.sendEmail(to, objet, contenu.texte, {
     from: CONFIG.ENVOI_ALIAS,
     name: P.casq.expediteur,
-    replyTo: P.casq.repondreA,
+    // Avec le suivi des réponses : l'adresse de l'auteur ET l'adresse de collecte propre à cet envoi
+    replyTo: P.suivi ? P.casq.repondreA + ', ' + P.suivi : P.casq.repondreA,
     htmlBody: contenu.html,
     attachments: P.pj.blobs
   });
@@ -1050,6 +1068,7 @@ function mailEssai_(u, req) {
   var membres = lireMembres_();
   var modele = membres.filter(function (m) { return m.id === String(req.apercu || ''); })[0] ||
     { nom: '', prenom: '', appel: 'Cher Confrère,', groupe: 'lt' };
+  P.suivi = adresseSuivi_('essai');   // l'essai montre exactement ce que recevront les destinataires
   var c = composerMail_(u, P, modele);
   expedier_(P, u.email, c, '[ESSAI] ' + P.objet);
   CacheService.getScriptCache().put('essai:' + u.email + ':' + P.empreinte, '1', 6 * 3600);
@@ -1072,18 +1091,148 @@ function mailEnvoyer_(u, req) {
   if (cibles.length > CONFIG.ENVOI_MAX) throw refus_('Trop de destinataires en une fois (' + cibles.length + ', maximum ' + CONFIG.ENVOI_MAX + ').', 'donnees');
   var avec = cibles.filter(function (m) { return m.email; });
   if (avec.length > MailApp.getRemainingDailyQuota()) throw refus_('Le quota d’envoi du jour est insuffisant. Réessayez demain.', 'limite');
-  var envoyes = 0, erreurs = [];
+  var envoiId = 'e' + Date.now().toString(36);
+  P.suivi = adresseSuivi_(envoiId);
+  var envoyes = 0, erreurs = [], recus = [];
   avec.forEach(function (m) {
-    try { expedier_(P, m.email, composerMail_(u, P, m), P.objet); envoyes++; }
+    try { expedier_(P, m.email, composerMail_(u, P, m), P.objet); envoyes++; recus.push([(m.prenom ? m.prenom + ' ' : '') + m.nom, m.email]); }
     catch (e) { erreurs.push((m.prenom ? m.prenom + ' ' : '') + m.nom); }
   });
   // Pièces jointes envoyées à tous : plus utiles, mises à la corbeille de Drive (gardées en cas d'échec, pour renvoyer).
   var pjSupprimees = !erreurs.length && P.pj.ids.length ? corbeillePJ_(P.pj.ids) : false;
   var sans = cibles.filter(function (m) { return !m.email; }).map(function (m) { return (m.prenom ? m.prenom + ' ' : '') + m.nom; });
   var groupesTxt = texte_(Array.isArray(req.groupes) ? req.groupes.join(', ') : req.groupes, 200);
-  journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: groupesTxt, Nb: String(envoyes), Erreurs: erreurs.join(', '), Type: 'envoi', PJ: P.pj.noms.join(', ') });
+  journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: groupesTxt, Nb: String(envoyes), Erreurs: erreurs.join(', '), Type: 'envoi', PJ: P.pj.noms.join(', '),
+    Id: P.suivi ? envoiId : '', RepondreA: P.casq.repondreA, Destinataires: P.suivi ? JSON.stringify(recus) : '' });
   journal_(u.email, 'mail.envoi', P.objet + ' - ' + envoyes + ' destinataire(s)' + (erreurs.length ? ', ' + erreurs.length + ' erreur(s)' : ''));
   return { ok: true, envoyes: envoyes, erreurs: erreurs, sansCourriel: sans, pjSupprimees: pjSupprimees };
+}
+
+/* ======================= Courrier e-mail : suivi des réponses ======================= */
+/* Chaque courriel porte deux adresses « Répondre à » : celle de l'auteur (alias de sa fonction) et une adresse
+   de collecte propre à l'envoi, reponses+<id>@oessh.lu (alias du compte du script). Les copies reçues sont
+   rangées sous l'étiquette « Réponses courrier », sorties de la boîte de réception, puis mises à la corbeille
+   après CONFIG.REPONSES_JOURS jours. Actif seulement si la propriété du script REPONSES_ALIAS est renseignée. */
+var PIED_SUIVI = 'Pour répondre, utilisez simplement « Répondre » en conservant les deux adresses proposées : votre message parviendra à son auteur et sera bien suivi.';
+
+function aliasReponses_() { var a = norm_(prop_('REPONSES_ALIAS')); return /^[^\s@+]+@[^\s@]+\.[^\s@]+$/.test(a) ? a : ''; }
+function suiviActif_() { return !!aliasReponses_(); }
+function adresseSuivi_(id) { var a = aliasReponses_(); if (!a) return ''; var p = a.split('@'); return p[0] + '+' + id + '@' + p[1]; }
+function peutVoirReponses_(u, r) { return !!(u.admin || u.gestion) || (u.emails || []).concat([u.email]).map(norm_).indexOf(norm_(r.Qui)) > -1; }
+function joursMs_(j) { return j * 24 * 3600 * 1000; }
+
+/** Adresses du compte du script (principale et alias) : une copie qui leur est aussi adressée reste dans la boîte de réception. */
+function adressesCompte_() {
+  var out = CONFIG.ADMINS_INITIAUX[0].emails.map(norm_);
+  try { GmailApp.getAliases().forEach(function (a) { out.push(norm_(a)); }); } catch (e) { /* sans alias */ }
+  return out;
+}
+function etiquette_(nom) { return GmailApp.getUserLabelByName(nom) || GmailApp.createLabel(nom); }
+
+/** Réponses reçues sur l'adresse de collecte, regroupées par envoi ; les range au passage. Résultat gardé 10 minutes. */
+function indexReponses_(frais) {
+  var cache = CacheService.getScriptCache();
+  if (!frais) { var c = cache.get('rep:index'); if (c) { try { return JSON.parse(c); } catch (e) { /* recalcul */ } } }
+  var alias = aliasReponses_();
+  if (!alias) return {};
+  var p = alias.split('@');
+  var re = new RegExp(p[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\+([a-z0-9]+)@' + p[1].replace(/\./g, '\\.'), 'i');
+  var tout = etiquette_(CONFIG.REPONSES_LABEL), copie = etiquette_(CONFIG.REPONSES_LABEL + '/copie');
+  var miens = adressesCompte_().filter(function (a) { return a !== alias; });
+  var index = {};
+  GmailApp.search('{to:' + p[0] + ' deliveredto:' + p[0] + ' cc:' + p[0] + '} newer_than:' + (CONFIG.REPONSES_JOURS + 1) + 'd', 0, 200).forEach(function (t) {
+    var trouve = false, garder = false;
+    t.getMessages().forEach(function (msg) {
+      var dest = norm_((msg.getTo() || '') + ',' + (msg.getCc() || ''));
+      var m = dest.match(re);
+      if (!m) return;
+      trouve = true;
+      // Copie aussi adressée à une adresse de ce compte (par ex. secretariat@) : c'est aussi le courrier de l'auteur, on la laisse en place.
+      if (miens.some(function (a) { return dest.indexOf(a) > -1; })) garder = true;
+      var id = m[1].toLowerCase();
+      if (id === 'essai') return;
+      (index[id] = index[id] || []).push({ m: msg.getId(), t: msg.getDate().getTime() });
+    });
+    if (!trouve) return;
+    try {
+      t.addLabel(tout);
+      if (!garder) { t.addLabel(copie); if (t.isInInbox()) t.moveToArchive(); }
+    } catch (e) { /* le rangement ne doit jamais bloquer le suivi */ }
+  });
+  try { cache.put('rep:index', JSON.stringify(index), 600); } catch (e) { /* index trop gros pour le cache */ }
+  return index;
+}
+
+/** Copies de plus de CONFIG.REPONSES_JOURS jours : à la corbeille (seulement celles de l'étiquette « copie »). */
+function purgerCopiesReponses_() {
+  var copie = GmailApp.getUserLabelByName(CONFIG.REPONSES_LABEL + '/copie');
+  if (!copie) return 0;
+  var limite = Date.now() - joursMs_(CONFIG.REPONSES_JOURS), vieux = [];
+  copie.getThreads(0, 200).forEach(function (t) { if (t.getLastMessageDate().getTime() < limite) vieux.push(t); });
+  for (var i = 0; i < vieux.length; i += 100) GmailApp.moveThreadsToTrash(vieux.slice(i, i + 100));
+  return vieux.length;
+}
+
+/** Entretien : à brancher sur un déclencheur horaire (Déclencheurs > Ajouter > entretienReponses > toutes les heures).
+    Sans déclencheur, le rangement se fait à l'ouverture de la page et le ménage une fois par jour. */
+function entretienReponses() {
+  if (!suiviActif_()) return;
+  indexReponses_(true);
+  purgerCopiesReponses_();
+}
+function entretienLeger_() {
+  if (!suiviActif_()) return;
+  var cache = CacheService.getScriptCache();
+  if (cache.get('rep:purge')) return;
+  try { purgerCopiesReponses_(); } catch (e) { /* jamais bloquant */ }
+  cache.put('rep:purge', '1', 6 * 3600);
+}
+
+/** Réponses à un envoi (auteur de l'envoi ou administrateur) : texte sans la citation, et liste de ceux qui n'ont pas répondu. */
+function mailReponses_(u, req) {
+  exigerEnvois_(u);
+  var id = norm_(req.id);
+  var r = lire_('JournalEnvois').filter(function (x) { return norm_(x.Id) === id && x.Type === 'envoi'; })[0];
+  if (!id || !r) throw refus_('Envoi introuvable.', 'introuvable');
+  if (!peutVoirReponses_(u, r)) throw refus_("Seul l'auteur de l'envoi peut en voir les réponses.", 'droits');
+  var dest = [];
+  try { dest = JSON.parse(r.Destinataires || '[]'); } catch (e) { dest = []; }
+  var reponses = [];
+  (indexReponses_(!!req.actualiser)[id] || []).forEach(function (x) {
+    var msg;
+    try { msg = GmailApp.getMessageById(x.m); } catch (e) { msg = null; }
+    if (!msg || msg.isInTrash()) return;
+    var de = adresseDe_(msg.getFrom());
+    var d = dest.filter(function (q) { return norm_(q[1]) === de.email; })[0];
+    reponses.push({ nom: d ? d[0] : (de.nom || de.email), email: de.email, ts: msg.getDate().getTime(), texte: sansCitation_(msg.getPlainBody()).slice(0, 8000) });
+  });
+  reponses.sort(function (a, b) { return a.ts - b.ts; });
+  var ont = reponses.map(function (x) { return x.email; });
+  return {
+    ok: true,
+    reponses: reponses,
+    sansReponse: dest.filter(function (q) { return ont.indexOf(norm_(q[1])) < 0; }).map(function (q) { return q[0]; }),
+    efface: Date.now() - (Number(r.Date) || 0) > joursMs_(CONFIG.REPONSES_JOURS)
+  };
+}
+function adresseDe_(s) {
+  var m = String(s || '').match(/^\s*"?([^"<]*?)"?\s*<([^>]+)>/);
+  return m ? { nom: m[1].trim(), email: norm_(m[2]) } : { nom: '', email: norm_(s) };
+}
+/** Retire du texte d'une réponse le message d'origine cité (« Le … a écrit : », lignes « > », « De : »…). */
+function sansCitation_(t) {
+  var l = String(t || '').replace(/\r\n?/g, '\n').split('\n'), out = [];
+  var entete = /^(le|on|am|el|il)\s.{4,240}(a écrit|wrote|schrieb|escribió|ha scritto)\s*:?\s*$/i;
+  for (var i = 0; i < l.length; i++) {
+    var x = l[i].trim(), deux = (x + ' ' + (l[i + 1] || '').trim()).trim();
+    if (entete.test(x) || entete.test(deux)) break;
+    if (/^-{2,}\s*(original message|message d.origine|ursprüngliche nachricht|message transféré)/i.test(x)) break;
+    if (/^_{5,}$/.test(x)) break;
+    if (/^(de|from|von)\s*:/i.test(x) && out.length && /^(envoyé|sent|gesendet|date)\s*:/i.test((l[i + 1] || '').trim())) break;
+    if (/^>/.test(x)) continue;
+    out.push(l[i]);
+  }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 /* ======================= Courrier e-mail : pièces jointes ======================= */
