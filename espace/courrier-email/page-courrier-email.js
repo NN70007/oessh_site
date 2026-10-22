@@ -54,7 +54,7 @@ function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter
 function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(",")].join("\u0001"); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-22a";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-22b";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -350,12 +350,14 @@ $("pj-liste").addEventListener("click", function (ev) {
 });
 
 /* ── Journal et suivi des réponses ── */
+function dateLongue(ts) { return ts ? new Date(ts).toLocaleDateString("fr-LU", { day: "numeric", month: "long", year: "numeric" }) : ""; }
 function dateCourte(ts) { return ts ? new Date(ts).toLocaleString("fr-LU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : ""; }
 function dessinerHistorique() {
   var h = D.historique || [];
   $("historique").innerHTML = h.length ? h.map(function (x) {
     var suivi = x.id ? ' · <button type="button" class="h-rep" data-envoi="' + E.esc(x.id) + '" aria-expanded="false">' +
-      (x.efface ? "réponses effacées après 30 jours" : x.reponses + " réponse" + (x.reponses > 1 ? "s" : "")) + "</button>" : "";
+      (x.efface ? "réponses effacées le " + dateLongue(x.expire) : x.reponses + " réponse" + (x.reponses > 1 ? "s" : "")) + "</button>" +
+      (x.efface || !x.expire ? "" : ' <span class="h-exp">· conservées ici jusqu’au ' + E.esc(dateLongue(x.expire)) + "</span>") : "";
     return "<li>" + E.esc(x.objet) + '<div class="h-meta">' + E.esc(dateCourte(x.ts)) + " · " + E.esc(x.qui) + " · " +
       (x.type === "essai" ? "essai" : E.esc(x.nb + " destinataire" + (x.nb > 1 ? "s" : "") + (x.groupes ? " · " + x.groupes : ""))) +
       (x.erreurs ? " · échecs : " + E.esc(x.erreurs) : "") + suivi + "</div>" +
@@ -375,8 +377,11 @@ function chargerReponses(id, actualiser) {
       var court = x.texte.replace(/\s+/g, " ").slice(0, 140);
       return '<li><button type="button" class="rep-tete" data-rep="' + i + '"><span class="rep-nom">' + E.esc(x.nom) + '</span><span class="rep-date">' + E.esc(dateCourte(x.ts)) + "</span>" +
         '<span class="rep-extrait">' + E.esc(court) + (x.texte.length > 140 ? "…" : "") + '</span></button><div class="rep-texte" hidden>' + E.esc(x.texte).replace(/\n/g, "<br>") + "</div></li>";
-    }).join("") + "</ul>" : '<div class="h-meta">' + (r.efface ? "Les réponses de plus de 30 jours sont effacées." : "Aucune réponse pour le moment.") + "</div>";
+    }).join("") + "</ul>" : '<div class="h-meta">' + (r.efface ? "Les réponses à cet envoi ont été effacées le " + E.esc(dateLongue(r.expire)) + "." : "Aucune réponse pour le moment.") + "</div>";
     if (r.sansReponse && r.sansReponse.length && !r.efface) html += '<div class="rep-sans"><b>Sans réponse (' + r.sansReponse.length + ') :</b> ' + E.esc(r.sansReponse.join(", ")) + "</div>";
+    var boite = r.repondreA ? "la boîte " + E.esc(r.repondreA) : "la boîte mail de votre fonction";
+    html += '<div class="rep-note">' + (r.efface ? "Elles restent disponibles dans " + boite + "." :
+      "Ces réponses sont conservées ici jusqu’au " + E.esc(dateLongue(r.expire)) + ". Après cette date, elles restent disponibles dans " + boite + ".") + "</div>";
     html += '<button type="button" class="rep-maj" data-maj="' + E.esc(id) + '">Actualiser</button>';
     box.innerHTML = html;
   }).catch(function (e) { box.innerHTML = '<div class="h-meta">' + E.esc(e && e.message || "Réponses indisponibles.") + "</div>"; });
