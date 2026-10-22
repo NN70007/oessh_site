@@ -47,13 +47,14 @@ var groupesCoches = {};    // id de groupe -> true
 var essaiOk = "";          // empreinte du texte dont l'essai a été envoyé
 var PIECES = [];           // pièces jointes déposées : { id, nom, taille }
 
+var PIED_SUIVI = "Pour répondre, utilisez simplement « Répondre » en conservant les deux adresses proposées : votre message parviendra à son auteur et sera bien suivi.";   // même texte que Code.gs
 function nomComplet(m) { return (m.prenom ? m.prenom + " " : "") + m.nom; }
 function repondre() { return $("in-repondre").value; }
 function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter(function (x) { return x.code === c; })[0]; }
 function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(",")].join("\u0001"); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-20q";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-22a";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -254,7 +255,7 @@ function dessinerApercu() {
   corps = corps.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || "").replace(/\{prenom\}/g, m.prenom || "").replace(/\{nom\}/g, m.nom || "");
   if (!avecAppel) corps = m.appel + "\n\n" + corps;
   var paras = corpsHtml(corps);
-  $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.expediteur || c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) +
+  $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.expediteur || c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) + (D && D.suivi ? " + adresse de suivi des réponses" : "") +
     "<br><b>Objet :</b> " + E.esc($("in-objet").value.trim() || "(vide)") +
     (PIECES.length ? "<br><b>Pièces jointes :</b> " + E.esc(PIECES.map(function (p) { return p.nom; }).join(", ")) : "");
   var lt = c.entite !== "asbl", img = "../../assets/email/";
@@ -264,7 +265,7 @@ function dessinerApercu() {
   $("apercu").innerHTML = '<div class="mp-box"><div class="mp-head">' + embleme + '<div><div class="mp-ordre">Ordre Équestre du Saint-Sépulcre de Jérusalem</div><div class="mp-ent">' + E.esc(c.entiteNom) + "</div></div></div>" +
     '<div class="mp-body">' + paras + '</div><div class="mp-sig"><div class="mp-nom">' + croix + "<strong>" + E.esc((D && D.signataire) || u.signature || u.nom) + "</strong></div><div class=\"mp-fn\">" + E.esc(ligne) +
     "<br>" + E.esc(c.ligneOrdre || "de l’Ordre Équestre du Saint-Sépulcre de Jérusalem (OESSH)") + "<br><a href=\"mailto:" + E.esc(repondre()) + "\">" + E.esc(repondre()) + "</a></div></div>" +
-    '<div class="mp-foot">Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.</div></div>';
+    '<div class="mp-foot">' + (D && D.suivi ? PIED_SUIVI : "Pour répondre, utilisez simplement « Répondre » : votre message parviendra directement à son auteur.") + '</div></div>';
 }
 
 /* ── Essai et envoi ── */
@@ -348,19 +349,52 @@ $("pj-liste").addEventListener("click", function (ev) {
   dessinerPieces(); maj();
 });
 
-/* ── Journal ── */
+/* ── Journal et suivi des réponses ── */
+function dateCourte(ts) { return ts ? new Date(ts).toLocaleString("fr-LU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : ""; }
 function dessinerHistorique() {
   var h = D.historique || [];
   $("historique").innerHTML = h.length ? h.map(function (x) {
-    var d = x.ts ? new Date(x.ts).toLocaleString("fr-LU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
-    return "<li>" + E.esc(x.objet) + '<div class="h-meta">' + E.esc(d) + " · " + E.esc(x.qui) + " · " +
+    var suivi = x.id ? ' · <button type="button" class="h-rep" data-envoi="' + E.esc(x.id) + '" aria-expanded="false">' +
+      (x.efface ? "réponses effacées après 30 jours" : x.reponses + " réponse" + (x.reponses > 1 ? "s" : "")) + "</button>" : "";
+    return "<li>" + E.esc(x.objet) + '<div class="h-meta">' + E.esc(dateCourte(x.ts)) + " · " + E.esc(x.qui) + " · " +
       (x.type === "essai" ? "essai" : E.esc(x.nb + " destinataire" + (x.nb > 1 ? "s" : "") + (x.groupes ? " · " + x.groupes : ""))) +
-      (x.erreurs ? " · échecs : " + E.esc(x.erreurs) : "") + "</div></li>";
+      (x.erreurs ? " · échecs : " + E.esc(x.erreurs) : "") + suivi + "</div>" +
+      (x.id ? '<div class="h-detail" id="rep-' + E.esc(x.id) + '" hidden></div>' : "") + "</li>";
   }).join("") : '<li class="h-meta">Aucun envoi pour le moment.</li>';
 }
 function rafraichirHistorique() {
   E.api("mail.charger").then(function (r) { D.historique = r.historique; dessinerHistorique(); }).catch(function () {});
 }
+function chargerReponses(id, actualiser) {
+  var box = $("rep-" + id);
+  box.hidden = false;
+  box.innerHTML = '<div class="h-meta">Chargement des réponses…</div>';
+  E.api("mail.reponses", { id: id, actualiser: !!actualiser }).then(function (r) {
+    var rep = r.reponses || [];
+    var html = rep.length ? '<ul class="rep-liste">' + rep.map(function (x, i) {
+      var court = x.texte.replace(/\s+/g, " ").slice(0, 140);
+      return '<li><button type="button" class="rep-tete" data-rep="' + i + '"><span class="rep-nom">' + E.esc(x.nom) + '</span><span class="rep-date">' + E.esc(dateCourte(x.ts)) + "</span>" +
+        '<span class="rep-extrait">' + E.esc(court) + (x.texte.length > 140 ? "…" : "") + '</span></button><div class="rep-texte" hidden>' + E.esc(x.texte).replace(/\n/g, "<br>") + "</div></li>";
+    }).join("") + "</ul>" : '<div class="h-meta">' + (r.efface ? "Les réponses de plus de 30 jours sont effacées." : "Aucune réponse pour le moment.") + "</div>";
+    if (r.sansReponse && r.sansReponse.length && !r.efface) html += '<div class="rep-sans"><b>Sans réponse (' + r.sansReponse.length + ') :</b> ' + E.esc(r.sansReponse.join(", ")) + "</div>";
+    html += '<button type="button" class="rep-maj" data-maj="' + E.esc(id) + '">Actualiser</button>';
+    box.innerHTML = html;
+  }).catch(function (e) { box.innerHTML = '<div class="h-meta">' + E.esc(e && e.message || "Réponses indisponibles.") + "</div>"; });
+}
+$("historique").addEventListener("click", function (ev) {
+  var b = ev.target.closest(".h-rep");
+  if (b) {
+    var box = $("rep-" + b.dataset.envoi), ouvert = b.getAttribute("aria-expanded") === "true";
+    b.setAttribute("aria-expanded", ouvert ? "false" : "true");
+    if (ouvert) { box.hidden = true; return; }
+    chargerReponses(b.dataset.envoi, false);
+    return;
+  }
+  var m = ev.target.closest("[data-maj]");
+  if (m) { chargerReponses(m.dataset.maj, true); return; }
+  var t = ev.target.closest(".rep-tete");
+  if (t) { var tx = t.nextElementSibling; tx.hidden = !tx.hidden; t.classList.toggle("ouvert", !tx.hidden); }
+});
 
 /* ── Aide à la rédaction (charte OESSH) ── */
 var CHARTE = "Règles de la Lieutenance : sigle OESSH ; « Lieutenance pour le Luxembourg » ; majuscules à Le Lieutenant, Le Chancelier, Le Secrétaire, Chevaliers et Dames ; " +

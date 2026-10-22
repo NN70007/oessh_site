@@ -113,6 +113,21 @@
 .hist { list-style: none; margin: 0; padding: 0; }
 .hist li { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; line-height: 1.45; }
 .hist .h-meta { font-size: 12px; color: var(--ink-mute); }
+/* Suivi des réponses */
+.h-rep { border: 0; background: none; padding: 0; font: inherit; color: var(--cardinal); text-decoration: underline; cursor: pointer; }
+.h-rep[aria-expanded="true"] { font-weight: 600; }
+.h-detail { margin: 10px 0 2px; padding: 10px 14px; background: var(--bg-soft); border-left: 3px solid var(--cardinal); border-radius: 3px; }
+.rep-liste { list-style: none; margin: 0; padding: 0; max-height: 420px; overflow: auto; }
+.rep-liste li { border-bottom: 1px solid var(--line); padding: 0; }
+.rep-tete { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; width: 100%; text-align: left; border: 0; background: none; padding: 8px 0; cursor: pointer; font: inherit; color: var(--ink); }
+.rep-nom { font-weight: 600; font-size: 13.5px; }
+.rep-date { font-size: 12px; color: var(--ink-mute); white-space: nowrap; }
+.rep-extrait { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink-mute); }
+.rep-tete.ouvert .rep-extrait { display: none; }
+.rep-texte { font-size: 13.5px; line-height: 1.55; padding: 0 0 10px; white-space: normal; }
+.rep-sans { font-size: 12.5px; color: var(--ink-mute); margin-top: 10px; line-height: 1.5; }
+.rep-maj { margin-top: 10px; border: 1px solid var(--line); background: var(--bg); border-radius: 3px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+.rep-maj:hover { border-color: var(--cardinal); color: var(--cardinal); }
 </style>
 </head>
 <body>
@@ -216,6 +231,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="page-courrier-email.js?v=20261020q"></script>
+<script src="page-courrier-email.js?v=20261022a"></script>
 </body>
 </html>
