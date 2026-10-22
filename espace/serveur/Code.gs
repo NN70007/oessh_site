@@ -27,10 +27,10 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-22a',
+  VERSION: '2026-10-22b',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
-  REPONSES_JOURS: 30,
+  REPONSES_JOURS: 180,   // six mois
   REPONSES_LABEL: 'Réponses courrier',
   // Pièces jointes du Courrier e-mail : 10 Mo au total, 5 fichiers au plus
   PJ_MAX: 10 * 1024 * 1024,
@@ -930,7 +930,9 @@ function mailCharger_(u) {
       if (r.Id && r.Type === 'envoi' && peutVoirReponses_(u, r)) {
         h.id = r.Id;
         h.reponses = (index[r.Id] || []).length;
-        h.efface = h.ts && (Date.now() - h.ts > CONFIG.REPONSES_JOURS * 24 * 3600 * 1000);
+        h.expire = h.ts ? h.ts + joursMs_(CONFIG.REPONSES_JOURS) : 0;
+        h.efface = !!h.expire && Date.now() > h.expire;
+        h.repondreA = r.RepondreA || '';
       }
       return h;
     });
@@ -1112,7 +1114,7 @@ function mailEnvoyer_(u, req) {
 /* Chaque courriel porte deux adresses « Répondre à » : celle de l'auteur (alias de sa fonction) et une adresse
    de collecte propre à l'envoi, reponses+<id>@oessh.lu (alias du compte du script). Les copies reçues sont
    rangées sous l'étiquette « Réponses courrier », sorties de la boîte de réception, puis mises à la corbeille
-   après CONFIG.REPONSES_JOURS jours. Actif seulement si la propriété du script REPONSES_ALIAS est renseignée. */
+   après CONFIG.REPONSES_JOURS jours (six mois). Actif seulement si la propriété du script REPONSES_ALIAS est renseignée. */
 var PIED_SUIVI = 'Pour répondre, utilisez simplement « Répondre » en conservant les deux adresses proposées : votre message parviendra à son auteur et sera bien suivi.';
 
 function aliasReponses_() { var a = norm_(prop_('REPONSES_ALIAS')); return /^[^\s@+]+@[^\s@]+\.[^\s@]+$/.test(a) ? a : ''; }
@@ -1140,7 +1142,7 @@ function indexReponses_(frais) {
   var tout = etiquette_(CONFIG.REPONSES_LABEL), copie = etiquette_(CONFIG.REPONSES_LABEL + '/copie');
   var miens = adressesCompte_().filter(function (a) { return a !== alias; });
   var index = {};
-  GmailApp.search('{to:' + p[0] + ' deliveredto:' + p[0] + ' cc:' + p[0] + '} newer_than:' + (CONFIG.REPONSES_JOURS + 1) + 'd', 0, 200).forEach(function (t) {
+  GmailApp.search('{to:' + p[0] + ' deliveredto:' + p[0] + ' cc:' + p[0] + '} newer_than:' + (CONFIG.REPONSES_JOURS + 1) + 'd', 0, 500).forEach(function (t) {
     var trouve = false, garder = false;
     t.getMessages().forEach(function (msg) {
       var dest = norm_((msg.getTo() || '') + ',' + (msg.getCc() || ''));
@@ -1168,7 +1170,7 @@ function purgerCopiesReponses_() {
   var copie = GmailApp.getUserLabelByName(CONFIG.REPONSES_LABEL + '/copie');
   if (!copie) return 0;
   var limite = Date.now() - joursMs_(CONFIG.REPONSES_JOURS), vieux = [];
-  copie.getThreads(0, 200).forEach(function (t) { if (t.getLastMessageDate().getTime() < limite) vieux.push(t); });
+  copie.getThreads(0, 500).forEach(function (t) { if (t.getLastMessageDate().getTime() < limite) vieux.push(t); });
   for (var i = 0; i < vieux.length; i += 100) GmailApp.moveThreadsToTrash(vieux.slice(i, i + 100));
   return vieux.length;
 }
@@ -1212,7 +1214,9 @@ function mailReponses_(u, req) {
     ok: true,
     reponses: reponses,
     sansReponse: dest.filter(function (q) { return ont.indexOf(norm_(q[1])) < 0; }).map(function (q) { return q[0]; }),
-    efface: Date.now() - (Number(r.Date) || 0) > joursMs_(CONFIG.REPONSES_JOURS)
+    efface: Date.now() - (Number(r.Date) || 0) > joursMs_(CONFIG.REPONSES_JOURS),
+    expire: (Number(r.Date) || 0) + joursMs_(CONFIG.REPONSES_JOURS),
+    repondreA: r.RepondreA || ''
   };
 }
 function adresseDe_(s) {
