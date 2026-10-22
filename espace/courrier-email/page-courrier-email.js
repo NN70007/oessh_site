@@ -25,10 +25,6 @@ E.renderFoot();
 
 /* ── Modèles (les mentions entre crochets doivent être complétées : l'envoi est bloqué sinon) ── */
 var MODELES = [
-  { id: "messe", t: "Invitation à une messe ou cérémonie", objet: "Invitation - [cérémonie] du [date]",
-    corps: "{appel}\n\nJ’ai l’honneur de vous inviter à [cérémonie], qui sera célébrée le [jour et date] à [heure] en [église, lieu].\n\nNous serions heureux de vous compter parmi nous. Je vous remercie de bien vouloir confirmer votre présence en répondant à ce courriel avant le [date limite].\n\n{politesse}" },
-  { id: "rappel", t: "Rappel d’un événement", objet: "Rappel - [événement] du [date]",
-    corps: "{appel}\n\nJe me permets de vous rappeler que [événement] aura lieu le [jour et date] à [heure] en [lieu].\n\nSi vous ne l’avez pas encore fait, je vous remercie de bien vouloir nous faire savoir si vous pourrez être présent.\n\n{politesse}" },
   { id: "noel", t: "Vœux de Noël", objet: "Vœux de Noël de la Lieutenance",
     corps: "{appel}\n\nEn ce temps de Noël, nos pensées se tournent vers Bethléem et vers les chrétiens de Terre Sainte, que notre Ordre a la mission de soutenir.\n\n[message personnel]\n\nJe vous souhaite, ainsi qu’à vos proches, un saint et joyeux Noël et une heureuse année.\n\n{politesse}" },
   { id: "paques", t: "Vœux de Pâques", objet: "Vœux de Pâques de la Lieutenance",
