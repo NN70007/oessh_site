@@ -148,6 +148,8 @@ Seuls l'auteur d'un envoi et les gestionnaires en voient les réponses.
 
 ## 13. Courrier e-mail : invitation à un événement et inscriptions
 
+Version du script et de la page : **2026-10-22d** (l'encadré d'invitation se place avant la formule de politesse).
+
 Dans le Courrier e-mail, le champ **« Invitation à un événement »** rattache le courriel à un événement du calendrier du site (`calendrier.json`), ou en crée un (publié ou non sur le site). Chaque destinataire reçoit deux boutons, « Je viendrai » et « Je ne viendrai pas », qui ouvrent la page `espace/inscription/` avec un lien personnel signé (aucune connexion). Il y indique le nombre et le nom de ses accompagnants ; la réponse n'est enregistrée qu'après « Confirmer ». Les réponses sont dans l'onglet **« Inscriptions »** de la feuille (créé au premier envoi). Dans « Derniers envois », l'auteur voit d'un coup d'œil les inscrits (et le nombre de personnes attendues), ceux qui ne viennent pas, ceux qui n'ont pas répondu, et le nombre d'invités.
 
 Rappels automatiques : ⏰ Déclencheurs → Ajouter → fonction **`rappelsInscriptions`**, déclencheur temporel, **tous les jours, entre 8 h et 9 h**. Sept jours avant l'événement, ceux qui n'ont pas répondu reçoivent une relance avec les boutons ; la veille, ceux qui viennent reçoivent un rappel (avec le nom de leurs accompagnants). Chaque rappel n'est envoyé qu'une fois.
