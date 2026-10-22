@@ -56,7 +56,7 @@ function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").val
 function evtChoisi() { var id = $("in-evt").value; return EVTS.filter(function (e) { return e.id === id; })[0] || null; }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-22c";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-22d";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -259,7 +259,11 @@ function dessinerApercu() {
   if (!avecAppel) corps = m.appel + "\n\n" + corps;
   var paras = corpsHtml(corps);
   var ev = evtChoisi();
-  if (ev) paras += '<div class="mp-invit"><strong>' + E.esc(ev.titre) + "</strong><br>" + E.esc(quandEvt(ev)) + '<br><span class="b p">Je viendrai</span><span class="b">Je ne viendrai pas</span></div>';
+  if (ev) {
+    var bloc = '<div class="mp-invit"><strong>' + E.esc(ev.titre) + "</strong><br>" + E.esc(quandEvt(ev)) + '<br><span class="b p">Je viendrai</span><span class="b">Je ne viendrai pas</span></div>';
+    var k = m.politesse ? corps.lastIndexOf(m.politesse) : -1;   // même règle que le serveur : avant la formule de politesse
+    paras = k > 0 ? corpsHtml(corps.slice(0, k).trim()) + bloc + corpsHtml(corps.slice(k).trim()) : paras + bloc;
+  }
   $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.expediteur || c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) + (D && D.suivi ? " + adresse de suivi des réponses" : "") +
     "<br><b>Objet :</b> " + E.esc($("in-objet").value.trim() || "(vide)") +
     (PIECES.length ? "<br><b>Pièces jointes :</b> " + E.esc(PIECES.map(function (p) { return p.nom; }).join(", ")) : "");
