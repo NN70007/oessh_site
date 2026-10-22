@@ -55,7 +55,7 @@ function dessiner() {
     var noms = [D.nom].concat(Array.prototype.map.call(document.querySelectorAll("#noms input"), function (i) { return i.value.trim(); }));
     $("repas").innerHTML = noms.map(function (nom, i) {
       var c = i in coches ? coches[i] : repasAvant.indexOf(nom) > -1;
-      return '<label style="display:flex;gap:10px;align-items:center;margin:6px 0;font-size:15px"><input type="checkbox" data-i="' + i + '"' + (c ? " checked" : "") + (D.repasFerme ? " disabled" : "") + "> " +
+      return '<label class="in-case"><input type="checkbox" data-i="' + i + '"' + (c ? " checked" : "") + (D.repasFerme ? " disabled" : "") + "> " +
         esc(i === 0 ? nom + " (vous)" : (nom || "Personne " + i)) + "</label>";
     }).join("");
   }
