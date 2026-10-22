@@ -1222,10 +1222,12 @@ function adresseDe_(s) {
 /** Retire du texte d'une réponse le message d'origine cité (« Le … a écrit : », lignes « > », « De : »…). */
 function sansCitation_(t) {
   var l = String(t || '').replace(/\r\n?/g, '\n').split('\n'), out = [];
-  var entete = /^(le|on|am|el|il)\s.{4,240}(a écrit|wrote|schrieb|escribió|ha scritto)\s*:?\s*$/i;
+  var entete = /^(le|on|am|el|il)\s.{4,400}(a écrit|wrote|schrieb|escribió|ha scritto)\s*:?\s*$/i;
   for (var i = 0; i < l.length; i++) {
-    var x = l[i].trim(), deux = (x + ' ' + (l[i + 1] || '').trim()).trim();
-    if (entete.test(x) || entete.test(deux)) break;
+    var x = l[i].trim(), bloc = x, coupe = entete.test(x);
+    // L'en-tête « Le … a écrit : » tient souvent sur 2 à 4 lignes (nom et adresse longs)
+    for (var k = 1; k < 4 && !coupe && /^(le|on|am|el|il)\s/i.test(x); k++) { bloc += ' ' + String(l[i + k] || '').trim(); coupe = entete.test(bloc); }
+    if (coupe) break;
     if (/^-{2,}\s*(original message|message d.origine|ursprüngliche nachricht|message transféré)/i.test(x)) break;
     if (/^_{5,}$/.test(x)) break;
     if (/^(de|from|von)\s*:/i.test(x) && out.length && /^(envoyé|sent|gesendet|date)\s*:/i.test((l[i + 1] || '').trim())) break;
