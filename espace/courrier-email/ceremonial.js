@@ -29,7 +29,7 @@ var QUALITES = [
   ["diacre", "Diacre"], ["religieux", "Religieux-chevalier"], ["religieuse", "Religieuse-dame"],
   ["ordre", "Représentant d'un autre Ordre"], ["honneur", "Invité d'honneur (autorité)"], ["invite", "Invité (famille, ami)"]
 ];
-var GRADES = [["", "-"], ["gc", "Grand-Croix"], ["go", "Grand Officier"], ["cp", "Commandeur avec plaque"], ["co", "Commandeur"], ["ch", "Chevalier / Dame"]];
+var GRADES = [["", "-"], ["gc", "Grand-Croix"], ["go", "Grand Officier"], ["cp", "Commandeur avec plaque / Dame de Commanderie avec plaque"], ["co", "Commandeur / Dame de Commanderie"], ["ch", "Chevalier / Dame"]];
 var RANG_GRADE = { gc: 0, go: 1, cp: 2, co: 3, ch: 4, "": 5 };
 var FONCTIONS = [
   ["", "-"],
@@ -59,7 +59,13 @@ function dateEvt(iso) { var p = iso.split("-").map(Number), d = new Date(Date.UT
 function aujourdhui() { var d = new Date(); return d.getDate() + (d.getDate() === 1 ? "er" : "") + " " + MOIS[d.getMonth()] + " " + d.getFullYear(); }
 function etat(t) { $("cr-etat").textContent = t; }
 function norm(t) { return String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim(); }
-function cleNom(nom) { var m = String(nom || "").trim().split(/\s+/); return norm((m.length > 1 ? m[m.length - 1] : m[0] || "") + " " + m.join(" ")); }
+/* Tri par nom de famille : colonne NOM du fichier des membres quand on la connaît (sans particule), sinon dernier mot */
+var FAMILLE = {};
+function sansParticule(n) { return norm(n).replace(/^((de|della|del|du|des|d'|d’|von|van|le|la|cardinal)\s*)+/, ""); }
+function cleNom(nom) {
+  var m = String(nom || "").trim().split(/\s+/);
+  return (FAMILLE[nom] || norm(m.length > 1 ? m[m.length - 1] : m[0] || "")) + " " + norm(m.join(" "));
+}
 
 /* ── État ── */
 var EVT = null, PERS = [], CHOIX = {}, REG = { type: "messe", places: 6, marche: "cote", grades: "haut" }, CLE = "";
@@ -121,7 +127,9 @@ function charger() {
       x.noms.forEach(function (a) { PERS.push({ nom: a, accompagnant: true, avec: x.nom }); });
     });
     PERS.forEach(function (p) {
-      p.prop = proposer(p, parNom[norm(p.nom)]);
+      var mb = parNom[norm(p.nom)];
+      if (mb) FAMILLE[p.nom] = sansParticule(mb.nom);
+      p.prop = proposer(p, mb);
       if (!CHOIX[p.nom]) CHOIX[p.nom] = { q: p.prop.q, g: p.prop.g, f: p.prop.f, r: "", par: "" };
     });
     PERS.sort(function (a, b) { return cleNom(a.avec || a.nom).localeCompare(cleNom(b.avec || b.nom), "fr") || (a.accompagnant - b.accompagnant) || cleNom(a.nom).localeCompare(cleNom(b.nom), "fr"); });
@@ -370,8 +378,12 @@ function docPlacement() {
   var exclu = { lieutenant: 1, lt_gen: 1, gouv: 1, vice_gouv: 1, gm: 1, lt_hon: 1, lt_invite: 1, rep_lt: 1 };
   var gauche = cote(triPreseance(qui(function (c) { return c.q === "chev_imp"; })), triNef(qui(function (c) { return (c.q === "chevalier" || c.q === "diacre") && !exclu[c.f]; })));
   var droite = cote(triPreseance(qui(function (c) { return c.q === "dame_imp"; })), triNef(qui(function (c) { return c.q === "dame" && !exclu[c.f]; })));
+  // Rituel : « si nécessaire, des Chevaliers peuvent aussi se placer derrière les Dames » (les derniers rangs passent à droite)
+  var k = Math.floor((gauche.length - droite.length) / 2);
+  if (k > 0) droite = droite.concat(gauche.splice(gauche.length - k, k).map(function (r) { return { r: 0, noms: r.noms, chev: true }; }));
+  function cellule(r) { return r ? (r.chev ? '<span class="cd-sous">Chevaliers : </span>' : "") + esc(r.noms.join(", ")) : ""; }
   var nefRangs = Math.max(gauche.length, droite.length), nef = '<table class="cd-nef"><colgroup><col class="r"><col><col></colgroup><thead><tr><th>Rang</th><th>Côté gauche - Chevaliers</th><th>Côté droit - Dames</th></tr></thead><tbody>';
-  for (var i = 0; i < nefRangs; i++) nef += '<tr><td class="r">' + (i + 1) + "</td><td>" + esc((gauche[i] || { noms: [] }).noms.join(", ")) + "</td><td>" + esc((droite[i] || { noms: [] }).noms.join(", ")) + "</td></tr>";
+  for (var i = 0; i < nefRangs; i++) nef += '<tr><td class="r">' + (i + 1) + "</td><td>" + cellule(gauche[i]) + "</td><td>" + cellule(droite[i]) + "</td></tr>";
   nef += "</tbody></table>";
   var invites = qui(function (c) { return c.q === "invite"; }).map(function (p) { return p.nom + (p.avec ? " (avec " + p.avec + ")" : ""); });
   var accueil = noms(roleDe("accueil"));
@@ -380,7 +392,7 @@ function docPlacement() {
     (dignitaires.filter(Boolean).length ? section("Dignitaires laïcs", "place assignée", tableau(dignitaires)) : "") +
     (honneur.filter(Boolean).length ? section("Places d'honneur", "premiers rangs réservés (n° 27)", tableau(honneur)) : "") +
     section("Nef - membres de l'Ordre", REG.places + " places par rang, en regardant l'autel", nefRangs ? nef : '<p class="cd-vide">Aucun Chevalier ni aucune Dame inscrits.</p>') +
-    (nefRangs ? '<p class="cd-rem">Premier rang : impétrants avec leur parrain ou marraine. Ensuite, membres du Conseil, Présidents de Section et Délégués locaux, puis Chevaliers et Dames par grade. Si nécessaire, des Chevaliers peuvent prendre place derrière les Dames.</p>' : "") +
+    (nefRangs ? '<p class="cd-rem">Premier rang : impétrants avec leur parrain ou marraine. Ensuite, membres du Conseil, Présidents de Section et Délégués locaux, puis Chevaliers et Dames par grade. Quand les Chevaliers sont plus nombreux, les derniers rangs prennent place derrière les Dames (Rituel).</p>' : "") +
     (invites.length ? section("Familles et invités", invites.length + " personne" + (invites.length > 1 ? "s" : "") + ", derrière les membres", '<p class="cd-rem" style="font-size:10.5pt;color:#000">' + esc(invites.join(" ; ")) + "</p>") : "") +
     (accueil.length ? section("Accueil à l'entrée de l'église", "en manteau, faluche et gants (n° 30)", '<p class="cd-rem" style="font-size:10.5pt;color:#000">' + esc(accueil.join(", ")) + "</p>") : "");
   return feuille("Placement dans l'église", corps);
