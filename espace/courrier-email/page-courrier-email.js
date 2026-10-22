@@ -46,15 +46,17 @@ var choisis = {};          // id -> true (destinataires cochés)
 var groupesCoches = {};    // id de groupe -> true
 var essaiOk = "";          // empreinte du texte dont l'essai a été envoyé
 var PIECES = [];           // pièces jointes déposées : { id, nom, taille }
+var EVTS = [];             // événements à venir du calendrier du site
 
 var PIED_SUIVI = "Pour répondre, utilisez simplement « Répondre » en conservant les deux adresses proposées : votre message parviendra à son auteur et sera bien suivi.";   // même texte que Code.gs
 function nomComplet(m) { return (m.prenom ? m.prenom + " " : "") + m.nom; }
 function repondre() { return $("in-repondre").value; }
 function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter(function (x) { return x.code === c; })[0]; }
-function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(",")].join("\u0001"); }
+function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value].join("\u0001"); }
+function evtChoisi() { var id = $("in-evt").value; return EVTS.filter(function (e) { return e.id === id; })[0] || null; }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-22b";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-22c";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -62,6 +64,7 @@ E.api("mail.charger").then(function (r) {
   remplirModeles();
   dessinerGroupes();
   dessinerHistorique();
+  chargerEvenements();
   maj();
   if (D.version !== VERSION_SERVEUR) etat("Le serveur Apps Script n’est pas à jour (version " + (D.version || "ancienne") + ", attendue " + VERSION_SERVEUR + ") : collez le dernier Code.gs, enregistrez, puis Déployer > Gérer les déploiements > Modifier > Nouvelle version.", false);
 }).catch(function (e) {
@@ -255,6 +258,8 @@ function dessinerApercu() {
   corps = corps.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || "").replace(/\{prenom\}/g, m.prenom || "").replace(/\{nom\}/g, m.nom || "");
   if (!avecAppel) corps = m.appel + "\n\n" + corps;
   var paras = corpsHtml(corps);
+  var ev = evtChoisi();
+  if (ev) paras += '<div class="mp-invit"><strong>' + E.esc(ev.titre) + "</strong><br>" + E.esc(quandEvt(ev)) + '<br><span class="b p">Je viendrai</span><span class="b">Je ne viendrai pas</span></div>';
   $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.expediteur || c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) + (D && D.suivi ? " + adresse de suivi des réponses" : "") +
     "<br><b>Objet :</b> " + E.esc($("in-objet").value.trim() || "(vide)") +
     (PIECES.length ? "<br><b>Pièces jointes :</b> " + E.esc(PIECES.map(function (p) { return p.nom; }).join(", ")) : "");
@@ -270,7 +275,7 @@ function dessinerApercu() {
 
 /* ── Essai et envoi ── */
 function etat(txt, ok) { var el = $("etat"); el.textContent = txt; el.className = "etat visible " + (ok ? "ok" : "ko"); }
-function demande() { return { casquette: $("in-casq").value, repondreA: repondre(), objet: $("in-objet").value.trim(), corps: $("in-corps").value, pieces: PIECES.map(function (p) { return p.id; }) }; }
+function demande() { return { casquette: $("in-casq").value, repondreA: repondre(), objet: $("in-objet").value.trim(), corps: $("in-corps").value, pieces: PIECES.map(function (p) { return p.id; }), evenement: evtChoisi() }; }
 
 $("btn-essai").addEventListener("click", function () {
   var b = this, f = empreinte();
@@ -355,12 +360,13 @@ function dateCourte(ts) { return ts ? new Date(ts).toLocaleString("fr-LU", { day
 function dessinerHistorique() {
   var h = D.historique || [];
   $("historique").innerHTML = h.length ? h.map(function (x) {
+    var insc = x.id && x.insc ? ' · <button type="button" class="h-insc" data-envoi="' + E.esc(x.id) + '" aria-expanded="false">' + E.esc(resumeInsc(x.insc, x.nb)) + "</button>" : "";
     var suivi = x.id ? ' · <button type="button" class="h-rep" data-envoi="' + E.esc(x.id) + '" aria-expanded="false">' +
       (x.efface ? "réponses effacées le " + dateLongue(x.expire) : x.reponses + " réponse" + (x.reponses > 1 ? "s" : "")) + "</button>" +
       (x.efface || !x.expire ? "" : ' <span class="h-exp">· conservées ici jusqu’au ' + E.esc(dateLongue(x.expire)) + "</span>") : "";
     return "<li>" + E.esc(x.objet) + '<div class="h-meta">' + E.esc(dateCourte(x.ts)) + " · " + E.esc(x.qui) + " · " +
       (x.type === "essai" ? "essai" : E.esc(x.nb + " destinataire" + (x.nb > 1 ? "s" : "") + (x.groupes ? " · " + x.groupes : ""))) +
-      (x.erreurs ? " · échecs : " + E.esc(x.erreurs) : "") + suivi + "</div>" +
+      (x.erreurs ? " · échecs : " + E.esc(x.erreurs) : "") + insc + suivi + "</div>" +
       (x.id ? '<div class="h-detail" id="rep-' + E.esc(x.id) + '" hidden></div>' : "") + "</li>";
   }).join("") : '<li class="h-meta">Aucun envoi pour le moment.</li>';
 }
@@ -399,6 +405,74 @@ $("historique").addEventListener("click", function (ev) {
   if (m) { chargerReponses(m.dataset.maj, true); return; }
   var t = ev.target.closest(".rep-tete");
   if (t) { var tx = t.nextElementSibling; tx.hidden = !tx.hidden; t.classList.toggle("ouvert", !tx.hidden); }
+});
+
+/* ── Invitation à un événement du calendrier ── */
+var JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+var MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+function dateEvt(iso) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2], 12)); return JOURS[d.getUTCDay()] + " " + p[2] + (p[2] === 1 ? "er" : "") + " " + MOIS[p[1] - 1] + " " + p[0]; }
+function quandEvt(e) { return dateEvt(e.date) + (e.heure ? " à " + e.heure.replace(":", "h") : "") + (e.lieu ? ", " + e.lieu : ""); }
+function remplirEvenements(choisir) {
+  $("in-evt").innerHTML = '<option value="">Aucun : simple courriel</option>' +
+    EVTS.map(function (e) { return '<option value="' + E.esc(e.id) + '">' + E.esc(dateEvt(e.date) + " · " + e.titre) + (e.publie === false ? " (non publié)" : "") + "</option>"; }).join("") +
+    '<option value="__nouveau">+ Créer un nouvel événement…</option>';
+  if (choisir) $("in-evt").value = choisir;
+}
+function chargerEvenements() {
+  E.api("mail.evenements").then(function (r) { EVTS = r.evenements || []; remplirEvenements($("in-evt").value); })
+    .catch(function () { remplirEvenements(); });
+}
+$("in-evt").addEventListener("change", function () {
+  $("evt-nouveau").hidden = this.value !== "__nouveau";
+  maj();
+});
+$("btn-evt-creer").addEventListener("click", function () {
+  var b = this;
+  var d = { date: $("ev-date").value, heure: $("ev-heure").value, titre: $("ev-titre").value.trim(), lieu: $("ev-lieu").value.trim(), publier: $("ev-publier").checked };
+  if (!d.date || !d.titre) { etat("Indiquez au moins la date et le titre de l’événement.", false); return; }
+  b.disabled = true; b.textContent = "Création…";
+  E.api("mail.creerEvenement", d).then(function (r) {
+    EVTS.push(r.evenement);
+    EVTS.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    remplirEvenements(r.evenement.id);
+    $("evt-nouveau").hidden = true;
+    etat("Événement créé" + (r.evenement.publie ? " et ajouté au calendrier du site." : " (non publié sur le site).") + " Il est joint à ce courriel.", true);
+    maj();
+  }).catch(function (e) { etat(e && e.message || "L’événement n’a pas pu être créé.", false); })
+    .then(function () { b.disabled = false; b.textContent = "Créer l'événement"; });
+});
+
+/* ── Inscriptions : tableau de bord de l'auteur ── */
+function resumeInsc(s, nb) {
+  var total = s.total || nb;
+  return s.oui + " inscrit" + (s.oui > 1 ? "s" : "") + (s.personnes > s.oui ? " (" + s.personnes + " personnes)" : "") + " · " + s.non + " ne vien" + (s.non > 1 ? "nent" : "t") + " pas · " + s.sans + " sans réponse · sur " + total;
+}
+function chargerInscriptions(id) {
+  var box = $("rep-" + id);
+  box.hidden = false;
+  box.innerHTML = '<div class="h-meta">Chargement des inscriptions…</div>';
+  E.api("mail.inscriptions", { id: id }).then(function (r) {
+    var html = '<div class="insc-kpi"><div><b>' + r.oui.length + "</b>inscrits</div><div><b>" + r.personnes + "</b>personnes attendues</div><div><b>" + r.non.length + "</b>ne viennent pas</div><div><b>" + r.sans.length + "</b>sans réponse</div><div><b>" + r.total + "</b>invités</div></div>";
+    if (r.evenement) html += '<div class="h-meta">' + E.esc(r.evenement.titre + " · " + quandEvt(r.evenement)) + "</div>";
+    html += '<div class="insc-liste"><b>Inscrits :</b> ' + (r.oui.length ? r.oui.map(function (x) { return E.esc(x.nom) + (x.accompagnants ? " <small>+ " + E.esc(x.noms.join(", ")) + "</small>" : ""); }).join(" ; ") : "aucun pour le moment") + "</div>";
+    if (r.non.length) html += '<div class="insc-liste"><b>Ne viennent pas :</b> ' + E.esc(r.non.join(", ")) + "</div>";
+    if (r.sans.length) html += '<div class="insc-liste"><b>Sans réponse :</b> ' + E.esc(r.sans.join(", ")) + "</div>";
+    html += '<button type="button" class="rep-maj" data-insc-maj="' + E.esc(id) + '">Actualiser</button>';
+    box.innerHTML = html;
+  }).catch(function (e) { box.innerHTML = '<div class="h-meta">' + E.esc(e && e.message || "Inscriptions indisponibles.") + "</div>"; });
+}
+$("historique").addEventListener("click", function (ev) {
+  var b = ev.target.closest(".h-insc");
+  if (b) {
+    var ouvert = b.getAttribute("aria-expanded") === "true";
+    document.querySelectorAll(".h-rep,.h-insc").forEach(function (x) { if (x.dataset.envoi === b.dataset.envoi) x.setAttribute("aria-expanded", "false"); });
+    if (ouvert) { $("rep-" + b.dataset.envoi).hidden = true; return; }
+    b.setAttribute("aria-expanded", "true");
+    chargerInscriptions(b.dataset.envoi);
+    return;
+  }
+  var m = ev.target.closest("[data-insc-maj]");
+  if (m) chargerInscriptions(m.dataset.inscMaj);
 });
 
 /* ── Aide à la rédaction (charte OESSH) ── */
