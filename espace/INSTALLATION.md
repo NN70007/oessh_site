@@ -138,10 +138,10 @@ NODE_PATH=$(npm root -g) node espace/dev/test-pages.js            # tests naviga
 
 ## 12. Courrier e-mail : suivi des réponses
 
-Chaque courriel envoyé porte deux adresses « Répondre à » : l'adresse de la fonction de l'auteur et une adresse de collecte propre à l'envoi (`reponses+<id>@oessh.lu`). Les copies reçues sont rangées dans le Gmail du compte du script sous l'étiquette **« Réponses courrier »** (hors de la boîte de réception, sauf si la réponse était aussi adressée à une adresse de ce compte), affichées dans « Derniers envois » (nombre de réponses, texte, personnes sans réponse), puis mises à la corbeille après 30 jours.
+Chaque courriel envoyé porte deux adresses « Répondre à » : l'adresse de la fonction de l'auteur et une adresse de collecte propre à l'envoi (`reponses+<id>@oessh.lu`). Les copies reçues sont rangées dans le Gmail du compte du script sous l'étiquette **« Réponses courrier »** (hors de la boîte de réception, sauf si la réponse était aussi adressée à une adresse de ce compte), affichées dans « Derniers envois » (nombre de réponses, texte, personnes sans réponse), puis mises à la corbeille après six mois (CONFIG.REPONSES_JOURS = 180). La page indique pour chaque envoi la date d’effacement et rappelle que les réponses restent dans la boîte de la fonction.
 
 1. Console d'administration Google : ajouter l'alias **reponses@oessh.lu** au compte jb.niedercorn@oessh.lu (Utilisateurs → jb.niedercorn → Adresses e-mail secondaires). Vérifier qu'un courriel envoyé à `reponses+test@oessh.lu` arrive bien.
 2. Apps Script : ⚙️ Paramètres du projet → Propriétés du script → ajouter `REPONSES_ALIAS` = `reponses@oessh.lu`. Tant que cette propriété est vide, rien ne change dans les envois.
-3. (Conseillé) ⏰ Déclencheurs → Ajouter → fonction `entretienReponses`, déclencheur temporel, toutes les heures : range les copies et efface celles de plus de 30 jours. Sans déclencheur, cela se fait à l'ouverture de la page Courrier e-mail.
+3. (Conseillé) ⏰ Déclencheurs → Ajouter → fonction `entretienReponses`, déclencheur temporel, toutes les heures : range les copies et efface celles de plus de six mois. Sans déclencheur, cela se fait à l'ouverture de la page Courrier e-mail.
 
 Seuls l'auteur d'un envoi et les gestionnaires en voient les réponses.
