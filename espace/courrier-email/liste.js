@@ -15,6 +15,7 @@ E.renderFoot();
 if (!u.envois && !u.admin) { etat("Vous n'avez pas accès au Courrier e-mail."); return; }
 
 var IDS = (new URLSearchParams(location.search).get("ids") || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+$("li-ceremonial").href = "ceremonial.html?ids=" + encodeURIComponent(IDS.join(","));
 if (!IDS.length) { etat("Aucun envoi indiqué : ouvrez cette page depuis le suivi des inscriptions du Courrier e-mail."); return; }
 
 var JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];

@@ -509,6 +509,7 @@ function chargerInscriptions(id) {
       var ids = ((D && D.historique) || []).filter(function (h) { return h.id && h.evenement && h.evenement.id === r.evenement.id; }).map(function (h) { return h.id; });
       if (ids.indexOf(id) < 0) ids.unshift(id);
       html += ' <a class="rep-maj" target="_blank" rel="noopener" href="liste.html?ids=' + encodeURIComponent(ids.join(",")) + '">Liste imprimable</a>';
+      html += ' <a class="rep-maj" target="_blank" rel="noopener" href="ceremonial.html?ids=' + encodeURIComponent(ids.join(",")) + '">Placement et procession</a>';
     }
     box.innerHTML = html;
   }).catch(function (e) { box.innerHTML = '<div class="h-meta">' + E.esc(e && e.message || "Inscriptions indisponibles.") + "</div>"; });
