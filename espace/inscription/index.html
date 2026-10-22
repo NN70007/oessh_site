@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Votre réponse · OESSH Luxembourg</title>
+<meta name="theme-color" content="#b10103">
+<link rel="icon" type="image/svg+xml" href="../../assets/croix-jerusalem-cardinal-liseree.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../espace.css?v=20261018c">
+<style>
+/* ── Réponse à une invitation (page publique, lien personnel) ── */
+.in-wrap { max-width: 620px; margin: 0 auto; padding: 36px 20px 60px; }
+.in-tete { display: flex; align-items: center; gap: 14px; border-top: 4px solid var(--cardinal); padding: 18px 0 16px; border-bottom: 1px solid var(--gold); margin-bottom: 26px; }
+.in-tete img { width: 40px; height: auto; }
+.in-tete .o { font-family: var(--serif); font-size: 19px; color: var(--cardinal-dark); line-height: 1.2; }
+.in-tete .l { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-mute); }
+.in-evt { background: var(--paper); border-left: 3px solid var(--gold); padding: 16px 18px; margin: 14px 0 24px; }
+.in-evt h1 { font-size: 28px; line-height: 1.2; }
+.in-evt .q { color: var(--ink-soft); margin-top: 4px; }
+.in-choix { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.in-choix button { padding: 16px 10px; border: 1.5px solid var(--line); border-radius: 4px; background: var(--bg); font: 500 16px var(--sans); color: var(--ink); cursor: pointer; }
+.in-choix button.on[data-r="oui"] { border-color: var(--cardinal); background: var(--cardinal); color: #fff; }
+.in-choix button.on[data-r="non"] { border-color: var(--ink); background: var(--ink); color: #fff; }
+.in-champ { margin: 12px 0; }
+.in-champ label { display: block; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 6px; font-weight: 500; }
+.in-champ input, .in-champ select { width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; font: 15px var(--sans); background: var(--bg); }
+.in-ok { width: 100%; padding: 14px; margin-top: 10px; background: var(--cardinal); color: #fff; border: 0; border-radius: 3px; font: 500 16px var(--sans); cursor: pointer; }
+.in-ok:disabled { opacity: .5; cursor: default; }
+.in-msg { margin-top: 16px; padding: 14px 16px; border-radius: 3px; line-height: 1.5; display: none; }
+.in-msg.ok { display: block; background: #eef6ee; border-left: 3px solid #2e7d32; }
+.in-msg.ko { display: block; background: var(--cardinal-soft); border-left: 3px solid var(--cardinal); }
+.in-note { font-size: 13px; color: var(--ink-mute); margin-top: 22px; line-height: 1.5; }
+@media (max-width: 480px) { .in-choix { grid-template-columns: 1fr; } .in-evt h1 { font-size: 24px; } }
+</style>
+</head>
+<body>
+<main class="in-wrap">
+  <div class="in-tete">
+    <img src="../../assets/email/entete-lieutenance.png" alt="">
+    <div><div class="o">Ordre Équestre du Saint-Sépulcre de Jérusalem</div><div class="l">Lieutenance pour le Luxembourg</div></div>
+  </div>
+  <div id="contenu"><p class="eyebrow">Chargement…</p></div>
+</main>
+<script src="../config.js"></script>
+<script src="page-inscription.js?v=20261022c"></script>
+</body>
+</html>
