@@ -66,20 +66,33 @@ var EVT = null, PERS = [], CHOIX = {}, REG = { type: "messe", places: 6, marche:
 function sauver() { try { localStorage.setItem(CLE, JSON.stringify({ reg: REG, p: CHOIX })); } catch (e) {} }
 function relire() { try { var o = JSON.parse(localStorage.getItem(CLE) || "null"); if (o) { REG = Object.assign(REG, o.reg || {}); CHOIX = o.p || {}; } } catch (e) {} }
 
-/* Qualité proposée d'après le fichier des membres (formule d'appel et groupe) */
+/* Qualité, grade et fonction proposés d'après le fichier des membres :
+   colonne TITRE (« le Commandeur », « la Dame de Commanderie », « Komtur-Dame mit Stern », « le Candidat »…),
+   puis formule d'appel et groupe ; appartenance au Conseil de la Lieutenance. */
+function gradeDuTitre(t) {
+  if (/gr(an)?d?[- .]*cr(oix)?\b|grand-croix|gro(ss|ß)kreuz/.test(t)) return "gc";
+  if (/grand officier|gro(ss|ß)offizier/.test(t)) return "go";
+  if (/(commandeur|commanderie).*plaque|komtur.*stern/.test(t)) return "cp";
+  if (/commandeur|commanderie|komtur/.test(t)) return "co";
+  if (/chevalier|\bdame\b|ritter/.test(t)) return "ch";
+  return "";
+}
 function proposer(p, m) {
-  if (p.accompagnant) return { q: "invite" };
-  if (!m) return { q: "invite" };
-  var a = m.appel || "", femme = /^(Madame|Chère)/.test(a);
-  if (/minence/.test(a)) return { q: "cardinal" };
-  if (/^Monseigneur/.test(a)) return { q: "eveque" };
-  if (/Abb/.test(a)) return { q: "pretre" };
-  if (m.groupe === "candidat") return { q: femme ? "dame_imp" : "chev_imp" };
-  if (m.groupe === "malte") return { q: "ordre" };
-  if (/^Excellence/.test(a)) return { q: "honneur" };
-  if (/Consœur/.test(a)) return { q: "dame" };
-  if (/Confrère/.test(a)) return { q: "chevalier" };
-  return { q: "invite" };
+  if (p.accompagnant || !m) return { q: "invite", g: "", f: "" };
+  var a = m.appel || "", t = norm(m.titre).replace(/^(le|la|l'|l’)\s*/, "");
+  var femme = /^(Madame|Chère)/.test(a) || /^la\b|\bdame\b|komturdame|-dame|candidate|sympathisante|sekretarin/.test(norm(m.titre));
+  var f = m.conseilLt ? "conseil" : "";
+  if (/minence/.test(a) || /eminence|kardinal|cardinal/.test(t)) return { q: "cardinal", g: "", f: "" };
+  if (/^Monseigneur/.test(a) || /monseigneur|eveque|bischof/.test(t)) return { q: "eveque", g: "", f: "" };
+  if (/Abb/.test(a) || /abbe|chanoine|cure|pretre|pfarrer|domherr|pater|\bpere\b/.test(t)) return { q: "pretre", g: "", f: f };
+  if (m.groupe === "candidat" || /candidat|kandidat/.test(t)) return { q: femme ? "dame_imp" : "chev_imp", g: "", f: "" };
+  if (m.groupe === "malte") return { q: "ordre", g: "", f: "" };
+  if (/lieutenant pour|statthalter/.test(t)) return { q: femme ? "dame" : "chevalier", g: gradeDuTitre(t), f: "lt_invite" };
+  if (/sympathisant/.test(t)) return { q: "invite", g: "", f: "" };
+  var g = gradeDuTitre(t);
+  if (g || /Consœur|Confrère/.test(a)) return { q: femme ? "dame" : "chevalier", g: g, f: f };
+  if (/^Excellence/.test(a)) return { q: "honneur", g: "", f: "" };
+  return { q: "invite", g: "", f: "" };
 }
 
 /* ── Chargement : inscriptions (fusion des envois) + fichier des membres pour les qualités ── */
@@ -109,7 +122,7 @@ function charger() {
     });
     PERS.forEach(function (p) {
       p.prop = proposer(p, parNom[norm(p.nom)]);
-      if (!CHOIX[p.nom]) CHOIX[p.nom] = { q: p.prop.q, g: "", f: "", r: "", par: "" };
+      if (!CHOIX[p.nom]) CHOIX[p.nom] = { q: p.prop.q, g: p.prop.g, f: p.prop.f, r: "", par: "" };
     });
     PERS.sort(function (a, b) { return cleNom(a.avec || a.nom).localeCompare(cleNom(b.avec || b.nom), "fr") || (a.accompagnant - b.accompagnant) || cleNom(a.nom).localeCompare(cleNom(b.nom), "fr"); });
     $("cr-type").value = REG.type; $("cr-places").value = REG.places; $("cr-marche").value = REG.marche; $("cr-grades").value = REG.grades;
@@ -376,7 +389,7 @@ function docPlacement() {
 /* Points laissés ouverts par le Rituel : choix appliqués, à confirmer par les cérémoniaires */
 function points() {
   var l = [
-    "Grade : le fichier des membres ne l'indique pas. Sans grade, la personne est classée après les grades précisés, par ordre alphabétique.",
+    "Grade : déduit de la colonne TITRE du fichier des membres (à vérifier). Sans grade, la personne est classée après les grades précisés, par ordre alphabétique.",
     "Chevaliers et Dames : " + (REG.marche === "cote" ? "côte à côte, comme le prévoit le Rituel" : "à la suite (usage du cérémonial de Luxembourg 2024)") + " ; " + (REG.grades === "haut" ? "plus hauts grades en tête (n° 33)." : "plus hauts grades en dernier."),
     "Évêques et cardinaux qui ne concélèbrent pas : dans la procession, à la ligne « Évêques », le plus digne le plus près du célébrant.",
     "Lieutenant d'honneur : dans le cortège après le Grand Magistère (cérémonial 2024).",

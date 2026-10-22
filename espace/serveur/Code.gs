@@ -951,7 +951,7 @@ function mailCharger_(u) {
     casquettes: casquettesDe_(u),
     groupes: groupes,
     membres: membres.map(function (m) {
-      return { id: m.id, nom: m.nom, prenom: m.prenom, appel: m.appel, politesse: m.politesse, groupe: m.groupe, sousGroupe: m.sousGroupe, sansCourriel: !m.email };
+      return { id: m.id, nom: m.nom, prenom: m.prenom, appel: m.appel, politesse: m.politesse, groupe: m.groupe, sousGroupe: m.sousGroupe, sansCourriel: !m.email, titre: m.titre, conseilLt: m.conseilLt };   // titre et conseilLt : préséance (page Placement et procession)
     }),
     historique: historique,
     adresses: adressesReponse_(u),
