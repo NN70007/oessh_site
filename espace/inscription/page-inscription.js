@@ -20,7 +20,9 @@ function erreur(msg) { $("contenu").innerHTML = '<div class="in-msg ko">' + esc(
 function dessiner() {
   var n = D.accompagnants || 0;
   var html = '<p class="eyebrow">Invitation</p><p>Bonjour ' + esc(D.nom) + ",</p>" +
-    '<div class="in-evt"><h1>' + esc(D.evenement.titre) + '</h1><div class="q">' + esc(D.quand) + "</div></div>";
+    '<div class="in-evt"><h1>' + esc(D.evenement.titre) + '</h1><div class="q">' + esc(D.quand) + "</div>" +
+    (D.repasTexte ? '<div class="q" style="margin-top:8px"><b>' + esc(D.repasTexte) + "</b><br>" + (D.repasFerme ? "Inscriptions au repas closes." : "Inscription au repas jusqu’au " + esc(D.repasLimite) + ".") +
+      (D.evenement.repas && D.evenement.repas.note ? "<br><em>" + esc(D.evenement.repas.note) + "</em>" : "") + "</div>" : "") + "</div>";
   if (D.ferme) {
     $("contenu").innerHTML = html + '<div class="in-msg ko">Cet événement est passé : les réponses sont closes.</div>';
     return;
@@ -29,7 +31,10 @@ function dessiner() {
   html += '<div class="in-choix"><button type="button" data-r="oui">Je viendrai</button><button type="button" data-r="non">Je ne viendrai pas</button></div>' +
     '<div id="bloc-oui" hidden><div class="in-champ"><label for="nb">Personnes qui vous accompagnent</label><select id="nb">' +
     Array.from({ length: (D.max || 6) + 1 }, function (_, i) { return '<option value="' + i + '">' + (i ? i + " personne" + (i > 1 ? "s" : "") : "Je viens seul(e)") + "</option>"; }).join("") +
-    '</select></div><div id="noms"></div></div>' +
+    '</select></div><div id="noms"></div>' +
+    (D.repasTexte ? '<div class="in-champ" id="bloc-repas"><label>Qui restera pour le repas ?</label><div id="repas"></div>' +
+      (D.repasFerme ? '<p class="in-note" style="margin-top:4px">Les inscriptions au repas sont closes : pour toute modification, contactez l’organisateur en répondant à l’e-mail d’invitation.</p>' : "") + "</div>" : "") +
+    '</div>' +
     '<button type="button" class="in-ok" id="ok" disabled>Confirmer ma réponse</button><div class="in-msg" id="msg"></div>' +
     '<p class="in-note">Vous recevrez un rappel la veille si vous venez. Vous pouvez revenir sur cette page à tout moment avec le lien de votre invitation pour changer votre réponse.</p>';
   $("contenu").innerHTML = html;
@@ -42,6 +47,18 @@ function dessiner() {
       return '<div class="in-champ"><label for="p' + i + '">Nom de la personne ' + (i + 1) + '</label><input type="text" id="p' + i + '" maxlength="80" autocomplete="name" value="' + esc(v) + '" placeholder="Prénom et nom"></div>';
     }).join("");
   }
+  var repasAvant = D.repas || [];
+  function casesRepas() {
+    if (!$("repas")) return;
+    var coches = {}, deja = document.querySelectorAll("#repas input");
+    if (deja.length) Array.prototype.forEach.call(deja, function (c) { coches[c.dataset.i] = c.checked; });
+    var noms = [D.nom].concat(Array.prototype.map.call(document.querySelectorAll("#noms input"), function (i) { return i.value.trim(); }));
+    $("repas").innerHTML = noms.map(function (nom, i) {
+      var c = i in coches ? coches[i] : repasAvant.indexOf(nom) > -1;
+      return '<label style="display:flex;gap:10px;align-items:center;margin:6px 0;font-size:15px"><input type="checkbox" data-i="' + i + '"' + (c ? " checked" : "") + (D.repasFerme ? " disabled" : "") + "> " +
+        esc(i === 0 ? nom + " (vous)" : (nom || "Personne " + i)) + "</label>";
+    }).join("");
+  }
   function choisir(r) {
     choix = r;
     document.querySelectorAll(".in-choix button").forEach(function (b) { b.classList.toggle("on", b.dataset.r === r); });
@@ -49,7 +66,9 @@ function dessiner() {
     $("ok").disabled = !r;
   }
   champsNoms();
-  $("nb").addEventListener("change", champsNoms);
+  casesRepas();
+  $("nb").addEventListener("change", function () { champsNoms(); casesRepas(); });
+  $("noms").addEventListener("input", casesRepas);
   document.querySelectorAll(".in-choix button").forEach(function (b) { b.addEventListener("click", function () { choisir(b.dataset.r); }); });
   if (choix || D.reponse) choisir(choix || D.reponse);
   $("ok").addEventListener("click", function () {
@@ -58,11 +77,14 @@ function dessiner() {
     var msg = $("msg");
     if (noms.some(function (s) { return !s; })) { msg.className = "in-msg ko"; msg.textContent = "Indiquez le nom de chaque personne qui vous accompagne."; return; }
     b.disabled = true; b.textContent = "Enregistrement…";
-    api("insc.repondre", { reponse: choix, accompagnants: k, noms: noms }).then(function (r) {
-      D.reponse = r.reponse; D.accompagnants = r.accompagnants; D.noms = r.noms;
+    var tous = [D.nom].concat(noms), repas = [];
+    document.querySelectorAll("#repas input").forEach(function (c) { if (c.checked && tous[Number(c.dataset.i)]) repas.push(tous[Number(c.dataset.i)]); });
+    api("insc.repondre", { reponse: choix, accompagnants: k, noms: noms, repas: repas }).then(function (r) {
+      D.reponse = r.reponse; D.accompagnants = r.accompagnants; D.noms = r.noms; D.repas = r.repas || []; repasAvant = D.repas;
       msg.className = "in-msg ok";
       msg.innerHTML = r.reponse === "oui"
-        ? "<b>Merci, votre inscription est enregistrée.</b> Nous nous réjouissons de vous accueillir" + (r.accompagnants ? " avec " + esc(r.noms.join(", ")) : "") + " : " + esc(r.quand) + "."
+        ? "<b>Merci, votre inscription est enregistrée.</b> Nous nous réjouissons de vous accueillir" + (r.accompagnants ? " avec " + esc(r.noms.join(", ")) : "") + " : " + esc(r.quand) + "." +
+          (D.repasTexte ? " Repas : " + (r.repas && r.repas.length ? r.repas.length + " couvert" + (r.repas.length > 1 ? "s" : "") + " (" + esc(r.repas.join(", ")) + ")." : "vous n’y participez pas.") : "")
         : "<b>Merci de nous avoir prévenus.</b> Votre réponse est enregistrée.";
     }).catch(function (e) { msg.className = "in-msg ko"; msg.textContent = e && e.message || "La réponse n’a pas pu être enregistrée."; })
       .then(function () { b.disabled = false; b.textContent = "Modifier ma réponse"; });

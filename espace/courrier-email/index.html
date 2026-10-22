@@ -127,6 +127,8 @@
 .rep-texte { font-size: 13.5px; line-height: 1.55; padding: 0 0 10px; white-space: normal; }
 .h-exp { color: var(--ink-mute); }
 /* Invitation à un événement */
+.evt-repas { border: 1px solid var(--line); border-radius: 4px; padding: 10px 14px; margin: -4px 0 14px; background: var(--bg-soft); }
+.evt-repas .evt-grille { margin: 10px 0 2px; }
 .fg-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 640px) { .fg-duo { grid-template-columns: 1fr; gap: 0; } }
 .evt-nouveau { border: 1px solid var(--line); border-radius: 4px; padding: 14px; margin: -4px 0 18px; background: var(--bg-soft); }
@@ -198,6 +200,16 @@
                 <label class="pers"><input type="checkbox" id="ev-publier" checked> Afficher aussi dans le calendrier public du site</label>
                 <button type="button" class="btn-l" id="btn-evt-creer">Créer l'événement</button>
               </div>
+            <div class="evt-repas" id="evt-repas" hidden>
+              <label class="pers"><input type="checkbox" id="rp-actif"> <b>Proposer aussi le repas</b> après l'événement</label>
+              <div class="evt-grille" id="rp-champs" hidden>
+                <div class="large"><label for="rp-lieu">Lieu du repas</label><input type="text" id="rp-lieu" maxlength="150" placeholder="Ex. Restaurant, salle paroissiale…"></div>
+                <div><label for="rp-heure">Heure</label><input type="time" id="rp-heure"></div>
+                <div><label for="rp-prix">Prix par personne (facultatif)</label><input type="text" id="rp-prix" maxlength="40" placeholder="Ex. 45 €"></div>
+                <div><label for="rp-limite">Inscription au repas jusqu'au</label><input type="date" id="rp-limite"></div>
+                <div class="large"><label for="rp-note">Remarque (facultatif)</label><input type="text" id="rp-note" maxlength="300" placeholder="Ex. menu, paiement sur place ou par virement…"></div>
+              </div>
+            </div>
             <div class="hint" id="evt-aide" style="margin:-6px 0 18px">Avec un événement, les destinataires répondent « Je viendrai » ou « Je ne viendrai pas » d'un clic et indiquent le nom de leurs accompagnants. Rappel automatique 7 jours avant à ceux qui n'ont pas répondu, et la veille à ceux qui viennent.</div>
             <div class="fg">
               <label for="in-objet">Objet</label>
@@ -266,6 +278,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="page-courrier-email.js?v=20261022f"></script>
+<script src="page-courrier-email.js?v=20261023a"></script>
 </body>
 </html>

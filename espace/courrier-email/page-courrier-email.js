@@ -48,11 +48,19 @@ var PIED_SUIVI = "Pour répondre, utilisez simplement « Répondre » en conserv
 function nomComplet(m) { return (m.prenom ? m.prenom + " " : "") + m.nom; }
 function repondre() { return $("in-repondre").value; }
 function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter(function (x) { return x.code === c; })[0]; }
-function empreinte() { return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value].join("\u0001"); }
-function evtChoisi() { var id = $("in-evt").value; return EVTS.filter(function (e) { return e.id === id; })[0] || null; }
+function empreinte() { var ev = evtChoisi(); return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value, ev && ev.repas ? JSON.stringify(ev.repas) : ""].join("\u0001"); }
+function evtChoisi() {
+  var id = $("in-evt").value, e = EVTS.filter(function (x) { return x.id === id; })[0];
+  if (!e) return null;
+  e = Object.assign({}, e);
+  if ($("rp-actif").checked) e.repas = { actif: true, lieu: $("rp-lieu").value.trim(), heure: $("rp-heure").value, prix: $("rp-prix").value.trim(), limite: $("rp-limite").value, note: $("rp-note").value.trim() };
+  return e;
+}
+function repasTxt(r) { return "Repas" + (r.lieu ? " : " + r.lieu : "") + (r.heure ? ", " + r.heure.replace(":", "h") : "") + (r.prix ? " (" + r.prix + ")" : ""); }
+function decaler(iso, n) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n, 12)); return d.toISOString().slice(0, 10); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-22d";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-23a";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -256,7 +264,9 @@ function dessinerApercu() {
   var paras = corpsHtml(corps);
   var ev = evtChoisi();
   if (ev) {
-    var bloc = '<div class="mp-invit"><strong>' + E.esc(ev.titre) + "</strong><br>" + E.esc(quandEvt(ev)) + '<br><span class="b p">Je viendrai</span><span class="b">Je ne viendrai pas</span></div>';
+    var bloc = '<div class="mp-invit"><strong>' + E.esc(ev.titre) + "</strong><br>" + E.esc(quandEvt(ev)) +
+      (ev.repas ? "<br>" + E.esc(repasTxt(ev.repas)) + " · inscription au repas jusqu’au " + E.esc(dateEvt(ev.repas.limite || decaler(ev.date, -3))) + (ev.repas.note ? "<br><em>" + E.esc(ev.repas.note) + "</em>" : "") : "") +
+      '<br><span class="b p">Je viendrai</span><span class="b">Je ne viendrai pas</span></div>';
     var k = m.politesse ? corps.lastIndexOf(m.politesse) : -1;   // même règle que le serveur : avant la formule de politesse
     paras = k > 0 ? corpsHtml(corps.slice(0, k).trim()) + bloc + corpsHtml(corps.slice(k).trim()) : paras + bloc;
   }
@@ -429,15 +439,28 @@ function proposerTexte(ev) {
   var libre = (!o || o === AUTO.objet) && (!c || c === AUTO.corps);
   if (!libre || !ev) return;
   AUTO.objet = "Invitation - " + ev.titre;
-  AUTO.corps = "{appel}\n\nJ’ai l’honneur de vous inviter à : **" + ev.titre + "**, le " + quandEvt(ev) + ".\n\n" +
+  AUTO.corps = "{appel}\n\nJ’ai l’honneur de vous inviter à : **" + ev.titre + "**, le " + quandEvt(ev) + "." +
+    (ev.repas ? " Un repas suivra" + (ev.repas.lieu ? " (" + ev.repas.lieu + (ev.repas.heure ? ", " + ev.repas.heure.replace(":", "h") : "") + ")" : "") + " : merci d’indiquer qui y participera." : "") + "\n\n" +
     "Nous serions heureux de vous compter parmi nous. Je vous remercie de bien vouloir nous indiquer votre présence d’un simple clic, à l’aide des boutons ci-dessous.\n\n{politesse}";
   $("in-objet").value = AUTO.objet; $("in-corps").value = AUTO.corps;
   $("in-modele").value = "";
 }
+function majRepas() {
+  var ev = EVTS.filter(function (x) { return x.id === $("in-evt").value; })[0];
+  $("evt-repas").hidden = !ev;
+  $("rp-champs").hidden = !$("rp-actif").checked;
+  if (ev && !$("rp-limite").value) $("rp-limite").value = decaler(ev.date, -3);
+  if (ev) $("rp-limite").max = ev.date;
+}
 $("in-evt").addEventListener("change", function () {
   $("evt-nouveau").hidden = this.value !== "__nouveau";
+  $("rp-limite").value = "";
+  majRepas();
   proposerTexte(evtChoisi());
   maj();
+});
+["rp-actif", "rp-lieu", "rp-heure", "rp-prix", "rp-limite", "rp-note"].forEach(function (id) {
+  $(id).addEventListener(id === "rp-actif" ? "change" : "input", function () { majRepas(); proposerTexte(evtChoisi()); maj(); });
 });
 $("btn-evt-creer").addEventListener("click", function () {
   var b = this;
@@ -449,6 +472,8 @@ $("btn-evt-creer").addEventListener("click", function () {
     EVTS.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
     remplirEvenements(r.evenement.id);
     $("evt-nouveau").hidden = true;
+    $("rp-limite").value = "";
+    majRepas();
     proposerTexte(r.evenement);
     etat("Événement créé" + (r.evenement.publie ? " et ajouté au calendrier du site." : " (non publié sur le site).") + " Il est joint à ce courriel.", true);
     maj();
@@ -459,16 +484,23 @@ $("btn-evt-creer").addEventListener("click", function () {
 /* ── Inscriptions : tableau de bord de l'auteur ── */
 function resumeInsc(s, nb) {
   var total = s.total || nb;
-  return s.oui + " inscrit" + (s.oui > 1 ? "s" : "") + (s.personnes > s.oui ? " (" + s.personnes + " personnes)" : "") + " · " + s.non + " ne vien" + (s.non > 1 ? "nent" : "t") + " pas · " + s.sans + " sans réponse · sur " + total;
+  return s.oui + " inscrit" + (s.oui > 1 ? "s" : "") + (s.personnes > s.oui ? " (" + s.personnes + " personnes)" : "") + (s.repas ? " · repas : " + (s.couverts || 0) + " couvert" + (s.couverts > 1 ? "s" : "") : "") + " · " + s.non + " ne vien" + (s.non > 1 ? "nent" : "t") + " pas · " + s.sans + " sans réponse · sur " + total;
 }
 function chargerInscriptions(id) {
   var box = $("rep-" + id);
   box.hidden = false;
   box.innerHTML = '<div class="h-meta">Chargement des inscriptions…</div>';
   E.api("mail.inscriptions", { id: id }).then(function (r) {
-    var html = '<div class="insc-kpi"><div><b>' + r.oui.length + "</b>inscrits</div><div><b>" + r.personnes + "</b>personnes attendues</div><div><b>" + r.non.length + "</b>ne viennent pas</div><div><b>" + r.sans.length + "</b>sans réponse</div><div><b>" + r.total + "</b>invités</div></div>";
+    var html = '<div class="insc-kpi"><div><b>' + r.oui.length + "</b>inscrits</div><div><b>" + r.personnes + "</b>personnes attendues</div><div><b>" + r.non.length + "</b>ne viennent pas</div><div><b>" + r.sans.length + "</b>sans réponse</div><div><b>" + r.total + "</b>invités</div>" +
+      (r.evenement && r.evenement.repas ? "<div><b>" + r.couverts + "</b>couverts au repas" + (r.montant != null ? " · " + r.montant + " €" : "") + "</div>" : "") + "</div>";
     if (r.evenement) html += '<div class="h-meta">' + E.esc(r.evenement.titre + " · " + quandEvt(r.evenement)) + "</div>";
     html += '<div class="insc-liste"><b>Inscrits :</b> ' + (r.oui.length ? r.oui.map(function (x) { return E.esc(x.nom) + (x.accompagnants ? " <small>+ " + E.esc(x.noms.join(", ")) + "</small>" : ""); }).join(" ; ") : "aucun pour le moment") + "</div>";
+    if (r.evenement && r.evenement.repas) {
+      var conv = [];
+      r.oui.forEach(function (x) { x.repas.forEach(function (n) { conv.push(n === x.nom ? n : n + " (avec " + x.nom + ")"); }); });
+      html += '<div class="insc-liste"><b>' + E.esc(repasTxt(r.evenement.repas)) + " :</b> " + (conv.length ? E.esc(conv.join(", ")) : "aucun couvert pour le moment") +
+        ' <small>· inscriptions ' + (r.repasFerme ? "closes" : "jusqu’au " + E.esc(dateEvt(r.evenement.repas.limite))) + "</small></div>";
+    }
     if (r.non.length) html += '<div class="insc-liste"><b>Ne viennent pas :</b> ' + E.esc(r.non.join(", ")) + "</div>";
     if (r.sans.length) html += '<div class="insc-liste"><b>Sans réponse :</b> ' + E.esc(r.sans.join(", ")) + "</div>";
     html += '<button type="button" class="rep-maj" data-insc-maj="' + E.esc(id) + '">Actualiser</button>';
