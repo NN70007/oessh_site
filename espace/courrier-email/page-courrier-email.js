@@ -504,6 +504,12 @@ function chargerInscriptions(id) {
     if (r.non.length) html += '<div class="insc-liste"><b>Ne viennent pas :</b> ' + E.esc(r.non.join(", ")) + "</div>";
     if (r.sans.length) html += '<div class="insc-liste"><b>Sans réponse :</b> ' + E.esc(r.sans.join(", ")) + "</div>";
     html += '<button type="button" class="rep-maj" data-insc-maj="' + E.esc(id) + '">Actualiser</button>';
+    if (r.evenement) {
+      // Liste imprimable : regroupe tous les envois récents rattachés au même événement
+      var ids = ((D && D.historique) || []).filter(function (h) { return h.id && h.evenement && h.evenement.id === r.evenement.id; }).map(function (h) { return h.id; });
+      if (ids.indexOf(id) < 0) ids.unshift(id);
+      html += ' <a class="rep-maj" target="_blank" rel="noopener" href="liste.html?ids=' + encodeURIComponent(ids.join(",")) + '">Liste imprimable</a>';
+    }
     box.innerHTML = html;
   }).catch(function (e) { box.innerHTML = '<div class="h-meta">' + E.esc(e && e.message || "Inscriptions indisponibles.") + "</div>"; });
 }

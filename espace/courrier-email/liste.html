@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Liste des inscrits · OESSH Luxembourg</title>
+<meta name="theme-color" content="#b10103">
+<link rel="icon" type="image/svg+xml" href="../../assets/croix-jerusalem-cardinal-liseree.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../espace.css?v=20261018c">
+<style>
+/* ── Liste des inscrits : même papier à en-tête que le Courrier officiel (espace/courrier/index.html) ── */
+.li-barre { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 22px; }
+.li-barre button, .li-barre a {
+  padding: 11px 22px; border-radius: 3px; font: 500 14px var(--sans); cursor: pointer; text-decoration: none;
+  border: 1.5px solid var(--line); background: var(--bg); color: var(--ink);
+}
+.li-barre .li-imprimer { background: var(--cardinal); border-color: var(--cardinal); color: #fff; }
+.li-barre .li-imprimer:hover { background: #8a0102; }
+.li-barre a:hover, .li-barre button:not(.li-imprimer):hover { border-color: var(--cardinal); }
+.li-etat { font-size: 13px; color: var(--ink-mute); }
+#li-page { overflow-x: auto; padding-bottom: 8px; }
+#li-page .ltr-sheet { margin: 0 auto; box-shadow: 0 6px 24px rgba(26,26,26,.08); border: 1px solid var(--line); }
+
+.ltr-sheet {
+  --ltr-red: #db0000;
+  position: relative; box-sizing: border-box;
+  width: 210mm; min-height: 297mm;
+  padding: 0 25mm;
+  background: white; color: #000;
+  font-family: Calibri, Carlito, "Segoe UI", Arial, sans-serif;
+  font-size: 11pt; line-height: 1.3;
+}
+.ltr-flow { width: 100%; height: 297mm; border-collapse: collapse; }
+.ltr-flow > thead > tr > td, .ltr-flow > tfoot > tr > td, .ltr-flow > tbody > tr > td { padding: 0; vertical-align: top; }
+.ltr-sp-top { height: 12mm; }
+.ltr-sp-bot { height: 30mm; box-sizing: border-box; padding-bottom: 12mm; display: flex; flex-direction: column; justify-content: flex-end; }
+.ltr-header { display: flex; align-items: center; gap: 6mm; margin: 0 -10mm 10mm -10mm; }
+.ltr-arms { flex: 0 0 34mm; text-align: center; }
+.ltr-logo { display: block; width: 29mm; height: auto; margin: 0 auto; }
+.ltr-header-text { flex: 1; text-align: center; font-weight: 700; font-size: 15pt; line-height: 1.35; padding-bottom: 6mm; }
+.ltr-latin, .ltr-ordre { color: var(--ltr-red); white-space: nowrap; }
+.ltr-lieutenance { color: #000; margin-top: 2.5mm; }
+.ltr-footer { text-align: center; color: #ff0000; font-weight: 700; font-size: 9pt; letter-spacing: 1pt; line-height: 1.5; }
+
+/* Contenu de la liste */
+.li-date { text-align: right; margin-bottom: 8mm; }
+.li-titre { font-size: 15pt; font-weight: 700; margin-bottom: 1.5mm; }
+.li-evt { font-size: 12pt; font-weight: 700; color: var(--ltr-red); }
+.li-quand { margin: 1mm 0 7mm; }
+.li-h { font-size: 12pt; font-weight: 700; margin: 0 0 2.5mm; padding-bottom: 1.2mm; border-bottom: 1.2pt solid var(--ltr-red); display: flex; justify-content: space-between; gap: 4mm; }
+.li-h small { font-size: 10.5pt; font-weight: 400; }
+.li-sous { margin: -1mm 0 3mm; font-size: 10pt; }
+.li-t { width: 100%; border-collapse: collapse; margin-bottom: 9mm; font-size: 10.5pt; }
+.li-t th { text-align: left; font-weight: 700; font-size: 9pt; text-transform: uppercase; letter-spacing: .5pt; padding: 0 2mm 1.5mm; border-bottom: .6pt solid #000; }
+.li-t td { padding: 1.6mm 2mm; border-bottom: .4pt solid #c9c9c9; vertical-align: top; }
+.li-t tr { break-inside: avoid; }
+.li-t .n { width: 9mm; text-align: right; color: #555; }
+.li-t .c { width: 16mm; text-align: center; }
+.li-t .avec { color: #444; }
+.li-t .acc td:nth-child(2) { padding-left: 6mm; }
+.li-case { display: inline-block; width: 3.6mm; height: 3.6mm; border: .7pt solid #000; vertical-align: middle; }
+.li-vide { font-style: italic; color: #555; margin: 0 0 9mm; }
+.li-bilan { font-size: 10pt; color: #333; break-inside: avoid; }
+
+@page { size: A4; margin: 0; }
+@media print {
+  #chrome-top, #chrome-foot, .li-barre, .section-head { display: none !important; }
+  html, body { margin: 0 !important; padding: 0 !important; background: white !important; }
+  main, section, .container, #li-page { display: block !important; margin: 0 !important; padding: 0 !important; max-width: none !important; overflow: visible !important; }
+  #li-page .ltr-sheet { box-shadow: none; border: 0; min-height: 0; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+
+<main>
+  <section class="block" id="li-section">
+    <div class="container">
+      <div class="section-head">
+        <div class="meta">
+          <div class="num">— Courrier e-mail</div>
+          <div class="label">Liste des inscrits</div>
+        </div>
+        <div>
+          <h2>Liste des inscrits.</h2>
+          <p class="lede">Participants à l'événement et couverts du repas, sur papier à en-tête de la Lieutenance. Imprimez-la ou enregistrez-la en PDF.</p>
+        </div>
+      </div>
+      <div class="li-barre">
+        <button type="button" class="li-imprimer" id="li-imprimer" disabled>Imprimer / PDF</button>
+        <button type="button" id="li-actualiser">Actualiser</button>
+        <a href="./#sec-journal">Retour au Courrier e-mail</a>
+        <span class="li-etat" id="li-etat">Chargement des inscriptions…</span>
+      </div>
+      <div id="li-page"></div>
+    </div>
+  </section>
+</main>
+
+<div id="chrome-foot"></div>
+<script src="../config.js"></script>
+<script src="../espace.js?v=20261020a"></script>
+<script src="liste.js?v=20261023a"></script>
+</body>
+</html>
