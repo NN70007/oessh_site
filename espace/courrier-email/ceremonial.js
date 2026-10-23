@@ -307,7 +307,12 @@ function allee(lignes, sens) {
       if (REG.marche === "suite") {
         for (var a1 = 0; a1 < l.g.length; a1 += 2) rg.push([l.g[a1], l.g[a1 + 1]]);
         for (var a2 = 0; a2 < l.d.length; a2 += 2) rg.push([l.d[a2], l.d[a2 + 1]]);
-      } else for (var k2 = 0; k2 < Math.max(l.g.length, l.d.length); k2++) rg.push([l.g[k2], l.d[k2], true]);
+      } else {
+        // Paires Chevalier - Dame tant qu'il y en a des deux côtés, puis les restants deux par deux
+        var np = Math.min(l.g.length, l.d.length), reste = l.g.length > np ? l.g.slice(np) : l.d.slice(np);
+        for (var k2 = 0; k2 < np; k2++) rg.push([l.g[k2], l.d[k2], true]);
+        for (var k3 = 0; k3 < reste.length; k3 += 2) rg.push([reste[k3], reste[k3 + 1]]);
+      }
     }
     rg.forEach(function (r) {
       if (!r[2] && !r[1]) h += '<div class="al-r un"><div>' + chip(r[0]) + "</div></div>";
