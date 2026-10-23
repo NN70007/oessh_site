@@ -48,8 +48,9 @@ var ROLES = [
   ["fanion_d", "Porte-fanion de Délégation locale"], ["epee", "Porte-épée et éperons (Veillée)"], ["vase", "Porte-vase des huiles (Veillée)"],
   ["ferme", "Ferme la procession"], ["accueil", "Accueil à l'entrée de l'église"]
 ];
-/* Conseil de la Lieutenance : ordre retenu entre les fonctions (le Rituel ne le fixe pas, à confirmer) */
-var CONSEIL_F = { chancelier: 1, tresorier: 2, secretaire: 3, secr_adj: 4, com: 5, info: 6, conseil: 7 };
+/* Conseil de la Lieutenance (Statuts 2021, art. 28 à 32) : d'abord les trois membres de droit dans l'ordre des Statuts
+   (Chancelier, Trésorier, Secrétaire), puis les autres conseillers, classés par grade. Le Règlement général fait foi s'il dit autre chose. */
+var CONSEIL_F = { chancelier: 1, tresorier: 2, secretaire: 3, secr_adj: 4, com: 4, info: 4, conseil: 4 };
 var COURT = { chancelier: "Chancelier", tresorier: "Trésorier", secretaire: "Secrétaire", secr_adj: "Secrétaire adjoint", com: "Communication", info: "Informatique", conseil: "Conseil",
   lieutenant: "Lieutenant", lt_hon: "Lieutenant d'honneur", president: "Président de Section", delegue: "Délégué local", lt_gen: "Lieutenant général", gouv: "Gouverneur général",
   vice_gouv: "Vice-Gouverneur", gm: "Grand Magistère", lt_invite: "Lieutenant invité", rep_lt: "Autre Lieutenance", celebrant: "Célébrant", concel: "Concélébrant",
@@ -473,7 +474,7 @@ function docPlacement() {
 function points() {
   var l = [
     "Grade : déduit de la colonne TITRE du fichier des membres (à vérifier). Sans grade, la personne est classée après les grades précisés.",
-    "Conseil : Chancelier, Trésorier, Secrétaire, Secrétaire adjoint, Communication, Informatique, puis autres membres ; à grade égal dans une même fonction, ordre alphabétique.",
+    "Conseil (cortège et bancs) : d’abord les membres de droit dans l’ordre des Statuts (Chancelier, Trésorier, Secrétaire, art. 29 à 31), puis les autres conseillers (art. 32) par grade. Le Règlement général de l’Ordre fait foi s’il en dispose autrement.",
     "Chevaliers et Dames : " + (REG.marche === "cote" ? "côte à côte, comme le prévoit le Rituel" : "à la suite (usage du cérémonial de Luxembourg 2024)") + " ; " + (REG.grades === "haut" ? "plus hauts grades en tête (n° 33)." : "plus hauts grades en dernier."),
     "Dans les bancs : place la plus proche de l’allée pour le plus haut rang ; Chevaliers en surnombre derrière les Dames.",
     "Évêques et cardinaux qui ne concélèbrent pas : dans la procession, le plus digne au plus près du célébrant.",
