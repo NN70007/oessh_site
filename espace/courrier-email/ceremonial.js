@@ -2,7 +2,8 @@
    calculés à partir des inscrits d'un événement, selon le Rituel de l'Ordre (décret Prot. N. 219/2021).
    Référence : document du projet « Cortège et procession - Rituel de l'Ordre (2021) ».
    Ouverte depuis Courrier e-mail → inscriptions → « Placement et procession ». Paramètre : ?ids=<envoi>,<envoi>…
-   Les qualités choisies sont gardées dans ce navigateur (localStorage), par événement. Rien n'est envoyé au serveur. */
+   Qualité, grade et fonction viennent du fichier des membres (colonnes TITRE, FONCTION, Conseil Lt) à chaque ouverture.
+   Les réglages et corrections d'une cérémonie sont enregistrés sur le serveur (onglet « Ceremonial ») : les mêmes pour tous. */
 (function () {
 "use strict";
 var E = window.Espace;
@@ -81,9 +82,21 @@ function cleNom(nom) {
 }
 
 /* ── État ── */
-var EVT = null, PERS = [], CHOIX = {}, REG = { type: "messe", placesG: 3, placesD: 3, marche: "cote", grades: "haut", haie: "aucune" }, CLE = "";
-function sauver() { try { localStorage.setItem(CLE, JSON.stringify({ reg: REG, p: CHOIX })); } catch (e) {} }
-function relire() { try { var o = JSON.parse(localStorage.getItem(CLE) || "null"); if (o) { REG = Object.assign(REG, o.reg || {}); CHOIX = o.p || {}; } } catch (e) {} if (REG.haie !== "prevue") REG.haie = "aucune"; }
+var REG0 = { type: "messe", placesG: 3, placesD: 3, marche: "cote", grades: "haut", haie: "aucune" };
+var EVT = null, PERS = [], CHOIX = {}, OVR = {}, REG = Object.assign({}, REG0);
+/* Enregistrement sur le serveur : seulement les réglages et les corrections faites à la main (OVR) ;
+   le reste est recalculé depuis le fichier des membres à chaque ouverture. */
+var minuteur = null;
+function heureTxt(ts) { var d = new Date(ts); return ("0" + d.getHours()).slice(-2) + "h" + ("0" + d.getMinutes()).slice(-2); }
+function sauver() {
+  clearTimeout(minuteur);
+  etat("Enregistrement…");
+  minuteur = setTimeout(function () {
+    E.api("ceremonial.ecrire", { evenement: EVT.id, donnees: { reg: REG, p: OVR } })
+      .then(function (r) { etat("Enregistré pour tous à " + heureTxt(r.majLe) + "."); })
+      .catch(function (e) { etat("Non enregistré : " + (e && e.message || "erreur") + " Réessayez."); });
+  }, 700);
+}
 
 /* Qualité, grade et fonction proposés d'après le fichier des membres :
    colonne TITRE (« le Commandeur », « la Dame de Commanderie », « Komtur-Dame mit Stern », « le Candidat »…),
@@ -96,7 +109,35 @@ function gradeDuTitre(t) {
   if (/chevalier|\bdame\b|ritter/.test(t)) return "ch";
   return "";
 }
+/* Colonne « Fonction » du fichier des membres → fonction (ou rôle) dans l'outil */
+function fonctionDuFichier(txt) {
+  var t = norm(txt);
+  if (!t) return {};
+  if (/lieutenant d.honneur/.test(t)) return { f: "lt_hon" };
+  if (/^lieutenant\b/.test(t)) return { f: "lieutenant" };
+  if (/grand prieur/.test(t)) return { f: "grand_prieur" };
+  if (/chancelier/.test(t)) return { f: "chancelier" };
+  if (/tresorier/.test(t)) return { f: "tresorier" };
+  if (/secretaire adjoint/.test(t)) return { f: "secr_adj" };
+  if (/secretaire/.test(t)) return { f: "secretaire" };
+  if (/communication/.test(t)) return { f: "com" };
+  if (/informatique/.test(t)) return { f: "info" };
+  if (/ceremoniaire eccl/.test(t)) return { f: "cer_eccl" };
+  if (/ceremoniaire/.test(t)) return { r: "cer_laic" };
+  if (/president de section/.test(t)) return { f: "president" };
+  if (/delegue/.test(t)) return { f: "delegue" };
+  if (/prieur/.test(t)) return { f: "prieur" };
+  if (/conseil/.test(t)) return { f: "conseil" };
+  return {};
+}
 function proposer(p, m) {
+  var base = proposerQualite(p, m), fx = m ? fonctionDuFichier(m.fonction) : {};
+  if (fx.f) base.f = fx.f;
+  base.r = fx.r || "";
+  if (fx.r === "cer_laic" && m && m.conseilLt && !base.f) base.f = "conseil";
+  return base;
+}
+function proposerQualite(p, m) {
   if (p.accompagnant || !m) return { q: "invite", g: "", f: "" };
   var a = m.appel || "", t = norm(m.titre).replace(/^(le|la|l'|l’)\s*/, "");
   var femme = /^(Madame|Chère)/.test(a) || /^la\b|\bdame\b|komturdame|-dame|candidate|sympathisante|sekretarin/.test(norm(m.titre));
@@ -131,8 +172,6 @@ function charger() {
       r.oui.forEach(function (x) { if (!inscrits[x.nom] || inscrits[x.nom].le < x.le) inscrits[x.nom] = x; });
     });
     if (!EVT) { etat(refus[0] || "Aucun événement rattaché à cet envoi."); return; }
-    CLE = "oessh_ceremonial_" + EVT.id;
-    relire();
     PERS = [];
     Object.keys(inscrits).forEach(function (n) {
       var x = inscrits[n];
@@ -143,15 +182,22 @@ function charger() {
       var mb = parNom[norm(p.nom)];
       if (mb) FAMILLE[p.nom] = sansParticule(mb.nom);
       p.prop = proposer(p, mb);
-      if (!CHOIX[p.nom]) CHOIX[p.nom] = { q: p.prop.q, g: p.prop.g, f: p.prop.f, r: "", par: "" };
     });
     PERS.sort(function (a, b) { return cleNom(a.avec || a.nom).localeCompare(cleNom(b.avec || b.nom), "fr") || (a.accompagnant - b.accompagnant) || cleNom(a.nom).localeCompare(cleNom(b.nom), "fr"); });
+    return E.api("ceremonial.lire", { evenement: EVT.id }).catch(function () { return { donnees: null }; }).then(function (rc) {
+    var d = rc.donnees || {};
+    REG = Object.assign({}, REG0, d.reg || {}); if (REG.haie !== "prevue") REG.haie = "aucune";
+    OVR = d.p || {};
+    CHOIX = {};
+    PERS.forEach(function (p) { CHOIX[p.nom] = Object.assign({ q: p.prop.q, g: p.prop.g || "", f: p.prop.f || "", r: p.prop.r || "", par: "" }, OVR[p.nom] || {}); });
     $("cr-type").value = REG.type; $("cr-placesG").value = REG.placesG; $("cr-placesD").value = REG.placesD;
     $("cr-marche").value = REG.marche; $("cr-grades").value = REG.grades; $("cr-haie").value = REG.haie;
     $("cr-saisie").hidden = false;
     dessinerSaisie();
     tout();
-    etat(refus.length ? "Attention : " + refus.length + " envoi(s) illisible(s) (" + refus[0] + ")." : PERS.length + " personnes inscrites.");
+    etat(refus.length ? "Attention : " + refus.length + " envoi(s) illisible(s) (" + refus[0] + ")." :
+      PERS.length + " personnes inscrites." + (rc.majLe ? " Réglages partagés, modifiés par " + rc.majPar + " à " + heureTxt(rc.majLe) + " le " + new Date(rc.majLe).toLocaleDateString("fr-FR") + "." : ""));
+    });
   });
 }
 
@@ -170,9 +216,13 @@ function dessinerSaisie() {
 }
 $("cr-personnes").addEventListener("change", function (ev) {
   var sel = ev.target, tr = sel.closest("tr"); if (!tr) return;
-  var p = PERS[Number(tr.dataset.i)], c = CHOIX[p.nom];
-  c[sel.dataset.k] = sel.value;
-  if (sel.dataset.k === "q") { if (!/^(chevalier|dame|diacre|religieux|religieuse)$/.test(c.q)) c.g = ""; if (!/_imp$/.test(c.q) || c.q === "pretre_imp") c.par = ""; dessinerSaisie(); }
+  var p = PERS[Number(tr.dataset.i)], c = CHOIX[p.nom], o = OVR[p.nom] = OVR[p.nom] || {};
+  c[sel.dataset.k] = o[sel.dataset.k] = sel.value;
+  if (sel.dataset.k === "q") {
+    if (!/^(chevalier|dame|diacre|religieux|religieuse)$/.test(c.q)) c.g = o.g = "";
+    if (!/_imp$/.test(c.q) || c.q === "pretre_imp") c.par = o.par = "";
+    dessinerSaisie();
+  }
   sauver(); tout();
 });
 function borne(v) { return Math.max(1, Math.min(12, Number(v) || 3)); }
@@ -506,6 +556,11 @@ function tout() {
   $("cr-imprimer").disabled = false;
 }
 $("cr-imprimer").addEventListener("click", function () { window.print(); });
+$("cr-reinit").addEventListener("click", function () {
+  if (!EVT) return;
+  OVR = {}; PERS.forEach(function (p) { CHOIX[p.nom] = { q: p.prop.q, g: p.prop.g || "", f: p.prop.f || "", r: p.prop.r || "", par: "" }; });
+  dessinerSaisie(); sauver(); tout();
+});
 $("cr-actualiser").addEventListener("click", function () { EVT = null; charger(); });
 charger();
 })();

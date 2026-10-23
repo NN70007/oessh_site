@@ -62,6 +62,8 @@
 .cr-tab table { min-width: 860px; }
 .cr-note { font-size: 13px; color: var(--ink-mute); margin: 0 0 22px; line-height: 1.55; }
 .cr-note b { color: var(--ink); }
+.rep-maj { margin-left: 6px; border: 1px solid var(--line); background: var(--bg); border-radius: 3px; padding: 3px 9px; font-size: 12px; cursor: pointer; }
+.rep-maj:hover { border-color: var(--cardinal); color: var(--cardinal); }
 .cr-points { border-left: 3px solid var(--gold, #b08a4f); padding: 10px 14px; margin: 0 0 26px; font-size: 13px; line-height: 1.55; background: var(--bg-soft); }
 .cr-points ul { margin: 6px 0 0 18px; padding: 0; }
 .cr-h2 { font-family: var(--serif); font-size: 24px; margin: 26px 0 12px; }
@@ -250,7 +252,7 @@
             <option value="prevue">Haie prévue</option>
           </select></div>
         </div>
-        <p class="cr-note">Indiquez pour chaque présent sa <b>qualité</b>, son <b>grade</b>, sa <b>fonction</b> et, le cas échéant, son <b>rôle</b> dans la cérémonie. Qualité, grade et appartenance au Conseil sont proposés d'après le fichier des membres (colonne TITRE, formule d'appel, groupe) : vérifiez-les. Vos choix restent enregistrés dans ce navigateur pour cet événement.</p>
+        <p class="cr-note">Indiquez pour chaque présent sa <b>qualité</b>, son <b>grade</b>, sa <b>fonction</b> et, le cas échéant, son <b>rôle</b> dans la cérémonie. Qualité, grade et fonction viennent du fichier des membres (colonnes TITRE et Fonction, formule d'appel, groupe, Conseil Lt), relus à chaque ouverture. Les rôles du jour et les corrections faites ici sont <b>enregistrés pour tous</b> les utilisateurs, pour cet événement. <button type="button" class="rep-maj" id="cr-reinit">Revenir au fichier des membres</button></p>
         <div class="cr-tab"><table class="cr-pers"><thead><tr><th>Nom</th><th>Qualité</th><th>Grade</th><th>Fonction</th><th>Rôle</th><th>Parrain / marraine</th></tr></thead><tbody id="cr-personnes"></tbody></table></div>
         <div class="cr-points" id="cr-points"></div>
         <h3 class="cr-h2">Documents</h3>
@@ -263,6 +265,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="ceremonial.js?v=20261023l"></script>
+<script src="ceremonial.js?v=20261023m"></script>
 </body>
 </html>

@@ -54,7 +54,9 @@ var ONGLETS = {
   RetJalons: ['Date', 'Titre', 'Detail', 'Cle'],
   RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note'],
   RetOrganisation: ['Fonction', 'Nom'],
-  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type', 'PJ', 'Id', 'RepondreA', 'Destinataires', 'Evenement']
+  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type', 'PJ', 'Id', 'RepondreA', 'Destinataires', 'Evenement'],
+  // Placement et procession : réglages d'une cérémonie (rôles du jour, corrections), partagés par tous les utilisateurs du Courrier e-mail
+  Ceremonial: ['Evenement', 'Donnees', 'MajLe', 'MajPar']
 };
 // Colonne de droits du Courrier e-mail, ajoutée en fin d'onglet « Acces » par « installer ».
 var COL_ENVOIS = 'Envois';
@@ -127,6 +129,8 @@ function route_(req) {
     case 'mail.evenements': return mailEvenements_(user);
     case 'mail.creerEvenement': return mailCreerEvenement_(user, req);
     case 'mail.inscriptions': return mailInscriptions_(user, req);
+    case 'ceremonial.lire': return ceremonialLire_(user, req);
+    case 'ceremonial.ecrire': return ceremonialEcrire_(user, req);
     default: throw refus_('Action inconnue.', 'inconnu');
   }
 }
@@ -880,7 +884,8 @@ function lireMembres_() {
       groupe: norm_(row[0]), sousGroupe: String(row[1] || '').trim(),
       conseilLt: oui_(v(row, 'CONSEILLT')), conseilAsbl: oui_(v(row, 'CONSEILASBL')),
       nom: nom, prenom: v(row, 'PRENOMUSUEL'), civilite: v(row, 'CIVILITE'), titre: v(row, 'TITRE'),
-      email: norm_(v(row, 'COURRIEL'))
+      email: norm_(v(row, 'COURRIEL')),
+      fonction: v(row, 'FONCTION')   // colonne facultative « Fonction » : Chancelier, Lieutenant d'honneur… (préséance)
     };
     var base = hash_(norm_(m.nom) + '|' + norm_(m.prenom) + '|' + m.email).slice(0, 12), id2 = base, n = 2;
     while (vus[id2]) id2 = base + '-' + (n++);
@@ -951,7 +956,7 @@ function mailCharger_(u) {
     casquettes: casquettesDe_(u),
     groupes: groupes,
     membres: membres.map(function (m) {
-      return { id: m.id, nom: m.nom, prenom: m.prenom, appel: m.appel, politesse: m.politesse, groupe: m.groupe, sousGroupe: m.sousGroupe, sansCourriel: !m.email, titre: m.titre, conseilLt: m.conseilLt };   // titre et conseilLt : préséance (page Placement et procession)
+      return { id: m.id, nom: m.nom, prenom: m.prenom, appel: m.appel, politesse: m.politesse, groupe: m.groupe, sousGroupe: m.sousGroupe, sansCourriel: !m.email, titre: m.titre, conseilLt: m.conseilLt, fonction: m.fonction };   // titre et conseilLt : préséance (page Placement et procession)
     }),
     historique: historique,
     adresses: adressesReponse_(u),
@@ -1673,6 +1678,37 @@ function mailInscriptions_(u, req) {
     sans: lignes.filter(function (x) { return !x.Reponse; }).map(function (x) { return x.Nom; }),
     total: lignes.length
   };
+}
+
+/* ---- Placement et procession : réglages partagés d'une cérémonie (onglet « Ceremonial », créé au premier enregistrement) ---- */
+function ongletCeremonial_() {
+  var ss = classeur_(false), sh = ss.getSheetByName('Ceremonial');
+  if (!sh) { sh = ss.insertSheet('Ceremonial'); sh.getRange(1, 1, 1, ONGLETS.Ceremonial.length).setValues([ONGLETS.Ceremonial]); sh.setFrozenRows(1); }
+  return sh;
+}
+function ceremonialLire_(u, req) {
+  exigerEnvois_(u);
+  var id = texte_(req.evenement, 120);
+  if (!id) throw refus_('Événement manquant.', 'donnees');
+  ongletCeremonial_();
+  var r = lire_('Ceremonial').filter(function (x) { return x.Evenement === id; })[0];
+  var d = null;
+  try { d = r && r.Donnees ? JSON.parse(r.Donnees) : null; } catch (e) { d = null; }
+  return { ok: true, donnees: d, majLe: r ? Number(r.MajLe) || 0 : 0, majPar: r ? r.MajPar : '' };
+}
+function ceremonialEcrire_(u, req) {
+  exigerEnvois_(u);
+  var id = texte_(req.evenement, 120), txt = JSON.stringify(req.donnees || {});
+  if (!id) throw refus_('Événement manquant.', 'donnees');
+  if (txt.length > 45000) throw refus_('Réglages trop volumineux.', 'donnees');
+  return verrou_(function () {
+    ongletCeremonial_();
+    var existe = lire_('Ceremonial').some(function (x) { return x.Evenement === id; });
+    var champs = { Evenement: id, Donnees: txt, MajLe: String(Date.now()), MajPar: u.nom || u.email };
+    if (existe) majLigne_('Ceremonial', function (x) { return x.Evenement === id; }, champs);
+    else ajouter_('Ceremonial', champs);
+    return { ok: true, majLe: Number(champs.MajLe) };
+  });
 }
 
 /* ---- Rappels : déclencheur quotidien (Déclencheurs > Ajouter > rappelsInscriptions > tous les jours, 8 h - 9 h) ---- */
