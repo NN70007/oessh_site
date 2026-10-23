@@ -113,6 +113,39 @@
 .mc-e.fixe .mc-l { font-style: italic; font-weight: 400; margin: 0; }
 .mc-s { font-size: 7.5pt; text-transform: uppercase; letter-spacing: .5pt; color: #777; margin: .5mm 0 .8mm; }
 .mc-pa { display: grid; grid-template-columns: 1fr 1fr; column-gap: 3mm; }
+/* Marche vue d'en haut : autel en haut, porte en bas, la file dans l'allée */
+.ap { font-size: 8.5pt; line-height: 1.9; border: .6pt solid #999; border-radius: 1.5mm; padding: 1.5mm 2.5mm; margin: 0 0 3mm; }
+.ap b { margin-right: 1mm; }
+.ap-e { white-space: nowrap; margin-right: 2.2mm; }
+.al-n { display: inline-flex; align-items: center; justify-content: center; width: 4.6mm; height: 4.6mm; border-radius: 50%; background: #000; color: #fff; font-size: 7pt; font-weight: 700; margin-right: 1.2mm; vertical-align: middle; }
+.eg { border: 1pt solid #000; border-radius: 2mm; overflow: hidden; }
+.eg-autel { background: var(--ltr-red); color: #fff; text-align: center; font-size: 9pt; font-weight: 700; letter-spacing: 2pt; text-transform: uppercase; padding: 1.6mm; border-radius: 0 0 40% 40% / 0 0 100% 100%; margin: 0 22mm; }
+.eg-nef { display: grid; grid-template-columns: 14mm 1fr 14mm; }
+.eg-banc { background: repeating-linear-gradient(180deg, #fff 0 4mm, #d9c7a7 4mm 5.6mm); opacity: .7; }
+.eg-allee { border-left: .8pt dashed #999; border-right: .8pt dashed #999; padding: 2mm 3mm; }
+.al-tete { text-align: center; font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: .6pt; color: var(--ltr-red); margin: 1mm 0; }
+.al-e { border: .7pt solid #888; border-radius: 1.5mm; background: #fff; padding: 1.2mm 2mm 1mm; position: relative; margin-top: 4.5mm; }
+.al-l { break-after: avoid; }
+.al-r { display: grid; grid-template-columns: 1fr 1fr; column-gap: 2mm; break-inside: avoid; }
+.al-r > div:first-child { text-align: right; }
+.al-r.un { grid-template-columns: 1fr; }
+.al-r.un > div { text-align: center; }
+.al-r .ch { margin: 0 0 1mm 0; text-align: left; }
+.al-e:first-of-type { margin-top: 1mm; }
+.monte .al-e + .al-e::before, .descend .al-e + .al-e::before { position: absolute; top: -4.4mm; left: 50%; transform: translateX(-50%); color: var(--ltr-red); font-size: 9pt; line-height: 4mm; }
+.monte .al-e + .al-e::before { content: "\25B2"; }
+.descend .al-e + .al-e::before { content: "\25BC"; }
+.al-e.fixe { border-style: dashed; color: #777; }
+.al-e.fixe .al-n { background: #aaa; }
+.al-l { font-size: 9pt; font-weight: 700; margin-bottom: .8mm; }
+.al-e.fixe .al-l { font-weight: 400; font-style: italic; margin: 0; }
+.al-1 { display: flex; flex-wrap: wrap; justify-content: center; }
+.al-2 { display: grid; grid-template-columns: 1fr 1fr; column-gap: 2mm; }
+.al-2 > div:nth-child(odd) { text-align: right; }
+.al-2 .ch { margin: 0 0 1mm 0; }
+.al-s { text-align: center; font-size: 7.5pt; color: #777; }
+.eg-porte { border-top: 2.5pt solid #000; text-align: center; font-size: 8.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5pt; padding: 1.4mm; }
+
 /* Plan de l'église */
 .pl { border: 1pt solid #000; border-radius: 2mm; padding: 2.5mm; }
 .pl-t { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 1pt; font-weight: 700; color: var(--ltr-red); margin-bottom: 1.2mm; }
@@ -228,6 +261,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="ceremonial.js?v=20261023e"></script>
+<script src="ceremonial.js?v=20261023h"></script>
 </body>
 </html>
