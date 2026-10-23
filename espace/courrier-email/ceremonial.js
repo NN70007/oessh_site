@@ -24,7 +24,7 @@ if (!IDS.length) { etat("Aucun envoi indiqué : ouvrez cette page depuis le suiv
 /* ── Référentiels ── */
 var QUALITES = [
   ["chevalier", "Chevalier"], ["dame", "Dame"],
-  ["chev_imp", "Chevalier impétrant"], ["dame_imp", "Dame impétrante"],
+  ["chev_imp", "Candidat (impétrant à l'Investiture)"], ["dame_imp", "Candidate (impétrante à l'Investiture)"],
   ["cardinal", "Cardinal"], ["eveque", "Archevêque ou évêque"], ["pretre", "Prêtre"], ["pretre_imp", "Prêtre impétrant"],
   ["diacre", "Diacre"], ["religieux", "Religieux-chevalier"], ["religieuse", "Religieuse-dame"],
   ["ordre", "Représentant d'un autre Ordre"], ["honneur", "Invité d'honneur (autorité)"], ["invite", "Invité (famille, ami)"]
@@ -56,6 +56,9 @@ var COURT = { chancelier: "Chancelier", tresorier: "Trésorier", secretaire: "Se
   vice_gouv: "Vice-Gouverneur", gm: "Grand Magistère", lt_invite: "Lieutenant invité", rep_lt: "Autre Lieutenance", celebrant: "Célébrant", concel: "Concélébrant",
   grand_prieur: "Grand Prieur", prieur: "Prieur", assistant: "Assistant spirituel", cer_eccl: "Cérémoniaire ecclésiastique" };
 function estConseil(f) { return !!CONSEIL_F[f]; }
+/* Hors Veillée et Investiture, les candidats ne sont pas impétrants : candidats en manteau gris (usage de la Lieutenance, hors Rituel) */
+function messe() { return REG.type === "messe"; }
+var NOTE_CAND = '<p class="cd-rem">* Candidats en manteau gris : usage de la Lieutenance pour le Luxembourg. Le Rituel ne prévoit leur place qu’à la Veillée et à l’Investiture ; ici, ils ferment le cortège et s’assoient derrière les membres.</p>';
 var CLERCS = { cardinal: 1, eveque: 1, pretre: 1, pretre_imp: 1 };
 var FEMMES = { dame: 1, dame_imp: 1, religieuse: 1 };
 var PROCESSION_F = { lieutenant: 1, lt_gen: 1, gouv: 1, vice_gouv: 1, celebrant: 1, concel: 1, grand_prieur: 1, prieur: 1, assistant: 1, cer_eccl: 1 };
@@ -222,6 +225,8 @@ function gradeTxt(p) {
 /* Ce qui s'affiche sous le nom : la fonction (avec le grade pour le Conseil), sinon le grade, sinon la qualité */
 function etiquette(p) {
   var c = C(p), g = gradeTxt(p);
+  if (c.q === "chev_imp") return messe() ? "Candidat *" : "Impétrant";
+  if (c.q === "dame_imp") return messe() ? "Candidate *" : "Impétrante";
   if (COURT[c.f]) return COURT[c.f] + (estConseil(c.f) && g ? " · " + g : "");
   if (g) return g;
   if (c.q === "invite" || c.q === "chevalier" || c.q === "dame") return "";
@@ -337,7 +342,9 @@ var LEGENDE = '<p class="cd-sens">Vue d’en haut : l’autel en haut, la porte 
 /* ── 1. Cortège et procession d'entrée ── */
 function docEntree() {
   var veillee = REG.type === "veillee";
-  var impCh = triPreseance(qui(function (c) { return c.q === "chev_imp"; })), impDa = triPreseance(qui(function (c) { return c.q === "dame_imp"; }));
+  var candH = triPreseance(qui(function (c) { return c.q === "chev_imp"; })), candF = triPreseance(qui(function (c) { return c.q === "dame_imp"; }));
+  var impCh = messe() ? [] : candH, impDa = messe() ? [] : candF;
+  if (!messe()) { candH = []; candF = []; }
   // Ceux qui marchent déjà à une ligne de fonction ne sont pas repris parmi les Chevaliers et Dames
   var cd = rangChevaliersDames({ conseil: 1, president: 1, delegue: 1, gm: 1, lt_hon: 1, lt_invite: 1, rep_lt: 1, prieur: veillee ? 1 : 0 });
   var rel = sexePaires(qui(function (c) { return (c.q === "religieux" || c.q === "religieuse") && !enMarcheParticuliere(c); }));
@@ -365,17 +372,19 @@ function docEntree() {
     veillee ? L("Prieurs de Section et de Délégation locale", fonc("prieur")) : null,
     L("Prêtres", pretres),
     paires("Religieux-chevaliers - Religieuses-dames", rel.g, rel.d, "Religieux", "Religieuses"),
-    paires("Chevaliers - Dames", cd.g, cd.d, "Chevaliers", "Dames")
+    paires("Chevaliers - Dames", cd.g, cd.d, "Chevaliers", "Dames"),
+    paires("Candidats en manteau gris *", candH, candF, "Candidats", "Candidates")
   ]);
   var proc = [F("Thuriféraire - Naviculaire"), F("Cruciféraire"), F("Céroféraire - Céroféraire")];
-  if (!veillee) {
+  if (REG.type === "investiture") {
     proc.push(paires("Chevaliers impétrants - Dames impétrantes", avecParrain(impCh), avecParrain(impDa), "Chevaliers", "Dames"));
     proc.push(L("Prêtres impétrants", pretresImp));
   }
   proc = proc.concat(dignitairesEtClerge(veillee, ferme, false));
+  var noteCand = candH.length || candF.length ? NOTE_CAND : "";
   return feuille("1. Cortège d'entrée", LEGENDE +
       '<p class="cd-rem">Le cortège entre <b>avant</b> la procession. Chacun gagne ensuite sa place (voir le plan). Les plus hauts dignitaires passent en tête (Rituel, n° 33).</p>' +
-      appel(cortege) + allee(cortege, "entree")) +
+      appel(cortege) + allee(cortege, "entree") + noteCand) +
     feuille("2. Procession d'entrée", LEGENDE +
       '<p class="cd-rem">La procession entre quand le cortège est placé' + (veillee ? "" : ", au chant du <i>Lauda Ierusalem</i> ou du <i>Réjouis-toi Jérusalem</i>") + '. Les dignitaires laïcs marchent devant le porte-évangéliaire (n° 38) ; le célébrant ferme la procession (n° 36).</p>' +
       appel(proc) + allee(proc, "entree"));
@@ -435,8 +444,13 @@ function banc(row, n, cls) { var h = '<div class="bc ' + cls + '">'; for (var i 
 function planBancs() {
   var nG = REG.placesG, nD = REG.placesD;
   var exclu = { lieutenant: 1, lt_gen: 1, gouv: 1, vice_gouv: 1, gm: 1, lt_hon: 1, lt_invite: 1, rep_lt: 1 };
-  var G = cote(triPreseance(qui(function (c) { return c.q === "chev_imp"; })), triNef(qui(function (c) { return (c.q === "chevalier" || c.q === "diacre") && !exclu[c.f]; })));
-  var D = cote(triPreseance(qui(function (c) { return c.q === "dame_imp"; })), triNef(qui(function (c) { return c.q === "dame" && !exclu[c.f]; })));
+  var candH = triPreseance(qui(function (c) { return c.q === "chev_imp"; })), candF = triPreseance(qui(function (c) { return c.q === "dame_imp"; }));
+  var G = cote(messe() ? [] : candH, triNef(qui(function (c) { return (c.q === "chevalier" || c.q === "diacre") && !exclu[c.f]; })));
+  var D = cote(messe() ? [] : candF, triNef(qui(function (c) { return c.q === "dame" && !exclu[c.f]; })));
+  if (messe()) {   // candidats en manteau gris : derrière les membres, hommes à gauche, femmes à droite
+    G.m = G.m.concat(candH.map(function (p) { return { p: p, tag: "Candidat *", cls: "cand" }; }));
+    D.m = D.m.concat(candF.map(function (p) { return { p: p, tag: "Candidate *", cls: "cand" }; }));
+  }
   // Rituel : « si nécessaire, des Chevaliers peuvent aussi se placer derrière les Dames » : les derniers passent à droite
   var depl = [];
   function nb(c, extra, n) { return rangs(c.imp, n).length + Math.ceil((c.m.length + extra) / n); }
@@ -466,13 +480,15 @@ function docPlacement() {
       (invites.length ? '<div class="pl-inv"><div class="pl-t">Familles et invités · rangs suivants</div><div class="mc-ch">' + chips(invites) + "</div></div>" : "") +
       '<div class="pl-porte">&#8593; Entrée de l’église' + (accueil.length ? " · accueil : " + esc(accueil.map(function (p) { return p.nom; }).join(", ")) : "") + "</div>" +
     "</div>" +
-    '<div class="lg"><span class="sg imp"></span>Impétrant, avec parrain ou marraine <span class="sg cons"></span>Conseil de la Lieutenance <span class="sg dep"></span>Chevaliers placés derrière les Dames <span class="lg-t">Côté allée : 1re place de chaque rang. ' + nG + " place" + (nG > 1 ? "s" : "") + " à gauche, " + nD + " à droite.</span></div>";
-  return feuille("Placement dans l'église", plan);
+    '<div class="lg"><span class="sg imp"></span>Impétrant, avec parrain ou marraine <span class="sg cons"></span>Conseil de la Lieutenance <span class="sg dep"></span>Chevaliers placés derrière les Dames' + (messe() ? ' <span class="sg cand"></span>Candidats en manteau gris *' : '') + ' <span class="lg-t">Côté allée : 1re place de chaque rang. ' + nG + " place" + (nG > 1 ? "s" : "") + " à gauche, " + nD + " à droite.</span></div>";
+  var aCand = messe() && qui(function (c) { return c.q === "chev_imp" || c.q === "dame_imp"; }).length;
+  return feuille("Placement dans l'église", plan + (aCand ? NOTE_CAND : ""));
 }
 
 /* Points laissés ouverts par le Rituel : choix appliqués, à confirmer par les cérémoniaires */
 function points() {
   var l = [
+    "Candidats (manteau gris) : impétrants seulement à la Veillée et à l’Investiture ; aux autres messes, ils ferment le cortège et s’assoient derrière les membres (usage de la Lieutenance, signalé par un astérisque).",
     "Grade : déduit de la colonne TITRE du fichier des membres (à vérifier). Sans grade, la personne est classée après les grades précisés.",
     "Conseil (cortège et bancs) : d’abord les membres de droit dans l’ordre des Statuts (Chancelier, Trésorier, Secrétaire, art. 29 à 31), puis les autres conseillers (art. 32) par grade. Le Règlement général de l’Ordre fait foi s’il en dispose autrement.",
     "Chevaliers et Dames : " + (REG.marche === "cote" ? "côte à côte, comme le prévoit le Rituel" : "à la suite (usage du cérémonial de Luxembourg 2024)") + " ; " + (REG.grades === "haut" ? "plus hauts grades en tête (n° 33)." : "plus hauts grades en dernier."),

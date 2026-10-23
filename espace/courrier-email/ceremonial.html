@@ -172,6 +172,7 @@
 .sg.par { background: #fdf3f3; border-color: #e3a3a3; }
 .sg.cons { background: #fbf6ec; border-color: #b08a4f; }
 .sg.dep { background: #eef3fb; border-color: #8aa3c8; }
+.sg.cand { background: #f0f0f0; border-color: #8c8c8c; }
 .pl-inv { border-top: .6pt dashed #999; margin-top: 2.5mm; padding-top: 2mm; }
 .pl-porte { text-align: center; font-size: 8pt; text-transform: uppercase; letter-spacing: 1pt; font-weight: 700; margin-top: 2.5mm; padding-top: 1.5mm; border-top: 2pt solid #000; }
 .lg { font-size: 8pt; color: #333; margin: 2mm 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 1.5mm 2mm; }
@@ -230,7 +231,8 @@
       <div class="cr-ecran" id="cr-saisie" hidden>
         <div class="cr-reglages">
           <div><label for="cr-type">Cérémonie</label><select id="cr-type">
-            <option value="messe">Messe de la Lieutenance ou Investiture</option>
+            <option value="messe">Messe de la Lieutenance (sans investiture)</option>
+            <option value="investiture">Investiture et Messe</option>
             <option value="veillee">Veillée de prière</option>
           </select></div>
           <div><label for="cr-placesG">Places par banc, gauche</label><input type="number" id="cr-placesG" min="1" max="12" value="3"></div>
@@ -261,6 +263,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="ceremonial.js?v=20261023k"></script>
+<script src="ceremonial.js?v=20261023l"></script>
 </body>
 </html>
