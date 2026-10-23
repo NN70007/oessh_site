@@ -33,7 +33,9 @@ var GRADES = [["", "-"], ["gc", "Grand-Croix"], ["go", "Grand Officier"], ["cp",
 var RANG_GRADE = { gc: 0, go: 1, cp: 2, co: 3, ch: 4, "": 5 };
 var FONCTIONS = [
   ["", "-"],
-  ["lieutenant", "Lieutenant"], ["lt_hon", "Lieutenant d'honneur"], ["conseil", "Membre du Conseil"],
+  ["lieutenant", "Lieutenant"], ["lt_hon", "Lieutenant d'honneur"],
+  ["chancelier", "Chancelier"], ["tresorier", "Trésorier"], ["secretaire", "Secrétaire"], ["secr_adj", "Secrétaire adjoint"],
+  ["com", "Responsable de la communication"], ["info", "Responsable informatique"], ["conseil", "Membre du Conseil"],
   ["president", "Président de Section"], ["delegue", "Délégué local"],
   ["lt_gen", "Lieutenant général"], ["gouv", "Gouverneur général"], ["vice_gouv", "Vice-Gouverneur général"],
   ["gm", "Membre du Grand Magistère"], ["lt_invite", "Lieutenant invité"], ["rep_lt", "Représentant d'une autre Lieutenance"],
@@ -46,6 +48,13 @@ var ROLES = [
   ["fanion_d", "Porte-fanion de Délégation locale"], ["epee", "Porte-épée et éperons (Veillée)"], ["vase", "Porte-vase des huiles (Veillée)"],
   ["ferme", "Ferme la procession"], ["accueil", "Accueil à l'entrée de l'église"]
 ];
+/* Conseil de la Lieutenance : ordre retenu entre les fonctions (le Rituel ne le fixe pas, à confirmer) */
+var CONSEIL_F = { chancelier: 1, tresorier: 2, secretaire: 3, secr_adj: 4, com: 5, info: 6, conseil: 7 };
+var COURT = { chancelier: "Chancelier", tresorier: "Trésorier", secretaire: "Secrétaire", secr_adj: "Secrétaire adjoint", com: "Communication", info: "Informatique", conseil: "Conseil",
+  lieutenant: "Lieutenant", lt_hon: "Lieutenant d'honneur", president: "Président de Section", delegue: "Délégué local", lt_gen: "Lieutenant général", gouv: "Gouverneur général",
+  vice_gouv: "Vice-Gouverneur", gm: "Grand Magistère", lt_invite: "Lieutenant invité", rep_lt: "Autre Lieutenance", celebrant: "Célébrant", concel: "Concélébrant",
+  grand_prieur: "Grand Prieur", prieur: "Prieur", assistant: "Assistant spirituel", cer_eccl: "Cérémoniaire ecclésiastique" };
+function estConseil(f) { return !!CONSEIL_F[f]; }
 var CLERCS = { cardinal: 1, eveque: 1, pretre: 1, pretre_imp: 1 };
 var FEMMES = { dame: 1, dame_imp: 1, religieuse: 1 };
 var PROCESSION_F = { lieutenant: 1, lt_gen: 1, gouv: 1, vice_gouv: 1, celebrant: 1, concel: 1, grand_prieur: 1, prieur: 1, assistant: 1, cer_eccl: 1 };
@@ -68,7 +77,7 @@ function cleNom(nom) {
 }
 
 /* ── État ── */
-var EVT = null, PERS = [], CHOIX = {}, REG = { type: "messe", places: 6, marche: "cote", grades: "haut" }, CLE = "";
+var EVT = null, PERS = [], CHOIX = {}, REG = { type: "messe", placesG: 3, placesD: 3, marche: "cote", grades: "haut", haie: "place" }, CLE = "";
 function sauver() { try { localStorage.setItem(CLE, JSON.stringify({ reg: REG, p: CHOIX })); } catch (e) {} }
 function relire() { try { var o = JSON.parse(localStorage.getItem(CLE) || "null"); if (o) { REG = Object.assign(REG, o.reg || {}); CHOIX = o.p || {}; } } catch (e) {} }
 
@@ -133,7 +142,8 @@ function charger() {
       if (!CHOIX[p.nom]) CHOIX[p.nom] = { q: p.prop.q, g: p.prop.g, f: p.prop.f, r: "", par: "" };
     });
     PERS.sort(function (a, b) { return cleNom(a.avec || a.nom).localeCompare(cleNom(b.avec || b.nom), "fr") || (a.accompagnant - b.accompagnant) || cleNom(a.nom).localeCompare(cleNom(b.nom), "fr"); });
-    $("cr-type").value = REG.type; $("cr-places").value = REG.places; $("cr-marche").value = REG.marche; $("cr-grades").value = REG.grades;
+    $("cr-type").value = REG.type; $("cr-placesG").value = REG.placesG; $("cr-placesD").value = REG.placesD;
+    $("cr-marche").value = REG.marche; $("cr-grades").value = REG.grades; $("cr-haie").value = REG.haie;
     $("cr-saisie").hidden = false;
     dessinerSaisie();
     tout();
@@ -161,17 +171,18 @@ $("cr-personnes").addEventListener("change", function (ev) {
   if (sel.dataset.k === "q") { if (!/^(chevalier|dame|diacre|religieux|religieuse)$/.test(c.q)) c.g = ""; if (!/_imp$/.test(c.q) || c.q === "pretre_imp") c.par = ""; dessinerSaisie(); }
   sauver(); tout();
 });
-["cr-type", "cr-places", "cr-marche", "cr-grades"].forEach(function (id) {
+function borne(v) { return Math.max(1, Math.min(12, Number(v) || 3)); }
+["cr-type", "cr-placesG", "cr-placesD", "cr-marche", "cr-grades", "cr-haie"].forEach(function (id) {
   $(id).addEventListener("change", function () {
-    REG.type = $("cr-type").value; REG.places = Math.max(2, Math.min(20, Number($("cr-places").value) || 6));
-    REG.marche = $("cr-marche").value; REG.grades = $("cr-grades").value; sauver(); tout();
+    REG.type = $("cr-type").value; REG.placesG = borne($("cr-placesG").value); REG.placesD = borne($("cr-placesD").value);
+    REG.marche = $("cr-marche").value; REG.grades = $("cr-grades").value; REG.haie = $("cr-haie").value; sauver(); tout();
   });
 });
 
 /* ── Sélections ── */
 function C(p) { return CHOIX[p.nom]; }
 function qui(f) { return PERS.filter(function (p) { return f(C(p), p); }); }
-function noms(l) { return l.map(function (p) { return p.nom; }); }
+function noms(l) { return l; }   // les lignes gardent les personnes : le rendu affiche nom + fonction ou grade
 function triPreseance(l) {
   var sens = REG.grades === "bas" ? -1 : 1;
   return l.slice().sort(function (a, b) {
@@ -183,9 +194,10 @@ function triPreseance(l) {
     return cleNom(a.nom).localeCompare(cleNom(b.nom), "fr");
   });
 }
+function triConseil(l) { var t = triPreseance(l); return t.sort(function (a, b) { return (CONSEIL_F[C(a).f] || 9) - (CONSEIL_F[C(b).f] || 9) || t.indexOf(a) - t.indexOf(b); }); }
 /* Parrains et marraines : ils accompagnent leur impétrant et sortent du rang des Chevaliers et Dames */
 function parrainsUtilises() { var o = {}; PERS.forEach(function (p) { var c = C(p); if (/^(chev|dame)_imp$/.test(c.q) && c.par) o[c.par] = 1; }); return o; }
-function avecParrain(l) { return l.map(function (p) { return p.nom + (C(p).par ? " (suivi de " + C(p).par + ")" : ""); }); }
+function avecParrain(l) { return l.map(function (p) { return { p: p, extra: C(p).par ? "suivi de " + C(p).par : "" }; }); }
 function roleDe(r) { return qui(function (c) { return c.r === r; }); }
 function fonc(f) { return qui(function (c) { return c.f === f; }); }
 function enMarcheParticuliere(c) { return ROLES_MARCHE[c.r] || PROCESSION_F[c.f]; }
@@ -193,34 +205,62 @@ function enMarcheParticuliere(c) { return ROLES_MARCHE[c.r] || PROCESSION_F[c.f]
 /* Chevaliers - Dames du cortège (membres sans fonction ni rôle particulier) */
 function rangChevaliersDames(exclus) {
   var par = parrainsUtilises();
-  var libre = function (c, p) { return !enMarcheParticuliere(c) && !par[p.nom] && !exclus[c.f]; };
+  var libre = function (c, p) { return !enMarcheParticuliere(c) && !par[p.nom] && !exclus[c.f] && !(exclus.conseil && estConseil(c.f)); };
   return {
     g: triPreseance(qui(function (c, p) { return (c.q === "chevalier" || c.q === "diacre") && libre(c, p); })),
     d: triPreseance(qui(function (c, p) { return c.q === "dame" && libre(c, p); }))
   };
 }
 
-/* ── Rendu ── */
-function ligne(lbl, contenu, fixe) { return { lbl: lbl, contenu: contenu, fixe: !!fixe }; }
-function L(lbl, liste) { return liste.length ? ligne(lbl, liste.map(esc).join("<br>")) : null; }
-function paires(lbl, gauche, droite, tg, td) {
-  if (!gauche.length && !droite.length) return null;
-  if (REG.marche === "suite") {
-    return ligne(lbl, (gauche.length ? '<div class="cd-sous">' + esc(tg) + "</div>" + gauche.map(esc).join("<br>") : "") +
-      (droite.length ? '<div class="cd-sous" style="margin-top:1.5mm">' + esc(td) + "</div>" + droite.map(esc).join("<br>") : ""));
-  }
-  var n = Math.max(gauche.length, droite.length), h = '<table class="cd-paires"><tr><th>' + esc(tg) + "</th><th>" + esc(td) + "</th></tr>";
-  for (var i = 0; i < n; i++) h += "<tr><td>" + esc(gauche[i] || "") + "</td><td>" + esc(droite[i] || "") + "</td></tr>";
-  return ligne(lbl, h + "</table>");
+/* ── Rendu graphique ── */
+function femme(p) { return !!FEMMES[C(p).q]; }
+function gradeTxt(p) {
+  var f = femme(p);
+  return { gc: "Grand-Croix", go: "Grand Officier", cp: f ? "Dame de Commanderie avec plaque" : "Commandeur avec plaque", co: f ? "Dame de Commanderie" : "Commandeur", ch: f ? "Dame" : "Chevalier" }[C(p).g] || "";
 }
-function F(lbl, detail) { return ligne(lbl, detail || "", true); }
-function tableau(lignes) {
+/* Ce qui s'affiche sous le nom : la fonction (avec le grade pour le Conseil), sinon le grade, sinon la qualité */
+function etiquette(p) {
+  var c = C(p), g = gradeTxt(p);
+  if (COURT[c.f]) return COURT[c.f] + (estConseil(c.f) && g ? " · " + g : "");
+  if (g) return g;
+  if (c.q === "invite" || c.q === "chevalier" || c.q === "dame") return "";
+  return lib(QUALITES, c.q);
+}
+function chip(x) {
+  var p = x && x.p ? x.p : x, extra = x && x.extra ? x.extra : "";
+  if (typeof p === "string") return '<span class="ch"><b>' + esc(p) + "</b></span>";
+  var t = [etiquette(p), extra].filter(Boolean).join(" · ");
+  return '<span class="ch' + (estConseil(C(p).f) ? " cons" : "") + '"><b>' + esc(p.nom) + "</b>" + (t ? "<i>" + esc(t) + "</i>" : "") + "</span>";
+}
+function chips(l) { return l.map(function (x) { return chip(x); }).join(""); }
+
+/* Étapes de marche */
+function L(lbl, liste) { return liste.length ? { lbl: lbl, l: liste } : null; }
+function F(lbl) { return { lbl: lbl, fixe: true }; }
+function paires(lbl, g, d, tg, td) { return g.length || d.length ? { lbl: lbl, g: g, d: d, tg: tg, td: td } : null; }
+function marche(lignes) {
   lignes = lignes.filter(Boolean);
-  if (!lignes.length) return "";
-  return '<table class="cd-t"><colgroup><col class="n"><col class="lib"><col></colgroup><tbody>' + lignes.map(function (l, i) {
-    return '<tr><td class="n">' + (i + 1) + '</td><td class="lib' + (l.fixe ? " fixe" : "") + '">' + esc(l.lbl) + "</td><td" + (l.fixe ? ' class="fixe"' : "") + ">" + l.contenu + "</td></tr>";
-  }).join("") + "</tbody></table>";
+  if (!lignes.length) return '<p class="cd-vide">Personne.</p>';
+  var h = '<div class="mc"><div class="mc-bout">Ouvre la marche</div>';
+  lignes.forEach(function (l, i) {
+    h += '<div class="mc-fl">&#8595;</div><div class="mc-e' + (l.fixe ? " fixe" : "") + '"><div class="mc-n">' + (i + 1) + '</div><div class="mc-c"><div class="mc-l">' + esc(l.lbl) + "</div>";
+    if (l.l) h += '<div class="mc-ch">' + chips(l.l) + "</div>";
+    if (l.g) {
+      if (REG.marche === "suite") {
+        h += (l.g.length ? '<div class="mc-s">' + esc(l.tg) + '</div><div class="mc-ch">' + chips(l.g) + "</div>" : "") +
+             (l.d.length ? '<div class="mc-s">' + esc(l.td) + ", à la suite</div><div class=\"mc-ch\">" + chips(l.d) + "</div>" : "");
+      } else {
+        var n = Math.max(l.g.length, l.d.length);
+        h += '<div class="mc-pa"><div class="mc-s">' + esc(l.tg) + ' (gauche)</div><div class="mc-s">' + esc(l.td) + " (droite)</div>";
+        for (var k = 0; k < n; k++) h += "<div>" + (l.g[k] ? chip(l.g[k]) : "") + "</div><div>" + (l.d[k] ? chip(l.d[k]) : "") + "</div>";
+        h += "</div>";
+      }
+    }
+    h += "</div></div>";
+  });
+  return h + '<div class="mc-fl">&#8595;</div><div class="mc-bout">Ferme la marche</div></div>';
 }
+
 function feuille(titre, corps) {
   var e = EVT || {};
   return '<div class="ltr-sheet"><table class="ltr-flow">' +
@@ -243,7 +283,9 @@ function evequesProcession() {
   var l = qui(function (c) { return (c.q === "eveque" || c.q === "cardinal") && !PROCESSION_F[c.f]; });
   return l.sort(function (a, b) { return (C(a).q === "cardinal") - (C(b).q === "cardinal") || cleNom(a.nom).localeCompare(cleNom(b.nom), "fr"); });
 }
-function sexePaires(l) { return { g: l.filter(function (p) { return !FEMMES[C(p).q]; }), d: l.filter(function (p) { return FEMMES[C(p).q]; }) }; }
+function sexePaires(l) { return { g: l.filter(function (p) { return !femme(p); }), d: l.filter(function (p) { return femme(p); }) }; }
+function membresConseil() { return triConseil(qui(function (c) { return estConseil(c.f) && !ROLES_MARCHE[c.r]; })); }
+var SENS = '<p class="cd-sens">&#8595; Sens de la marche : le n° 1 ouvre la marche, le dernier la ferme. Sous chaque nom : fonction ou grade.</p>';
 
 /* ── 1. Cortège et procession d'entrée ── */
 function docEntree() {
@@ -255,166 +297,147 @@ function docEntree() {
   var pretres = qui(function (c) { return c.q === "pretre" && !enMarcheParticuliere(c); });
   var pretresImp = qui(function (c) { return c.q === "pretre_imp"; });
   var ferme = sexePaires(roleDe("ferme"));
-  var invites = [
-    L("Membres du Grand Magistère", noms(fonc("gm"))),
-    L("Lieutenant d'honneur", noms(fonc("lt_hon"))),
-    L("Lieutenants invités", noms(fonc("lt_invite"))),
-    L("Représentants des autres Lieutenances", noms(fonc("rep_lt"))),
-    L("Représentants des autres Ordres", noms(qui(function (c) { return c.q === "ordre"; })))
-  ];
-  var cortege = [L("Cérémoniaire laïc", noms(roleDe("cer_laic")))];
+  var cortege = [L("Cérémoniaire laïc", roleDe("cer_laic"))];
   if (veillee) {
-    cortege.push(paires("Porte-épée et éperons - Porte-vase", noms(roleDe("epee")), noms(roleDe("vase")), "Porte-épée", "Porte-vase"));
-    cortege.push(L("Prêtres impétrants", noms(pretresImp)));
+    cortege.push(paires("Porte-épée et éperons - Porte-vase", roleDe("epee"), roleDe("vase"), "Porte-épée", "Porte-vase"));
+    cortege.push(L("Prêtres impétrants", pretresImp));
     cortege.push(paires("Chevaliers impétrants - Dames impétrantes", avecParrain(impCh), avecParrain(impDa), "Chevaliers", "Dames"));
   }
   cortege = cortege.concat([
-    L("Porte-étendard de la Lieutenance", noms(roleDe("etendard"))),
-    L("Porte-fanions de Section", noms(roleDe("fanion_s"))),
-    L("Porte-fanions de Délégation locale", noms(roleDe("fanion_d")))
-  ]).concat(invites).concat([
-    L("Membres du Conseil de la Lieutenance", noms(triPreseance(qui(function (c) { return c.f === "conseil" && !ROLES_MARCHE[c.r]; })))),
-    L(veillee ? "Présidents de Section et Délégués locaux" : "Présidents de Section", noms(veillee ? fonc("president").concat(fonc("delegue")) : fonc("president"))),
-    veillee ? null : L("Délégués locaux", noms(fonc("delegue"))),
-    veillee ? L("Prieurs de Section et de Délégation locale", noms(fonc("prieur"))) : null,
-    L("Prêtres", noms(pretres)),
-    paires("Religieux-chevaliers - Religieuses-dames", noms(rel.g), noms(rel.d), "Religieux", "Religieuses"),
-    paires("Chevaliers - Dames", noms(cd.g), noms(cd.d), "Chevaliers", "Dames")
+    L("Porte-étendard de la Lieutenance", roleDe("etendard")),
+    L("Porte-fanions de Section", roleDe("fanion_s")),
+    L("Porte-fanions de Délégation locale", roleDe("fanion_d")),
+    L("Membres du Grand Magistère", fonc("gm")),
+    L("Lieutenant d'honneur", fonc("lt_hon")),
+    L("Lieutenants invités", fonc("lt_invite")),
+    L("Représentants des autres Lieutenances", fonc("rep_lt")),
+    L("Représentants des autres Ordres", qui(function (c) { return c.q === "ordre"; })),
+    L("Membres du Conseil de la Lieutenance", membresConseil()),
+    L(veillee ? "Présidents de Section et Délégués locaux" : "Présidents de Section", veillee ? fonc("president").concat(fonc("delegue")) : fonc("president")),
+    veillee ? null : L("Délégués locaux", fonc("delegue")),
+    veillee ? L("Prieurs de Section et de Délégation locale", fonc("prieur")) : null,
+    L("Prêtres", pretres),
+    paires("Religieux-chevaliers - Religieuses-dames", rel.g, rel.d, "Religieux", "Religieuses"),
+    paires("Chevaliers - Dames", cd.g, cd.d, "Chevaliers", "Dames")
   ]);
-
   var proc = [F("Thuriféraire - Naviculaire"), F("Cruciféraire"), F("Céroféraire - Céroféraire")];
   if (!veillee) {
     proc.push(paires("Chevaliers impétrants - Dames impétrantes", avecParrain(impCh), avecParrain(impDa), "Chevaliers", "Dames"));
-    proc.push(L("Prêtres impétrants", noms(pretresImp)));
+    proc.push(L("Prêtres impétrants", pretresImp));
   }
-  proc = proc.concat([
-    L("Lieutenant du lieu", noms(fonc("lieutenant"))),
-    L("Vice-Gouverneur", noms(fonc("vice_gouv"))),
-    L("Gouverneur général", noms(fonc("gouv"))),
-    L("Lieutenant général", noms(fonc("lt_gen"))),
-    F("Prêtre ou diacre porte-évangéliaire"),
-    L("Prêtres concélébrants", noms(fonc("concel"))),
-    veillee ? null : L("Prieurs de Délégation locale et de Section", noms(fonc("prieur"))),
-    L("Cérémoniaire et assistant spirituel de l'Ordre", noms(fonc("assistant"))),
-    L("Évêques", noms(evequesProcession())),
-    L("Grand Prieur de la Lieutenance", noms(fonc("grand_prieur"))),
-    L("Célébrant", noms(fonc("celebrant"))),
-    ligne("Cérémoniaire ecclésiastique - Secrétaire ou assistant", noms(fonc("cer_eccl")).map(esc).join("<br>") || '<span class="fixe">à désigner</span>'),
+  proc = proc.concat(dignitairesEtClerge(veillee, ferme, false));
+  return feuille("Cortège et procession d'entrée", SENS +
+    section("1. Cortège d'entrée", "entre un temps avant la procession", marche(cortege)) +
+    '<p class="cd-rem">Les plus hauts dignitaires passent en tête (Rituel, n° 33). Familles et invités gagnent directement leurs places.</p>' +
+    section("2. Procession d'entrée", veillee ? "" : "Lauda Ierusalem ou Réjouis-toi Jérusalem", marche(proc)) +
+    '<p class="cd-rem">Les dignitaires laïcs marchent devant le porte-évangéliaire (n° 38) ; le célébrant ferme la procession (n° 36).</p>');
+}
+function dignitairesEtClerge(veillee, ferme, sortie) {
+  var l = [];
+  if (sortie) l = l.concat([L("Porte-étendard de la Lieutenance", roleDe("etendard")), L("Porte-fanions de Section", roleDe("fanion_s")), L("Porte-fanions de Délégation locale", roleDe("fanion_d"))]);
+  l = l.concat([
+    L("Lieutenant du lieu", fonc("lieutenant")), L("Vice-Gouverneur", fonc("vice_gouv")), L("Gouverneur général", fonc("gouv")), L("Lieutenant général", fonc("lt_gen")),
+    sortie ? null : F("Prêtre ou diacre porte-évangéliaire"),
+    L("Prêtres concélébrants", fonc("concel")),
+    veillee ? null : L("Prieurs de Délégation locale et de Section", fonc("prieur")),
+    L("Cérémoniaire et assistant spirituel de l'Ordre", fonc("assistant")),
+    L("Évêques", evequesProcession()),
+    L("Grand Prieur de la Lieutenance", fonc("grand_prieur")),
+    L("Célébrant", fonc("celebrant")),
+    fonc("cer_eccl").length ? L("Cérémoniaire ecclésiastique - Secrétaire ou assistant", fonc("cer_eccl")) : F("Cérémoniaire ecclésiastique - Secrétaire ou assistant"),
     veillee ? null : F("Servants d'autel"),
-    paires("Un Chevalier - une Dame", noms(ferme.g), noms(ferme.d), "Chevalier", "Dame")
+    paires("Un Chevalier - une Dame", ferme.g, ferme.d, "Chevalier", "Dame")
   ]);
-  return feuille("Cortège et procession d'entrée",
-    section("Cortège d'entrée", "entre un temps avant la procession", tableau(cortege) || '<p class="cd-vide">Personne dans le cortège.</p>') +
-    '<p class="cd-rem">Cortège : les plus hauts dignitaires passent en tête (Rituel, n° 33) ; familles et invités gagnent directement leurs places. Procession : les dignitaires laïcs marchent devant le porte-évangéliaire (n° 38) et le célébrant la ferme (n° 36).</p>' +
-    section("Procession d'entrée", veillee ? "" : "Lauda Ierusalem ou Réjouis-toi Jérusalem", tableau(proc)));
+  return l;
 }
 
-/* ── 2. Procession de sortie ── */
+/* ── 2. Procession de sortie et haie ── */
 function docSortie() {
   var veillee = REG.type === "veillee", ferme = sexePaires(roleDe("ferme"));
-  var proc = [F("Thuriféraire - Naviculaire"), F("Cruciféraire"), F("Céroféraire - Céroféraire"),
-    L("Porte-étendard de la Lieutenance", noms(roleDe("etendard"))),
-    L("Porte-fanions de Section", noms(roleDe("fanion_s"))),
-    L("Porte-fanions de Délégation locale", noms(roleDe("fanion_d"))),
-    L("Lieutenant du lieu", noms(fonc("lieutenant"))),
-    L("Vice-Gouverneur", noms(fonc("vice_gouv"))),
-    L("Gouverneur général", noms(fonc("gouv"))),
-    L("Lieutenant général", noms(fonc("lt_gen"))),
-    L("Prêtres concélébrants", noms(fonc("concel"))),
-    veillee ? null : L("Prieurs de Délégation locale et de Section", noms(fonc("prieur"))),
-    L("Cérémoniaire et assistant spirituel de l'Ordre", noms(fonc("assistant"))),
-    L("Évêques", noms(evequesProcession())),
-    L("Grand Prieur de la Lieutenance", noms(fonc("grand_prieur"))),
-    L("Célébrant", noms(fonc("celebrant"))),
-    ligne("Cérémoniaire ecclésiastique - Secrétaire ou assistant", noms(fonc("cer_eccl")).map(esc).join("<br>") || '<span class="fixe">à désigner</span>'),
-    veillee ? null : F("Servants d'autel"),
-    paires("Un Chevalier - une Dame", noms(ferme.g), noms(ferme.d), "Chevalier", "Dame")
-  ];
-  var cd = rangChevaliersDames({});
-  return feuille("Procession de sortie",
-    section("Procession de sortie", "retour direct à la sacristie", tableau(proc)) +
-    '<p class="cd-rem">La procession est conduite par le cérémoniaire ecclésiastique (n° 37). Si c’est prévu, les Chevaliers et les Dames forment une haie de salutation de part et d’autre de l’allée, selon les indications du cérémoniaire laïc.</p>' +
-    ((cd.g.length || cd.d.length) ? section("Haie de salutation (si prévue)", "de part et d’autre de l’allée centrale", haie(noms(cd.g), noms(cd.d))) : ""));
-}
-/* Haie : place n° 1 = au bout de l'allée le plus proche du chœur (plus hauts grades), puis vers la porte de l'église */
-function haie(g, d) {
-  var n = Math.max(g.length, d.length), h = '<p class="cd-rem">Place 1 : au plus près du chœur ; les suivants s’alignent ensuite vers la porte de l’église. En sortant, le célébrant passe d’abord devant les plus hauts grades.</p>' +
-    '<table class="cd-nef"><colgroup><col class="r"><col><col></colgroup><thead><tr><th>Place</th><th>Côté gauche - Chevaliers</th><th>Côté droit - Dames</th></tr></thead><tbody>';
-  for (var i = 0; i < n; i++) h += '<tr><td class="r">' + (i + 1) + "</td><td>" + esc(g[i] || "") + "</td><td>" + esc(d[i] || "") + "</td></tr>";
-  return h + "</tbody></table>";
+  var proc = [F("Thuriféraire - Naviculaire"), F("Cruciféraire"), F("Céroféraire - Céroféraire")].concat(dignitairesEtClerge(veillee, ferme, true));
+  var cd = rangChevaliersDames({}), haie = "";
+  if (REG.haie === "place") {
+    haie = section("Haie de salutation", "à leur place", '<div class="hx">À l’approche de la procession, chacun <b>se lève à sa place et se tourne vers l’allée centrale</b>. Personne ne quitte son banc avant le passage du célébrant ; le cérémoniaire laïc donne ensuite le signal de sortie.</div>');
+  } else if (REG.haie === "parvis" && (cd.g.length || cd.d.length)) {
+    var n = Math.max(cd.g.length, cd.d.length), couloir = '<div class="cl"><div class="cl-porte">Porte de l’église</div><div class="cl-g">';
+    for (var i = 0; i < n; i++) couloir += '<div class="cl-p">' + (cd.g[i] ? chip(cd.g[i]) : "") + '</div><div class="cl-n">' + (i + 1) + '</div><div class="cl-p">' + (cd.d[i] ? chip(cd.d[i]) : "") + "</div>";
+    couloir += '</div><div class="cl-bas">&#8595; la procession passe entre les deux files &#8595;</div></div>';
+    haie = section("Haie de salutation sur le parvis", "Chevaliers à gauche, Dames à droite", 
+      '<div class="tl"><div class="tl-e"><span>1</span><div>Sur un signe du cérémoniaire laïc, les Chevaliers et les Dames <b>quittent leurs bancs et sortent les premiers</b>, avant la procession.</div></div>' +
+      '<div class="tl-e"><span>2</span><div>Sur le parvis, ils forment <b>deux files face à face</b>, aux places ci-dessous : place 1 contre la porte de l’église.</div></div>' +
+      '<div class="tl-e"><span>3</span><div>La procession sort et <b>passe entre les deux files</b> : étendard et fanions, Lieutenant, clergé, et le célébrant en dernier.</div></div></div>' + couloir);
+  }
+  return feuille("Procession de sortie", SENS +
+    section("Procession de sortie", "retour à la sacristie ou vers la sortie", marche(proc)) +
+    '<p class="cd-rem">La procession est conduite par le cérémoniaire ecclésiastique (n° 37).</p>' + haie);
 }
 
-/* ── 3. Placement dans l'église ── */
-function rangs(l, debut) {
-  var n = REG.places, out = [];
-  for (var i = 0; i < l.length; i += n) out.push({ r: debut + out.length, noms: l.slice(i, i + n) });
-  return out;
-}
-function cote(impetrants, membres) {
-  var par = parrainsUtilises(), rangImp = [];
-  impetrants.forEach(function (p) { rangImp.push(p.nom + " (impétrant)"); if (C(p).par) rangImp.push(C(p).par + " (parrain)"); });
-  var R = rangs(rangImp, 1);
-  var suite = membres.filter(function (p) { return !par[p.nom]; }).map(function (p) { return p.nom; });
-  return R.concat(rangs(suite, R.length + 1));
+/* ── 3. Placement dans l'église : plan des bancs ── */
+function rangs(items, n) { var out = []; for (var i = 0; i < items.length; i += n) out.push(items.slice(i, i + n)); return out; }
+function cote(imp, membres) {
+  var par = parrainsUtilises(), a = [];
+  imp.forEach(function (p) {
+    a.push({ p: p, tag: femme(p) ? "Impétrante" : "Impétrant", cls: "imp" });
+    var pr = C(p).par && PERS.filter(function (x) { return x.nom === C(p).par; })[0];
+    if (pr) a.push({ p: pr, tag: (femme(pr) ? "Marraine" : "Parrain") + " de " + p.nom.split(" ")[0], cls: "par" });
+  });
+  return { imp: a, m: membres.filter(function (p) { return !par[p.nom]; }).map(function (p) { return { p: p, tag: etiquette(p), cls: estConseil(C(p).f) ? "cons" : "" }; }) };
 }
 function triNef(l) {
-  var ordre = { conseil: 0, president: 1, delegue: 2 };
+  var ordre = { president: 1, delegue: 2 };
   var t = triPreseance(l);
-  return t.sort(function (a, b) { var oa = C(a).f in ordre ? ordre[C(a).f] : 3, ob = C(b).f in ordre ? ordre[C(b).f] : 3; return oa - ob || t.indexOf(a) - t.indexOf(b); });
+  return t.sort(function (a, b) {
+    var oa = estConseil(C(a).f) ? CONSEIL_F[C(a).f] / 10 : (C(a).f in ordre ? ordre[C(a).f] : 3), ob = estConseil(C(b).f) ? CONSEIL_F[C(b).f] / 10 : (C(b).f in ordre ? ordre[C(b).f] : 3);
+    return oa - ob || t.indexOf(a) - t.indexOf(b);
+  });
 }
+function siege(x) { return '<div class="sg' + (x && x.cls ? " " + x.cls : "") + '">' + (x ? "<b>" + esc(x.p.nom) + "</b>" + (x.tag ? "<i>" + esc(x.tag) + "</i>" : "") : "") + "</div>"; }
+function banc(row, n, cls) { var h = '<div class="bc ' + cls + '">'; for (var i = 0; i < n; i++) h += siege(row && row[i]); return h + "</div>"; }
 function docPlacement() {
-  var choeur = [
-    L("Célébrant", noms(fonc("celebrant"))),
-    L("Prêtres concélébrants", noms(fonc("concel"))),
-    L("Cardinaux et évêques", noms(evequesProcession().reverse())),
-    L("Grand Prieur de la Lieutenance", noms(fonc("grand_prieur"))),
-    L("Prieurs", noms(fonc("prieur"))),
-    L("Cérémoniaire et assistant spirituel", noms(fonc("assistant"))),
-    L("Cérémoniaire ecclésiastique", noms(fonc("cer_eccl"))),
-    L("Prêtres impétrants", noms(qui(function (c) { return c.q === "pretre_imp"; }))),
-    L("Prêtres non célébrants", noms(qui(function (c) { return c.q === "pretre" && !PROCESSION_F[c.f]; }))),
-    L("Religieux et religieuses (derrière le clergé)", noms(qui(function (c) { return c.q === "religieux" || c.q === "religieuse"; })))
-  ];
-  var dignitaires = [L("Lieutenant général", noms(fonc("lt_gen"))), L("Gouverneur général", noms(fonc("gouv"))), L("Vice-Gouverneur", noms(fonc("vice_gouv"))), L("Lieutenant du lieu", noms(fonc("lieutenant")))];
-  var honneur = [
-    L("Membres du Grand Magistère", noms(fonc("gm"))), L("Lieutenant d'honneur", noms(fonc("lt_hon"))),
-    L("Lieutenants invités", noms(fonc("lt_invite"))), L("Représentants des autres Lieutenances", noms(fonc("rep_lt"))),
-    L("Représentants des autres Ordres", noms(qui(function (c) { return c.q === "ordre"; }))),
-    L("Autorités et invités d'honneur", noms(qui(function (c) { return c.q === "honneur"; })))
-  ];
+  var nG = REG.placesG, nD = REG.placesD;
   var exclu = { lieutenant: 1, lt_gen: 1, gouv: 1, vice_gouv: 1, gm: 1, lt_hon: 1, lt_invite: 1, rep_lt: 1 };
-  var gauche = cote(triPreseance(qui(function (c) { return c.q === "chev_imp"; })), triNef(qui(function (c) { return (c.q === "chevalier" || c.q === "diacre") && !exclu[c.f]; })));
-  var droite = cote(triPreseance(qui(function (c) { return c.q === "dame_imp"; })), triNef(qui(function (c) { return c.q === "dame" && !exclu[c.f]; })));
-  // Rituel : « si nécessaire, des Chevaliers peuvent aussi se placer derrière les Dames » (les derniers rangs passent à droite)
-  var k = Math.floor((gauche.length - droite.length) / 2);
-  if (k > 0) droite = droite.concat(gauche.splice(gauche.length - k, k).map(function (r) { return { r: 0, noms: r.noms, chev: true }; }));
-  function cellule(r) { return r ? (r.chev ? '<span class="cd-sous">Chevaliers : </span>' : "") + esc(r.noms.join(", ")) : ""; }
-  var nefRangs = Math.max(gauche.length, droite.length), nef = '<table class="cd-nef"><colgroup><col class="r"><col><col></colgroup><thead><tr><th>Rang</th><th>Côté gauche - Chevaliers</th><th>Côté droit - Dames</th></tr></thead><tbody>';
-  for (var i = 0; i < nefRangs; i++) nef += '<tr><td class="r">' + (i + 1) + "</td><td>" + cellule(gauche[i]) + "</td><td>" + cellule(droite[i]) + "</td></tr>";
-  nef += "</tbody></table>";
-  var invites = qui(function (c) { return c.q === "invite"; }).map(function (p) { return p.nom + (p.avec ? " (avec " + p.avec + ")" : ""); });
-  var accueil = noms(roleDe("accueil"));
-  var corps =
-    section("Chœur et sièges assignés", "clergé", tableau(choeur) || '<p class="cd-vide">Aucun ecclésiastique indiqué parmi les inscrits.</p>') +
-    (dignitaires.filter(Boolean).length ? section("Dignitaires laïcs", "place assignée", tableau(dignitaires)) : "") +
-    (honneur.filter(Boolean).length ? section("Places d'honneur", "premiers rangs réservés (n° 27)", tableau(honneur)) : "") +
-    section("Nef - membres de l'Ordre", REG.places + " places par rang, en regardant l'autel", nefRangs ? nef : '<p class="cd-vide">Aucun Chevalier ni aucune Dame inscrits.</p>') +
-    (nefRangs ? '<p class="cd-rem">Premier rang : impétrants avec leur parrain ou marraine. Ensuite, membres du Conseil, Présidents de Section et Délégués locaux, puis Chevaliers et Dames par grade. Quand les Chevaliers sont plus nombreux, les derniers rangs prennent place derrière les Dames (Rituel).</p>' : "") +
-    (invites.length ? section("Familles et invités", invites.length + " personne" + (invites.length > 1 ? "s" : "") + ", derrière les membres", '<p class="cd-rem" style="font-size:10.5pt;color:#000">' + esc(invites.join(" ; ")) + "</p>") : "") +
-    (accueil.length ? section("Accueil à l'entrée de l'église", "en manteau, faluche et gants (n° 30)", '<p class="cd-rem" style="font-size:10.5pt;color:#000">' + esc(accueil.join(", ")) + "</p>") : "");
-  return feuille("Placement dans l'église", corps);
+  var G = cote(triPreseance(qui(function (c) { return c.q === "chev_imp"; })), triNef(qui(function (c) { return (c.q === "chevalier" || c.q === "diacre") && !exclu[c.f]; })));
+  var D = cote(triPreseance(qui(function (c) { return c.q === "dame_imp"; })), triNef(qui(function (c) { return c.q === "dame" && !exclu[c.f]; })));
+  // Rituel : « si nécessaire, des Chevaliers peuvent aussi se placer derrière les Dames » : les derniers passent à droite
+  var depl = [];
+  function nb(c, extra, n) { return rangs(c.imp, n).length + Math.ceil((c.m.length + extra) / n); }
+  while (G.m.length && nb(G, 0, nG) - nb(D, depl.length, nD) >= 2) { var x = G.m.pop(); depl.unshift({ p: x.p, tag: x.tag || "Chevalier", cls: "dep" }); }
+  var RG = rangs(G.imp, nG).concat(rangs(G.m, nG)), RD = rangs(D.imp, nD).concat(rangs(D.m.concat(depl), nD));
+  var nr = Math.max(RG.length, RD.length), nef = "";
+  for (var i = 0; i < nr; i++) nef += '<tr><td class="r">' + (i + 1) + "</td><td>" + banc(RG[i], nG, "g") + '</td><td class="al">&#8593;</td><td>' + banc(RD[i], nD, "d") + "</td></tr>";
+  var clerge = [].concat(fonc("celebrant"), fonc("concel"), evequesProcession().reverse(), fonc("grand_prieur"), fonc("prieur"), fonc("assistant"), fonc("cer_eccl"),
+    qui(function (c) { return c.q === "pretre_imp"; }), qui(function (c) { return c.q === "pretre" && !PROCESSION_F[c.f]; }));
+  var religieux = qui(function (c) { return c.q === "religieux" || c.q === "religieuse"; });
+  var dignit = [].concat(fonc("lt_gen"), fonc("gouv"), fonc("vice_gouv"), fonc("lieutenant"));
+  var honneur = [].concat(fonc("gm"), fonc("lt_hon"), fonc("lt_invite"), fonc("rep_lt"), qui(function (c) { return c.q === "ordre"; }), qui(function (c) { return c.q === "honneur"; }));
+  var invites = qui(function (c) { return c.q === "invite"; }).map(function (p) { return { p: p, extra: p.avec ? "avec " + p.avec : "" }; });
+  var accueil = roleDe("accueil");
+  var plan =
+    '<div class="pl">' +
+      '<div class="pl-choeur"><div class="pl-t">Autel · chœur</div>' + (clerge.length ? '<div class="mc-ch">' + chips(clerge) + "</div>" : '<div class="pl-vide">Clergé : places prévues par le cérémoniaire ecclésiastique</div>') +
+        (religieux.length ? '<div class="pl-s">Derrière le clergé</div><div class="mc-ch">' + chips(religieux) + "</div>" : "") + "</div>" +
+      (dignit.length || honneur.length ? '<div class="pl-res">' +
+        (dignit.length ? '<div><div class="pl-t">Dignitaires · place assignée</div><div class="mc-ch">' + chips(dignit) + "</div></div>" : "") +
+        (honneur.length ? '<div><div class="pl-t">Places d’honneur (n° 27)</div><div class="mc-ch">' + chips(honneur) + "</div></div>" : "") + "</div>" : "") +
+      '<table class="nef"><colgroup><col class="r"><col><col class="al"><col></colgroup><thead><tr><th class="r">Rang</th><th>Gauche · Chevaliers</th><th class="al">Allée</th><th>Droite · Dames</th></tr></thead><tbody>' +
+        (nef || '<tr><td colspan="4" class="pl-vide">Aucun Chevalier ni aucune Dame inscrits.</td></tr>') + "</tbody></table>" +
+      (invites.length ? '<div class="pl-inv"><div class="pl-t">Familles et invités · rangs suivants</div><div class="mc-ch">' + chips(invites) + "</div></div>" : "") +
+      '<div class="pl-porte">&#8593; Entrée de l’église' + (accueil.length ? " · accueil : " + esc(accueil.map(function (p) { return p.nom; }).join(", ")) : "") + "</div>" +
+    "</div>" +
+    '<div class="lg"><span class="sg imp"></span>Impétrant, avec parrain ou marraine <span class="sg cons"></span>Conseil de la Lieutenance <span class="sg dep"></span>Chevaliers placés derrière les Dames <span class="lg-t">Côté allée : 1re place de chaque rang. ' + nG + " place" + (nG > 1 ? "s" : "") + " à gauche, " + nD + " à droite.</span></div>";
+  return feuille("Placement dans l'église", plan);
 }
 
 /* Points laissés ouverts par le Rituel : choix appliqués, à confirmer par les cérémoniaires */
 function points() {
   var l = [
-    "Grade : déduit de la colonne TITRE du fichier des membres (à vérifier). Sans grade, la personne est classée après les grades précisés, par ordre alphabétique.",
+    "Grade : déduit de la colonne TITRE du fichier des membres (à vérifier). Sans grade, la personne est classée après les grades précisés.",
+    "Conseil : Chancelier, Trésorier, Secrétaire, Secrétaire adjoint, Communication, Informatique, puis autres membres ; à grade égal dans une même fonction, ordre alphabétique.",
     "Chevaliers et Dames : " + (REG.marche === "cote" ? "côte à côte, comme le prévoit le Rituel" : "à la suite (usage du cérémonial de Luxembourg 2024)") + " ; " + (REG.grades === "haut" ? "plus hauts grades en tête (n° 33)." : "plus hauts grades en dernier."),
-    "Évêques et cardinaux qui ne concélèbrent pas : dans la procession, à la ligne « Évêques », le plus digne le plus près du célébrant.",
-    "Lieutenant d'honneur : dans le cortège après le Grand Magistère (cérémonial 2024).",
-    "Diacres membres de l'Ordre : avec les Chevaliers (tenue, n° 17).",
-    "Représentants des autres Ordres : à la même place à la Veillée qu'à l'Investiture.",
-    "Messe de la Lieutenance hors Investiture : schéma de l'Investiture, sans les lignes sans titulaire."
+    "Dans les bancs : place la plus proche de l’allée pour le plus haut rang ; Chevaliers en surnombre derrière les Dames.",
+    "Haie de sortie sur le parvis : plus hauts grades contre la porte, pour être salués en premier.",
+    "Évêques et cardinaux qui ne concélèbrent pas : dans la procession, le plus digne au plus près du célébrant.",
+    "Lieutenant d'honneur : dans le cortège après le Grand Magistère (cérémonial 2024). Diacres : avec les Chevaliers (n° 17)."
   ];
   $("cr-points").innerHTML = "<b>Points que le Rituel ne tranche pas : choix appliqués, à confirmer par les cérémoniaires</b><ul>" + l.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>";
 }

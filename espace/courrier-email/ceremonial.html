@@ -93,6 +93,70 @@
 .cd-allee { text-align: center; font-size: 9pt; color: #555; margin: -4mm 0 6mm; }
 .cd-rem { font-size: 9.5pt; color: #333; margin: 0 0 4mm; }
 .cd-vide { font-style: italic; color: #555; margin: 0 0 6mm; }
+/* Pastilles : nom + fonction ou grade */
+.ch { display: inline-flex; flex-direction: column; border: .5pt solid #bbb; border-radius: 1.2mm; padding: .7mm 1.8mm; margin: 0 1.2mm 1.2mm 0; background: #fff; line-height: 1.2; vertical-align: top; }
+.ch b { font-weight: 700; font-size: 9.5pt; }
+.ch i { font-style: normal; font-size: 7.5pt; color: #555; }
+.ch.cons { border-color: #b08a4f; background: #fbf6ec; }
+.mc-ch { display: flex; flex-wrap: wrap; }
+/* Marche : étapes reliées par des flèches */
+.cd-sens { font-size: 9.5pt; font-weight: 700; color: var(--ltr-red); margin: 0 0 4mm; }
+.mc { margin: 0 0 3mm; }
+.mc-bout { text-align: center; font-size: 8pt; text-transform: uppercase; letter-spacing: 1pt; color: #fff; background: var(--ltr-red); border-radius: 1mm; padding: .8mm; width: 50mm; margin: 0 auto; }
+.mc-fl { text-align: center; color: var(--ltr-red); font-size: 11pt; line-height: 1; margin: .6mm 0; }
+.mc-e { display: flex; gap: 3mm; border: .7pt solid #999; border-radius: 1.5mm; padding: 1.6mm 2.4mm; break-inside: avoid; }
+.mc-e.fixe { border-style: dashed; color: #777; }
+.mc-n { flex: 0 0 6mm; height: 6mm; border-radius: 50%; background: #000; color: #fff; font-size: 8.5pt; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.mc-e.fixe .mc-n { background: #aaa; }
+.mc-c { flex: 1; min-width: 0; }
+.mc-l { font-weight: 700; font-size: 10pt; margin-bottom: 1mm; }
+.mc-e.fixe .mc-l { font-style: italic; font-weight: 400; margin: 0; }
+.mc-s { font-size: 7.5pt; text-transform: uppercase; letter-spacing: .5pt; color: #777; margin: .5mm 0 .8mm; }
+.mc-pa { display: grid; grid-template-columns: 1fr 1fr; column-gap: 3mm; }
+/* Plan de l'église */
+.pl { border: 1pt solid #000; border-radius: 2mm; padding: 2.5mm; }
+.pl-t { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 1pt; font-weight: 700; color: var(--ltr-red); margin-bottom: 1.2mm; }
+.pl-s { font-size: 7.5pt; color: #666; margin: .5mm 0 1mm; }
+.pl-choeur { border: .8pt solid var(--ltr-red); background: #fff5f5; border-radius: 6mm 6mm 1.5mm 1.5mm; padding: 2mm 3mm; text-align: center; margin-bottom: 2.5mm; }
+.pl-choeur .mc-ch { justify-content: center; }
+.pl-res { display: flex; gap: 3mm; margin-bottom: 2.5mm; }
+.pl-res > div { flex: 1; border: .6pt dashed #999; border-radius: 1.5mm; padding: 1.5mm 2mm; }
+.pl-vide { font-size: 9pt; font-style: italic; color: #666; }
+.nef { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.nef col.r { width: 8mm; } .nef col.al { width: 9mm; }
+.nef th { font-size: 7.5pt; text-transform: uppercase; letter-spacing: .6pt; color: #555; padding: 0 0 1mm; text-align: center; }
+.nef td { padding: .7mm 0; vertical-align: middle; }
+.nef tr { break-inside: avoid; }
+.nef .r { text-align: center; font-size: 8pt; color: #555; font-weight: 700; }
+.nef td.al { text-align: center; color: #bbb; font-size: 9pt; background: repeating-linear-gradient(0deg, transparent 0 1.2mm, #f2f2f2 1.2mm 2.4mm); }
+.bc { display: flex; gap: .8mm; border-bottom: 1.4pt solid #6b4f2a; padding-bottom: .6mm; }
+.bc.g { flex-direction: row-reverse; }
+.sg { flex: 1 1 0; min-width: 0; min-height: 8.5mm; border: .5pt solid #ccc; border-radius: 1mm; padding: .6mm 1mm; background: #fff; display: flex; flex-direction: column; justify-content: center; line-height: 1.15; overflow: hidden; }
+.sg b { font-size: 7.6pt; font-weight: 700; overflow-wrap: anywhere; }
+.sg i { font-style: normal; font-size: 6.4pt; color: #555; }
+.sg.imp { background: #fdecec; border-color: var(--ltr-red); }
+.sg.par { background: #fdf3f3; border-color: #e3a3a3; }
+.sg.cons { background: #fbf6ec; border-color: #b08a4f; }
+.sg.dep { background: #eef3fb; border-color: #8aa3c8; }
+.pl-inv { border-top: .6pt dashed #999; margin-top: 2.5mm; padding-top: 2mm; }
+.pl-porte { text-align: center; font-size: 8pt; text-transform: uppercase; letter-spacing: 1pt; font-weight: 700; margin-top: 2.5mm; padding-top: 1.5mm; border-top: 2pt solid #000; }
+.lg { font-size: 8pt; color: #333; margin: 2mm 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 1.5mm 2mm; }
+.lg .sg { flex: 0 0 4mm; min-height: 3mm; height: 3mm; padding: 0; display: inline-block; }
+.lg-t { flex-basis: 100%; color: #555; }
+/* Haie */
+.hx { border: .7pt solid #999; border-radius: 1.5mm; padding: 2mm 3mm; font-size: 10pt; margin-bottom: 4mm; }
+.tl { margin: 0 0 3mm; }
+.tl-e { display: flex; gap: 2.5mm; align-items: flex-start; font-size: 9.5pt; margin-bottom: 1.5mm; }
+.tl-e span { flex: 0 0 5mm; height: 5mm; border-radius: 50%; background: var(--ltr-red); color: #fff; font-weight: 700; font-size: 8pt; display: flex; align-items: center; justify-content: center; }
+.cl { border: 1pt solid #000; border-radius: 2mm; padding: 2mm; }
+.cl-porte, .cl-bas { text-align: center; font-size: 8pt; text-transform: uppercase; letter-spacing: 1pt; font-weight: 700; }
+.cl-porte { border-bottom: 2pt solid #000; padding-bottom: 1.2mm; margin-bottom: 2mm; }
+.cl-bas { color: var(--ltr-red); margin-top: 1.5mm; }
+.cl-g { display: grid; grid-template-columns: 1fr 8mm 1fr; row-gap: .6mm; }
+.cl-p:nth-child(3n+1) { text-align: right; }
+.cl-n { text-align: center; font-size: 8pt; color: #999; align-self: center; background: repeating-linear-gradient(0deg, transparent 0 1.2mm, #f2f2f2 1.2mm 2.4mm); }
+.cl-p .ch { margin: 0; }
+
 @page { size: A4; margin: 0; }
 @media print {
   #chrome-top, #chrome-foot, .cr-ecran { display: none !important; }
@@ -135,7 +199,8 @@
             <option value="messe">Messe de la Lieutenance ou Investiture</option>
             <option value="veillee">Veillée de prière</option>
           </select></div>
-          <div><label for="cr-places">Places par rang</label><input type="number" id="cr-places" min="2" max="20" value="6"></div>
+          <div><label for="cr-placesG">Places par banc, gauche</label><input type="number" id="cr-placesG" min="1" max="12" value="3"></div>
+          <div><label for="cr-placesD">Places par banc, droite</label><input type="number" id="cr-placesD" min="1" max="12" value="3"></div>
           <div><label for="cr-marche">Chevaliers et Dames</label><select id="cr-marche">
             <option value="cote">Côte à côte (Rituel)</option>
             <option value="suite">À la suite</option>
@@ -143,6 +208,11 @@
           <div><label for="cr-grades">Ordre des grades</label><select id="cr-grades">
             <option value="haut">Plus hauts grades en tête (n° 33)</option>
             <option value="bas">Plus hauts grades en dernier</option>
+          </select></div>
+          <div><label for="cr-haie">Haie de sortie</label><select id="cr-haie">
+            <option value="place">À leur place (on se lève)</option>
+            <option value="parvis">Sur le parvis (deux files)</option>
+            <option value="aucune">Pas de haie</option>
           </select></div>
         </div>
         <p class="cr-note">Indiquez pour chaque présent sa <b>qualité</b>, son <b>grade</b>, sa <b>fonction</b> et, le cas échéant, son <b>rôle</b> dans la cérémonie. Qualité, grade et appartenance au Conseil sont proposés d'après le fichier des membres (colonne TITRE, formule d'appel, groupe) : vérifiez-les. Vos choix restent enregistrés dans ce navigateur pour cet événement.</p>
@@ -158,6 +228,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="ceremonial.js?v=20261023d"></script>
+<script src="ceremonial.js?v=20261023e"></script>
 </body>
 </html>
