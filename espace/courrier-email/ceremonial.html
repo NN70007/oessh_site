@@ -121,6 +121,7 @@
 .eg { border: 1pt solid #000; border-radius: 2mm; overflow: hidden; }
 .eg-autel { background: var(--ltr-red); color: #fff; text-align: center; font-size: 9pt; font-weight: 700; letter-spacing: 2pt; text-transform: uppercase; padding: 1.6mm; border-radius: 0 0 40% 40% / 0 0 100% 100%; margin: 0 22mm; }
 .eg-nef { display: grid; grid-template-columns: 14mm 1fr 14mm; }
+.eg-nef.sans .eg-banc { visibility: hidden; }
 .eg-banc { background: repeating-linear-gradient(180deg, #fff 0 4mm, #d9c7a7 4mm 5.6mm); opacity: .7; }
 .eg-allee { border-left: .8pt dashed #999; border-right: .8pt dashed #999; padding: 2mm 3mm; }
 .al-tete { text-align: center; font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: .6pt; color: var(--ltr-red); margin: 1mm 0; }
@@ -242,10 +243,9 @@
             <option value="haut">Plus hauts grades en tête (n° 33)</option>
             <option value="bas">Plus hauts grades en dernier</option>
           </select></div>
-          <div><label for="cr-haie">Haie de sortie</label><select id="cr-haie">
-            <option value="place">À leur place (on se lève)</option>
-            <option value="parvis">Sur le parvis (deux files)</option>
+          <div><label for="cr-haie">Haie de sortie (n° 37)</label><select id="cr-haie">
             <option value="aucune">Pas de haie</option>
+            <option value="prevue">Haie prévue</option>
           </select></div>
         </div>
         <p class="cr-note">Indiquez pour chaque présent sa <b>qualité</b>, son <b>grade</b>, sa <b>fonction</b> et, le cas échéant, son <b>rôle</b> dans la cérémonie. Qualité, grade et appartenance au Conseil sont proposés d'après le fichier des membres (colonne TITRE, formule d'appel, groupe) : vérifiez-les. Vos choix restent enregistrés dans ce navigateur pour cet événement.</p>
@@ -261,6 +261,6 @@
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="ceremonial.js?v=20261023i"></script>
+<script src="ceremonial.js?v=20261023j"></script>
 </body>
 </html>

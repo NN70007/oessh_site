@@ -77,9 +77,9 @@ function cleNom(nom) {
 }
 
 /* ── État ── */
-var EVT = null, PERS = [], CHOIX = {}, REG = { type: "messe", placesG: 3, placesD: 3, marche: "cote", grades: "haut", haie: "place" }, CLE = "";
+var EVT = null, PERS = [], CHOIX = {}, REG = { type: "messe", placesG: 3, placesD: 3, marche: "cote", grades: "haut", haie: "aucune" }, CLE = "";
 function sauver() { try { localStorage.setItem(CLE, JSON.stringify({ reg: REG, p: CHOIX })); } catch (e) {} }
-function relire() { try { var o = JSON.parse(localStorage.getItem(CLE) || "null"); if (o) { REG = Object.assign(REG, o.reg || {}); CHOIX = o.p || {}; } } catch (e) {} }
+function relire() { try { var o = JSON.parse(localStorage.getItem(CLE) || "null"); if (o) { REG = Object.assign(REG, o.reg || {}); CHOIX = o.p || {}; } } catch (e) {} if (REG.haie !== "prevue") REG.haie = "aucune"; }
 
 /* Qualité, grade et fonction proposés d'après le fichier des membres :
    colonne TITRE (« le Commandeur », « la Dame de Commanderie », « Komtur-Dame mit Stern », « le Candidat »…),
@@ -295,8 +295,8 @@ function allee(lignes, sens) {
   var entree = sens === "entree", vue = lignes.map(function (l, i) { return { l: l, n: i + 1 }; });
   if (!entree) vue.reverse();
   var haut = entree ? "&#9650; Tête de la file : elle avance vers l’autel" : "Fin de la file : le célébrant ferme la marche";
-  var bas = entree ? "Fin de la file" : "&#9660; Tête de la file : elle avance vers la porte";
-  var h = '<div class="eg"><div class="eg-autel">Autel</div><div class="eg-nef"><div class="eg-banc"></div><div class="eg-allee ' + (entree ? "monte" : "descend") + '"><div class="al-tete">' + haut + "</div>";
+  var bas = entree ? "Fin de la file" : "&#9660; Tête de la file : elle va directement à la sacristie";
+  var h = '<div class="eg"><div class="eg-autel">' + (entree ? "Autel" : "Chœur · départ") + '</div><div class="eg-nef' + (entree ? "" : " sans") + '"><div class="eg-banc"></div><div class="eg-allee ' + (entree ? "monte" : "descend") + '"><div class="al-tete">' + haut + "</div>";
   vue.forEach(function (v) {
     var l = v.l;
     h += '<div class="al-e' + (l.fixe ? " fixe" : "") + '"><div class="al-l"><span class="al-n">' + v.n + "</span>" + esc(l.lbl) + "</div>";
@@ -321,7 +321,7 @@ function allee(lignes, sens) {
     h += "</div>";
   });
   h += '<div class="al-tete">' + bas + "</div>";
-  h += '</div><div class="eg-banc"></div></div><div class="eg-porte">Porte de l’église' + (entree ? " · départ" : " · sortie") + "</div></div>";
+  h += '</div><div class="eg-banc"></div></div><div class="eg-porte">' + (entree ? "Porte de l’église · départ" : "Sacristie") + "</div></div>";
   return h;
 }
 /* Mise en rang au point de départ : ordre d'appel, sans les noms */
@@ -402,28 +402,10 @@ function dignitairesEtClerge(veillee, ferme, sortie) {
 function docSortie() {
   var veillee = REG.type === "veillee", ferme = sexePaires(roleDe("ferme"));
   var proc = [F("Thuriféraire - Naviculaire"), F("Cruciféraire"), F("Céroféraire - Céroféraire")].concat(dignitairesEtClerge(veillee, ferme, true));
-  var haie = "";
-  if (REG.haie === "place") {
-    haie = section("Haie de salutation", "à leur place", '<div class="hx">À l’approche de la procession, chacun <b>se lève à sa place et se tourne vers l’allée centrale</b>. Personne ne quitte son banc avant le passage du célébrant ; le cérémoniaire laïc donne ensuite le signal de sortie.</div>');
-  } else if (REG.haie === "parvis") {
-    // Chaque côté de l'église forme sa file ; place 1 = rang 1, place côté allée. Les deux files sont égalisées.
-    var PB = planBancs(), fg = [], fd = [];
-    PB.RG.forEach(function (r) { fg = fg.concat(r); });
-    PB.RD.forEach(function (r) { fd = fd.concat(r); });
-    while (fg.length - fd.length > 1) fd.push(fg.pop());
-    while (fd.length - fg.length > 1) fg.push(fd.pop());
-    if (fg.length || fd.length) {
-      var n = Math.max(fg.length, fd.length), couloir = '<div class="cl"><div class="cl-porte">Porte de l’église</div><div class="cl-g">';
-      for (var i = 0; i < n; i++) couloir += '<div class="cl-p">' + (fg[i] ? chip(fg[i].p) : "") + '</div><div class="cl-n">' + (i + 1) + '</div><div class="cl-p">' + (fd[i] ? chip(fd[i].p) : "") + "</div>";
-      couloir += '</div><div class="cl-bas">&#8593; la procession sort de l’église et passe entre les deux files</div></div>';
-      haie = section("Haie de salutation sur le parvis", "deux files de même longueur", 
-        '<div class="tl"><div class="tl-e"><span>1</span><div>Avant la procession, le cérémoniaire laïc fait sortir les rangs <b>un par un, en commençant par le fond de l’église</b>. Le côté gauche forme la file de gauche, le côté droit la file de droite.</div></div>' +
-        '<div class="tl-e"><span>2</span><div>Les premiers sortis vont <b>au bout de la haie</b> ; les premiers rangs (Conseil, plus hauts grades) sortent en dernier et se placent <b>contre la porte</b>. Personne ne croise personne.</div></div>' +
-        '<div class="tl-e"><span>3</span><div>La procession sort et <b>passe entre les deux files</b> : étendard et fanions, Lieutenant, clergé, et le célébrant en dernier.</div></div></div>' + couloir);
-    }
-  }
+  var haie = REG.haie === "prevue" ? section("Haie de salutation", "Rituel, n° 37",
+    '<div class="hx">Les Chevaliers et les Dames forment une <b>haie de part et d’autre de l’allée</b>, selon les indications du cérémoniaire laïc.</div>') : "";
   return feuille("3. Procession de sortie", LEGENDE +
-    '<p class="cd-rem">La procession quitte le chœur et descend l’allée vers la porte, conduite par le cérémoniaire ecclésiastique (n° 37). Le célébrant la ferme.</p>' +
+    '<p class="cd-rem">À la fin, la procession retourne <b>directement à la sacristie</b>, conduite par le cérémoniaire ecclésiastique (Rituel, n° 37). Le célébrant la ferme (n° 36).</p>' +
     appel(proc) + allee(proc, "sortie") + haie);
 }
 
@@ -494,7 +476,6 @@ function points() {
     "Conseil : Chancelier, Trésorier, Secrétaire, Secrétaire adjoint, Communication, Informatique, puis autres membres ; à grade égal dans une même fonction, ordre alphabétique.",
     "Chevaliers et Dames : " + (REG.marche === "cote" ? "côte à côte, comme le prévoit le Rituel" : "à la suite (usage du cérémonial de Luxembourg 2024)") + " ; " + (REG.grades === "haut" ? "plus hauts grades en tête (n° 33)." : "plus hauts grades en dernier."),
     "Dans les bancs : place la plus proche de l’allée pour le plus haut rang ; Chevaliers en surnombre derrière les Dames.",
-    "Haie de sortie sur le parvis : chaque côté forme sa file, les rangs sortent du fond vers l’avant ; les premiers rangs se placent contre la porte.",
     "Évêques et cardinaux qui ne concélèbrent pas : dans la procession, le plus digne au plus près du célébrant.",
     "Lieutenant d'honneur : dans le cortège après le Grand Magistère (cérémonial 2024) ; à l'église, avec les dignitaires près du Lieutenant. Diacres : avec les Chevaliers (n° 17)."
   ];
