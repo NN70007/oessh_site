@@ -334,7 +334,14 @@ function docSortie() {
   return feuille("Procession de sortie",
     section("Procession de sortie", "retour direct à la sacristie", tableau(proc)) +
     '<p class="cd-rem">La procession est conduite par le cérémoniaire ecclésiastique (n° 37). Si c’est prévu, les Chevaliers et les Dames forment une haie de salutation de part et d’autre de l’allée, selon les indications du cérémoniaire laïc.</p>' +
-    ((cd.g.length || cd.d.length) ? section("Haie de salutation (si prévue)", "Chevaliers à gauche, Dames à droite", tableau([paires("Ordre de préséance, depuis le chœur", noms(cd.g), noms(cd.d), "Chevaliers", "Dames")])) : ""));
+    ((cd.g.length || cd.d.length) ? section("Haie de salutation (si prévue)", "de part et d’autre de l’allée centrale", haie(noms(cd.g), noms(cd.d))) : ""));
+}
+/* Haie : place n° 1 = au bout de l'allée le plus proche du chœur (plus hauts grades), puis vers la porte de l'église */
+function haie(g, d) {
+  var n = Math.max(g.length, d.length), h = '<p class="cd-rem">Place 1 : au plus près du chœur ; les suivants s’alignent ensuite vers la porte de l’église. En sortant, le célébrant passe d’abord devant les plus hauts grades.</p>' +
+    '<table class="cd-nef"><colgroup><col class="r"><col><col></colgroup><thead><tr><th>Place</th><th>Côté gauche - Chevaliers</th><th>Côté droit - Dames</th></tr></thead><tbody>';
+  for (var i = 0; i < n; i++) h += '<tr><td class="r">' + (i + 1) + "</td><td>" + esc(g[i] || "") + "</td><td>" + esc(d[i] || "") + "</td></tr>";
+  return h + "</tbody></table>";
 }
 
 /* ── 3. Placement dans l'église ── */
