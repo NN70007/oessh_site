@@ -109,26 +109,38 @@ function gradeDuTitre(t) {
   if (/chevalier|\bdame\b|ritter/.test(t)) return "ch";
   return "";
 }
-/* Colonne « Fonction » du fichier des membres → fonction (ou rôle) dans l'outil */
-function fonctionDuFichier(txt) {
-  var t = norm(txt);
-  if (!t) return {};
-  if (/lieutenant d.honneur/.test(t)) return { f: "lt_hon" };
-  if (/^lieutenant\b/.test(t)) return { f: "lieutenant" };
-  if (/grand prieur/.test(t)) return { f: "grand_prieur" };
-  if (/chancelier/.test(t)) return { f: "chancelier" };
-  if (/tresorier/.test(t)) return { f: "tresorier" };
-  if (/secretaire adjoint/.test(t)) return { f: "secr_adj" };
-  if (/secretaire/.test(t)) return { f: "secretaire" };
+/* Colonne FONCTION du fichier des membres, ex. « le Lieutenant, le Président de l'OESSH Asbl »,
+   « le Grand Prieur coadjuteur, le Cérémoniaire ecclésiastique ». Plusieurs fonctions séparées par des virgules ;
+   les fonctions de l'Asbl ne comptent pas pour la préséance. Sans place prévue par le Rituel (Grand Prieur coadjuteur,
+   Grand Prieur d'honneur), la fonction est ignorée et la personne garde sa qualité. */
+function uneFonction(t) {
+  t = t.replace(/^(le|la|l'|l’)\s*/, "").trim();
+  if (/^lieutenant d.honneur$/.test(t)) return { f: "lt_hon" };
+  if (/^lieutenant$/.test(t)) return { f: "lieutenant" };
+  if (/^grand prieur$/.test(t)) return { f: "grand_prieur" };
+  if (/^chancelier$/.test(t)) return { f: "chancelier" };
+  if (/^tresorier$/.test(t)) return { f: "tresorier" };
+  if (/^secretaire adjoint/.test(t)) return { f: "secr_adj" };
+  if (/^secretaire$/.test(t)) return { f: "secretaire" };
   if (/communication/.test(t)) return { f: "com" };
   if (/informatique/.test(t)) return { f: "info" };
-  if (/ceremoniaire eccl/.test(t)) return { f: "cer_eccl" };
-  if (/ceremoniaire/.test(t)) return { r: "cer_laic" };
-  if (/president de section/.test(t)) return { f: "president" };
-  if (/delegue/.test(t)) return { f: "delegue" };
-  if (/prieur/.test(t)) return { f: "prieur" };
-  if (/conseil/.test(t)) return { f: "conseil" };
+  if (/^ceremoniaire eccl/.test(t)) return { f: "cer_eccl" };
+  if (/^ceremoniaire la/.test(t)) return { r: "cer_laic" };
+  if (/^president de (la )?section/.test(t)) return { f: "president" };
+  if (/^delegue local/.test(t)) return { f: "delegue" };
+  if (/^prieur de/.test(t)) return { f: "prieur" };
+  if (/^conseill(er|ere)$/.test(t)) return { f: "conseil" };
   return {};
+}
+function fonctionDuFichier(txt) {
+  var out = {};
+  norm(txt).split(/\s*[,;]\s*|\s+et\s+/).forEach(function (part) {
+    if (!part || /asbl/.test(part)) return;
+    var x = uneFonction(part);
+    if (x.f && !out.f) out.f = x.f;
+    if (x.r && !out.r) out.r = x.r;
+  });
+  return out;
 }
 function proposer(p, m) {
   var base = proposerQualite(p, m), fx = m ? fonctionDuFichier(m.fonction) : {};
