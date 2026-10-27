@@ -48,7 +48,7 @@ var PIED_SUIVI = "Pour répondre, utilisez simplement « Répondre » en conserv
 function nomComplet(m) { return (m.prenom ? m.prenom + " " : "") + m.nom; }
 function repondre() { return $("in-repondre").value; }
 function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter(function (x) { return x.code === c; })[0]; }
-function empreinte() { var ev = evtChoisi(); return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value, ev ? JSON.stringify([ev.repas || null, ev.limite || "", ev.hebergement || null, !!ev.sansAccompagnants]) : ""].join("\u0001"); }
+function empreinte() { var ev = evtChoisi(); return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value, ev ? JSON.stringify([ev.repas || null, ev.limite || "", ev.hebergement || null, !!ev.sansAccompagnants, ev.engagement || ""]) : ""].join("\u0001"); }
 function evtChoisi() {
   var id = $("in-evt").value, e = EVTS.filter(function (x) { return x.id === id; })[0];
   if (!e) return null;
@@ -56,6 +56,7 @@ function evtChoisi() {
   if ($("rp-actif").checked) e.repas = { actif: true, lieu: $("rp-lieu").value.trim(), heure: $("rp-heure").value, prix: $("rp-prix").value.trim(), limite: $("rp-limite").value, note: $("rp-note").value.trim() };
   if ($("ev-limite").value) e.limite = $("ev-limite").value;
   if (!$("ev-accomp").checked) e.sansAccompagnants = true;
+  if ($("ev-engage").value.trim()) e.engagement = $("ev-engage").value.trim();
   if ($("hb-actif").checked) e.hebergement = { actif: true, lieu: $("hb-lieu").value.trim(), nuit: $("hb-nuit").value.trim(), prixSimple: $("hb-simple").value.trim(), prixDouble: $("hb-double").value.trim(), note: $("hb-note").value.trim() };
   return e;
 }
@@ -68,7 +69,7 @@ function repasTxt(r) { return "Repas" + (r.lieu ? " : " + r.lieu : "") + (r.heur
 function decaler(iso, n) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n, 12)); return d.toISOString().slice(0, 10); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-27b";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-27c";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -276,6 +277,7 @@ function dessinerApercu() {
       (ev.repas ? "<br>" + E.esc(repasTxt(ev.repas)) + " · inscription au repas jusqu’au " + E.esc(dateEvt(ev.repas.limite || decaler(ev.date, -3))) + (ev.repas.note ? "<br><em>" + E.esc(ev.repas.note) + "</em>" : "") : "") +
       (ev.hebergement ? "<br>" + E.esc(hebergTxt(ev.hebergement)) + (ev.hebergement.note ? "<br><em>" + E.esc(ev.hebergement.note) + "</em>" : "") : "") +
       (ev.limite ? "<br><strong>Réponse attendue au plus tard le " + E.esc(dateEvt(ev.limite)) + ".</strong>" : "") +
+      (ev.engagement ? '<div style="margin-top:8px;padding:8px 10px;background:#fff;border:1px solid #b10103"><strong>Important :</strong> ' + E.esc(ev.engagement) + "</div>" : "") +
       '<br><span class="b p">Je viendrai</span><span class="b">Je ne viendrai pas</span></div>';
     var k = m.politesse ? corps.lastIndexOf(m.politesse) : -1;   // même règle que le serveur : avant la formule de politesse
     paras = k > 0 ? corpsHtml(corps.slice(0, k).trim()) + bloc + corpsHtml(corps.slice(k).trim()) : paras + bloc;
@@ -480,7 +482,7 @@ $("in-evt").addEventListener("change", function () {
   proposerTexte(evtChoisi());
   maj();
 });
-["rp-actif", "rp-lieu", "rp-heure", "rp-prix", "rp-limite", "rp-note", "ev-limite", "ev-accomp", "hb-actif", "hb-lieu", "hb-nuit", "hb-simple", "hb-double", "hb-note"].forEach(function (id) {
+["rp-actif", "rp-lieu", "rp-heure", "rp-prix", "rp-limite", "rp-note", "ev-limite", "ev-accomp", "ev-engage", "hb-actif", "hb-lieu", "hb-nuit", "hb-simple", "hb-double", "hb-note"].forEach(function (id) {
   $(id).addEventListener(id === "rp-actif" || id === "hb-actif" || id === "ev-limite" || id === "ev-accomp" ? "change" : "input", function () { majRepas(); proposerTexte(evtChoisi()); maj(); });
 });
 $("btn-evt-creer").addEventListener("click", function () {

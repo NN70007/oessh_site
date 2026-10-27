@@ -102,4 +102,19 @@ srv.post({ action: 'insc.repondre', t: tok2(1), reponse: 'oui', chambres: ['doub
 t2 = srv.post({ action: 'mail.inscriptions', token: tJB, id: id2 });
 ok(t2.hebergement.doubles === 2 && t2.hebergement.seuls.length === 2, 'partenaires non reconnus : deux chambres, signalées à vérifier');
 
+console.log('Conditions à accepter (paiement, annulation)');
+const evt3 = Object.assign({}, evt2, { id: '2027-01-09-retraite-c', engagement: 'Je m’engage à régler environ 260 €.' });
+const base3 = Object.assign({}, base2, { evenement: evt3, objet: 'Retraite avec engagement' });
+srv.post(Object.assign({}, base3, { action: 'mail.essai', apercu: ids[0] }));
+const essai3 = srv.gmails.pop();
+ok(essai3.htmlBody.includes('<strong>Important :</strong> Je m’engage à régler environ 260 €.') && essai3.body.includes('Important : Je m’engage'), 'conditions rappelées au-dessus des boutons');
+ok(srv.post(Object.assign({}, base3, { action: 'mail.envoyer', ids })).ok, 'invitations envoyées');
+const id3 = srv.sheets.JournalEnvois.data.slice(-1)[0][9];
+const tok3 = (i) => srv.run('(() => jetonInsc_("' + id3 + '", "' + ids[i] + '"))');
+ok(srv.post({ action: 'insc.lire', t: tok3(0) }).engagement === 'Je m’engage à régler environ 260 €.', 'page : conditions affichées');
+ok(!srv.post({ action: 'insc.repondre', t: tok3(0), reponse: 'oui', chambres: ['simple'] }).ok, 'sans la case cochée : refusé');
+ok(srv.post({ action: 'insc.repondre', t: tok3(0), reponse: 'oui', chambres: ['simple'], engage: true }).ok, 'case cochée : inscription enregistrée');
+ok(srv.post({ action: 'insc.lire', t: tok3(0) }).engageLe > 0, 'date d’acceptation conservée');
+ok(srv.post({ action: 'insc.repondre', t: tok3(1), reponse: 'non' }).ok, 'désistement sans case à cocher');
+
 console.log('\n' + n + ' vérifications réussies.');
