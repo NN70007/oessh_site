@@ -417,9 +417,9 @@
       "type": "formation",
       "published": true,
       "titre": {
-        "fr": "Week-end de formation et de retraite des impétrants",
-        "de": "Bildungs- und Einkehrwochenende der Postulanten",
-        "en": "Formation and retreat weekend for the postulants"
+        "fr": "Week-end de formation et de retraite des candidats",
+        "de": "Bildungs- und Einkehrwochenende der Kandidaten",
+        "en": "Formation and retreat weekend for the candidates"
       },
       "lieu": {
         "fr": "Maison d'Accueil des Sœurs Franciscaines · 50, avenue Gaston Diderich · Luxembourg · 9h00",
