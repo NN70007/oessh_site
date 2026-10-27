@@ -48,13 +48,14 @@ var PIED_SUIVI = "Pour répondre, utilisez simplement « Répondre » en conserv
 function nomComplet(m) { return (m.prenom ? m.prenom + " " : "") + m.nom; }
 function repondre() { return $("in-repondre").value; }
 function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter(function (x) { return x.code === c; })[0]; }
-function empreinte() { var ev = evtChoisi(); return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value, ev ? JSON.stringify([ev.repas || null, ev.limite || "", ev.hebergement || null]) : ""].join("\u0001"); }
+function empreinte() { var ev = evtChoisi(); return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value, ev ? JSON.stringify([ev.repas || null, ev.limite || "", ev.hebergement || null, !!ev.sansAccompagnants]) : ""].join("\u0001"); }
 function evtChoisi() {
   var id = $("in-evt").value, e = EVTS.filter(function (x) { return x.id === id; })[0];
   if (!e) return null;
   e = Object.assign({}, e);
   if ($("rp-actif").checked) e.repas = { actif: true, lieu: $("rp-lieu").value.trim(), heure: $("rp-heure").value, prix: $("rp-prix").value.trim(), limite: $("rp-limite").value, note: $("rp-note").value.trim() };
   if ($("ev-limite").value) e.limite = $("ev-limite").value;
+  if (!$("ev-accomp").checked) e.sansAccompagnants = true;
   if ($("hb-actif").checked) e.hebergement = { actif: true, lieu: $("hb-lieu").value.trim(), nuit: $("hb-nuit").value.trim(), prixSimple: $("hb-simple").value.trim(), prixDouble: $("hb-double").value.trim(), note: $("hb-note").value.trim() };
   return e;
 }
@@ -67,7 +68,7 @@ function repasTxt(r) { return "Repas" + (r.lieu ? " : " + r.lieu : "") + (r.heur
 function decaler(iso, n) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n, 12)); return d.toISOString().slice(0, 10); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-27a";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-27b";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -430,7 +431,14 @@ $("historique").addEventListener("click", function (ev) {
 var JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 var MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 function dateEvt(iso) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2], 12)); return JOURS[d.getUTCDay()] + " " + p[2] + (p[2] === 1 ? "er" : "") + " " + MOIS[p[1] - 1] + " " + p[0]; }
-function quandEvt(e) { return dateEvt(e.date) + (e.heure ? " à " + e.heure.replace(":", "h") : "") + (e.lieu ? ", " + e.lieu : ""); }
+function quandEvt(e) {   // même texte que quandEvt_ dans Code.gs
+  if (e.fin && e.fin > e.date) {
+    var a = e.date.split("-"), b = e.fin.split("-");
+    var debut = a[0] === b[0] && a[1] === b[1] ? dateEvt(e.date).replace(/ [^ ]+ \d{4}$/, "") : a[0] === b[0] ? dateEvt(e.date).replace(/ \d{4}$/, "") : dateEvt(e.date);
+    return "du " + debut + " au " + dateEvt(e.fin) + (e.heure ? ", dès " + e.heure.replace(/^0/, "").replace(":", "h") : "") + (e.lieu ? ", " + e.lieu : "");
+  }
+  return dateEvt(e.date) + (e.heure ? " à " + e.heure.replace(/^0/, "").replace(":", "h") : "") + (e.lieu ? ", " + e.lieu : "");
+}
 function remplirEvenements(choisir) {
   $("in-evt").innerHTML = '<option value="">Aucune : simple courriel</option>' +
     EVTS.map(function (e) { return '<option value="' + E.esc(e.id) + '">' + E.esc(dateEvt(e.date) + " · " + e.titre) + (e.publie === false ? " (non publié)" : "") + "</option>"; }).join("") +
@@ -472,8 +480,8 @@ $("in-evt").addEventListener("change", function () {
   proposerTexte(evtChoisi());
   maj();
 });
-["rp-actif", "rp-lieu", "rp-heure", "rp-prix", "rp-limite", "rp-note", "ev-limite", "hb-actif", "hb-lieu", "hb-nuit", "hb-simple", "hb-double", "hb-note"].forEach(function (id) {
-  $(id).addEventListener(id === "rp-actif" || id === "hb-actif" || id === "ev-limite" ? "change" : "input", function () { majRepas(); proposerTexte(evtChoisi()); maj(); });
+["rp-actif", "rp-lieu", "rp-heure", "rp-prix", "rp-limite", "rp-note", "ev-limite", "ev-accomp", "hb-actif", "hb-lieu", "hb-nuit", "hb-simple", "hb-double", "hb-note"].forEach(function (id) {
+  $(id).addEventListener(id === "rp-actif" || id === "hb-actif" || id === "ev-limite" || id === "ev-accomp" ? "change" : "input", function () { majRepas(); proposerTexte(evtChoisi()); maj(); });
 });
 $("btn-evt-creer").addEventListener("click", function () {
   var b = this;
@@ -506,13 +514,14 @@ function chargerInscriptions(id) {
   E.api("mail.inscriptions", { id: id }).then(function (r) {
     var html = '<div class="insc-kpi"><div><b>' + r.oui.length + "</b>inscrits</div><div><b>" + r.personnes + "</b>personnes attendues</div><div><b>" + r.non.length + "</b>ne viennent pas</div><div><b>" + r.sans.length + "</b>sans réponse</div><div><b>" + r.total + "</b>invités</div>" +
       (r.evenement && r.evenement.repas ? "<div><b>" + r.couverts + "</b>couverts au repas" + (r.montant != null ? " · " + r.montant + " €" : "") + "</div>" : "") +
-      (r.hebergement ? "<div><b>" + r.hebergement.simples + "</b>chambres individuelles</div><div><b>" + r.hebergement.doubles + "</b>chambres doubles" + (r.hebergement.montant ? " · " + r.hebergement.montant + " € au total" : "") + "</div>" : "") + "</div>";
+      (r.hebergement ? "<div><b>" + r.hebergement.simples + "</b>chambres individuelles</div><div><b>" + r.hebergement.doubles + "</b>chambres doubles" + (r.hebergement.montant ? " · " + r.hebergement.montant + " € au total" : "") + "</div><div><b>" + r.hebergement.sansNuitee + "</b>sans nuitée</div>" : "") + "</div>" +
+      (r.hebergement && r.hebergement.seuls && r.hebergement.seuls.length ? '<div class="insc-liste"><b>À vérifier :</b> chambre double sans partenaire inscrit pour ' + E.esc(r.hebergement.seuls.join(", ")) + "</div>" : "");
     if (r.evenement) html += '<div class="h-meta">' + E.esc(r.evenement.titre + " · " + quandEvt(r.evenement)) + (r.evenement.limite ? " · réponses " + (r.limitePassee ? "closes depuis le " : "jusqu’au ") + E.esc(dateEvt(r.evenement.limite)) : "") + "</div>";
     if (r.hebergement) {
       // Une ligne par réponse : qui, avec qui, chambre de chacun, remarque
       html += '<div class="insc-liste"><b>Inscrits :</b>' + (r.oui.length ? "<ul class=\"insc-det\">" + r.oui.map(function (x) {
         var ch = Object.keys(x.chambres || {}).map(function (n) { return E.esc(n) + " : " + E.esc(CHAMBRES[x.chambres[n]] || x.chambres[n]); }).join(" · ");
-        return "<li><b>" + E.esc(x.nom) + "</b>" + (x.accompagnants ? " + " + E.esc(x.noms.join(", ")) : "") + (ch ? "<br><small>" + ch + "</small>" : "") + (x.remarque ? "<br><small><em>" + E.esc(x.remarque) + "</em></small>" : "") + "</li>";
+        return "<li><b>" + E.esc(x.nom) + "</b>" + (x.accompagnants ? " + " + E.esc(x.noms.join(", ")) : "") + (ch ? "<br><small>" + ch + (x.partage ? " · partagée avec " + E.esc(x.partage) : "") + "</small>" : "") + (x.remarque ? "<br><small><em>" + E.esc(x.remarque) + "</em></small>" : "") + "</li>";
       }).join("") + "</ul>" : " aucun pour le moment") + "</div>";
     } else html += '<div class="insc-liste"><b>Inscrits :</b> ' + (r.oui.length ? r.oui.map(function (x) { return E.esc(x.nom) + (x.accompagnants ? " <small>+ " + E.esc(x.noms.join(", ")) + "</small>" : "") + (x.remarque ? " <small><em>(" + E.esc(x.remarque) + ")</em></small>" : ""); }).join(" ; ") : "aucun pour le moment") + "</div>";
     if (r.evenement && r.evenement.repas) {
