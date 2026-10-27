@@ -6,6 +6,7 @@ var CFG = window.ESPACE_CONFIG || {};
 var q = new URLSearchParams(location.search);
 var T = q.get("t") || "", choix = q.get("r") === "oui" ? "oui" : q.get("r") === "non" ? "non" : "";
 var D = null;
+var LIB_CH = { simple: "Chambre individuelle", double: "Chambre double", aucune: "Pas de nuitée" };
 function $(id) { return document.getElementById(id); }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 
@@ -22,7 +23,16 @@ function dessiner() {
   var html = '<p class="eyebrow">Invitation</p><p>Bonjour ' + esc(D.nom) + ",</p>" +
     '<div class="in-evt"><h1>' + esc(D.evenement.titre) + '</h1><div class="q">' + esc(D.quand) + "</div>" +
     (D.repasTexte ? '<div class="q" style="margin-top:8px"><b>' + esc(D.repasTexte) + "</b><br>" + (D.repasFerme ? "Inscriptions au repas closes." : "Inscription au repas jusqu’au " + esc(D.repasLimite) + ".") +
-      (D.evenement.repas && D.evenement.repas.note ? "<br><em>" + esc(D.evenement.repas.note) + "</em>" : "") + "</div>" : "") + "</div>";
+      (D.evenement.repas && D.evenement.repas.note ? "<br><em>" + esc(D.evenement.repas.note) + "</em>" : "") + "</div>" : "") +
+    (D.hebergTexte ? '<div class="q" style="margin-top:8px"><b>' + esc(D.hebergTexte) + "</b>" + (D.evenement.hebergement && D.evenement.hebergement.note ? "<br><em>" + esc(D.evenement.hebergement.note) + "</em>" : "") + "</div>" : "") +
+    (D.limite ? '<div class="q" style="margin-top:8px">Réponse attendue au plus tard le <b>' + esc(D.limite) + "</b>.</div>" : "") + "</div>";
+  if (D.fige) {
+    var ch = Object.keys(D.chambres || {});
+    $("contenu").innerHTML = html + '<p>Votre réponse : <b>' + (D.reponse === "oui" ? "vous venez" + (n ? " avec " + esc((D.noms || []).join(", ")) : "") : "vous ne venez pas") + "</b>." +
+      (ch.length ? "<br>" + ch.map(function (k) { return esc(k) + " : " + esc(LIB_CH[D.chambres[k]] || D.chambres[k]); }).join("<br>") : "") + "</p>" +
+      '<div class="in-msg ko">La date limite des réponses est passée : votre réponse ne peut plus être modifiée ici. Pour tout changement, répondez à l’e-mail d’invitation.</div>';
+    return;
+  }
   if (D.ferme) {
     $("contenu").innerHTML = html + '<div class="in-msg ko">Cet événement est passé : les réponses sont closes.</div>';
     return;
@@ -34,9 +44,11 @@ function dessiner() {
     '</select></div><div id="noms"></div>' +
     (D.repasTexte ? '<div class="in-champ" id="bloc-repas"><label>Qui restera pour le repas ?</label><div id="repas"></div>' +
       (D.repasFerme ? '<p class="in-note" style="margin-top:4px">Les inscriptions au repas sont closes : pour toute modification, contactez l’organisateur en répondant à l’e-mail d’invitation.</p>' : "") + "</div>" : "") +
+    (D.hebergTexte ? '<div class="in-champ"><label>Chambre souhaitée pour chacun</label><div id="chambres"></div><p class="in-note" style="margin-top:4px">Deux personnes en chambre double partagent la même chambre.</p></div>' : "") +
+    '<div class="in-champ"><label for="remarque">Remarque (facultatif)</label><textarea id="remarque" maxlength="500" rows="3" placeholder="Heure d’arrivée, autre précision…">' + esc(D.remarque || "") + "</textarea></div>" +
     '</div>' +
     '<button type="button" class="in-ok" id="ok" disabled>Confirmer ma réponse</button><div class="in-msg" id="msg"></div>' +
-    '<p class="in-note">Vous recevrez un rappel la veille si vous venez. Vous pouvez revenir sur cette page à tout moment avec le lien de votre invitation pour changer votre réponse.</p>';
+    '<p class="in-note">Vous recevrez un rappel la veille si vous venez. Vous pouvez revenir sur cette page avec le lien de votre invitation pour changer votre réponse' + (D.limite ? " jusqu’au " + esc(D.limite) : " à tout moment") + ".</p>";
   $("contenu").innerHTML = html;
   var anciens = D.noms || [];
   $("nb").value = String(n);
@@ -59,6 +71,17 @@ function dessiner() {
         esc(i === 0 ? nom + " (vous)" : (nom || "Personne " + i)) + "</label>";
     }).join("");
   }
+  function selectsChambres() {
+    if (!$("chambres")) return;
+    var avant = {};
+    document.querySelectorAll("#chambres select").forEach(function (x) { avant[x.dataset.i] = x.value; });
+    var noms = [D.nom].concat(Array.prototype.map.call(document.querySelectorAll("#noms input"), function (i) { return i.value.trim(); }));
+    $("chambres").innerHTML = noms.map(function (nom, i) {
+      var v = i in avant ? avant[i] : ((D.chambres || {})[nom] || "");
+      return '<div class="in-ch"><span>' + esc(i === 0 ? nom + " (vous)" : (nom || "Personne " + i)) + '</span><select data-i="' + i + '" aria-label="Chambre">' +
+        '<option value="">Choisir…</option>' + ["simple", "double", "aucune"].map(function (k) { return '<option value="' + k + '"' + (v === k ? " selected" : "") + ">" + LIB_CH[k] + "</option>"; }).join("") + "</select></div>";
+    }).join("");
+  }
   function choisir(r) {
     choix = r;
     document.querySelectorAll(".in-choix button").forEach(function (b) { b.classList.toggle("on", b.dataset.r === r); });
@@ -67,8 +90,9 @@ function dessiner() {
   }
   champsNoms();
   casesRepas();
-  $("nb").addEventListener("change", function () { champsNoms(); casesRepas(); });
-  $("noms").addEventListener("input", casesRepas);
+  selectsChambres();
+  $("nb").addEventListener("change", function () { champsNoms(); casesRepas(); selectsChambres(); });
+  $("noms").addEventListener("input", function () { casesRepas(); selectsChambres(); });
   document.querySelectorAll(".in-choix button").forEach(function (b) { b.addEventListener("click", function () { choisir(b.dataset.r); }); });
   if (choix || D.reponse) choisir(choix || D.reponse);
   $("ok").addEventListener("click", function () {
@@ -76,14 +100,17 @@ function dessiner() {
     var noms = Array.prototype.map.call(document.querySelectorAll("#noms input"), function (i) { return i.value.trim(); }).slice(0, k);
     var msg = $("msg");
     if (noms.some(function (s) { return !s; })) { msg.className = "in-msg ko"; msg.textContent = "Indiquez le nom de chaque personne qui vous accompagne."; return; }
+    var chambres = Array.prototype.map.call(document.querySelectorAll("#chambres select"), function (x) { return x.value; }).slice(0, k + 1);
+    if (choix === "oui" && D.hebergTexte && chambres.some(function (c) { return !c; })) { msg.className = "in-msg ko"; msg.textContent = "Choisissez la chambre souhaitée pour chaque personne (ou « Pas de nuitée »)."; return; }
     b.disabled = true; b.textContent = "Enregistrement…";
     var tous = [D.nom].concat(noms), repas = [];
     document.querySelectorAll("#repas input").forEach(function (c) { if (c.checked && tous[Number(c.dataset.i)]) repas.push(tous[Number(c.dataset.i)]); });
-    api("insc.repondre", { reponse: choix, accompagnants: k, noms: noms, repas: repas }).then(function (r) {
-      D.reponse = r.reponse; D.accompagnants = r.accompagnants; D.noms = r.noms; D.repas = r.repas || []; repasAvant = D.repas;
+    api("insc.repondre", { reponse: choix, accompagnants: k, noms: noms, repas: repas, chambres: chambres, remarque: $("remarque") ? $("remarque").value.trim() : "" }).then(function (r) {
+      D.reponse = r.reponse; D.accompagnants = r.accompagnants; D.noms = r.noms; D.repas = r.repas || []; repasAvant = D.repas; D.chambres = r.chambres || {}; D.remarque = r.remarque || "";
       msg.className = "in-msg ok";
       msg.innerHTML = r.reponse === "oui"
         ? "<b>Merci, votre inscription est enregistrée.</b> Nous nous réjouissons de vous accueillir" + (r.accompagnants ? " avec " + esc(r.noms.join(", ")) : "") + " : " + esc(r.quand) + "." +
+          (D.hebergTexte && Object.keys(r.chambres || {}).length ? " Hébergement : " + Object.keys(r.chambres).map(function (x) { return esc(x) + " (" + esc((LIB_CH[r.chambres[x]] || "").toLowerCase()) + ")"; }).join(", ") + "." : "") +
           (D.repasTexte ? " Repas : " + (r.repas && r.repas.length ? r.repas.length + " couvert" + (r.repas.length > 1 ? "s" : "") + " (" + esc(r.repas.join(", ")) + ")." : "vous n’y participez pas.") : "")
         : "<b>Merci de nous avoir prévenus.</b> Votre réponse est enregistrée.";
     }).catch(function (e) { msg.className = "in-msg ko"; msg.textContent = e && e.message || "La réponse n’a pas pu être enregistrée."; })

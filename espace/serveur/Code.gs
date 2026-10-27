@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-23a',
+  VERSION: '2026-10-27a',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -946,7 +946,7 @@ function mailCharger_(u) {
         h.efface = !!h.expire && Date.now() > h.expire;
         h.repondreA = r.RepondreA || '';
         var evt = evtDeLigne_(r);
-        if (evt) { h.evenement = evt; h.insc = stats[r.Id] || { total: h.nb, oui: 0, personnes: 0, non: 0, sans: h.nb, couverts: 0 }; h.insc.repas = !!evt.repas; }
+        if (evt) { h.evenement = evt; h.insc = stats[r.Id] || { total: h.nb, oui: 0, personnes: 0, non: 0, sans: h.nb, couverts: 0 }; h.insc.repas = !!evt.repas; h.insc.heberg = !!evt.hebergement; }
       }
       return h;
     });
@@ -993,7 +993,7 @@ function preparerMail_(u, req) {
   }
   var pj = piecesJointes_(u, req.pieces);
   var evt = evenementDe_(req.evenement);
-  return { casq: casq, objet: objet, corps: corps, pj: pj, evt: evt, empreinte: hash_(casq.code + '|' + casq.repondreA + '|' + objet + '|' + corps + '|' + pj.ids.join(',') + '|' + (evt ? evt.id : '')).slice(0, 24) };
+  return { casq: casq, objet: objet, corps: corps, pj: pj, evt: evt, empreinte: hash_(casq.code + '|' + casq.repondreA + '|' + objet + '|' + corps + '|' + pj.ids.join(',') + '|' + (evt ? JSON.stringify(evt) : '')).slice(0, 24) };
 }
 
 var APPEL_ECRIT = /^\s*(Cher|Chère|Chers|Chères|Madame|Monsieur|Mesdames|Messieurs|Mademoiselle|Excellence|Éminence|Monseigneur|Mon Père|Révérend|Bonjour|Bonsoir|Liebe|Lieber|Sehr geehrte|Dear)\b/i;
@@ -1438,7 +1438,7 @@ function hash_(s) {
    Rappels (déclencheur quotidien « rappelsInscriptions ») : 7 jours avant à ceux qui n'ont pas répondu,
    la veille à ceux qui viennent. Onglet « Inscriptions » de la feuille, créé au premier envoi. */
 var URL_INSCRIPTION = 'https://luxembourg.oessh.lu/espace/inscription/';
-var COLS_INSC = ['EnvoiId', 'Membre', 'Nom', 'Email', 'Reponse', 'Accompagnants', 'NomsAccompagnants', 'RepLe', 'Rappel7', 'Rappel1', 'Repas'];
+var COLS_INSC = ['EnvoiId', 'Membre', 'Nom', 'Email', 'Reponse', 'Accompagnants', 'NomsAccompagnants', 'RepLe', 'Rappel7', 'Rappel1', 'Repas', 'Chambres', 'Remarque'];
 var MOIS_CAL = ['JAN', 'FEV', 'MAR', 'AVR', 'MAI', 'JUN', 'JUL', 'AOU', 'SEP', 'OCT', 'NOV', 'DEC'];
 var MOIS_LONGS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 var JOURS_LONGS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
@@ -1476,6 +1476,14 @@ function evenementDe_(x) {
     if (r.limite > e.date) r.limite = e.date;
     e.repas = r;
   }
+  // Date limite des réponses (facultatif) : passé ce jour, une réponse donnée ne se modifie plus en ligne
+  var lim = texte_(x.limite, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(lim)) e.limite = lim > e.date ? e.date : lim;
+  // Hébergement (facultatif) : chaque personne choisit chambre individuelle, chambre double ou pas de nuitée
+  if (x.hebergement && x.hebergement.actif) {
+    var h = x.hebergement;
+    e.hebergement = { lieu: texte_(h.lieu, 150), nuit: texte_(h.nuit, 100), prixSimple: texte_(h.prixSimple, 40), prixDouble: texte_(h.prixDouble, 40), note: texte_(h.note, 300) };
+  }
   return e;
 }
 function decalerJours_(iso, n) {
@@ -1485,6 +1493,25 @@ function decalerJours_(iso, n) {
 function repasTxt_(r) { return 'Repas' + (r.lieu ? ' : ' + r.lieu : '') + (r.heure ? ', ' + r.heure.replace(':', 'h') : '') + (r.prix ? ' (' + r.prix + ')' : ''); }
 function repasFerme_(e) { return !!(e.repas && aujourdhui_() > e.repas.limite); }
 function nomsRepas_(x) { return x.Repas ? String(x.Repas).split(' | ').filter(Boolean) : []; }
+var CHAMBRES = { simple: 'chambre individuelle', double: 'chambre double', aucune: 'pas de nuitée' };
+function limitePassee_(e) { return !!(e.limite && aujourdhui_() > e.limite); }
+function hebergTxt_(h) {
+  var p = [h.prixSimple ? 'individuelle ' + h.prixSimple : '', h.prixDouble ? 'double ' + h.prixDouble : ''].filter(Boolean).join(', ');
+  return 'Hébergement' + (h.lieu ? ' : ' + h.lieu : '') + (h.nuit ? ', ' + h.nuit : '') + (p ? ' (chambre ' + p + ')' : '');
+}
+function prixNum_(s) { var n = parseFloat(String(s || '').replace(',', '.').replace(/[^\d.]/g, '')); return isFinite(n) && n > 0 ? n : null; }
+/** Choix de chambre d'une réponse, enregistrés « Nom=simple | Nom=double ». */
+function chambresDe_(x) {
+  var o = {};
+  String(x.Chambres || '').split(' | ').forEach(function (p) { var k = p.lastIndexOf('='); if (k > 0) o[p.slice(0, k)] = p.slice(k + 1); });
+  return o;
+}
+/** Personnes en chambre individuelle, en chambre double, et nombre de chambres doubles (deux personnes d'une même réponse par chambre). */
+function comptesChambres_(ch) {
+  var s = 0, d = 0, a = 0;
+  Object.keys(ch).forEach(function (n) { if (ch[n] === 'simple') s++; else if (ch[n] === 'double') d++; else a++; });
+  return { simple: s, personnesDouble: d, doubles: Math.ceil(d / 2), aucune: a };
+}
 
 /* ---- Calendrier du site (calendrier.json, dépôt GitHub) ---- */
 function githubFichier_(chemin) {
@@ -1581,7 +1608,7 @@ function majInsc_(ligne, champs) {
 function creerInscriptions_(envoiId, cibles) {
   if (!cibles.length) return;
   var sh = feuilleInsc_();
-  var rows = cibles.map(function (m) { return [envoiId, m.id, (m.prenom ? m.prenom + ' ' : '') + m.nom, m.email, '', '', '', '', '', '', ''].map(sur_); });
+  var rows = cibles.map(function (m) { return [envoiId, m.id, (m.prenom ? m.prenom + ' ' : '') + m.nom, m.email].concat(COLS_INSC.slice(4).map(function () { return ''; })).map(sur_); });
   sh.getRange(sh.getLastRow() + 1, 1, rows.length, COLS_INSC.length).setNumberFormat('@').setValues(rows);
 }
 function envoiParId_(id) {
@@ -1598,10 +1625,14 @@ function blocInvitation_(evt, lien, esc) {
   var html = '<div style="margin:6px 0 18px;padding:16px 18px;background:#faf7f0;border-left:3px solid #b08a4f">' +
     '<div style="font-size:16px;margin-bottom:4px"><strong>' + esc(evt.titre) + '</strong></div>' +
     '<div style="font-size:14px;color:#444;margin-bottom:12px">' + esc(quandEvt_(evt)) +
-    (evt.repas ? '<br>' + esc(repasTxt_(evt.repas)) + ' · inscription au repas jusqu’au ' + esc(dateEvt_(evt.repas.limite)) + (evt.repas.note ? '<br><em>' + esc(evt.repas.note) + '</em>' : '') : '') + '</div>' +
+    (evt.repas ? '<br>' + esc(repasTxt_(evt.repas)) + ' · inscription au repas jusqu’au ' + esc(dateEvt_(evt.repas.limite)) + (evt.repas.note ? '<br><em>' + esc(evt.repas.note) + '</em>' : '') : '') +
+    (evt.hebergement ? '<br>' + esc(hebergTxt_(evt.hebergement)) + (evt.hebergement.note ? '<br><em>' + esc(evt.hebergement.note) + '</em>' : '') : '') +
+    (evt.limite ? '<br><strong>Réponse attendue au plus tard le ' + esc(dateEvt_(evt.limite)) + '.</strong>' : '') + '</div>' +
     bouton('Je viendrai', lien + '&r=oui', true) + bouton('Je ne viendrai pas', lien + '&r=non', false) +
-    '<div style="font-size:12px;color:#6e6e6e;font-family:Arial,sans-serif">Vous pourrez indiquer le nombre et le nom des personnes qui vous accompagnent' + (evt.repas ? ', et qui restera pour le repas' : '') + '.</div></div>';
-  var texte = '\n\n' + evt.titre + '\n' + quandEvt_(evt) + (evt.repas ? '\n' + repasTxt_(evt.repas) + ' - inscription au repas jusqu’au ' + dateEvt_(evt.repas.limite) + (evt.repas.note ? '\n' + evt.repas.note : '') : '') + '\nJe viendrai : ' + lien + '&r=oui\nJe ne viendrai pas : ' + lien + '&r=non';
+    '<div style="font-size:12px;color:#6e6e6e;font-family:Arial,sans-serif">Vous pourrez indiquer le nombre et le nom des personnes qui vous accompagnent' + (evt.hebergement ? ', la chambre souhaitée pour chacun' : '') + (evt.repas ? ', et qui restera pour le repas' : '') + '.</div></div>';
+  var texte = '\n\n' + evt.titre + '\n' + quandEvt_(evt) + (evt.repas ? '\n' + repasTxt_(evt.repas) + ' - inscription au repas jusqu’au ' + dateEvt_(evt.repas.limite) + (evt.repas.note ? '\n' + evt.repas.note : '') : '') +
+    (evt.hebergement ? '\n' + hebergTxt_(evt.hebergement) + (evt.hebergement.note ? '\n' + evt.hebergement.note : '') : '') +
+    (evt.limite ? '\nRéponse attendue au plus tard le ' + dateEvt_(evt.limite) + '.' : '') + '\nJe viendrai : ' + lien + '&r=oui\nJe ne viendrai pas : ' + lien + '&r=non';
   return { html: html, texte: texte };
 }
 
@@ -1615,7 +1646,9 @@ function inscLire_(req) {
     ok: true, nom: r.Nom, reponse: r.Reponse, accompagnants: Number(r.Accompagnants) || 0,
     noms: r.NomsAccompagnants ? r.NomsAccompagnants.split(' | ') : [], evenement: evt, quand: quandEvt_(evt),
     ferme: joursAvant_(evt.date) < 0, max: ACCOMP_MAX,
-    repas: nomsRepas_(r), repasTexte: evt.repas ? repasTxt_(evt.repas) : '', repasLimite: evt.repas ? dateEvt_(evt.repas.limite) : '', repasFerme: repasFerme_(evt)
+    repas: nomsRepas_(r), repasTexte: evt.repas ? repasTxt_(evt.repas) : '', repasLimite: evt.repas ? dateEvt_(evt.repas.limite) : '', repasFerme: repasFerme_(evt),
+    limite: evt.limite ? dateEvt_(evt.limite) : '', fige: limitePassee_(evt) && !!r.Reponse,
+    hebergTexte: evt.hebergement ? hebergTxt_(evt.hebergement) : '', chambres: chambresDe_(r), remarque: r.Remarque
   };
 }
 function inscRepondre_(req) {
@@ -1623,13 +1656,25 @@ function inscRepondre_(req) {
   var rep = req.reponse === 'oui' ? 'oui' : req.reponse === 'non' ? 'non' : '';
   if (!rep) throw refus_('Choisissez « Je viendrai » ou « Je ne viendrai pas ».', 'donnees');
   var n = rep === 'oui' ? Math.max(0, Math.min(ACCOMP_MAX, parseInt(req.accompagnants, 10) || 0)) : 0;
-  var noms = (Array.isArray(req.noms) ? req.noms : []).slice(0, n).map(function (s) { return texte_(s, 80).replace(/\|/g, '/'); });
+  var noms = (Array.isArray(req.noms) ? req.noms : []).slice(0, n).map(function (s) { return texte_(s, 80).replace(/[|=]/g, '/'); });
   if (noms.length < n || noms.some(function (s) { return !s; })) throw refus_('Indiquez le nom de chaque personne qui vous accompagne.', 'donnees');
   return verrou_(function () {
     var r = lignesInsc_().filter(function (x) { return x.EnvoiId === j.envoi && x.Membre === j.membre; })[0];
     var evt = evtDeLigne_(envoiParId_(j.envoi));
     if (!r || !evt) throw refus_('Cette invitation est introuvable.', 'introuvable');
     if (joursAvant_(evt.date) < 0) throw refus_('Cet événement est passé : les réponses sont closes.', 'ferme');
+    if (limitePassee_(evt) && r.Reponse) throw refus_('La date limite des réponses (' + dateEvt_(evt.limite) + ') est passée : pour toute modification, répondez à l’e-mail d’invitation.', 'ferme');
+    // Hébergement : un choix pour chaque personne (la personne invitée, puis ses accompagnants, dans l'ordre)
+    var chambres = [];
+    if (evt.hebergement && rep === 'oui') {
+      var choixCh = Array.isArray(req.chambres) ? req.chambres : [];
+      [r.Nom].concat(noms).forEach(function (nom, i) {
+        var c = String(choixCh[i] || '');
+        if (!CHAMBRES[c]) throw refus_('Indiquez pour chaque personne la chambre souhaitée (ou « pas de nuitée »).', 'donnees');
+        chambres.push(nom.replace(/[|=]/g, '/') + '=' + c);
+      });
+    }
+    var remarque = rep === 'oui' ? texte_(req.remarque, 500) : '';
     // Repas : uniquement parmi la personne invitée et ses accompagnants ; figé après la date limite (sauf désistement)
     var repas = nomsRepas_(r);
     if (evt.repas) {
@@ -1640,8 +1685,8 @@ function inscRepondre_(req) {
           .filter(function (x, i, a) { return permis.indexOf(x) > -1 && a.indexOf(x) === i; });
       } else repas = repas.filter(function (x) { return x === r.Nom || noms.indexOf(x) > -1; });
     }
-    majInsc_(r._ligne, { Reponse: rep, Accompagnants: n ? String(n) : '', NomsAccompagnants: noms.join(' | '), RepLe: String(Date.now()), Repas: repas.join(' | ') });
-    return { ok: true, reponse: rep, accompagnants: n, noms: noms, quand: quandEvt_(evt), evenement: evt, repas: repas, repasFerme: repasFerme_(evt) };
+    majInsc_(r._ligne, { Reponse: rep, Accompagnants: n ? String(n) : '', NomsAccompagnants: noms.join(' | '), RepLe: String(Date.now()), Repas: repas.join(' | '), Chambres: chambres.join(' | '), Remarque: remarque });
+    return { ok: true, reponse: rep, accompagnants: n, noms: noms, quand: quandEvt_(evt), evenement: evt, repas: repas, repasFerme: repasFerme_(evt), chambres: chambresDe_({ Chambres: chambres.join(' | ') }), remarque: remarque };
   });
 }
 
@@ -1650,9 +1695,12 @@ function statsInscriptions_() {
   var out = {};
   try {
     lignesInsc_().forEach(function (r) {
-      var s = out[r.EnvoiId] = out[r.EnvoiId] || { total: 0, oui: 0, personnes: 0, non: 0, sans: 0, couverts: 0 };
+      var s = out[r.EnvoiId] = out[r.EnvoiId] || { total: 0, oui: 0, personnes: 0, non: 0, sans: 0, couverts: 0, simples: 0, doubles: 0 };
       s.total++;
-      if (r.Reponse === 'oui') { s.oui++; s.personnes += 1 + (Number(r.Accompagnants) || 0); s.couverts += nomsRepas_(r).length; }
+      if (r.Reponse === 'oui') {
+        var c = comptesChambres_(chambresDe_(r));
+        s.oui++; s.personnes += 1 + (Number(r.Accompagnants) || 0); s.couverts += nomsRepas_(r).length; s.simples += c.simple; s.doubles += c.doubles;
+      }
       else if (r.Reponse === 'non') s.non++;
       else s.sans++;
     });
@@ -1666,13 +1714,20 @@ function mailInscriptions_(u, req) {
   if (!peutVoirReponses_(u, r)) throw refus_("Seul l'auteur de l'envoi peut en voir les inscriptions.", 'droits');
   var lignes = lignesInsc_().filter(function (x) { return x.EnvoiId === r.Id; });
   var oui = lignes.filter(function (x) { return x.Reponse === 'oui'; }).map(function (x) {
-    return { nom: x.Nom, accompagnants: Number(x.Accompagnants) || 0, noms: x.NomsAccompagnants ? x.NomsAccompagnants.split(' | ') : [], le: Number(x.RepLe) || 0, repas: nomsRepas_(x) };
+    return { nom: x.Nom, accompagnants: Number(x.Accompagnants) || 0, noms: x.NomsAccompagnants ? x.NomsAccompagnants.split(' | ') : [], le: Number(x.RepLe) || 0, repas: nomsRepas_(x), chambres: chambresDe_(x), remarque: x.Remarque };
   });
   var evt = evtDeLigne_(r), couverts = oui.reduce(function (t, x) { return t + x.repas.length; }, 0);
+  var heberg = null;
+  if (evt && evt.hebergement) {
+    heberg = { simples: 0, doubles: 0, personnesDouble: 0, sansNuitee: 0 };
+    oui.forEach(function (x) { var c = comptesChambres_(x.chambres); heberg.simples += c.simple; heberg.doubles += c.doubles; heberg.personnesDouble += c.personnesDouble; heberg.sansNuitee += c.aucune; });
+    var ps = prixNum_(evt.hebergement.prixSimple), pd = prixNum_(evt.hebergement.prixDouble);
+    heberg.montant = (heberg.simples && ps == null) || (heberg.doubles && pd == null) ? null : Math.round(((ps || 0) * heberg.simples + (pd || 0) * heberg.doubles) * 100) / 100;
+  }
   var prix = evt && evt.repas ? parseFloat(String(evt.repas.prix).replace(',', '.').replace(/[^\d.]/g, '')) : NaN;
   return {
     ok: true, evenement: evt, oui: oui, couverts: couverts, montant: isFinite(prix) && prix > 0 ? Math.round(prix * couverts * 100) / 100 : null,
-    repasFerme: evt ? repasFerme_(evt) : false,
+    repasFerme: evt ? repasFerme_(evt) : false, hebergement: heberg, limitePassee: evt ? limitePassee_(evt) : false,
     personnes: oui.reduce(function (t, x) { return t + 1 + x.accompagnants; }, 0),
     non: lignes.filter(function (x) { return x.Reponse === 'non'; }).map(function (x) { return x.Nom; }),
     sans: lignes.filter(function (x) { return !x.Reponse; }).map(function (x) { return x.Nom; }),
@@ -1711,6 +1766,34 @@ function ceremonialEcrire_(u, req) {
   });
 }
 
+/** Chambres d'une réponse en clair, pour les rappels et le récapitulatif. */
+function chambresTxt_(ch) {
+  var noms = Object.keys(ch);
+  if (!noms.length) return 'Hébergement : aucun choix enregistré.';
+  return 'Hébergement : ' + noms.map(function (n) { return n + ' (' + (CHAMBRES[ch[n]] || ch[n]) + ')'; }).join(', ') + '.';
+}
+/** Bilan d'un envoi en texte : qui vient, avec qui, quelle chambre, remarques ; qui ne vient pas ; qui n'a pas répondu. */
+function bilanTexte_(r, evt) {
+  var lignes = lignesInsc_().filter(function (x) { return x.EnvoiId === r.Id; });
+  var oui = lignes.filter(function (x) { return x.Reponse === 'oui'; });
+  var t = 'Bonjour,\n\nLa date limite des réponses (' + dateEvt_(evt.limite) + ') est passée.\n\n' + evt.titre + '\n' + quandEvt_(evt) + '\n\n' +
+    'Viennent : ' + oui.length + ' (' + oui.reduce(function (s, x) { return s + 1 + (Number(x.Accompagnants) || 0); }, 0) + ' personnes avec les accompagnants)\n';
+  if (evt.hebergement) {
+    var tot = { simple: 0, doubles: 0, aucune: 0 };
+    oui.forEach(function (x) { var c = comptesChambres_(chambresDe_(x)); tot.simple += c.simple; tot.doubles += c.doubles; tot.aucune += c.aucune; });
+    t += 'Chambres : ' + tot.simple + ' individuelle' + (tot.simple > 1 ? 's' : '') + ', ' + tot.doubles + ' double' + (tot.doubles > 1 ? 's' : '') + ' ; ' + tot.aucune + ' personne' + (tot.aucune > 1 ? 's' : '') + ' sans nuitée\n';
+  }
+  t += '\n' + oui.map(function (x) {
+    return '- ' + x.Nom + (Number(x.Accompagnants) ? ', avec ' + x.NomsAccompagnants.split(' | ').join(', ') : '') +
+      (evt.hebergement ? '\n  ' + chambresTxt_(chambresDe_(x)) : '') + (x.Remarque ? '\n  Remarque : ' + x.Remarque : '');
+  }).join('\n');
+  var non = lignes.filter(function (x) { return x.Reponse === 'non'; }).map(function (x) { return x.Nom; });
+  var sans = lignes.filter(function (x) { return !x.Reponse; }).map(function (x) { return x.Nom; });
+  t += '\n\nNe viennent pas : ' + (non.length ? non.join(', ') : 'personne') + '\nSans réponse : ' + (sans.length ? sans.join(', ') : 'personne') +
+    '\n\nLes réponses données sont désormais figées sur la page de réponse ; une modification passe par vous. Le détail reste disponible dans le Courrier e-mail, rubrique « Derniers envois ».';
+  return t;
+}
+
 /* ---- Rappels : déclencheur quotidien (Déclencheurs > Ajouter > rappelsInscriptions > tous les jours, 8 h - 9 h) ---- */
 function rappelsInscriptions() {
   var envois = lire_('JournalEnvois').filter(function (r) { return r.Type === 'envoi' && r.Id && r.Evenement; });
@@ -1720,7 +1803,10 @@ function rappelsInscriptions() {
     var evt = evtDeLigne_(r);
     if (!evt) return;
     var j = joursAvant_(evt.date);
-    var j7 = j >= 2 && j <= 7 && Date.now() - (Number(r.Date) || 0) > joursMs_(2);   // pas de rappel juste après l'invitation
+    var recent = Date.now() - (Number(r.Date) || 0) <= joursMs_(2);   // pas de rappel juste après l'invitation
+    // Relance de ceux qui n'ont pas répondu : 3 jours avant la date limite s'il y en a une, sinon 7 jours avant l'événement
+    var jl = evt.limite ? joursAvant_(evt.limite) : null;
+    var j7 = !recent && (jl === null ? j >= 2 && j <= 7 : jl >= 0 && jl <= 3);
     var j1 = j >= 0 && j <= 1;
     if (!j7 && !j1) return;
     var acces = accesPour_(r.Qui);
@@ -1740,8 +1826,10 @@ function rappelsInscriptions() {
       var corps = cas === 'veille'
         ? '{appel}\n\nNous nous réjouissons de vous accueillir ' + (j === 0 ? 'aujourd’hui' : 'demain') + ' :\n\n**' + evt.titre + '**\n' + quandEvt_(evt) +
           (Number(x.Accompagnants) ? '\n\nVous serez accompagné(e) de : ' + x.NomsAccompagnants.split(' | ').join(', ') + '.' : '') +
-          (evt.repas ? '\n\n' + (rp.length ? repasTxt_(evt.repas) + ' : ' + rp.length + ' couvert' + (rp.length > 1 ? 's' : '') + ' réservé' + (rp.length > 1 ? 's' : '') + ' (' + rp.join(', ') + ').' : 'Vous n’êtes pas inscrit(e) au repas.') : '') + '\n\n{politesse}'
-        : '{appel}\n\nNous n’avons pas encore reçu votre réponse pour l’événement ci-dessous. Merci de nous dire si vous serez des nôtres, d’un simple clic.' +
+          (evt.repas ? '\n\n' + (rp.length ? repasTxt_(evt.repas) + ' : ' + rp.length + ' couvert' + (rp.length > 1 ? 's' : '') + ' réservé' + (rp.length > 1 ? 's' : '') + ' (' + rp.join(', ') + ').' : 'Vous n’êtes pas inscrit(e) au repas.') : '') +
+          (evt.hebergement ? '\n\n' + chambresTxt_(chambresDe_(x)) : '') + '\n\n{politesse}'
+        : '{appel}\n\nNous n’avons pas encore reçu votre réponse pour l’événement ci-dessous. Merci de nous dire si vous serez des nôtres, d’un simple clic' +
+          (evt.limite ? ', au plus tard le ' + dateEvt_(evt.limite) + '.' : '.') +
           (evt.repas && !repasFerme_(evt) ? ' L’inscription au repas est possible jusqu’au ' + dateEvt_(evt.repas.limite) + '.' : '') + '\n\n{politesse}';
       var P = { casq: casq, objet: (cas === 'veille' ? 'Rappel : ' : 'Votre réponse : ') + evt.titre, corps: corps, pj: { ids: [], noms: [], blobs: [] }, suivi: adresseSuivi_(r.Id), evt: cas === 'relance' ? evt : null };
       try {
@@ -1770,6 +1858,19 @@ function rappelsInscriptions() {
       props.setProperty(cle, aujourdhui_());
       journal.push('récap repas ' + r.Id);
     } catch (e) { console.error('Récapitulatif repas non envoyé : ' + e); }
+  });
+  // Récapitulatif complet à l'auteur, le lendemain de la date limite des réponses (chambres, remarques, sans réponse)
+  envois.forEach(function (r) {
+    var evt = evtDeLigne_(r);
+    if (!evt || !limitePassee_(evt) || joursAvant_(evt.date) < 0) return;
+    var props = PropertiesService.getScriptProperties(), cle = 'recapLimite:' + r.Id;
+    if (props.getProperty(cle)) return;
+    try {
+      var bilan = bilanTexte_(r, evt);
+      GmailApp.sendEmail(r.Qui, 'Inscriptions closes - ' + evt.titre, bilan, { from: CONFIG.ENVOI_ALIAS, name: 'Courrier e-mail OESSH' });
+      props.setProperty(cle, aujourdhui_());
+      journal.push('récap date limite ' + r.Id);
+    } catch (e) { console.error('Récapitulatif non envoyé : ' + e); }
   });
   if (journal.length) journal_('système', 'inscriptions.rappels', journal.length + ' rappel(s) : ' + journal.slice(0, 20).join(', '));
 }

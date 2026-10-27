@@ -54,6 +54,7 @@ function charger(opts) {
         const rg = {
           setNumberFormat: () => rg,
           getValue: () => { const row = data[r - 1] || []; return row[c - 1] == null ? '' : row[c - 1]; },
+          getValues: () => Array.from({ length: nr }, (_, i) => Array.from({ length: nc }, (_, j) => { const row = data[r + i - 1] || []; return row[c + j - 1] == null ? '' : row[c + j - 1]; })),
           setValue: (v) => { while (data.length < r) data.push([]); data[r - 1][c - 1] = v; return rg; },
           setValues: (vals) => {
             for (let i = 0; i < nr; i++) {

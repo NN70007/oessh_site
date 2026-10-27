@@ -134,6 +134,7 @@
 .evt-nouveau { border: 1px solid var(--line); border-radius: 4px; padding: 14px; margin: -4px 0 18px; background: var(--bg-soft); }
 .evt-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 10px; }
 .evt-grille .large { grid-column: 1 / -1; }
+.evt-grille input[type="text"] { width: 100%; box-sizing: border-box; }
 .evt-grille label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-mute); display: block; margin-bottom: 4px; }
 .mp-invit { margin: 6px 0 14px; padding: 12px 14px; background: #faf7f0; border-left: 3px solid #b08a4f; font-size: 14px; }
 .mp-invit .b { display: inline-block; margin: 8px 6px 0 0; padding: 6px 12px; border-radius: 3px; font-size: 13px; border: 1px solid #8a0102; color: #8a0102; }
@@ -144,6 +145,8 @@
 .insc-kpi b { display: block; font-family: var(--serif); font-size: 22px; color: var(--ink); font-weight: 500; }
 .insc-liste { font-size: 13px; line-height: 1.6; margin: 6px 0; }
 .insc-liste small { color: var(--ink-mute); }
+.insc-det { list-style: none; margin: 4px 0 0; padding: 0; }
+.insc-det li { padding: 5px 0; border-bottom: 1px solid var(--line); }
 .rep-note { font-size: 12px; color: var(--ink-mute); margin-top: 10px; font-style: italic; line-height: 1.5; }
 .rep-sans { font-size: 12.5px; color: var(--ink-mute); margin-top: 10px; line-height: 1.5; }
 .rep-maj { margin-top: 10px; border: 1px solid var(--line); background: var(--bg); border-radius: 3px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
@@ -209,6 +212,20 @@ a.rep-maj { display: inline-block; text-decoration: none; color: var(--ink); }
                 <div><label for="rp-prix">Prix par personne (facultatif)</label><input type="text" id="rp-prix" maxlength="40" placeholder="Ex. 45 €"></div>
                 <div><label for="rp-limite">Inscription au repas jusqu'au</label><input type="date" id="rp-limite"></div>
                 <div class="large"><label for="rp-note">Remarque (facultatif)</label><input type="text" id="rp-note" maxlength="300" placeholder="Ex. menu, paiement sur place ou par virement…"></div>
+              </div>
+            </div>
+            <div class="evt-repas" id="evt-heberg" hidden>
+              <div class="evt-grille" style="margin:0 0 6px">
+                <div><label for="ev-limite">Réponse attendue au plus tard le (facultatif)</label><input type="date" id="ev-limite"></div>
+              </div>
+              <div class="hint" style="margin:0 0 8px">Passé ce jour, une réponse donnée ne se modifie plus en ligne : le destinataire doit vous écrire. Relance 3 jours avant à ceux qui n'ont pas répondu, puis récapitulatif complet envoyé à vous le lendemain.</div>
+              <label class="pers"><input type="checkbox" id="hb-actif"> <span><b>Proposer l'hébergement</b> : chaque personne choisit chambre individuelle, chambre double ou pas de nuitée</span></label>
+              <div class="evt-grille" id="hb-champs" hidden>
+                <div class="large"><label for="hb-lieu">Lieu d'hébergement</label><input type="text" id="hb-lieu" maxlength="150" placeholder="Ex. Sœurs franciscaines, Belair"></div>
+                <div class="large"><label for="hb-nuit">Nuit(s)</label><input type="text" id="hb-nuit" maxlength="100" placeholder="Ex. nuit du samedi 9 au dimanche 10 janvier"></div>
+                <div><label for="hb-simple">Prix chambre individuelle (facultatif)</label><input type="text" id="hb-simple" maxlength="40" placeholder="Ex. 60 €"></div>
+                <div><label for="hb-double">Prix chambre double (facultatif)</label><input type="text" id="hb-double" maxlength="40" placeholder="Ex. 90 €"></div>
+                <div class="large"><label for="hb-note">Remarque (facultatif)</label><input type="text" id="hb-note" maxlength="300" placeholder="Ex. petit-déjeuner compris"></div>
               </div>
             </div>
             <div class="hint" id="evt-aide" style="margin:-6px 0 18px">Avec un événement, les destinataires répondent « Je viendrai » ou « Je ne viendrai pas » d'un clic et indiquent le nom de leurs accompagnants. Rappel automatique 7 jours avant à ceux qui n'ont pas répondu, et la veille à ceux qui viennent.</div>
@@ -279,6 +296,6 @@ a.rep-maj { display: inline-block; text-decoration: none; color: var(--ink); }
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="page-courrier-email.js?v=20261023c"></script>
+<script src="page-courrier-email.js?v=20261027a"></script>
 </body>
 </html>

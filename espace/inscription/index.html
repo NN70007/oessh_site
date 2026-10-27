@@ -35,6 +35,10 @@
 .in-msg { margin-top: 16px; padding: 14px 16px; border-radius: 3px; line-height: 1.5; display: none; }
 .in-msg.ok { display: block; background: #eef6ee; border-left: 3px solid #2e7d32; }
 .in-msg.ko { display: block; background: var(--cardinal-soft); border-left: 3px solid var(--cardinal); }
+.in-ch { display: grid; grid-template-columns: 1fr 200px; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.in-champ .in-ch select { width: 100%; }
+.in-champ textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; font: 15px var(--sans); background: var(--bg); resize: vertical; }
+@media (max-width: 480px) { .in-ch { grid-template-columns: 1fr; gap: 4px; } }
 .in-note { font-size: 13px; color: var(--ink-mute); margin-top: 22px; line-height: 1.5; }
 @media (max-width: 480px) { .in-choix { grid-template-columns: 1fr; } .in-evt h1 { font-size: 24px; } }
 </style>
@@ -48,6 +52,6 @@
   <div id="contenu"><p class="eyebrow">Chargement…</p></div>
 </main>
 <script src="../config.js"></script>
-<script src="page-inscription.js?v=20261023b"></script>
+<script src="page-inscription.js?v=20261027a"></script>
 </body>
 </html>

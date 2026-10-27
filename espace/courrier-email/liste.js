@@ -49,11 +49,12 @@ function fusionner(liste) {
 
 function dessiner(F) {
   var evt = F.evt || {}, rp = evt.repas;
-  var lignesEvt = [], lignesRepas = [];
+  var lignesEvt = [], lignesRepas = [], lignesCh = [], hb = evt.hebergement;
   F.oui.forEach(function (x) {
     lignesEvt.push({ nom: x.nom, avec: "", acc: false });
     x.noms.forEach(function (n) { lignesEvt.push({ nom: n, avec: x.nom, acc: true }); });
     x.repas.forEach(function (n) { lignesRepas.push({ nom: n, avec: n === x.nom ? "" : x.nom }); });
+    Object.keys(x.chambres || {}).forEach(function (n) { lignesCh.push({ nom: n, avec: n === x.nom ? "" : x.nom, ch: x.chambres[n] }); });
   });
   var prix = rp ? parseFloat(String(rp.prix || "").replace(",", ".").replace(/[^\d.]/g, "")) : NaN;
   var montant = isFinite(prix) && prix > 0 ? Math.round(prix * lignesRepas.length * 100) / 100 : null;
@@ -81,6 +82,17 @@ function dessiner(F) {
         lignesRepas.length + " couvert" + (lignesRepas.length > 1 ? "s" : "") + (montant != null ? " · " + String(montant).replace(".", ",") + " €" : "") + "</small></div>" +
       (rp.prix || rp.note ? '<div class="li-sous">' + E.esc([rp.prix ? "Prix par personne : " + rp.prix : "", rp.note || ""].filter(Boolean).join(" · ")) + "</div>" : "") +
       (lignesRepas.length ? tableau(lignesRepas, false) : '<p class="li-vide">Aucun couvert pour le moment.</p>');
+  }
+  if (hb) {
+    var LIB = { simple: "Individuelle", double: "Double", aucune: "Pas de nuitée" }, nS = 0, nD = 0;
+    lignesCh.forEach(function (l) { if (l.ch === "simple") nS++; else if (l.ch === "double") nD++; });
+    var avecNuit = lignesCh.filter(function (l) { return l.ch !== "aucune"; });
+    corps +=
+      '<div class="li-h"><span>Hébergement' + (hb.lieu ? " : " + E.esc(hb.lieu) : "") + (hb.nuit ? ", " + E.esc(hb.nuit) : "") + "</span><small>" +
+        nS + " chambre" + (nS > 1 ? "s" : "") + " individuelle" + (nS > 1 ? "s" : "") + " · " + nD + " personne" + (nD > 1 ? "s" : "") + " en chambre double</small></div>" +
+      (avecNuit.length ? '<table class="li-t"><colgroup><col class="n"><col class="nom"><col><col class="nom"></colgroup><thead><tr><th class="n">N°</th><th>Nom</th><th>Inscrit par</th><th>Chambre</th></tr></thead><tbody>' +
+        avecNuit.map(function (l, i) { return '<tr><td class="n">' + (i + 1) + "</td><td>" + E.esc(l.nom) + '</td><td class="avec">' + E.esc(l.avec) + "</td><td>" + E.esc(LIB[l.ch] || l.ch) + "</td></tr>"; }).join("") + "</tbody></table>"
+        : '<p class="li-vide">Aucune nuitée pour le moment.</p>');
   }
   corps += '<div class="li-bilan">Réponses : ' + F.oui.length + " inscription" + (F.oui.length > 1 ? "s" : "") + " · " + F.non + " ne vien" + (F.non > 1 ? "nent" : "t") + " pas · " + F.sans + " sans réponse.</div>";
 
