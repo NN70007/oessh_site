@@ -221,6 +221,10 @@ a.rep-maj { display: inline-block; text-decoration: none; color: var(--ink); }
               <div class="hint" style="margin:0 0 8px">Passé ce jour, une réponse donnée ne se modifie plus en ligne : le destinataire doit vous écrire. Relance 3 jours avant à ceux qui n'ont pas répondu, puis récapitulatif complet envoyé à vous le lendemain.</div>
               <label class="pers"><input type="checkbox" id="ev-accomp" checked> <span>Les invités peuvent venir <b>accompagnés</b> (décochez pour une invitation strictement personnelle, ex. candidats)</span></label>
               <div class="evt-grille" style="margin:6px 0 10px"><div class="large"><label for="ev-engage">Conditions à accepter pour « Je viendrai » (facultatif)</label><textarea id="ev-engage" maxlength="600" rows="3" style="width:100%;box-sizing:border-box" placeholder="Ex. paiement, conditions d'annulation : rappelées au-dessus des boutons, case à cocher obligatoire pour confirmer"></textarea></div></div>
+              <div class="evt-grille" style="margin:0 0 10px">
+                <div><label for="ev-suivi-a">Points quotidiens : envoyer aussi à</label><input type="text" id="ev-suivi-a" maxlength="300" placeholder="Ex. chancelier@oessh.lu"></div>
+                <div><label for="ev-suivi-cc">En copie</label><input type="text" id="ev-suivi-cc" maxlength="300" placeholder="Ex. lieutenant@oessh.lu"></div>
+              </div>
               <label class="pers"><input type="checkbox" id="hb-actif"> <span><b>Proposer l'hébergement</b> : chaque personne choisit chambre individuelle, chambre double ou pas de nuitée</span></label>
               <div class="evt-grille" id="hb-champs" hidden>
                 <div class="large"><label for="hb-lieu">Lieu d'hébergement</label><input type="text" id="hb-lieu" maxlength="150" placeholder="Ex. Sœurs franciscaines, Belair"></div>
@@ -298,6 +302,6 @@ a.rep-maj { display: inline-block; text-decoration: none; color: var(--ink); }
 <div id="chrome-foot"></div>
 <script src="../config.js"></script>
 <script src="../espace.js?v=20261020a"></script>
-<script src="page-courrier-email.js?v=20261028b"></script>
+<script src="page-courrier-email.js?v=20261028c"></script>
 </body>
 </html>

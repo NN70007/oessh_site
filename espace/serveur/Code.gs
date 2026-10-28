@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-28b',
+  VERSION: '2026-10-28c',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -1502,6 +1502,14 @@ function evenementDe_(x) {
   // Engagement (paiement, conditions d'annulation) : rappelé au-dessus des boutons et à accepter pour confirmer « Je viendrai »
   var eng = texte_(x.engagement, 600);
   if (eng) e.engagement = eng;
+  // Points quotidiens et récapitulatif final : destinataires en plus de l'auteur, et copie
+  var adr = function (v) {
+    return String(Array.isArray(v) ? v.join(',') : v || '').split(/[,;\s]+/).map(norm_).filter(Boolean).filter(function (a, i, t) { return t.indexOf(a) === i; }).slice(0, 6);
+  };
+  var sa = adr(x.suiviA), sc = adr(x.suiviCc);
+  sa.concat(sc).forEach(function (a) { if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/.test(a)) throw refus_('Adresse invalide pour les points quotidiens : ' + a, 'donnees'); });
+  if (sa.length) e.suiviA = sa;
+  if (sc.length) e.suiviCc = sc;
   // Hébergement (facultatif) : chaque personne choisit chambre individuelle, chambre double ou pas de nuitée
   if (x.hebergement && x.hebergement.actif) {
     var h = x.hebergement;
@@ -1831,6 +1839,13 @@ function ceremonialEcrire_(u, req) {
   });
 }
 
+/** Destinataires des points quotidiens et du récapitulatif : l'auteur de l'envoi, plus ceux choisis avec l'événement (et la copie). */
+function destSuivi_(r, evt) { return [norm_(r.Qui)].concat(evt.suiviA || []).filter(function (a, i, t) { return a && t.indexOf(a) === i; }).join(','); }
+function optsSuivi_(evt) {
+  var o = { from: CONFIG.ENVOI_ALIAS, name: 'Courrier e-mail OESSH' };
+  if (evt.suiviCc && evt.suiviCc.length) o.cc = evt.suiviCc.join(',');
+  return o;
+}
 /** Chambres d'une réponse en clair, pour les rappels et le récapitulatif. */
 function chambresTxt_(ch) {
   var noms = Object.keys(ch);
@@ -1941,7 +1956,7 @@ function rappelsInscriptions() {
     if (props.getProperty(cle)) return;
     try {
       var lignesE = lignesInsc_().filter(function (x) { return x.EnvoiId === r.Id; }), nbRep = lignesE.filter(function (x) { return x.Reponse; }).length;
-      GmailApp.sendEmail(r.Qui, 'Inscriptions au ' + aujourdhui_().split('-').reverse().join('/') + ' - ' + evt.titre + ' : ' + nbRep + '/' + lignesE.length + ' réponses', bilanTexte_(r, evt, true), { from: CONFIG.ENVOI_ALIAS, name: 'Courrier e-mail OESSH' });
+      GmailApp.sendEmail(destSuivi_(r, evt), 'Inscriptions au ' + aujourdhui_().split('-').reverse().join('/') + ' - ' + evt.titre + ' : ' + nbRep + '/' + lignesE.length + ' réponses', bilanTexte_(r, evt, true), optsSuivi_(evt));
       props.setProperty(cle, '1');
       journal.push('point du jour ' + r.Id);
     } catch (e) { console.error('Point du jour non envoyé : ' + e); }
@@ -1954,7 +1969,7 @@ function rappelsInscriptions() {
     if (props.getProperty(cle)) return;
     try {
       var bilan = bilanTexte_(r, evt);
-      GmailApp.sendEmail(r.Qui, 'Inscriptions closes - ' + evt.titre, bilan, { from: CONFIG.ENVOI_ALIAS, name: 'Courrier e-mail OESSH' });
+      GmailApp.sendEmail(destSuivi_(r, evt), 'Inscriptions closes - ' + evt.titre, bilan, optsSuivi_(evt));
       props.setProperty(cle, aujourdhui_());
       journal.push('récap date limite ' + r.Id);
     } catch (e) { console.error('Récapitulatif non envoyé : ' + e); }

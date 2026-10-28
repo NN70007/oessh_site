@@ -48,7 +48,7 @@ var PIED_SUIVI = "Pour répondre, utilisez simplement « Répondre » en conserv
 function nomComplet(m) { return (m.prenom ? m.prenom + " " : "") + m.nom; }
 function repondre() { return $("in-repondre").value; }
 function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter(function (x) { return x.code === c; })[0]; }
-function empreinte() { var ev = evtChoisi(); return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value, ev ? JSON.stringify([ev.repas || null, ev.limite || "", ev.hebergement || null, !!ev.sansAccompagnants, ev.engagement || ""]) : ""].join("\u0001"); }
+function empreinte() { var ev = evtChoisi(); return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value, ev ? JSON.stringify([ev.repas || null, ev.limite || "", ev.hebergement || null, !!ev.sansAccompagnants, ev.engagement || "", ev.suiviA || "", ev.suiviCc || ""]) : ""].join("\u0001"); }
 function evtChoisi() {
   var id = $("in-evt").value, e = EVTS.filter(function (x) { return x.id === id; })[0];
   if (!e) return null;
@@ -57,6 +57,8 @@ function evtChoisi() {
   if ($("ev-limite").value) e.limite = $("ev-limite").value;
   if (!$("ev-accomp").checked) e.sansAccompagnants = true;
   if ($("ev-engage").value.trim()) e.engagement = $("ev-engage").value.trim();
+  if ($("ev-suivi-a").value.trim()) e.suiviA = $("ev-suivi-a").value.trim();
+  if ($("ev-suivi-cc").value.trim()) e.suiviCc = $("ev-suivi-cc").value.trim();
   if ($("hb-actif").checked) e.hebergement = { actif: true, lieu: $("hb-lieu").value.trim(), nuit: $("hb-nuit").value.trim(), prixSimple: $("hb-simple").value.trim(), prixDouble: $("hb-double").value.trim(), note: $("hb-note").value.trim() };
   return e;
 }
@@ -69,7 +71,7 @@ function repasTxt(r) { return "Repas" + (r.lieu ? " : " + r.lieu : "") + (r.heur
 function decaler(iso, n) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n, 12)); return d.toISOString().slice(0, 10); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-28b";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-28c";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -483,7 +485,7 @@ $("in-evt").addEventListener("change", function () {
   proposerTexte(evtChoisi());
   maj();
 });
-["rp-actif", "rp-lieu", "rp-heure", "rp-prix", "rp-limite", "rp-note", "ev-limite", "ev-accomp", "ev-engage", "hb-actif", "hb-lieu", "hb-nuit", "hb-simple", "hb-double", "hb-note"].forEach(function (id) {
+["rp-actif", "rp-lieu", "rp-heure", "rp-prix", "rp-limite", "rp-note", "ev-limite", "ev-accomp", "ev-engage", "ev-suivi-a", "ev-suivi-cc", "hb-actif", "hb-lieu", "hb-nuit", "hb-simple", "hb-double", "hb-note"].forEach(function (id) {
   $(id).addEventListener(id === "rp-actif" || id === "hb-actif" || id === "ev-limite" || id === "ev-accomp" ? "change" : "input", function () { majRepas(); proposerTexte(evtChoisi()); maj(); });
 });
 $("btn-evt-creer").addEventListener("click", function () {

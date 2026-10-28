@@ -78,7 +78,7 @@ srv.run('rappelsInscriptions');
 ok(!srv.gmails.some(x => x.subject.startsWith('Inscriptions closes')), 'récapitulatif envoyé une seule fois');
 
 console.log('Invitation personnelle (candidats) : pas d’accompagnants, chambre double partagée entre deux inscrits');
-const evt2 = Object.assign({}, evt, { id: '2027-01-09-retraite-b', limite: '2026-11-05', sansAccompagnants: true });
+const evt2 = Object.assign({}, evt, { id: '2027-01-09-retraite-b', limite: '2026-11-05', sansAccompagnants: true, suiviA: 'chancelier@oessh.lu', suiviCc: 'lieutenant@oessh.lu' });
 const base2 = Object.assign({}, base, { evenement: evt2, objet: 'Retraite des candidats' });
 srv.post(Object.assign({}, base2, { action: 'mail.essai', apercu: ids[0] }));
 const essai2 = srv.gmails.pop();
@@ -123,13 +123,14 @@ const m4 = srv.gmails.pop();
 ok(m4.body.startsWith('Chère candidate, cher candidat,') && m4.body.indexOf('Je viendrai :') < m4.body.indexOf('Je vous prie d’agréer, chère candidate'), 'encadré placé avant la formule finale écrite à la main, sans formule d’appel ajoutée');
 
 console.log('Point quotidien jusqu’à la date limite');
+ok(!srv.post(Object.assign({}, base2, { action: 'mail.essai', evenement: Object.assign({}, evt2, { suiviCc: 'pas-une-adresse' }) })).ok, 'adresse de copie invalide refusée');
 const jl = srv.sheets.JournalEnvois.data, iDate = jl[0].indexOf('Date');
 jl.forEach((x, i) => { if (i && x[9] === id2) x[iDate] = String(Date.now() - 2 * 86400000); });
 srv.gmails.length = 0;
 srv.run('rappelsInscriptions');
 const pj = srv.gmails.filter(x => x.subject.startsWith('Inscriptions au ') && x.body.includes('Retraite') === false);
 const point = srv.gmails.find(x => x.subject.startsWith('Inscriptions au ') && / : \d+\/3 réponses$/.test(x.subject));
-ok(point && point.to === 'secretariat@oessh.lu' && point.body.includes('Point des inscriptions du') && point.body.includes('Date limite : jeudi 5 novembre 2026') && point.body.includes('Nouvelles réponses ou modifications depuis hier'), 'point du jour envoyé à l’auteur');
+ok(point && point.to === 'secretariat@oessh.lu,chancelier@oessh.lu' && point.cc === 'lieutenant@oessh.lu' && point.body.includes('Point des inscriptions du') && point.body.includes('Date limite : jeudi 5 novembre 2026') && point.body.includes('Nouvelles réponses ou modifications depuis hier'), 'point du jour envoyé à l’auteur et à Joris, Lieutenant en copie');
 srv.gmails.length = 0;
 srv.run('rappelsInscriptions');
 ok(!srv.gmails.some(x => x.subject.startsWith('Inscriptions au ')), 'un seul point par jour');
