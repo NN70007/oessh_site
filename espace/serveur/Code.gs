@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-28a',
+  VERSION: '2026-10-28b',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -1838,10 +1838,16 @@ function chambresTxt_(ch) {
   return 'Hébergement : ' + noms.map(function (n) { return n + ' (' + (CHAMBRES[ch[n]] || ch[n]) + ')'; }).join(', ') + '.';
 }
 /** Bilan d'un envoi en texte : qui vient, avec qui, quelle chambre, remarques ; qui ne vient pas ; qui n'a pas répondu. */
-function bilanTexte_(r, evt) {
+function bilanTexte_(r, evt, quotidien) {
   var lignes = lignesInsc_().filter(function (x) { return x.EnvoiId === r.Id; });
   var oui = lignes.filter(function (x) { return x.Reponse === 'oui'; });
-  var t = 'Bonjour,\n\nLa date limite des réponses (' + dateEvt_(evt.limite) + ') est passée.\n\n' + evt.titre + '\n' + quandEvt_(evt) + '\n\n' +
+  var j = evt.limite ? joursAvant_(evt.limite) : 0, depuis = Date.now() - joursMs_(1);
+  var recentes = lignes.filter(function (x) { return x.Reponse && Number(x.RepLe) > depuis; });
+  var t = 'Bonjour,\n\n' + (quotidien
+      ? 'Point des inscriptions du ' + dateEvt_(aujourdhui_()) + ' : ' + (lignes.length - lignes.filter(function (x) { return !x.Reponse; }).length) + ' réponse(s) sur ' + lignes.length + ' invitation(s). Date limite : ' + dateEvt_(evt.limite) +
+        (j === 0 ? ' (aujourd’hui).' : ' (dans ' + j + ' jour' + (j > 1 ? 's' : '') + ').') +
+        '\n\nNouvelles réponses ou modifications depuis hier : ' + (recentes.length ? recentes.map(function (x) { return x.Nom + ' (' + (x.Reponse === 'oui' ? 'vient' : 'ne vient pas') + ')'; }).join(', ') : 'aucune') + '.'
+      : 'La date limite des réponses (' + dateEvt_(evt.limite) + ') est passée.') + '\n\n' + evt.titre + '\n' + quandEvt_(evt) + '\n\n' +
     'Viennent : ' + oui.length + ' (' + oui.reduce(function (s, x) { return s + 1 + (Number(x.Accompagnants) || 0); }, 0) + ' personnes avec les accompagnants)\n';
   if (evt.hebergement) {
     var tot = totalChambres_(oui);
@@ -1855,7 +1861,9 @@ function bilanTexte_(r, evt) {
   var non = lignes.filter(function (x) { return x.Reponse === 'non'; }).map(function (x) { return x.Nom; });
   var sans = lignes.filter(function (x) { return !x.Reponse; }).map(function (x) { return x.Nom; });
   t += '\n\nNe viennent pas : ' + (non.length ? non.join(', ') : 'personne') + '\nSans réponse : ' + (sans.length ? sans.join(', ') : 'personne') +
-    '\n\nLes réponses données sont désormais figées sur la page de réponse ; une modification passe par vous. Le détail reste disponible dans le Courrier e-mail, rubrique « Derniers envois ».';
+    (quotidien ? '\n\nVous recevrez ce point chaque jour jusqu’à la date limite, puis le récapitulatif final le lendemain.'
+      : '\n\nLes réponses données sont désormais figées sur la page de réponse ; une modification passe par vous.') +
+    ' Le détail reste disponible dans le Courrier e-mail, rubrique « Derniers envois ».';
   return t;
 }
 
@@ -1924,10 +1932,24 @@ function rappelsInscriptions() {
       journal.push('récap repas ' + r.Id);
     } catch (e) { console.error('Récapitulatif repas non envoyé : ' + e); }
   });
+  // Point quotidien à l'auteur jusqu'à la date limite (à partir du lendemain de l'envoi ; pas pour un envoi à une seule personne, ex. test)
+  envois.forEach(function (r) {
+    var evt = evtDeLigne_(r);
+    if (!evt || !evt.limite || limitePassee_(evt) || (Number(r.Nb) || 0) < 2) return;
+    if (Date.now() - (Number(r.Date) || 0) < joursMs_(1) / 2) return;
+    var props = PropertiesService.getScriptProperties(), cle = 'recapJour:' + r.Id + ':' + aujourdhui_();
+    if (props.getProperty(cle)) return;
+    try {
+      var lignesE = lignesInsc_().filter(function (x) { return x.EnvoiId === r.Id; }), nbRep = lignesE.filter(function (x) { return x.Reponse; }).length;
+      GmailApp.sendEmail(r.Qui, 'Inscriptions au ' + aujourdhui_().split('-').reverse().join('/') + ' - ' + evt.titre + ' : ' + nbRep + '/' + lignesE.length + ' réponses', bilanTexte_(r, evt, true), { from: CONFIG.ENVOI_ALIAS, name: 'Courrier e-mail OESSH' });
+      props.setProperty(cle, '1');
+      journal.push('point du jour ' + r.Id);
+    } catch (e) { console.error('Point du jour non envoyé : ' + e); }
+  });
   // Récapitulatif complet à l'auteur, le lendemain de la date limite des réponses (chambres, remarques, sans réponse)
   envois.forEach(function (r) {
     var evt = evtDeLigne_(r);
-    if (!evt || !limitePassee_(evt) || joursAvant_(evt.date) < 0) return;
+    if (!evt || !limitePassee_(evt) || joursAvant_(evt.date) < 0 || (Number(r.Nb) || 0) < 2) return;
     var props = PropertiesService.getScriptProperties(), cle = 'recapLimite:' + r.Id;
     if (props.getProperty(cle)) return;
     try {
