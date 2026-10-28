@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-27c',
+  VERSION: '2026-10-28a',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -1005,6 +1005,13 @@ function personnaliser_(texte, m) {
   return avecAppel ? t : m.appel + '\n\n' + t;
 }
 
+/** Début du dernier paragraphe s'il s'agit d'une formule finale écrite à la main, sinon -1. */
+var FORMULE_FINALE = /^(Je vous prie|Veuillez|Recevez|Avec mes|Avec l’expression|Avec l'expression|Bien à vous|Bien cordialement|Fraternellement|Unis dans la prière)/;
+function coupeFormule_(corps) {
+  var k = corps.lastIndexOf('\n\n');
+  return k > 0 && FORMULE_FINALE.test(corps.slice(k + 2).trim()) ? k + 2 : -1;
+}
+
 function composerMail_(u, P, m, lien) {
   var corps = personnaliser_(P.corps, m);
   var OESSH = P.casq.ligneOrdre;
@@ -1015,6 +1022,7 @@ function composerMail_(u, P, m, lien) {
   var invit = P.evt && lien ? blocInvitation_(P.evt, lien, esc0) : null;
   // L'encadré d'invitation se place avant la formule de politesse quand elle termine le message
   var pol = m.politesse || politesse_(m.appel), coupe = invit ? corps.lastIndexOf(pol) : -1;
+  if (invit && coupe <= 0) coupe = coupeFormule_(corps);   // formule finale écrite à la main (« Je vous prie d'agréer, chère candidate… »)
   var avantPol = coupe > 0 ? corps.slice(0, coupe).trim() : corps, apresPol = coupe > 0 ? corps.slice(coupe).trim() : '';
   var texte = texteBrut_(avantPol) + (invit ? invit.texte : '') + (apresPol ? '\n\n' + texteBrut_(apresPol) : '') + '\n\n' + signature.join('\n') + '\n\n-- \n' + pied;
   var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };

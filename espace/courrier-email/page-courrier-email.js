@@ -69,7 +69,7 @@ function repasTxt(r) { return "Repas" + (r.lieu ? " : " + r.lieu : "") + (r.heur
 function decaler(iso, n) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n, 12)); return d.toISOString().slice(0, 10); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-27c";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-28a";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -280,6 +280,7 @@ function dessinerApercu() {
       (ev.engagement ? '<div style="margin-top:8px;padding:8px 10px;background:#fff;border:1px solid #b10103"><strong>Important :</strong> ' + E.esc(ev.engagement) + "</div>" : "") +
       '<br><span class="b p">Je viendrai</span><span class="b">Je ne viendrai pas</span></div>';
     var k = m.politesse ? corps.lastIndexOf(m.politesse) : -1;   // même règle que le serveur : avant la formule de politesse
+    if (k <= 0) { var dp = corps.lastIndexOf("\n\n"); if (dp > 0 && /^(Je vous prie|Veuillez|Recevez|Avec mes|Avec l’expression|Avec l'expression|Bien à vous|Bien cordialement|Fraternellement|Unis dans la prière)/.test(corps.slice(dp + 2).trim())) k = dp + 2; }   // formule finale écrite à la main
     paras = k > 0 ? corpsHtml(corps.slice(0, k).trim()) + bloc + corpsHtml(corps.slice(k).trim()) : paras + bloc;
   }
   $("mp-meta").innerHTML = "<b>De :</b> " + E.esc(c.expediteur || c.entiteNom + " - " + c.titre) + " &lt;envois@oessh.lu&gt;<br><b>Répondre à :</b> " + E.esc(repondre()) + (D && D.suivi ? " + adresse de suivi des réponses" : "") +

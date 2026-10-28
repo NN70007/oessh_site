@@ -117,4 +117,9 @@ ok(srv.post({ action: 'insc.repondre', t: tok3(0), reponse: 'oui', chambres: ['s
 ok(srv.post({ action: 'insc.lire', t: tok3(0) }).engageLe > 0, 'date d’acceptation conservée');
 ok(srv.post({ action: 'insc.repondre', t: tok3(1), reponse: 'non' }).ok, 'désistement sans case à cocher');
 
+console.log('Formule finale écrite à la main');
+srv.post(Object.assign({}, base3, { action: 'mail.essai', apercu: ids[0], corps: 'Chère candidate, cher candidat,\n\nTexte.\n\nJe vous prie d’agréer, chère candidate, cher candidat, l’expression de mes sentiments dévoués.' }));
+const m4 = srv.gmails.pop();
+ok(m4.body.startsWith('Chère candidate, cher candidat,') && m4.body.indexOf('Je viendrai :') < m4.body.indexOf('Je vous prie d’agréer, chère candidate'), 'encadré placé avant la formule finale écrite à la main, sans formule d’appel ajoutée');
+
 console.log('\n' + n + ' vérifications réussies.');
