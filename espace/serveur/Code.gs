@@ -1848,7 +1848,7 @@ function bilanTexte_(r, evt, quotidien) {
         (j === 0 ? ' (aujourd’hui).' : ' (dans ' + j + ' jour' + (j > 1 ? 's' : '') + ').') +
         '\n\nNouvelles réponses ou modifications depuis hier : ' + (recentes.length ? recentes.map(function (x) { return x.Nom + ' (' + (x.Reponse === 'oui' ? 'vient' : 'ne vient pas') + ')'; }).join(', ') : 'aucune') + '.'
       : 'La date limite des réponses (' + dateEvt_(evt.limite) + ') est passée.') + '\n\n' + evt.titre + '\n' + quandEvt_(evt) + '\n\n' +
-    'Viennent : ' + oui.length + ' (' + oui.reduce(function (s, x) { return s + 1 + (Number(x.Accompagnants) || 0); }, 0) + ' personnes avec les accompagnants)\n';
+    'Viennent : ' + oui.length + (function (p) { return p > oui.length ? ' (' + p + ' personnes avec les accompagnants)' : ''; })(oui.reduce(function (s, x) { return s + 1 + (Number(x.Accompagnants) || 0); }, 0)) + '\n';
   if (evt.hebergement) {
     var tot = totalChambres_(oui);
     t += 'Chambres : ' + tot.simples + ' individuelle' + (tot.simples > 1 ? 's' : '') + ', ' + tot.doubles + ' double' + (tot.doubles > 1 ? 's' : '') + ' ; ' + tot.aucune + ' personne' + (tot.aucune > 1 ? 's' : '') + ' sans nuitée\n' +
