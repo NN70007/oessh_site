@@ -405,3 +405,20 @@ a{color:inherit;text-decoration:none}
   .slot .cs-pill{grid-column:2;grid-row:2;justify-self:start;margin-top:0}
   .slot .icon-btn{grid-column:3;grid-row:1}
 }
+
+/* Retraite : état des inscriptions des candidats (en tête de la vue d'ensemble) */
+.insc-box{border:1px solid var(--line);border-top:3px solid var(--cardinal);background:var(--white);padding:22px 26px;margin:0 0 28px}
+.insc-box .cap{font-size:14px;color:var(--ink-soft);line-height:1.5}
+.insc-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);margin-bottom:16px}
+.insc-tile{background:var(--white);padding:12px 14px;display:flex;flex-direction:column;gap:2px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.insc-tile b{font-family:var(--serif);font-size:34px;line-height:1;font-weight:500;color:var(--ink);font-variant-numeric:lining-nums}
+.insc-tile span{font-size:12px;color:var(--ink-mute);letter-spacing:.04em}
+.insc-tile.ok b{color:var(--ok)} .insc-tile.warn b{color:var(--cardinal)}
+.insc-alert{background:var(--cardinal-soft);border-left:3px solid var(--cardinal);padding:8px 12px;font-size:13.5px;margin:0 0 12px}
+.insc-list{list-style:none;margin:0;padding:0;columns:2;column-gap:28px}
+.insc-list li{break-inside:avoid;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:7px 0;border-bottom:1px solid var(--line-soft);font-size:14px}
+.insc-nom{font-weight:500}
+.insc-st{font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:2px}
+.insc-st.ok{background:var(--ok-soft);color:var(--ok)} .insc-st.no{background:var(--paper);color:var(--ink-mute)} .insc-st.wait{background:var(--cardinal-soft);color:var(--cardinal-dark)}
+.insc-det{flex-basis:100%;font-size:12.5px;color:var(--ink-soft)}
+@media (max-width:720px){.insc-list{columns:1}.insc-box{padding:18px 16px}}

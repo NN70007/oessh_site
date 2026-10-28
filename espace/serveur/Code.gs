@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-28c',
+  VERSION: '2026-10-28d',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -388,7 +388,7 @@ function peutModifier_(u, t, P) {
    sa colonne de droits dans « Acces » et ses pôles. */
 var PROJETS = {
   inv: { droit: 'inv', col: 'Investiture', T: 'Taches', I: 'Intervenants', A: 'Activite', J: 'Jalons', poles: POLES },
-  ret: { droit: 'ret', col: 'Retraite', T: 'RetTaches', I: 'RetIntervenants', A: 'RetActivite', J: 'RetJalons', poles: POLES_RET, programme: 'RetProgramme', organisation: 'RetOrganisation' }
+  ret: { droit: 'ret', col: 'Retraite', T: 'RetTaches', I: 'RetIntervenants', A: 'RetActivite', J: 'RetJalons', poles: POLES_RET, programme: 'RetProgramme', organisation: 'RetOrganisation', evenement: '2027-01-09-retraite' }
 };
 
 function chargerProjet_(P, u) {
@@ -409,7 +409,35 @@ function chargerProjet_(P, u) {
   if (P.programme) out.programme = toutProgramme_(P);
   // Qui organise (affiché sous le titre) : renseigné dans l'onglet, une ligne par personne.
   if (P.organisation) out.organisation = lire_(P.organisation).filter(function (r) { return r.Nom; }).map(function (r) { return { fonction: r.Fonction, nom: r.Nom }; });
+  // État des inscriptions de l'événement du projet (réponses aux invitations du Courrier e-mail)
+  if (P.evenement && role !== 'intervenant') { try { out.inscriptions = inscriptionsEvenement_(P.evenement); } catch (e) { out.inscriptions = null; } }
   return out;
+}
+/** Inscriptions de tous les envois rattachés à un événement. Les envois à une seule personne (tests) ne comptent
+    que s'il n'y a pas encore d'envoi réel ; la réponse la plus récente de chaque personne fait foi. */
+function inscriptionsEvenement_(evtId) {
+  var envois = lire_('JournalEnvois').filter(function (r) { var e = r.Type === 'envoi' && r.Id ? evtDeLigne_(r) : null; return e && e.id === evtId; });
+  if (!envois.length) return { envoye: false };
+  var reels = envois.filter(function (r) { return (Number(r.Nb) || 0) >= 2; }), test = !reels.length, choisis = test ? envois : reels;
+  var ids = choisis.map(function (r) { return r.Id; }), evt = evtDeLigne_(choisis[choisis.length - 1]);
+  var parMembre = {};
+  lignesInsc_().forEach(function (x) {
+    if (ids.indexOf(x.EnvoiId) < 0) return;
+    var a = parMembre[x.Membre];
+    if (!a || (Number(x.RepLe) || 0) > (Number(a.RepLe) || 0)) parMembre[x.Membre] = x;
+  });
+  var lignes = Object.keys(parMembre).map(function (k) { return parMembre[k]; });
+  var oui = lignes.filter(function (x) { return x.Reponse === 'oui'; }), tc = totalChambres_(oui);
+  return {
+    envoye: true, test: test, envoyeLe: Math.max.apply(null, choisis.map(function (r) { return Number(r.Date) || 0; })),
+    limite: evt && evt.limite ? evt.limite : '', limitePassee: evt ? limitePassee_(evt) : false, hebergement: !!(evt && evt.hebergement),
+    total: lignes.length, oui: oui.length, non: lignes.filter(function (x) { return x.Reponse === 'non'; }).length, sans: lignes.filter(function (x) { return !x.Reponse; }).length,
+    simples: tc.simples, doubles: tc.doubles, sansNuitee: tc.aucune, aVerifier: tc.seuls,
+    personnes: lignes.map(function (x) {
+      var ch = chambresDe_(x);
+      return { nom: x.Nom, reponse: x.Reponse || '', chambre: ch[x.Nom] || '', partage: x.Partage || '', remarque: x.Remarque || '', le: Number(x.RepLe) || 0 };
+    }).sort(function (a, b) { return a.nom.localeCompare(b.nom, 'fr'); })
+  };
 }
 
 function statutTache_(P, u, id, statut) {

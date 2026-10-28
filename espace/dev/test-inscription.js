@@ -135,4 +135,9 @@ srv.gmails.length = 0;
 srv.run('rappelsInscriptions');
 ok(!srv.gmails.some(x => x.subject.startsWith('Inscriptions au ')), 'un seul point par jour');
 
+console.log('État des inscriptions sur la page du week-end');
+const ie = srv.run('(() => inscriptionsEvenement_("2027-01-09-retraite"))');
+ok(ie.envoye && !ie.test && ie.total === 3 && ie.oui === 2 && ie.non === 1 && ie.personnes.length === 3, 'synthèse par événement : invités, réponses, personnes');
+ok(srv.run('(() => inscriptionsEvenement_("inconnu"))').envoye === false, 'événement sans envoi : « pas encore envoyée »');
+
 console.log('\n' + n + ' vérifications réussies.');

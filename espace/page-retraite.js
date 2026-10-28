@@ -17,7 +17,7 @@ var EVENT_DAY="2027-01-09";
 var REFRESH_MS=30000;
 
 var user=S.user, me=user.nom;
-var tasks=[], activity=[], jalons=[], personnes=[], programme=[], organisation=[], loaded=false, loadErr="";
+var tasks=[], activity=[], jalons=[], personnes=[], programme=[], organisation=[], inscriptions=null, loaded=false, loadErr="";
 var view="ensemble", poleFocus=null, poleFilter="tous", progFilter="tout", editing=null, busy={};
 try{ var v=localStorage.getItem("ret27_view"); if(v) view=v; }catch(e){}
 
@@ -124,7 +124,7 @@ function vEnsemble(){
   var notice=stateNotice();
 
   var h='<section class="block"><div class="container">'+
-    head("— 9 & 10 janvier 2027","Retraite","Formation et retraite des impétrants.","Un week-end de formation, de prière et de témoignages à la Maison d\'Accueil des Franciscaines, 50 avenue Gaston Diderich, à Luxembourg.")+orgHTML()+roleNote()+
+    head("— 9 & 10 janvier 2027","Retraite","Formation et retraite des candidats.","Un week-end de formation, de prière et de témoignages à la Maison d\'Accueil des Franciscaines, 50 avenue Gaston Diderich, à Luxembourg.")+orgHTML()+roleNote()+inscHTML()+
     '<div class="hero-grid">'+
       '<div class="hero-cell"><div class="eyebrow">Compte à rebours</div><div class="countdown"><span class="n">'+dleft+'</span><span class="u">jours</span></div><p class="cap">avant la <strong>messe d\'ouverture</strong>, samedi 9 janvier 2027 à 9h00, chez les Sœurs franciscaines.</p></div>'+
       '<div class="hero-cell"><div class="eyebrow">Avancement'+(user.ret==="intervenant"?" de vos tâches":" général")+'</div><div class="ring-wrap">'+
@@ -166,6 +166,29 @@ function vEnsemble(){
     '</ul></div>')+
   '</div></div></section>';
   return h;
+}
+/* État des inscriptions des candidats : réponses à l'invitation envoyée par le Courrier e-mail */
+var CH_LIB={simple:"Chambre individuelle",double:"Chambre double",aucune:"Pas de nuitée"};
+function inscHTML(){
+  var I=inscriptions;
+  if(!I||user.ret==="intervenant") return "";
+  var h='<div class="insc-box"><div class="subhead" style="margin-bottom:12px"><h3>Inscriptions des candidats</h3>';
+  if(!I.envoye) return h+'<span class="eyebrow">Invitation pas encore envoyée</span></div><p class="cap">Dès que la lettre d\'invitation partira du Courrier e-mail, les réponses s\'afficheront ici au fur et à mesure.</p></div>';
+  var lim=I.limite?fmtShort.format(parseD(I.limite)):"";
+  var jl=I.limite?days(todayStr(),I.limite):null;
+  h+='<span class="eyebrow">'+(I.test?"Envoi de test · ":"")+(I.limite?(I.limitePassee?"Réponses closes depuis le "+esc(lim):"Réponses jusqu\'au "+esc(lim)+(jl===0?" (aujourd\'hui)":" · J-"+jl)):"")+'</span></div>';
+  var tile=function(v,k,c){return '<div class="insc-tile'+(c?" "+c:"")+'"><b>'+v+'</b><span>'+k+'</span></div>';};
+  h+='<div class="insc-tiles">'+tile(I.oui,"viennent","ok")+tile(I.non,"ne viennent pas","")+tile(I.sans,"sans réponse",I.sans?"warn":"")+tile(I.total,"invités","")+
+     (I.hebergement?tile(I.simples,"chambres individuelles","")+tile(I.doubles,"chambres doubles","")+tile(I.sansNuitee,"sans nuitée",""):"")+'</div>';
+  if(I.aVerifier&&I.aVerifier.length) h+='<p class="insc-alert">À vérifier : chambre double sans partenaire inscrit pour '+esc(I.aVerifier.join(", "))+'.</p>';
+  var rk={oui:0,"":1,non:2};
+  var ps=I.personnes.slice().sort(function(a,b){return (rk[a.reponse]-rk[b.reponse])||a.nom.localeCompare(b.nom,"fr");});
+  h+='<ul class="insc-list">'+ps.map(function(p){
+    var st=p.reponse==="oui"?'<span class="insc-st ok">Vient</span>':p.reponse==="non"?'<span class="insc-st no">Ne vient pas</span>':'<span class="insc-st wait">Sans réponse</span>';
+    var det=p.reponse==="oui"?[p.chambre?CH_LIB[p.chambre]||p.chambre:"",p.partage?"avec "+p.partage:"",p.remarque?"« "+p.remarque+" »":""].filter(Boolean).join(" · "):"";
+    return '<li><span class="insc-nom">'+esc(p.nom)+'</span>'+st+(det?'<span class="insc-det">'+esc(det)+'</span>':"")+'</li>';
+  }).join("")+'</ul>';
+  return h+'</div>';
 }
 function whenStr(ts){
   if(!ts) return "";
@@ -315,7 +338,7 @@ async function load(quiet){
   if(loading) return; loading=true;
   try{
     var out=await E.api("ret.charger");
-    tasks=out.taches; activity=out.activite; jalons=out.jalons; personnes=out.personnes; programme=out.programme||[]; organisation=out.organisation||[];
+    tasks=out.taches; activity=out.activite; jalons=out.jalons; personnes=out.personnes; programme=out.programme||[]; organisation=out.organisation||[]; inscriptions=out.inscriptions||null;
     user=out.user; me=user.nom; loaded=true; loadErr="";
     if(!user.ret){ location.replace("./"); return; }
   }catch(e){
