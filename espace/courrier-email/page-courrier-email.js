@@ -71,7 +71,7 @@ function repasTxt(r) { return "Repas" + (r.lieu ? " : " + r.lieu : "") + (r.heur
 function decaler(iso, n) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n, 12)); return d.toISOString().slice(0, 10); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-28d";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-28e";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -269,8 +269,9 @@ function dessinerApercu() {
   var c = casq(), m = MEMBRES[$("in-apercu").value];
   if (!c || !m) { $("apercu").innerHTML = '<div class="hint">Choisissez une fonction et des destinataires.</div>'; $("mp-meta").innerHTML = ""; return; }
   var corps = $("in-corps").value.replace(/\r\n?/g, "\n").trim();
-  var avecAppel = corps.indexOf("{appel}") > -1 || /^\s*(Cher|Chère|Chers|Chères|Madame|Monsieur|Mesdames|Messieurs|Mademoiselle|Excellence|Éminence|Monseigneur|Mon Père|Révérend|Bonjour|Bonsoir|Liebe|Lieber|Sehr geehrte|Dear)\b/i.test(corps);   // même règle que le serveur
-  corps = corps.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || "").replace(/\{prenom\}/g, m.prenom || "").replace(/\{nom\}/g, m.nom || "");
+  var avecAppel = corps.indexOf("{appel}") > -1 || /^\s*(Cher|Chère|Chers|Chères|Madame|Monsieur|Mesdames|Messieurs|Mademoiselle|Excellence|Éminence|Monseigneur|Mon Père|Révérend|Bonjour|Bonsoir|Liebe|Lieber|Sehr geehrte|Dear)\b/i.test(corps) || /^\s*\{Cher\}/.test(corps);   // même règle que le serveur
+  corps = corps.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || "").replace(/\{prenom\}/g, m.prenom || "").replace(/\{nom\}/g, m.nom || "")
+    .replace(/\{Cher\}/g, m.feminin ? "Chère" : "Cher").replace(/\{cher\}/g, m.feminin ? "chère" : "cher");
   if (!avecAppel) corps = m.appel + "\n\n" + corps;
   var paras = corpsHtml(corps);
   var ev = evtChoisi();

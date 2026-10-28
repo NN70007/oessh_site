@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-28d',
+  VERSION: '2026-10-28e',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -984,7 +984,7 @@ function mailCharger_(u) {
     casquettes: casquettesDe_(u),
     groupes: groupes,
     membres: membres.map(function (m) {
-      return { id: m.id, nom: m.nom, prenom: m.prenom, appel: m.appel, politesse: m.politesse, groupe: m.groupe, sousGroupe: m.sousGroupe, sansCourriel: !m.email, titre: m.titre, conseilLt: m.conseilLt, fonction: m.fonction };   // titre et conseilLt : préséance (page Placement et procession)
+      return { id: m.id, nom: m.nom, prenom: m.prenom, appel: m.appel, politesse: m.politesse, groupe: m.groupe, sousGroupe: m.sousGroupe, sansCourriel: !m.email, feminin: feminin_(m), titre: m.titre, conseilLt: m.conseilLt, fonction: m.fonction };   // titre et conseilLt : préséance (page Placement et procession)
     }),
     historique: historique,
     adresses: adressesReponse_(u),
@@ -1025,11 +1025,15 @@ function preparerMail_(u, req) {
 }
 
 var APPEL_ECRIT = /^\s*(Cher|Chère|Chers|Chères|Madame|Monsieur|Mesdames|Messieurs|Mademoiselle|Excellence|Éminence|Monseigneur|Mon Père|Révérend|Bonjour|Bonsoir|Liebe|Lieber|Sehr geehrte|Dear)\b/i;
+/** Vrai pour une femme, d'après la civilité du fichier des membres (à défaut, la formule d'appel). */
+function feminin_(m) { return /^(madame|mme|mademoiselle|mlle|frau|mrs|ms|dame|sœur|soeur)\b/.test(norm_(m.civilite)) || /^(madame|chère)\b/i.test(String(m.appel || '')); }
 function personnaliser_(texte, m) {
   var t = texte;
-  // Formule d'appel ajoutée en tête seulement si le texte n'a ni {appel} ni sa propre formule (« Cher Carlo, »…).
-  var avecAppel = t.indexOf('{appel}') > -1 || APPEL_ECRIT.test(t);
-  t = t.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || politesse_(m.appel)).replace(/\{prenom\}/g, m.prenom || '').replace(/\{nom\}/g, m.nom || '');
+  // Formule d'appel ajoutée en tête seulement si le texte n'a ni {appel} ni sa propre formule (« Cher Carlo, », « {Cher} {prenom}, »…).
+  var avecAppel = t.indexOf('{appel}') > -1 || APPEL_ECRIT.test(t) || /^\s*\{Cher\}/.test(t);
+  var f = feminin_(m);
+  t = t.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || politesse_(m.appel)).replace(/\{prenom\}/g, m.prenom || '').replace(/\{nom\}/g, m.nom || '')
+    .replace(/\{Cher\}/g, f ? 'Chère' : 'Cher').replace(/\{cher\}/g, f ? 'chère' : 'cher');
   return avecAppel ? t : m.appel + '\n\n' + t;
 }
 

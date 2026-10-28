@@ -140,4 +140,15 @@ const ie = srv.run('(() => inscriptionsEvenement_("2027-01-09-retraite"))');
 ok(ie.envoye && !ie.test && ie.total === 3 && ie.oui === 2 && ie.non === 1 && ie.personnes.length === 3, 'synthèse par événement : invités, réponses, personnes');
 ok(srv.run('(() => inscriptionsEvenement_("inconnu"))').envoye === false, 'événement sans envoi : « pas encore envoyée »');
 
+console.log('Appel personnalisé {Cher} {prenom}');
+srv.gmails.length = 0;
+const per = Object.assign({}, base3, { action: 'mail.essai', corps: '{Cher} {prenom},\n\nTexte.\n\nJe vous prie d’agréer, {cher} {prenom}, l’expression de mes sentiments dévoués.' });
+srv.post(Object.assign({}, per, { apercu: ids[1] }));
+let mp = srv.gmails.pop();
+ok(mp.body.startsWith('Chère Claire,') && mp.body.includes('agréer, chère Claire,'), 'Madame : « Chère Claire, », sans formule d’appel ajoutée');
+srv.post(Object.assign({}, per, { apercu: ids[0] }));
+mp = srv.gmails.pop();
+ok(mp.body.startsWith('Cher Michel,') && mp.body.includes('agréer, cher Michel,'), 'Monsieur : « Cher Michel, »');
+ok(srv.post({ action: 'mail.charger', token: tJB }).membres.find(x => x.prenom === 'Claire').feminin === true, 'feminin exposé pour l’aperçu');
+
 console.log('\n' + n + ' vérifications réussies.');
