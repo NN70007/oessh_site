@@ -48,7 +48,7 @@ var PIED_SUIVI = "Pour répondre, utilisez simplement « Répondre » en conserv
 function nomComplet(m) { return (m.prenom ? m.prenom + " " : "") + m.nom; }
 function repondre() { return $("in-repondre").value; }
 function casq() { var c = $("in-casq").value; return (D.casquettes || []).filter(function (x) { return x.code === c; })[0]; }
-function empreinte() { var ev = evtChoisi(); return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value, ev ? JSON.stringify([ev.repas || null, ev.limite || "", ev.hebergement || null, !!ev.sansAccompagnants, ev.engagement || "", ev.suiviA || "", ev.suiviCc || ""]) : ""].join("\u0001"); }
+function empreinte() { var ev = evtChoisi(); return [$("in-casq").value, repondre(), $("in-objet").value.trim(), $("in-corps").value.replace(/\r\n?/g, "\n").trim(), PIECES.map(function (p) { return p.id; }).join(","), $("in-evt").value, ev ? JSON.stringify([ev.repas || null, ev.limite || "", ev.hebergement || null, !!ev.sansAccompagnants, ev.engagement || "", ev.suiviA || "", ev.suiviCc || "", ev.categorie || "", ev.repasListe || ""]) : "", $("in-perso").value.trim()].join("\u0001"); }
 function evtChoisi() {
   var id = $("in-evt").value, e = EVTS.filter(function (x) { return x.id === id; })[0];
   if (!e) return null;
@@ -59,6 +59,8 @@ function evtChoisi() {
   if ($("ev-engage").value.trim()) e.engagement = $("ev-engage").value.trim();
   if ($("ev-suivi-a").value.trim()) e.suiviA = $("ev-suivi-a").value.trim();
   if ($("ev-suivi-cc").value.trim()) e.suiviCc = $("ev-suivi-cc").value.trim();
+  if ($("ev-categorie").value.trim()) e.categorie = $("ev-categorie").value.trim();
+  if ($("ev-repas-liste").value.trim()) e.repasListe = $("ev-repas-liste").value.trim();
   if ($("hb-actif").checked) e.hebergement = { actif: true, lieu: $("hb-lieu").value.trim(), nuit: $("hb-nuit").value.trim(), prixSimple: $("hb-simple").value.trim(), prixDouble: $("hb-double").value.trim(), note: $("hb-note").value.trim() };
   return e;
 }
@@ -71,7 +73,7 @@ function repasTxt(r) { return "Repas" + (r.lieu ? " : " + r.lieu : "") + (r.heur
 function decaler(iso, n) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n, 12)); return d.toISOString().slice(0, 10); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-10-28e";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-10-31a";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -203,7 +205,7 @@ function maj() {
   $("btn-envoyer").textContent = "Envoyer à " + avec + " personne" + (avec > 1 ? "s" : "");
   $("envoi-aide").textContent = essaiValide ? "Essai fait pour ce texte : vous pouvez envoyer." : "L’envoi réel s’active après un essai du texte exact.";
 }
-["in-objet", "in-corps"].forEach(function (id) { $(id).addEventListener("input", maj); });
+["in-objet", "in-corps", "in-perso"].forEach(function (id) { $(id).addEventListener("input", maj); });
 
 /* ── Mise en forme légère : « - » en début de ligne = puce, **texte** = gras (même règle que le serveur) ── */
 function corpsHtml(corps) {
@@ -269,6 +271,7 @@ function dessinerApercu() {
   var c = casq(), m = MEMBRES[$("in-apercu").value];
   if (!c || !m) { $("apercu").innerHTML = '<div class="hint">Choisissez une fonction et des destinataires.</div>'; $("mp-meta").innerHTML = ""; return; }
   var corps = $("in-corps").value.replace(/\r\n?/g, "\n").trim();
+  if (corps.indexOf("{perso}") > -1) { var pt = persoDe(m); corps = corps.replace(/\{perso\}/g, pt == null ? "(texte personnalisé manquant pour " + nomComplet(m) + ")" : pt); }
   var avecAppel = corps.indexOf("{appel}") > -1 || /^\s*(Cher|Chère|Chers|Chères|Madame|Monsieur|Mesdames|Messieurs|Mademoiselle|Excellence|Éminence|Monseigneur|Mon Père|Révérend|Bonjour|Bonsoir|Liebe|Lieber|Sehr geehrte|Dear)\b/i.test(corps) || /^\s*\{Cher\}/.test(corps);   // même règle que le serveur
   corps = corps.replace(/\{appel\}/g, m.appel).replace(/\{politesse\}/g, m.politesse || "").replace(/\{prenom\}/g, m.prenom || "").replace(/\{nom\}/g, m.nom || "")
     .replace(/\{Cher\}/g, m.feminin ? "Chère" : "Cher").replace(/\{cher\}/g, m.feminin ? "chère" : "cher");
@@ -279,6 +282,7 @@ function dessinerApercu() {
     var bloc = '<div class="mp-invit"><strong>' + E.esc(ev.titre) + "</strong><br>" + E.esc(quandEvt(ev)) +
       (ev.repas ? "<br>" + E.esc(repasTxt(ev.repas)) + " · inscription au repas jusqu’au " + E.esc(dateEvt(ev.repas.limite || decaler(ev.date, -3))) + (ev.repas.note ? "<br><em>" + E.esc(ev.repas.note) + "</em>" : "") : "") +
       (ev.hebergement ? "<br>" + E.esc(hebergTxt(ev.hebergement)) + (ev.hebergement.note ? "<br><em>" + E.esc(ev.hebergement.note) + "</em>" : "") : "") +
+      (ev.repasListe ? "<br>Repas proposés : " + E.esc(ev.repasListe.split("\n").map(function (l) { l = l.trim(); var k = l.lastIndexOf(" : "); return k > 0 && /\d/.test(l.slice(k + 3)) ? l.slice(0, k) + " (" + l.slice(k + 3) + ")" : l; }).filter(Boolean).join(", ")) : "") +
       (ev.limite ? "<br><strong>Réponse attendue au plus tard le " + E.esc(dateEvt(ev.limite)) + ".</strong>" : "") +
       (ev.engagement ? '<div style="margin-top:8px;padding:8px 10px;background:#fff;border:1px solid #b10103"><strong>Important :</strong> ' + E.esc(ev.engagement) + "</div>" : "") +
       '<br><span class="b p">Je viendrai</span><span class="b">Je ne viendrai pas</span></div>';
@@ -301,7 +305,20 @@ function dessinerApercu() {
 
 /* ── Essai et envoi ── */
 function etat(txt, ok) { var el = $("etat"); el.textContent = txt; el.className = "etat visible " + (ok ? "ok" : "ko"); }
-function demande() { return { casquette: $("in-casq").value, repondreA: repondre(), objet: $("in-objet").value.trim(), corps: $("in-corps").value, pieces: PIECES.map(function (p) { return p.id; }), evenement: evtChoisi() }; }
+function demande() { return { casquette: $("in-casq").value, repondreA: repondre(), objet: $("in-objet").value.trim(), corps: $("in-corps").value, pieces: PIECES.map(function (p) { return p.id; }), evenement: evtChoisi(), perso: $("in-perso").value }; }
+/* Texte {perso} d'un destinataire : ligne « Prénom NOM : texte », comparée sans casse, accents ni ordre des mots (même règle que le serveur) */
+function normNom(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z]+/g, " ").trim(); }
+function memeNom(a, b) {
+  var x = normNom(a).split(" ").filter(Boolean), y = normNom(b).split(" ").filter(Boolean);
+  if (!x.length || !y.length) return false;
+  var court = x.length <= y.length ? x : y, long = court === x ? y : x;
+  return court.length >= 2 || long.length === 1 ? court.every(function (w) { return long.indexOf(w) > -1; }) : false;
+}
+function persoDe(m) {
+  var l = $("in-perso").value.split("\n").map(function (x) { var k = x.indexOf(":"); return k > 0 ? { nom: x.slice(0, k).trim(), t: x.slice(k + 1).trim() } : null; })
+    .filter(function (p) { return p && p.nom && p.t && memeNom(p.nom, nomComplet(m)); })[0];
+  return l ? l.t : null;
+}
 
 $("btn-essai").addEventListener("click", function () {
   var b = this, f = empreinte();
@@ -486,7 +503,7 @@ $("in-evt").addEventListener("change", function () {
   proposerTexte(evtChoisi());
   maj();
 });
-["rp-actif", "rp-lieu", "rp-heure", "rp-prix", "rp-limite", "rp-note", "ev-limite", "ev-accomp", "ev-engage", "ev-suivi-a", "ev-suivi-cc", "hb-actif", "hb-lieu", "hb-nuit", "hb-simple", "hb-double", "hb-note"].forEach(function (id) {
+["rp-actif", "rp-lieu", "rp-heure", "rp-prix", "rp-limite", "rp-note", "ev-limite", "ev-accomp", "ev-engage", "ev-suivi-a", "ev-suivi-cc", "ev-categorie", "ev-repas-liste", "hb-actif", "hb-lieu", "hb-nuit", "hb-simple", "hb-double", "hb-note"].forEach(function (id) {
   $(id).addEventListener(id === "rp-actif" || id === "hb-actif" || id === "ev-limite" || id === "ev-accomp" ? "change" : "input", function () { majRepas(); proposerTexte(evtChoisi()); maj(); });
 });
 $("btn-evt-creer").addEventListener("click", function () {
@@ -535,6 +552,9 @@ function chargerInscriptions(id) {
       r.oui.forEach(function (x) { x.repas.forEach(function (n) { conv.push(n === x.nom ? n : n + " (avec " + x.nom + ")"); }); });
       html += '<div class="insc-liste"><b>' + E.esc(repasTxt(r.evenement.repas)) + " :</b> " + (conv.length ? E.esc(conv.join(", ")) : "aucun couvert pour le moment") +
         ' <small>· inscriptions ' + (r.repasFerme ? "closes" : "jusqu’au " + E.esc(dateEvt(r.evenement.repas.limite))) + "</small></div>";
+    }
+    if (r.repasListe) {
+      html += '<div class="insc-liste"><b>Repas :</b> ' + r.repasListe.map(function (y) { return E.esc(y.lib) + " : <b>" + y.n + "</b>" + (y.noms.length ? " <small>(" + E.esc(y.noms.join(", ")) + ")</small>" : ""); }).join("<br>") + "</div>";
     }
     if (r.non.length) html += '<div class="insc-liste"><b>Ne viennent pas :</b> ' + E.esc(r.non.join(", ")) + "</div>";
     if (r.sans.length) html += '<div class="insc-liste"><b>Sans réponse :</b> ' + E.esc(r.sans.join(", ")) + "</div>";

@@ -151,4 +151,30 @@ mp = srv.gmails.pop();
 ok(mp.body.startsWith('Cher Michel,') && mp.body.includes('agréer, cher Michel,'), 'Monsieur : « Cher Michel, »');
 ok(srv.post({ action: 'mail.charger', token: tJB }).membres.find(x => x.prenom === 'Claire').feminin === true, 'feminin exposé pour l’aperçu');
 
+console.log('Orateurs, parrains et marraines : liste séparée, repas au choix, texte {perso}');
+const evt5 = Object.assign({}, evt, { id: '2027-01-09-retraite', categorie: 'Orateurs, parrains et marraines', limite: '2026-11-08',
+  repasListe: 'Déjeuner du samedi 9 janvier : 25 €\nDîner du samedi 9 janvier : 30 €\nDéjeuner du dimanche 10 janvier' });
+const base5 = { token: tJB, casquette: 'secretaire', objet: 'Parrains', corps: '{Cher} {prenom},\n\nVous êtes {perso}.\n\nBien amicalement,', evenement: evt5 };
+ok(!srv.post(Object.assign({}, base5, { action: 'mail.essai', apercu: ids[0] })).ok, '{perso} sans lignes : refusé');
+const perso = 'Michel DAUPHIN : parrain de Jean\nClaire Martin : marraine de Paul';
+r = srv.post(Object.assign({}, base5, { action: 'mail.essai', apercu: ids[1], perso }));
+const m5 = srv.gmails.pop();
+ok(r.ok && m5.body.includes('Vous êtes marraine de Paul.') && m5.body.includes('Repas proposés : Déjeuner du samedi 9 janvier (25 €), Dîner du samedi 9 janvier (30 €), Déjeuner du dimanche 10 janvier'), 'essai : {perso} remplacé, repas proposés listés');
+const rr = srv.post(Object.assign({}, base5, { action: 'mail.envoyer', ids, perso }));
+ok(!rr.ok && /Paul NEU/.test(rr.error), 'envoi refusé : {perso} manquant pour Paul NEU');
+const perso2 = perso + '\nPaul Neu : parrain de Marc';
+srv.post(Object.assign({}, base5, { action: 'mail.essai', apercu: ids[1], perso: perso2 }));
+ok(srv.post(Object.assign({}, base5, { action: 'mail.envoyer', ids, perso: perso2 })).ok, 'envoi avec {perso} complet');
+const id5 = srv.sheets.JournalEnvois.data.slice(-1)[0][9];
+const tok5 = (i) => srv.run('(() => jetonInsc_("' + id5 + '", "' + ids[i] + '"))');
+const l5 = srv.post({ action: 'insc.lire', t: tok5(0) });
+ok(l5.repasListe.length === 3 && l5.max > 0, 'page : 3 repas au choix, accompagnants permis');
+r = srv.post({ action: 'insc.repondre', t: tok5(0), reponse: 'oui', accompagnants: 1, noms: ['Anne Dauphin'], chambres: ['double', 'double'], repasChoix: [['r1', 'r2', 'zz'], ['r2']] });
+ok(r.ok && r.repasChoix['Michel DAUPHIN'].join() === 'r1,r2' && r.repasChoix['Anne Dauphin'].join() === 'r2', 'repas cochés par personne (identifiant inconnu ignoré)');
+const t5 = srv.post({ action: 'mail.inscriptions', token: tJB, id: id5 });
+ok(t5.repasListe[0].n === 1 && t5.repasListe[1].n === 2 && t5.repasListe[2].n === 0, 'tableau de bord : couverts par repas');
+const cands = srv.run('(() => inscriptionsEvenement_("2027-01-09-retraite", ""))');
+const autres = srv.run('(() => inscriptionsEvenement_("2027-01-09-retraite", "Orateurs, parrains et marraines"))');
+ok(autres.total === 3 && autres.oui === 1 && autres.repas[1].n === 2 && cands.personnes.every(p => p.nom !== 'Anne Dauphin'), 'liste séparée des candidats sur la page du week-end');
+
 console.log('\n' + n + ' vérifications réussies.');

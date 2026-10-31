@@ -26,6 +26,7 @@ function dessiner() {
     (D.repasTexte ? '<div class="q" style="margin-top:8px"><b>' + esc(D.repasTexte) + "</b><br>" + (D.repasFerme ? "Inscriptions au repas closes." : "Inscription au repas jusqu’au " + esc(D.repasLimite) + ".") +
       (D.evenement.repas && D.evenement.repas.note ? "<br><em>" + esc(D.evenement.repas.note) + "</em>" : "") + "</div>" : "") +
     (D.hebergTexte ? '<div class="q" style="margin-top:8px"><b>' + esc(D.hebergTexte) + "</b>" + (D.evenement.hebergement && D.evenement.hebergement.note ? "<br><em>" + esc(D.evenement.hebergement.note) + "</em>" : "") + "</div>" : "") +
+    (D.repasListe && D.repasListe.length ? '<div class="q" style="margin-top:8px"><b>Repas proposés :</b> ' + esc(D.repasListe.map(function (r) { return r.lib + (r.prix ? " (" + r.prix + ")" : ""); }).join(", ")) + "</div>" : "") +
     (D.limite ? '<div class="q" style="margin-top:8px">Réponse attendue au plus tard le <b>' + esc(D.limite) + "</b>.</div>" : "") + "</div>";
   if (D.fige) {
     var ch = Object.keys(D.chambres || {});
@@ -48,6 +49,7 @@ function dessiner() {
     (D.hebergTexte ? '<div class="in-champ"><label>' + (seul ? "Nuit sur place" : "Chambre souhaitée pour chacun") + '</label><div id="chambres"></div></div>' +
       '<div class="in-champ" id="bloc-partage" hidden><label for="partage">Avec qui partagerez-vous la chambre double ?</label><input type="text" id="partage" maxlength="120" autocomplete="off" placeholder="Prénom et nom" value="' + esc(D.partage || "") + '">' +
       '<p class="in-note" style="margin-top:4px">Si cette personne est aussi invitée, elle répond de son côté avec son propre lien.</p></div>' : "") +
+    (D.repasListe && D.repasListe.length ? '<div class="in-champ"><label>Repas sur place</label><div id="repas-multi"></div></div>' : "") +
     '<div class="in-champ"><label for="remarque">Remarque (facultatif)</label><textarea id="remarque" maxlength="500" rows="3" placeholder="Heure d’arrivée, autre précision…">' + esc(D.remarque || "") + "</textarea></div>" +
     '</div>' +
     (D.engagement ? '<div class="in-eng" id="bloc-eng" hidden><p><b>Important.</b> ' + esc(D.engagement) + '</p><label class="in-case"><input type="checkbox" id="engage"' + (D.engageLe ? " checked" : "") + '> J’ai pris connaissance de ces conditions et je m’y engage.</label></div>' : "") +
@@ -93,6 +95,21 @@ function dessiner() {
     var d = Array.prototype.filter.call(document.querySelectorAll("#chambres select"), function (x) { return x.value === "double"; }).length;
     $("bloc-partage").hidden = d % 2 === 0;
   }
+  /* Plusieurs repas au choix : une ligne par personne, une case par repas */
+  function casesRepasMulti() {
+    if (!$("repas-multi")) return;
+    var avant = {};
+    document.querySelectorAll("#repas-multi input").forEach(function (c) { avant[c.dataset.i + "|" + c.dataset.r] = c.checked; });
+    var noms = [D.nom].concat(Array.prototype.map.call(document.querySelectorAll("#noms input"), function (i) { return i.value.trim(); }));
+    $("repas-multi").innerHTML = noms.map(function (nom, i) {
+      var deja = (D.repasChoix || {})[nom] || [];
+      return '<div class="in-rm"><span class="in-rm-n">' + esc(i === 0 ? (noms.length > 1 ? nom + " (vous)" : "Vous") : (nom || "Personne " + i)) + "</span>" +
+        D.repasListe.map(function (r) {
+          var c = (i + "|" + r.id) in avant ? avant[i + "|" + r.id] : deja.indexOf(r.id) > -1;
+          return '<label class="in-case"><input type="checkbox" data-i="' + i + '" data-r="' + r.id + '"' + (c ? " checked" : "") + "> " + esc(r.lib) + (r.prix ? ' <small>(' + esc(r.prix) + ")</small>" : "") + "</label>";
+        }).join("") + "</div>";
+    }).join("");
+  }
   function choisir(r) {
     choix = r;
     document.querySelectorAll(".in-choix button").forEach(function (b) { b.classList.toggle("on", b.dataset.r === r); });
@@ -103,8 +120,9 @@ function dessiner() {
   champsNoms();
   casesRepas();
   selectsChambres();
-  $("nb").addEventListener("change", function () { champsNoms(); casesRepas(); selectsChambres(); });
-  $("noms").addEventListener("input", function () { casesRepas(); selectsChambres(); });
+  casesRepasMulti();
+  $("nb").addEventListener("change", function () { champsNoms(); casesRepas(); selectsChambres(); casesRepasMulti(); });
+  $("noms").addEventListener("input", function () { casesRepas(); selectsChambres(); casesRepasMulti(); });
   if ($("chambres")) $("chambres").addEventListener("change", majPartage);
   document.querySelectorAll(".in-choix button").forEach(function (b) { b.addEventListener("click", function () { choisir(b.dataset.r); }); });
   if (choix || D.reponse) choisir(choix || D.reponse);
@@ -121,12 +139,15 @@ function dessiner() {
     b.disabled = true; b.textContent = "Enregistrement…";
     var tous = [D.nom].concat(noms), repas = [];
     document.querySelectorAll("#repas input").forEach(function (c) { if (c.checked && tous[Number(c.dataset.i)]) repas.push(tous[Number(c.dataset.i)]); });
-    api("insc.repondre", { reponse: choix, accompagnants: k, noms: noms, repas: repas, chambres: chambres, partage: partage, engage: !!($("engage") && $("engage").checked), remarque: $("remarque") ? $("remarque").value.trim() : "" }).then(function (r) {
-      D.reponse = r.reponse; D.accompagnants = r.accompagnants; D.noms = r.noms; D.repas = r.repas || []; repasAvant = D.repas; D.chambres = r.chambres || {}; D.remarque = r.remarque || ""; D.partage = r.partage || "";
+    var repasChoix = tous.map(function () { return []; });
+    document.querySelectorAll("#repas-multi input").forEach(function (c) { var i = Number(c.dataset.i); if (c.checked && repasChoix[i]) repasChoix[i].push(c.dataset.r); });
+    api("insc.repondre", { reponse: choix, accompagnants: k, noms: noms, repas: repas, chambres: chambres, partage: partage, repasChoix: repasChoix, engage: !!($("engage") && $("engage").checked), remarque: $("remarque") ? $("remarque").value.trim() : "" }).then(function (r) {
+      D.reponse = r.reponse; D.accompagnants = r.accompagnants; D.noms = r.noms; D.repas = r.repas || []; repasAvant = D.repas; D.chambres = r.chambres || {}; D.remarque = r.remarque || ""; D.partage = r.partage || ""; D.repasChoix = r.repasChoix || {};
       msg.className = "in-msg ok";
       msg.innerHTML = r.reponse === "oui"
         ? "<b>Merci, votre inscription est enregistrée.</b> Nous nous réjouissons de vous accueillir" + (r.accompagnants ? " avec " + esc(r.noms.join(", ")) : "") + " : " + esc(r.quand) + "." +
           (D.hebergTexte && Object.keys(r.chambres || {}).length ? " Hébergement : " + Object.keys(r.chambres).map(function (x) { return (seul ? "" : esc(x) + " : ") + esc((LIB_CH[r.chambres[x]] || "").toLowerCase()); }).join(", ") + (r.partage ? ", partagée avec " + esc(r.partage) : "") + "." : "") +
+          (D.repasListe && D.repasListe.length ? " Repas : " + (function (c) { var k = Object.keys(c); return k.length ? k.map(function (n) { return (k.length > 1 || n !== D.nom ? esc(n) + " : " : "") + esc(c[n].map(function (id) { var y = D.repasListe.filter(function (z) { return z.id === id; })[0]; return y ? y.lib.toLowerCase() : id; }).join(", ")); }).join(" ; ") + "." : "aucun."; })(r.repasChoix || {}) : "") +
           (D.repasTexte ? " Repas : " + (r.repas && r.repas.length ? r.repas.length + " couvert" + (r.repas.length > 1 ? "s" : "") + " (" + esc(r.repas.join(", ")) + ")." : "vous n’y participez pas.") : "")
         : "<b>Merci de nous avoir prévenus.</b> Votre réponse est enregistrée.";
       if (r.reponse === "oui" && D.engagement) msg.innerHTML += "<br><br>Rappel : " + esc(D.engagement);

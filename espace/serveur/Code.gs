@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-10-28e',
+  VERSION: '2026-10-31a',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -410,13 +410,22 @@ function chargerProjet_(P, u) {
   // Qui organise (affiché sous le titre) : renseigné dans l'onglet, une ligne par personne.
   if (P.organisation) out.organisation = lire_(P.organisation).filter(function (r) { return r.Nom; }).map(function (r) { return { fonction: r.Fonction, nom: r.Nom }; });
   // État des inscriptions de l'événement du projet (réponses aux invitations du Courrier e-mail)
-  if (P.evenement && role !== 'intervenant') { try { out.inscriptions = inscriptionsEvenement_(P.evenement); } catch (e) { out.inscriptions = null; } }
+  if (P.evenement && role !== 'intervenant') {
+    try { out.inscriptions = inscriptionsEvenement_(P.evenement, ''); } catch (e) { out.inscriptions = null; }
+    // Autres listes de réponses pour le même événement (ex. orateurs, parrains et marraines)
+    try {
+      var cats = [];
+      lire_('JournalEnvois').forEach(function (r) { var e = r.Type === 'envoi' && r.Id ? evtDeLigne_(r) : null; if (e && e.id === P.evenement && e.categorie && cats.indexOf(e.categorie) < 0) cats.push(e.categorie); });
+      out.inscriptionsAutres = cats.map(function (c) { var o = inscriptionsEvenement_(P.evenement, c); o.categorie = c; return o; });
+    } catch (e) { out.inscriptionsAutres = []; }
+  }
   return out;
 }
 /** Inscriptions de tous les envois rattachés à un événement. Les envois à une seule personne (tests) ne comptent
     que s'il n'y a pas encore d'envoi réel ; la réponse la plus récente de chaque personne fait foi. */
-function inscriptionsEvenement_(evtId) {
-  var envois = lire_('JournalEnvois').filter(function (r) { var e = r.Type === 'envoi' && r.Id ? evtDeLigne_(r) : null; return e && e.id === evtId; });
+function inscriptionsEvenement_(evtId, categorie) {
+  categorie = categorie || '';
+  var envois = lire_('JournalEnvois').filter(function (r) { var e = r.Type === 'envoi' && r.Id ? evtDeLigne_(r) : null; return e && e.id === evtId && (e.categorie || '') === categorie; });
   if (!envois.length) return { envoye: false };
   var reels = envois.filter(function (r) { return (Number(r.Nb) || 0) >= 2; }), test = !reels.length, choisis = test ? envois : reels;
   var ids = choisis.map(function (r) { return r.Id; }), evt = evtDeLigne_(choisis[choisis.length - 1]);
@@ -433,9 +442,12 @@ function inscriptionsEvenement_(evtId) {
     limite: evt && evt.limite ? evt.limite : '', limitePassee: evt ? limitePassee_(evt) : false, hebergement: !!(evt && evt.hebergement),
     total: lignes.length, oui: oui.length, non: lignes.filter(function (x) { return x.Reponse === 'non'; }).length, sans: lignes.filter(function (x) { return !x.Reponse; }).length,
     simples: tc.simples, doubles: tc.doubles, sansNuitee: tc.aucune, aVerifier: tc.seuls,
+    repas: evt && evt.repasListe ? comptesRepas_(oui, evt).map(function (y) { return { lib: y.lib, n: y.n }; }) : null,
     personnes: lignes.map(function (x) {
-      var ch = chambresDe_(x);
-      return { nom: x.Nom, reponse: x.Reponse || '', chambre: ch[x.Nom] || '', partage: x.Partage || '', remarque: x.Remarque || '', le: Number(x.RepLe) || 0 };
+      var ch = chambresDe_(x), rc = evt && evt.repasListe ? repasChoixDe_(x) : {};
+      return { nom: x.Nom, reponse: x.Reponse || '', chambre: ch[x.Nom] || '', partage: x.Partage || '', remarque: x.Remarque || '', le: Number(x.RepLe) || 0,
+        accompagnants: x.NomsAccompagnants ? x.NomsAccompagnants.split(' | ') : [], chambres: ch,
+        repas: Object.keys(rc).map(function (n) { return (n === x.Nom ? '' : n + ' : ') + libRepas_(evt, rc[n]).join(', ').toLowerCase(); }) };
     }).sort(function (a, b) { return a.nom.localeCompare(b.nom, 'fr'); })
   };
 }
@@ -1021,7 +1033,18 @@ function preparerMail_(u, req) {
   }
   var pj = piecesJointes_(u, req.pieces);
   var evt = evenementDe_(req.evenement);
-  return { casq: casq, objet: objet, corps: corps, pj: pj, evt: evt, empreinte: hash_(casq.code + '|' + casq.repondreA + '|' + objet + '|' + corps + '|' + pj.ids.join(',') + '|' + (evt ? JSON.stringify(evt) : '')).slice(0, 24) };
+  // Texte propre à chaque destinataire ({perso}) : une ligne « Prénom NOM : texte » par personne
+  var perso = String(req.perso || '').split('\n').map(function (l) { var k = l.indexOf(':'); return k > 0 ? { nom: l.slice(0, k).trim(), texte: l.slice(k + 1).trim() } : null; })
+    .filter(function (p) { return p && p.nom && p.texte; }).slice(0, 200);
+  if (corps.indexOf('{perso}') > -1 && !perso.length) throw refus_('Le message contient {perso} : indiquez le texte de chaque destinataire (« Prénom NOM : texte »).', 'donnees');
+  return { casq: casq, objet: objet, corps: corps, pj: pj, evt: evt, perso: perso,
+    empreinte: hash_(casq.code + '|' + casq.repondreA + '|' + objet + '|' + corps + '|' + pj.ids.join(',') + '|' + (evt ? JSON.stringify(evt) : '') + '|' + JSON.stringify(perso)).slice(0, 24) };
+}
+/** Texte {perso} d'un destinataire, cherché par son nom (casse, accents et ordre des mots ignorés). */
+function persoDe_(P, m) {
+  var nc = (m.prenom ? m.prenom + ' ' : '') + m.nom;
+  var p = (P.perso || []).filter(function (x) { return memeNom_(x.nom, nc); })[0];
+  return p ? p.texte : null;
 }
 
 var APPEL_ECRIT = /^\s*(Cher|Chère|Chers|Chères|Madame|Monsieur|Mesdames|Messieurs|Mademoiselle|Excellence|Éminence|Monseigneur|Mon Père|Révérend|Bonjour|Bonsoir|Liebe|Lieber|Sehr geehrte|Dear)\b/i;
@@ -1045,7 +1068,8 @@ function coupeFormule_(corps) {
 }
 
 function composerMail_(u, P, m, lien) {
-  var corps = personnaliser_(P.corps, m);
+  var pt = persoDe_(P, m);
+  var corps = personnaliser_(P.corps.replace(/\{perso\}/g, pt == null ? '(texte personnalisé de ' + ((m.prenom ? m.prenom + ' ' : '') + m.nom) + ')' : pt), m);
   var OESSH = P.casq.ligneOrdre;
   var signataire = u.signature || u.nom;
   var signature = [signataire, P.casq.ligneFonction, OESSH, P.casq.repondreA];
@@ -1152,6 +1176,10 @@ function mailEnvoyer_(u, req) {
   if (!cibles.length) throw refus_('Aucun destinataire sélectionné.', 'donnees');
   if (cibles.length > CONFIG.ENVOI_MAX) throw refus_('Trop de destinataires en une fois (' + cibles.length + ', maximum ' + CONFIG.ENVOI_MAX + ').', 'donnees');
   var avec = cibles.filter(function (m) { return m.email; });
+  if (P.corps.indexOf('{perso}') > -1) {
+    var manque = avec.filter(function (m) { return persoDe_(P, m) == null; }).map(function (m) { return (m.prenom ? m.prenom + ' ' : '') + m.nom; });
+    if (manque.length) throw refus_('Texte personnalisé {perso} manquant pour : ' + manque.join(', ') + '.', 'donnees');
+  }
   if (avec.length > MailApp.getRemainingDailyQuota()) throw refus_('Le quota d’envoi du jour est insuffisant. Réessayez demain.', 'limite');
   var envoiId = 'e' + Date.now().toString(36);
   P.suivi = adresseSuivi_(envoiId);
@@ -1478,7 +1506,7 @@ function hash_(s) {
    Rappels (déclencheur quotidien « rappelsInscriptions ») : 7 jours avant à ceux qui n'ont pas répondu,
    la veille à ceux qui viennent. Onglet « Inscriptions » de la feuille, créé au premier envoi. */
 var URL_INSCRIPTION = 'https://luxembourg.oessh.lu/espace/inscription/';
-var COLS_INSC = ['EnvoiId', 'Membre', 'Nom', 'Email', 'Reponse', 'Accompagnants', 'NomsAccompagnants', 'RepLe', 'Rappel7', 'Rappel1', 'Repas', 'Chambres', 'Remarque', 'Partage', 'Engagement'];
+var COLS_INSC = ['EnvoiId', 'Membre', 'Nom', 'Email', 'Reponse', 'Accompagnants', 'NomsAccompagnants', 'RepLe', 'Rappel7', 'Rappel1', 'Repas', 'Chambres', 'Remarque', 'Partage', 'Engagement', 'RepasChoix'];
 var MOIS_CAL = ['JAN', 'FEV', 'MAR', 'AVR', 'MAI', 'JUN', 'JUL', 'AOU', 'SEP', 'OCT', 'NOV', 'DEC'];
 var MOIS_LONGS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 var JOURS_LONGS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
@@ -1531,6 +1559,16 @@ function evenementDe_(x) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(lim)) e.limite = lim > e.date ? e.date : lim;
   // Invitation strictement personnelle (ex. candidats) : pas d'accompagnants
   if (x.sansAccompagnants) e.sansAccompagnants = true;
+  // Liste des réponses (facultatif) : sépare par ex. les candidats des orateurs, parrains et marraines pour un même événement
+  var cat = texte_(x.categorie, 60);
+  if (cat) e.categorie = cat;
+  // Plusieurs repas au choix (facultatif) : une ligne par repas, « Déjeuner du samedi : 25 € » ; chacun coche les siens
+  var lr = Array.isArray(x.repasListe) ? x.repasListe.map(function (r) { return r && r.lib ? r.lib + (r.prix ? ' : ' + r.prix : '') : String(r || ''); }) : String(x.repasListe || '').split('\n');
+  lr = lr.map(function (l) { return String(l).trim(); }).filter(Boolean).slice(0, 6).map(function (l, i) {
+    var k = l.lastIndexOf(' : '), prix = k > 0 && /\d/.test(l.slice(k + 3)) ? texte_(l.slice(k + 3), 40) : '';
+    return { id: 'r' + (i + 1), lib: texte_(prix ? l.slice(0, k) : l, 100), prix: prix };
+  });
+  if (lr.length) e.repasListe = lr;
   // Engagement (paiement, conditions d'annulation) : rappelé au-dessus des boutons et à accepter pour confirmer « Je viendrai »
   var eng = texte_(x.engagement, 600);
   if (eng) e.engagement = eng;
@@ -1598,6 +1636,23 @@ function totalChambres_(rows) {
   });
   return t;
 }
+/** Repas choisis par personne, enregistrés « Nom=r1,r3 | Nom2=r2 ». */
+function repasChoixDe_(x) {
+  var o = {};
+  String(x.RepasChoix || '').split(' | ').forEach(function (p) { var k = p.lastIndexOf('='); if (k > 0) o[p.slice(0, k)] = p.slice(k + 1).split(',').filter(Boolean); });
+  return o;
+}
+/** Nombre de couverts par repas (personnes invitées et accompagnants), avec les noms. */
+function comptesRepas_(rows, evt) {
+  var L = (evt && evt.repasListe || []).map(function (r) { return { id: r.id, lib: r.lib, prix: r.prix, n: 0, noms: [] }; });
+  rows.forEach(function (x) {
+    var c = repasChoixDe_(x);
+    Object.keys(c).forEach(function (nom) { c[nom].forEach(function (id) { var r = L.filter(function (y) { return y.id === id; })[0]; if (r) { r.n++; r.noms.push(nom + (nom === x.Nom ? '' : ' (avec ' + x.Nom + ')')); } }); });
+  });
+  return L;
+}
+function repasListeTxt_(evt) { return 'Repas proposés : ' + evt.repasListe.map(function (r) { return r.lib + (r.prix ? ' (' + r.prix + ')' : ''); }).join(', '); }
+function libRepas_(evt, ids) { return (ids || []).map(function (id) { var r = (evt.repasListe || []).filter(function (y) { return y.id === id; })[0]; return r ? r.lib : id; }); }
 function comptesChambres_(ch) {
   var s = 0, d = 0, a = 0;
   Object.keys(ch).forEach(function (n) { if (ch[n] === 'simple') s++; else if (ch[n] === 'double') d++; else a++; });
@@ -1723,14 +1778,16 @@ function blocInvitation_(evt, lien, esc) {
     '<div style="font-size:14px;color:#444;margin-bottom:12px">' + esc(quandEvt_(evt)) +
     (evt.repas ? '<br>' + esc(repasTxt_(evt.repas)) + ' · inscription au repas jusqu’au ' + esc(dateEvt_(evt.repas.limite)) + (evt.repas.note ? '<br><em>' + esc(evt.repas.note) + '</em>' : '') : '') +
     (evt.hebergement ? '<br>' + esc(hebergTxt_(evt.hebergement)) + (evt.hebergement.note ? '<br><em>' + esc(evt.hebergement.note) + '</em>' : '') : '') +
+    (evt.repasListe ? '<br>' + esc(repasListeTxt_(evt)) : '') +
     (evt.limite ? '<br><strong>Réponse attendue au plus tard le ' + esc(dateEvt_(evt.limite)) + '.</strong>' : '') +
     (evt.engagement ? '<div style="margin-top:10px;padding:10px 12px;background:#ffffff;border:1px solid #b10103;font-size:14px;color:#222"><strong>Important :</strong> ' + esc(evt.engagement) + '</div>' : '') + '</div>' +
     bouton('Je viendrai', lien + '&r=oui', true) + bouton('Je ne viendrai pas', lien + '&r=non', false) +
     '<div style="font-size:12px;color:#6e6e6e;font-family:Arial,sans-serif">' + (evt.sansAccompagnants
       ? (evt.hebergement ? 'Vous pourrez indiquer la chambre souhaitée.' : 'Un clic suffit, puis « Confirmer ».')
-      : 'Vous pourrez indiquer le nombre et le nom des personnes qui vous accompagnent' + (evt.hebergement ? ', la chambre souhaitée pour chacun' : '') + (evt.repas ? ', et qui restera pour le repas' : '') + '.') + '</div></div>';
+      : 'Vous pourrez indiquer le nombre et le nom des personnes qui vous accompagnent' + (evt.hebergement ? ', la chambre souhaitée pour chacun' : '') + (evt.repas ? ', et qui restera pour le repas' : '') + (evt.repasListe ? ', et les repas de chacun' : '') + '.') + '</div></div>';
   var texte = '\n\n' + evt.titre + '\n' + quandEvt_(evt) + (evt.repas ? '\n' + repasTxt_(evt.repas) + ' - inscription au repas jusqu’au ' + dateEvt_(evt.repas.limite) + (evt.repas.note ? '\n' + evt.repas.note : '') : '') +
     (evt.hebergement ? '\n' + hebergTxt_(evt.hebergement) + (evt.hebergement.note ? '\n' + evt.hebergement.note : '') : '') +
+    (evt.repasListe ? '\n' + repasListeTxt_(evt) : '') +
     (evt.limite ? '\nRéponse attendue au plus tard le ' + dateEvt_(evt.limite) + '.' : '') + (evt.engagement ? '\nImportant : ' + evt.engagement : '') + '\nJe viendrai : ' + lien + '&r=oui\nJe ne viendrai pas : ' + lien + '&r=non';
   return { html: html, texte: texte };
 }
@@ -1748,7 +1805,8 @@ function inscLire_(req) {
     repas: nomsRepas_(r), repasTexte: evt.repas ? repasTxt_(evt.repas) : '', repasLimite: evt.repas ? dateEvt_(evt.repas.limite) : '', repasFerme: repasFerme_(evt),
     limite: evt.limite ? dateEvt_(evt.limite) : '', fige: limitePassee_(evt) && !!r.Reponse,
     hebergTexte: evt.hebergement ? hebergTxt_(evt.hebergement) : '', chambres: chambresDe_(r), remarque: r.Remarque,
-    engagement: evt.engagement || '', engageLe: Number(r.Engagement) || 0
+    engagement: evt.engagement || '', engageLe: Number(r.Engagement) || 0,
+    repasListe: evt.repasListe || [], repasChoix: repasChoixDe_(r)
   };
 }
 function inscRepondre_(req) {
@@ -1782,6 +1840,15 @@ function inscRepondre_(req) {
     var nbDouble = chambres.filter(function (c) { return /=double$/.test(c); }).length;
     var partage = nbDouble % 2 ? texte_(req.partage, 120) : '';
     if (nbDouble % 2 && !partage) throw refus_('Indiquez avec qui vous partagerez la chambre double.', 'donnees');
+    // Plusieurs repas au choix : pour chaque personne (invitée, puis accompagnants), les repas cochés
+    var repasChoix = [];
+    if (evt.repasListe && rep === 'oui') {
+      var ids = evt.repasListe.map(function (y) { return y.id; }), rc = Array.isArray(req.repasChoix) ? req.repasChoix : [];
+      [r.Nom].concat(noms).forEach(function (nom, i) {
+        var c = (Array.isArray(rc[i]) ? rc[i] : []).map(String).filter(function (id, k, a) { return ids.indexOf(id) > -1 && a.indexOf(id) === k; });
+        if (c.length) repasChoix.push(nom.replace(/[|=]/g, '/') + '=' + c.join(','));
+      });
+    }
     // Repas : uniquement parmi la personne invitée et ses accompagnants ; figé après la date limite (sauf désistement)
     var repas = nomsRepas_(r);
     if (evt.repas) {
@@ -1792,8 +1859,8 @@ function inscRepondre_(req) {
           .filter(function (x, i, a) { return permis.indexOf(x) > -1 && a.indexOf(x) === i; });
       } else repas = repas.filter(function (x) { return x === r.Nom || noms.indexOf(x) > -1; });
     }
-    majInsc_(r._ligne, { Reponse: rep, Accompagnants: n ? String(n) : '', NomsAccompagnants: noms.join(' | '), RepLe: String(Date.now()), Repas: repas.join(' | '), Chambres: chambres.join(' | '), Remarque: remarque, Partage: partage, Engagement: rep === 'oui' && evt.engagement ? String(Date.now()) : '' });
-    return { ok: true, reponse: rep, accompagnants: n, noms: noms, quand: quandEvt_(evt), evenement: evt, repas: repas, repasFerme: repasFerme_(evt), chambres: chambresDe_({ Chambres: chambres.join(' | ') }), remarque: remarque, partage: partage };
+    majInsc_(r._ligne, { Reponse: rep, Accompagnants: n ? String(n) : '', NomsAccompagnants: noms.join(' | '), RepLe: String(Date.now()), Repas: repas.join(' | '), Chambres: chambres.join(' | '), Remarque: remarque, Partage: partage, Engagement: rep === 'oui' && evt.engagement ? String(Date.now()) : '', RepasChoix: repasChoix.join(' | ') });
+    return { ok: true, reponse: rep, accompagnants: n, noms: noms, quand: quandEvt_(evt), evenement: evt, repas: repas, repasFerme: repasFerme_(evt), chambres: chambresDe_({ Chambres: chambres.join(' | ') }), remarque: remarque, partage: partage, repasChoix: repasChoixDe_({ RepasChoix: repasChoix.join(' | ') }) };
   });
 }
 
@@ -1819,7 +1886,7 @@ function mailInscriptions_(u, req) {
   if (!peutVoirReponses_(u, r)) throw refus_("Seul l'auteur de l'envoi peut en voir les inscriptions.", 'droits');
   var lignes = lignesInsc_().filter(function (x) { return x.EnvoiId === r.Id; });
   var oui = lignes.filter(function (x) { return x.Reponse === 'oui'; }).map(function (x) {
-    return { nom: x.Nom, accompagnants: Number(x.Accompagnants) || 0, noms: x.NomsAccompagnants ? x.NomsAccompagnants.split(' | ') : [], le: Number(x.RepLe) || 0, repas: nomsRepas_(x), chambres: chambresDe_(x), remarque: x.Remarque, partage: x.Partage };
+    return { nom: x.Nom, accompagnants: Number(x.Accompagnants) || 0, noms: x.NomsAccompagnants ? x.NomsAccompagnants.split(' | ') : [], le: Number(x.RepLe) || 0, repas: nomsRepas_(x), chambres: chambresDe_(x), remarque: x.Remarque, partage: x.Partage, repasChoix: repasChoixDe_(x) };
   });
   var evt = evtDeLigne_(r), couverts = oui.reduce(function (t, x) { return t + x.repas.length; }, 0);
   var heberg = null;
@@ -1833,6 +1900,7 @@ function mailInscriptions_(u, req) {
   return {
     ok: true, evenement: evt, oui: oui, couverts: couverts, montant: isFinite(prix) && prix > 0 ? Math.round(prix * couverts * 100) / 100 : null,
     repasFerme: evt ? repasFerme_(evt) : false, hebergement: heberg, limitePassee: evt ? limitePassee_(evt) : false,
+    repasListe: evt && evt.repasListe ? comptesRepas_(lignes.filter(function (x) { return x.Reponse === 'oui'; }), evt) : null,
     personnes: oui.reduce(function (t, x) { return t + 1 + x.accompagnants; }, 0),
     non: lignes.filter(function (x) { return x.Reponse === 'non'; }).map(function (x) { return x.Nom; }),
     sans: lignes.filter(function (x) { return !x.Reponse; }).map(function (x) { return x.Nom; }),
@@ -1901,9 +1969,11 @@ function bilanTexte_(r, evt, quotidien) {
     t += 'Chambres : ' + tot.simples + ' individuelle' + (tot.simples > 1 ? 's' : '') + ', ' + tot.doubles + ' double' + (tot.doubles > 1 ? 's' : '') + ' ; ' + tot.aucune + ' personne' + (tot.aucune > 1 ? 's' : '') + ' sans nuitée\n' +
       (tot.seuls.length ? 'À vérifier, chambre double sans partenaire inscrit : ' + tot.seuls.join(', ') + '\n' : '');
   }
+  if (evt.repasListe) t += 'Repas : ' + comptesRepas_(oui, evt).map(function (y) { return y.lib + ' ' + y.n; }).join(' ; ') + '\n';
   t += '\n' + oui.map(function (x) {
     return '- ' + x.Nom + (Number(x.Accompagnants) ? ', avec ' + x.NomsAccompagnants.split(' | ').join(', ') : '') +
-      (evt.hebergement ? '\n  ' + chambresTxt_(chambresDe_(x)) + (x.Partage ? ' Chambre partagée avec ' + x.Partage + '.' : '') : '') + (x.Remarque ? '\n  Remarque : ' + x.Remarque : '');
+      (evt.hebergement ? '\n  ' + chambresTxt_(chambresDe_(x)) + (x.Partage ? ' Chambre partagée avec ' + x.Partage + '.' : '') : '') +
+      (evt.repasListe ? '\n  Repas : ' + (function (c) { var k = Object.keys(c); return k.length ? k.map(function (n) { return n + ' (' + libRepas_(evt, c[n]).join(', ') + ')'; }).join(', ') : 'aucun'; })(repasChoixDe_(x)) : '') + (x.Remarque ? '\n  Remarque : ' + x.Remarque : '');
   }).join('\n');
   var non = lignes.filter(function (x) { return x.Reponse === 'non'; }).map(function (x) { return x.Nom; });
   var sans = lignes.filter(function (x) { return !x.Reponse; }).map(function (x) { return x.Nom; });
