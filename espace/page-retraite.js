@@ -124,7 +124,7 @@ function vEnsemble(){
   var notice=stateNotice();
 
   var h='<section class="block"><div class="container">'+
-    head("— 9 & 10 janvier 2027","Retraite","Formation et retraite des candidats.","Un week-end de formation, de prière et de témoignages à la Maison d\'Accueil des Franciscaines, 50 avenue Gaston Diderich, à Luxembourg.")+orgHTML()+roleNote()+inscHTML()+inscriptionsAutres.map(function(I){return inscHTML(I,I.categorie);}).join("")+
+    head("— 9 & 10 janvier 2027","Retraite","Formation et retraite des candidats.","Un week-end de formation, de prière et de témoignages à la Maison d\'Accueil des Franciscaines, 50 avenue Gaston Diderich, à Luxembourg.")+orgHTML()+roleNote()+groupeHTML()+inscHTML()+inscriptionsAutres.map(function(I){return inscHTML(I,I.categorie);}).join("")+
     '<div class="hero-grid">'+
       '<div class="hero-cell"><div class="eyebrow">Compte à rebours</div><div class="countdown"><span class="n">'+dleft+'</span><span class="u">jours</span></div><p class="cap">avant la <strong>messe d\'ouverture</strong>, samedi 9 janvier 2027 à 9h00, chez les Sœurs franciscaines.</p></div>'+
       '<div class="hero-cell"><div class="eyebrow">Avancement'+(user.ret==="intervenant"?" de vos tâches":" général")+'</div><div class="ring-wrap">'+
@@ -169,6 +169,28 @@ function vEnsemble(){
 }
 /* État des inscriptions des candidats : réponses à l'invitation envoyée par le Courrier e-mail */
 var CH_LIB={simple:"Chambre individuelle",double:"Chambre double",aucune:"Pas de nuitée"};
+/* Vue groupée : candidats + autres listes de réponses (orateurs, parrains et marraines…) */
+function groupeHTML(){
+  if(user.ret==="intervenant"||!inscriptions) return "";
+  var L=[{t:"Candidats",I:inscriptions,forfait:true}].concat(inscriptionsAutres.map(function(I){return {t:I.categorie||"Autres",I:I};})).filter(function(x){return x.I&&x.I.envoye;});
+  if(L.length<2) return "";
+  var repasLib=[];
+  L.forEach(function(x){(x.I.repas||[]).forEach(function(r){if(repasLib.indexOf(r.lib)<0) repasLib.push(r.lib);});});
+  var nRepas=function(x,lib){ if(x.forfait&&!x.I.repas) return x.I.oui; var r=(x.I.repas||[]).filter(function(y){return y.lib===lib;})[0]; return r?r.n:0; };
+  var sum=function(f){return L.reduce(function(t,x){return t+(Number(f(x))||0);},0);};
+  var tile=function(v,k,c){return '<div class="insc-tile'+(c?" "+c:"")+'"><b>'+v+'</b><span>'+k+'</span></div>';};
+  var sans=sum(function(x){return x.I.sans;});
+  var h='<div class="insc-box"><div class="subhead" style="margin-bottom:12px"><h3>Vue groupée des inscriptions</h3><span class="eyebrow">'+L.length+' listes de réponses</span></div>';
+  h+='<div class="insc-tiles">'+tile(sum(function(x){return x.I.oui;}),"personnes attendues","ok")+tile(sans,"sans réponse",sans?"warn":"")+
+     tile(sum(function(x){return x.I.hebergement?x.I.simples:0;}),"chambres individuelles","")+tile(sum(function(x){return x.I.hebergement?x.I.doubles:0;}),"chambres doubles","")+
+     repasLib.map(function(lib){return tile(sum(function(x){return nRepas(x,lib);}),esc(lib.toLowerCase()),"");}).join("")+'</div>';
+  var th=function(t){return '<th>'+t+'</th>';}, td=function(v){return '<td>'+v+'</td>';};
+  h+='<div class="insc-tab-wrap"><table class="insc-tab"><thead><tr>'+th("Liste")+th("Invités")+th("Viennent")+th("Sans réponse")+th("Ch. indiv.")+th("Ch. doubles")+th("Sans nuitée")+repasLib.map(function(l){return th(esc(l));}).join("")+'</tr></thead><tbody>'+
+     L.map(function(x){var I=x.I;return '<tr>'+td(esc(x.t))+td(I.total)+td(I.oui)+td(I.sans)+td(I.hebergement?I.simples:"–")+td(I.hebergement?I.doubles:"–")+td(I.hebergement?I.sansNuitee:"–")+repasLib.map(function(l){return td(nRepas(x,l));}).join("")+'</tr>';}).join("")+
+     '<tr class="tot">'+td("Total")+td(sum(function(x){return x.I.total;}))+td(sum(function(x){return x.I.oui;}))+td(sans)+td(sum(function(x){return x.I.hebergement?x.I.simples:0;}))+td(sum(function(x){return x.I.hebergement?x.I.doubles:0;}))+td(sum(function(x){return x.I.hebergement?x.I.sansNuitee:0;}))+repasLib.map(function(l){return td(sum(function(x){return nRepas(x,l);}));}).join("")+'</tr></tbody></table></div>';
+  if(repasLib.length&&L.some(function(x){return x.forfait&&!x.I.repas;})) h+='<p class="cap">Les candidats inscrits sont comptés à chaque repas, compris dans leur forfait. Les chambres doubles sont comptées liste par liste.</p>';
+  return h+'</div>';
+}
 function inscHTML(I,titre){
   I=I||inscriptions;
   if(!I||user.ret==="intervenant") return "";

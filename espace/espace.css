@@ -421,4 +421,10 @@ a{color:inherit;text-decoration:none}
 .insc-st{font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:2px}
 .insc-st.ok{background:var(--ok-soft);color:var(--ok)} .insc-st.no{background:var(--paper);color:var(--ink-mute)} .insc-st.wait{background:var(--cardinal-soft);color:var(--cardinal-dark)}
 .insc-det{flex-basis:100%;font-size:12.5px;color:var(--ink-soft)}
+.insc-tab-wrap{overflow-x:auto;margin:0 0 12px}
+.insc-tab{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+.insc-tab th{text-align:right;font-weight:500;font-size:11.5px;letter-spacing:.04em;color:var(--ink-mute);padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.insc-tab td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-soft)}
+.insc-tab th:first-child,.insc-tab td:first-child{text-align:left}
+.insc-tab tr.tot td{font-weight:600;border-top:1px solid var(--line)}
 @media (max-width:720px){.insc-list{columns:1}.insc-box{padding:18px 16px}}
