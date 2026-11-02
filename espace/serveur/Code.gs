@@ -7,7 +7,7 @@
  *
  * Ce fichier ne contient AUCUNE donnée : il peut être publié sans risque.
  * Les données vivent uniquement dans la feuille (onglets Acces, Taches, Intervenants, Activite, Jalons, Journal,
- * et pour le week-end de retraite : RetTaches, RetIntervenants, RetActivite, RetJalons, RetProgramme, RetOrganisation, RetDocuments).
+ * et pour le week-end de retraite : RetTaches, RetIntervenants, RetActivite, RetJalons, RetProgramme, RetOrganisation, RetCarnet, RetDocuments).
  *
  * Installation : voir espace/INSTALLATION.md
  */
@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-11-02a',
+  VERSION: '2026-11-02b',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -54,7 +54,8 @@ var ONGLETS = {
   RetJalons: ['Date', 'Titre', 'Detail', 'Cle'],
   RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note'],
   RetOrganisation: ['Fonction', 'Nom'],
-  // Documents du carnet des candidats : un fichier Drive par ligne, rattaché à un créneau du programme (ou « general »)
+  // Carnet des candidats : liste des documents convenus (titre, responsable), puis les fichiers déposés pour chacun
+  RetCarnet: ['Id', 'Ordre', 'Titre', 'Responsable', 'Note'],
   RetDocuments: ['Id', 'Creneau', 'Fichier', 'Nom', 'Taille', 'Par', 'Email', 'Le'],
   JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type', 'PJ', 'Id', 'RepondreA', 'Destinataires', 'Evenement'],
   // Placement et procession : réglages d'une cérémonie (rôles du jour, corrections), partagés par tous les utilisateurs du Courrier e-mail
@@ -119,6 +120,8 @@ function route_(req) {
     case 'ret.docTelecharger': return docTelecharger_(PROJETS.ret, user, req.id);
     case 'ret.docSupprimer': return docSupprimer_(PROJETS.ret, user, req.id);
     case 'ret.docTout': return docTout_(PROJETS.ret, user);
+    case 'ret.carnetEnregistrer': return carnetEnregistrer_(PROJETS.ret, user, req.entree);
+    case 'ret.carnetSupprimer': return carnetSupprimer_(PROJETS.ret, user, req.id);
     case 'acces.lister': return accesLister_(user);
     case 'acces.enregistrer': return accesEnregistrer_(user, req.personne, req.emailOriginal);
     case 'acces.supprimer': return accesSupprimer_(user, req.email);
@@ -394,7 +397,7 @@ function peutModifier_(u, t, P) {
    sa colonne de droits dans « Acces » et ses pôles. */
 var PROJETS = {
   inv: { droit: 'inv', col: 'Investiture', T: 'Taches', I: 'Intervenants', A: 'Activite', J: 'Jalons', poles: POLES },
-  ret: { droit: 'ret', col: 'Retraite', T: 'RetTaches', I: 'RetIntervenants', A: 'RetActivite', J: 'RetJalons', poles: POLES_RET, programme: 'RetProgramme', organisation: 'RetOrganisation', evenement: '2027-01-09-retraite', documents: 'RetDocuments' }
+  ret: { droit: 'ret', col: 'Retraite', T: 'RetTaches', I: 'RetIntervenants', A: 'RetActivite', J: 'RetJalons', poles: POLES_RET, programme: 'RetProgramme', organisation: 'RetOrganisation', evenement: '2027-01-09-retraite', documents: 'RetDocuments', carnet: 'RetCarnet' }
 };
 
 function chargerProjet_(P, u) {
@@ -416,9 +419,10 @@ function chargerProjet_(P, u) {
   // Carnet des candidats : documents déposés (tout le monde les voit) et créneaux où cette personne peut déposer
   if (P.documents) {
     try {
+      out.carnet = carnetListe_(P);
       out.documents = docsListe_(P);
-      out.mesCreneaux = role === 'organisateur' ? ['*'] : (out.programme || []).filter(function (c) { return intervientSur_(u, c); }).map(function (c) { return c.id; });
-    } catch (e) { out.documents = []; out.mesCreneaux = []; }
+      out.mesCreneaux = role === 'organisateur' ? ['*'] : out.carnet.filter(function (c) { return intervientSur_(u, { qui: c.resp }); }).map(function (c) { return c.id; });
+    } catch (e) { out.carnet = []; out.documents = []; out.mesCreneaux = []; }
   }
   // Qui organise (affiché sous le titre) : renseigné dans l'onglet, une ligne par personne.
   if (P.organisation) out.organisation = lire_(P.organisation).filter(function (r) { return r.Nom; }).map(function (r) { return { fonction: r.Fonction, nom: r.Nom }; });
@@ -620,9 +624,10 @@ function supprimerCreneau_(P, u, id) {
 }
 
 /* ---------- Carnet des candidats : documents des intervenants ---------- */
-/* Chaque intervenant dépose le document de sa conférence (créneau dont il est l'intervenant) ; les organisateurs
-   peuvent déposer partout, y compris dans « general » (programme, statuts…). Tous ceux qui ont accès à la page
-   peuvent télécharger chaque document, ou l'ensemble dans un fichier ZIP rangé dans l'ordre du programme. */
+/* Les organisateurs tiennent la liste des documents convenus (onglet RetCarnet : titre, responsable, note).
+   Le responsable d'un document y dépose son fichier ; les organisateurs peuvent déposer partout. Tous ceux qui ont
+   accès à la page téléchargent chaque document, ou l'ensemble dans un ZIP rangé dans l'ordre du carnet.
+   (La colonne Creneau de RetDocuments contient l'identifiant de l'entrée du carnet.) */
 var DOC_TYPES = {
   pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   odt: 'application/vnd.oasis.opendocument.text', ppt: 'application/vnd.ms-powerpoint',
@@ -633,21 +638,63 @@ var DOC_ZIP_MAX = 35 * 1024 * 1024;
 
 /** Vrai si la personne connectée est l'intervenant du créneau (son prénom et son nom figurent dans « Intervenant »). */
 function intervientSur_(u, c) {
-  if (!c || !c.qui || c.jour === 'notes') return false;
+  if (!c || !c.qui || c.jour === 'notes' || !u.nom) return false;
   var mots = normNom_(u.nom).split(' ').filter(function (m) { return m.length > 1; });
   if (mots.length < 2) return false;
   var qui = ' ' + normNom_(c.qui) + ' ';
   return mots.every(function (m) { return qui.indexOf(' ' + m + ' ') > -1; }) || memeNom_(u.nom, c.qui);
 }
-function ongletDocs_(P) {
-  var ss = classeur_(false), sh = ss.getSheetByName(P.documents);
+function ongletAuto_(nom) {
+  var ss = classeur_(false), sh = ss.getSheetByName(nom);
   if (!sh) {
-    sh = ss.insertSheet(P.documents);
-    var head = ONGLETS[P.documents];
+    sh = ss.insertSheet(nom);
+    var head = ONGLETS[nom];
     sh.getRange(1, 1, 1, head.length).setValues([head]);
     sh.setFrozenRows(1);
   }
   return sh;
+}
+function ongletDocs_(P) { return ongletAuto_(P.documents); }
+function carnetListe_(P) {
+  ongletAuto_(P.carnet);
+  return lire_(P.carnet).filter(function (r) { return r.Id; }).map(function (r) {
+    return { id: String(r.Id), ordre: Number(r.Ordre) || 0, titre: r.Titre, resp: r.Responsable, note: r.Note };
+  }).sort(function (a, b) { return a.ordre - b.ordre; });
+}
+/** Ajoute ou modifie une entrée du carnet (organisateurs). */
+function carnetEnregistrer_(P, u, x) {
+  exigerProjet_(u, P, ['organisateur']);
+  if (!x || typeof x !== 'object') throw refus_('Entrée invalide.', 'donnees');
+  var titre = texte_(x.titre, 200);
+  if (!titre) throw refus_('Le titre est obligatoire.', 'donnees');
+  var ligne = { Titre: titre, Responsable: texte_(x.resp, 120), Note: texte_(x.note, 200) };
+  if (x.ordre !== undefined && x.ordre !== '' && isFinite(Number(x.ordre))) ligne.Ordre = String(Math.round(Number(x.ordre)));
+  ongletAuto_(P.carnet);
+  return verrou_(function () {
+    if (x.id) {
+      majLigne_(P.carnet, function (r) { return r.Id === String(x.id); }, ligne);
+      activite_(P, u.nom, 'modifie le carnet : « ' + titre + ' »');
+      return { ok: true, id: x.id };
+    }
+    var max = carnetListe_(P).reduce(function (m, c) { return Math.max(m, c.ordre); }, 0);
+    if (!ligne.Ordre) ligne.Ordre = String(max + 10);
+    ligne.Id = 'c' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+    ajouter_(P.carnet, ligne);
+    activite_(P, u.nom, 'ajoute au carnet « ' + titre + ' »');
+    return { ok: true, id: ligne.Id };
+  });
+}
+/** Retire une entrée du carnet ; refusé tant qu'un document y est déposé. */
+function carnetSupprimer_(P, u, id) {
+  exigerProjet_(u, P, ['organisateur']);
+  var c = carnetListe_(P).filter(function (x) { return x.id === String(id); })[0];
+  if (!c) throw refus_('Entrée introuvable.', 'introuvable');
+  if (docsListe_(P).some(function (d) { return d.creneau === c.id; })) throw refus_('Retirez d\'abord le document déposé pour « ' + c.titre + ' ».', 'donnees');
+  return verrou_(function () {
+    supprimerLignes_(P.carnet, function (r) { return r.Id === c.id; });
+    activite_(P, u.nom, 'retire du carnet « ' + c.titre + ' »');
+    return { ok: true };
+  });
 }
 function docsListe_(P) {
   ongletDocs_(P);
@@ -664,16 +711,15 @@ function dossierDocs_() {
 }
 function peutDeposer_(P, u, creneau) {
   if (u[P.droit] === 'organisateur') return true;
-  if (creneau === 'general') return false;
-  var c = toutProgramme_(P).filter(function (x) { return x.id === creneau; })[0];
-  return intervientSur_(u, c);
+  var c = carnetListe_(P).filter(function (x) { return x.id === creneau; })[0];
+  return !!c && intervientSur_(u, { qui: c.resp });
 }
 /** Dépose (ou remplace, avec req.remplace) le document d'un créneau. Le fichier remplacé part à la corbeille de Drive (30 jours). */
 function docDeposer_(P, u, req) {
   exigerProjet_(u, P, ROLES_INV);
   var creneau = String(req.creneau || '');
-  if (creneau !== 'general' && !toutProgramme_(P).some(function (x) { return x.id === creneau; })) throw refus_('Créneau introuvable.', 'introuvable');
-  if (!peutDeposer_(P, u, creneau)) throw refus_("Vous ne pouvez déposer un document que pour vos propres interventions.", 'droits');
+  if (!carnetListe_(P).some(function (x) { return x.id === creneau; })) throw refus_('Document du carnet introuvable.', 'introuvable');
+  if (!peutDeposer_(P, u, creneau)) throw refus_("Vous ne pouvez déposer que les documents dont vous êtes responsable.", 'droits');
   var nom = texte_(req.nom, 150).replace(/[\\\/:*?"<>|]/g, '_');
   var ext = (nom.match(/\.([A-Za-z0-9]+)$/) || [])[1];
   var type = ext && DOC_TYPES[ext.toLowerCase()];
@@ -692,7 +738,7 @@ function docDeposer_(P, u, req) {
     var f = dossierDocs_().createFile(Utilities.newBlob(octets, type, nom));
     f.setDescription('carnet:' + creneau + ' auteur:' + norm_(u.email));
     var ligne = { Creneau: creneau, Fichier: f.getId(), Nom: nom, Taille: String(octets.length), Par: u.nom, Email: norm_(u.email), Le: String(Date.now()) };
-    var titre = creneau === 'general' ? 'documents généraux' : (toutProgramme_(P).filter(function (x) { return x.id === creneau; })[0] || {}).titre;
+    var titre = (carnetListe_(P).filter(function (x) { return x.id === creneau; })[0] || {}).titre;
     if (ancien) {
       try { DriveApp.getFileById(ancien.Fichier).setTrashed(true); } catch (e) { /* déjà supprimé */ }
       majLigne_(P.documents, function (r) { return r.Id === ancien.Id; }, ligne);
@@ -736,23 +782,21 @@ function docSupprimer_(P, u, id) {
     return { ok: true };
   });
 }
-/** Tous les documents dans un ZIP, numérotés dans l'ordre du programme (documents généraux en premier). */
+/** Tous les documents dans un ZIP, numérotés dans l'ordre du carnet. */
 function docTout_(P, u) {
   exigerProjet_(u, P, ROLES_INV);
-  var prog = toutProgramme_(P).filter(function (c) { return c.jour !== 'notes'; })
-    .sort(function (a, b) { return (a.jour + (a.debut || '99')).localeCompare(b.jour + (b.debut || '99')); });
-  var rang = { general: -1 }; prog.forEach(function (c, i) { rang[c.id] = i; });
+  var carnet = carnetListe_(P), rang = {};
+  carnet.forEach(function (c, i) { rang[c.id] = i; });
   var docs = docsListe_(P).filter(function (d) { return d.creneau in rang; })
     .sort(function (a, b) { return (rang[a.creneau] - rang[b.creneau]) || (a.le - b.le); });
   if (!docs.length) throw refus_('Aucun document déposé pour le moment.', 'introuvable');
-  var total = 0, pris = {}, JOURS = { '2027-01-09': 'Sam', '2027-01-10': 'Dim' };
+  var total = 0, pris = {};
   var blobs = docs.map(function (d, i) {
     var r = docLigne_(P, d.id), f = docFichier_(r);
     total += f.getSize();
     if (total > DOC_ZIP_MAX) throw refus_('Les documents dépassent 35 Mo au total : téléchargez-les un par un.', 'donnees');
-    var c = prog[rang[d.creneau]];
-    var lib = c ? (JOURS[c.jour] || c.jour) + ' ' + (c.debut || '').replace(':', 'h') + ' - ' + c.titre : 'Documents généraux';
-    var nom = (i < 9 ? '0' : '') + (i + 1) + ' - ' + lib.replace(/[\\\/:*?"<>|«»]/g, '').replace(/\s+/g, ' ').trim().slice(0, 70) + ' - ' + r.Nom;
+    var lib = carnet[rang[d.creneau]].titre;
+    var nom = (i < 9 ? '0' : '') + (i + 1) + ' - ' + String(lib).replace(/[\\\/:*?"<>|«»]/g, '').replace(/\s+/g, ' ').trim().slice(0, 70) + ' - ' + r.Nom;
     while (pris[nom]) nom = '_' + nom;
     pris[nom] = 1;
     return f.getBlob().setName(nom);
