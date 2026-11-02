@@ -1,0 +1,128 @@
+# Publication automatique du serveur de l'espace membres (Google Apps Script).
+#
+# À chaque modification de espace/serveur/ sur main :
+#   1. les trois séries de tests du simulateur tournent ; si une seule échoue, rien n'est publié ;
+#   2. le code est envoyé dans le projet Apps Script (clasp push) ;
+#   3. une nouvelle version est créée et le déploiement existant passe dessus (même adresse /exec) ;
+#   4. on vérifie que le serveur répond.
+#
+# Retour en arrière : onglet Actions › « Serveur Apps Script » › Run workflow,
+# en indiquant le numéro d'une ancienne version (aucun code n'est alors envoyé).
+#
+# Secret nécessaire (Settings › Secrets and variables › Actions) : CLASPRC_JSON,
+# contenu du fichier .clasprc.json de clasp, compte jb.niedercorn@oessh.lu.
+# Pour tout couper : retirer l'accès « clasp » dans myaccount.google.com › Sécurité › Applications tierces.
+
+name: Serveur Apps Script
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'espace/serveur/**'
+      - 'espace/dev/gas-fake.js'
+      - 'espace/dev/test-serveur.js'
+      - 'espace/dev/test-inscription.js'
+      - 'espace/dev/test-mail.js'
+      - '.github/workflows/serveur-apps-script.yml'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Numéro d'une ancienne version à remettre en ligne (vide = publier le code de main)"
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: serveur-apps-script
+  cancel-in-progress: false
+
+env:
+  SCRIPT_ID: 1heqyOpcHCm8Hlqy6QK2-W04_CYr_K3L-oJYPC1p6fkwwmGA0TNZzuxZV
+  DEPLOYMENT_ID: AKfycbyfT8FxQaotD4sz8TW3-TVxrmnNEHw-PxvRqFL-dTLTDvKNb9JR5zfA7LsmdX_g3wsL
+  CLASP_VERSION: 3.4.1
+
+jobs:
+  tests:
+    name: Tests du simulateur
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - name: Tests serveur
+        run: node espace/dev/test-serveur.js
+      - name: Tests inscriptions
+        run: node espace/dev/test-inscription.js
+      - name: Tests courrier e-mail
+        run: node espace/dev/test-mail.js
+      - name: Version du serveur identique à celle attendue par la page Courrier e-mail
+        run: |
+          v1=$(grep -oP "VERSION: '\K[^']+" espace/serveur/Code.gs)
+          v2=$(grep -oP 'var VERSION_SERVEUR = "\K[^"]+' espace/courrier-email/page-courrier-email.js)
+          echo "Code.gs : $v1 — page Courrier e-mail : $v2"
+          test -n "$v1" && test "$v1" = "$v2"
+
+  publier:
+    name: Publication dans Apps Script
+    needs: tests
+    if: github.repository == 'NN70007/oessh_site'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - name: Installer clasp
+        run: npm install --global "@google/clasp@${CLASP_VERSION}"
+      - name: Identifiants (jamais affichés)
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          test -n "$CLASPRC_JSON" || { echo "Secret CLASPRC_JSON absent"; exit 1; }
+          umask 077
+          printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
+      - name: Préparer le dossier envoyé
+        run: |
+          mkdir -p build
+          cp espace/serveur/Code.gs espace/serveur/appsscript.json build/
+          printf '{"scriptId":"%s","rootDir":"."}' "$SCRIPT_ID" > build/.clasp.json
+          ls -la build
+      - name: Envoyer le code et créer une version
+        if: inputs.version == ''
+        working-directory: build
+        run: |
+          clasp push --force
+          desc="GitHub ${GITHUB_SHA::7} $(grep -oP "VERSION: '\K[^']+" Code.gs)"
+          out=$(clasp --json create-version "$desc")
+          echo "$out"
+          num=$(printf '%s' "$out" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const m=s.match(/\{[\s\S]*\}/);process.stdout.write(String(JSON.parse(m[0]).versionNumber||""))})')
+          echo "$num" | grep -qE '^[0-9]+$'
+          echo "NUM=$num" >> "$GITHUB_ENV"
+          echo "DESC=$desc" >> "$GITHUB_ENV"
+      - name: Version demandée (retour en arrière)
+        if: inputs.version != ''
+        env:
+          VERSION_DEMANDEE: ${{ inputs.version }}
+        run: |
+          echo "$VERSION_DEMANDEE" | grep -qE '^[0-9]+$' || { echo "Numéro de version invalide"; exit 1; }
+          echo "NUM=$VERSION_DEMANDEE" >> "$GITHUB_ENV"
+          echo "DESC=Retour à la version $VERSION_DEMANDEE (GitHub ${GITHUB_SHA::7})" >> "$GITHUB_ENV"
+      - name: Mettre le déploiement sur cette version (même adresse)
+        working-directory: build
+        run: |
+          clasp update-deployment "$DEPLOYMENT_ID" -V "$NUM" -d "$DESC"
+          clasp list-deployments | tee deps.txt
+          grep -F "$DEPLOYMENT_ID" deps.txt | grep -qE "@$NUM( |$)"
+      - name: Le serveur répond
+        run: |
+          sleep 5
+          r=$(curl -sSL --max-time 60 "https://script.google.com/macros/s/${DEPLOYMENT_ID}/exec")
+          echo "$r"
+          echo "$r" | grep -q '"ok":true'
+      - name: Effacer les identifiants
+        if: always()
+        run: rm -f "$HOME/.clasprc.json"

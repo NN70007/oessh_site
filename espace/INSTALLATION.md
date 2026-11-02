@@ -112,7 +112,10 @@ Après le week-end (RGPD) : exécuter `effacerContactsRetraite`.
 
 ## Entretien
 
-- **Modifier le script** (nouvelle version de `Code.gs`) : coller le nouveau code, enregistrer, puis **Déployer → Gérer les déploiements → ✏️ → Version : Nouvelle version → Déployer**. L'URL ne change pas.
+- **Modifier le script** : automatique depuis novembre 2026. Toute modification de `espace/serveur/` sur `main` lance la procédure GitHub « Serveur Apps Script » (`.github/workflows/serveur-apps-script.yml`) : tests du simulateur, puis envoi du code (`Code.gs` et `appsscript.json`) dans Apps Script, nouvelle version, et passage du déploiement existant sur cette version (l'URL ne change pas). Si un test échoue, rien n'est publié. Ne plus modifier le code directement dans l'éditeur Apps Script : il serait écrasé à la publication suivante.
+  - **Revenir en arrière** : GitHub → Actions → « Serveur Apps Script » → Run workflow, en indiquant le numéro d'une ancienne version (voir Apps Script → Gérer les déploiements). Ou annuler le commit fautif : la version précédente repart seule.
+  - **Clé utilisée** : secret GitHub `CLASPRC_JSON` (clasp, compte jb.niedercorn@oessh.lu). Pour tout couper : myaccount.google.com → Sécurité → Applications tierces → retirer « clasp ». Pour la recréer : refaire l'autorisation clasp et remplacer le secret.
+  - **Méthode manuelle de secours** : coller le nouveau code, enregistrer, puis **Déployer → Gérer les déploiements → ✏️ → Version : Nouvelle version → Déployer**.
 - **Déconnecter quelqu'un partout** (appareil perdu, doute) : page Accès → Modifier → « Déconnecter partout ». Ses droits ne changent pas ; il devra simplement se reconnecter.
 - **En-têtes de sécurité** : le fichier `espace/.htaccess` limite ce que les pages de l'espace peuvent charger. En cas de problème d'affichage ou de connexion, supprimer ce fichier suffit à revenir à l'état précédent.
 - **Sauvegarde quotidienne** : ⏰ Déclencheurs → Ajouter → fonction `sauvegarderEspace`, déclencheur temporel, tous les jours entre 2 h et 3 h. Copie Excel de la feuille privée dans le dossier Drive « Sauvegardes espace membres » (30 jours conservés) ; courriel au propriétaire du script en cas d'échec. Les clés ne sont jamais sauvegardées.
