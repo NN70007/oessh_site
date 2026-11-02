@@ -115,6 +115,7 @@ Après le week-end (RGPD) : exécuter `effacerContactsRetraite`.
 - **Modifier le script** (nouvelle version de `Code.gs`) : coller le nouveau code, enregistrer, puis **Déployer → Gérer les déploiements → ✏️ → Version : Nouvelle version → Déployer**. L'URL ne change pas.
 - **Déconnecter quelqu'un partout** (appareil perdu, doute) : page Accès → Modifier → « Déconnecter partout ». Ses droits ne changent pas ; il devra simplement se reconnecter.
 - **En-têtes de sécurité** : le fichier `espace/.htaccess` limite ce que les pages de l'espace peuvent charger. En cas de problème d'affichage ou de connexion, supprimer ce fichier suffit à revenir à l'état précédent.
+- **Sauvegarde quotidienne** : ⏰ Déclencheurs → Ajouter → fonction `sauvegarderEspace`, déclencheur temporel, tous les jours entre 2 h et 3 h. Copie Excel de la feuille privée dans le dossier Drive « Sauvegardes espace membres » (30 jours conservés) ; courriel au propriétaire du script en cas d'échec. Les clés ne sont jamais sauvegardées.
 - **Nettoyage des sessions** : automatique à chaque connexion ; un déclencheur nocturne reste possible (facultatif) : ⏰ Déclencheurs → Ajouter → fonction `nettoyerSessions`, chaque nuit.
 - **Après l'investiture (RGPD)** : exécuter `effacerContactsIntervenants` pour effacer les téléphones et e-mails des intervenants.
 - **Retirer un accès** : page Accès (ou décocher « Actif » dans l'onglet `Acces`). Effet immédiat, même pour une personne déjà connectée.

@@ -29,6 +29,8 @@ function charger(opts) {
     return {
       getId: () => id, getName: () => nom, getUrl: () => 'https://drive.google.com/drive/folders/' + id,
       getFiles: () => { const l = Object.values(drive.fichiers).filter((f) => f.getParents().next().getId() === id && !f.isTrashed()); let i = 0; return { hasNext: () => i < l.length, next: () => l[i++] }; },
+      getFilesByName: (n) => { const l = Object.values(drive.fichiers).filter((f) => f.getParents().next().getId() === id && !f.isTrashed() && f.getName() === n); let i = 0; return { hasNext: () => i < l.length, next: () => l[i++] }; },
+      isTrashed: () => false,
       createFile: (bl) => {
         const fid = 'f' + (++drive.n); let desc = '', corbeille = false; const cree = new Date(drive.maintenant || Date.now());
         const f = { getId: () => fid, getName: () => bl.getName(), getSize: () => bl.taille, getBlob: () => bl,
@@ -125,9 +127,15 @@ function charger(opts) {
       sendEmail: (m) => { mails.push(m); },
       getRemainingDailyQuota: () => 100
     },
+    ScriptApp: { getOAuthToken: () => 'jeton-oauth' },
+    Session: { getEffectiveUser: () => ({ getEmail: () => 'jb.niedercorn@oessh.lu' }) },
     UrlFetchApp: {
       fetch: (url, o) => {
         o = o || {};
+        if (url.startsWith('https://docs.google.com/spreadsheets/')) {
+          const ok = ((o.headers || {}).Authorization || '').startsWith('Bearer ');
+          return { getResponseCode: () => (ok ? 200 : 401), getBlob: () => blob(Buffer.from('PK-xlsx'), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'export.xlsx') };
+        }
         if (url.startsWith('https://api.github.com/')) {
           const chemin = decodeURIComponent(url.split('/contents/')[1] || '');
           const methode = (o.method || 'get').toUpperCase();

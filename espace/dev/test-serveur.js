@@ -236,6 +236,24 @@ console.log('Week-end de retraite');
   ok(s3.post({ action: 'ret.carnetSupprimer', token: tA, id: cJ }).ok && s3.post({ action: 'ret.charger', token: tA }).carnet.length === 2, 'l\'organisateur retire une entrée vide du carnet');
 }
 
+console.log('Sauvegarde quotidienne');
+{
+  const sv = charger({});
+  sv.run('installer');
+  let m = sv.run('sauvegarderEspace');
+  const fichiers = () => Object.values(sv.drive.fichiers).filter(f => !f.isTrashed() && /^Espace membres OESSH - /.test(f.getName()));
+  ok(/enregistrée/.test(m) && fichiers().length === 1 && sv.props.SAUV_DOSSIER_ID && sv.props.SAUV_DERNIERE, 'copie Excel du jour créée dans le dossier des sauvegardes');
+  sv.run('sauvegarderEspace');
+  ok(fichiers().length === 1, 'une seule copie par jour (la précédente du jour est remplacée)');
+  sv.drive.maintenant = Date.now() - 40 * 86400000;
+  const vieux = sv.drive.dossiers[sv.props.SAUV_DOSSIER_ID].createFile(sv.ctx.Utilities.newBlob([1], 'x', 'Espace membres OESSH - 2020-01-01.xlsx'));
+  const autre = sv.drive.dossiers[sv.props.SAUV_DOSSIER_ID].createFile(sv.ctx.Utilities.newBlob([1], 'x', 'Note personnelle.txt'));
+  delete sv.drive.maintenant;
+  m = sv.run('sauvegarderEspace');
+  ok(vieux.isTrashed() && !autre.isTrashed() && /1 ancienne/.test(m), 'copies de plus de 30 jours retirées, autres fichiers du dossier intacts');
+  ok(!Object.values(sv.drive.fichiers).some(f => /GITHUB|CLAUDE/.test(f.getBlob().getDataAsString())), 'aucune clé dans la sauvegarde');
+}
+
 console.log('Script autonome (hors feuille)');
 const auto = charger({ autonome: true });
 ok(/Installation terminée/.test(auto.run('installer')) && auto.props.SHEET_ID === 'fake', 'installer crée et mémorise la feuille si le script n\'est pas rattaché');

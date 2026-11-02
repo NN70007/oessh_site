@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-11-02f',
+  VERSION: '2026-11-02g',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -1628,6 +1628,45 @@ function piecesJointes_(u, ids) {
   });
   if (total > CONFIG.PJ_MAX) throw refus_('Pièces jointes trop lourdes : 10 Mo au total au maximum.', 'donnees');
   return out;
+}
+
+/* ======================= Sauvegarde quotidienne ======================= */
+/* Déclencheur quotidien (Déclencheurs > Ajouter > sauvegarderEspace > tous les jours, 2 h - 3 h) :
+   copie de la feuille privée au format Excel dans le dossier Drive « Sauvegardes espace membres »,
+   30 jours conservés. Les clés (propriétés du script) ne sont jamais sauvegardées. En cas d'échec, un courriel
+   prévient le propriétaire du script. */
+var SAUV_JOURS = 30;
+function dossierSauvegardes_() {
+  var id = prop_('SAUV_DOSSIER_ID');
+  if (id) { try { var d0 = DriveApp.getFolderById(id); if (!d0.isTrashed()) return d0; } catch (e) { /* dossier supprimé : on le recrée */ } }
+  var d = DriveApp.createFolder('Sauvegardes espace membres');
+  PropertiesService.getScriptProperties().setProperty('SAUV_DOSSIER_ID', d.getId());
+  return d;
+}
+function sauvegarderEspace() {
+  try {
+    var ss = classeur_(false), dossier = dossierSauvegardes_();
+    var jour = Utilities.formatDate(new Date(), 'Europe/Luxembourg', 'yyyy-MM-dd');
+    var res = UrlFetchApp.fetch('https://docs.google.com/spreadsheets/d/' + ss.getId() + '/export?format=xlsx',
+      { headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) throw new Error('export refusé (code ' + res.getResponseCode() + ')');
+    var nom = 'Espace membres OESSH - ' + jour + '.xlsx';
+    // Une seule copie par jour : la précédente du même jour est remplacée
+    var memes = dossier.getFilesByName(nom);
+    while (memes.hasNext()) memes.next().setTrashed(true);
+    var blob = res.getBlob().setName(nom);
+    if (!blob.getBytes().length) throw new Error('fichier exporté vide');
+    dossier.createFile(blob);
+    // Rotation : copies de plus de SAUV_JOURS jours à la corbeille (récupérables 30 jours de plus)
+    var limite = Date.now() - SAUV_JOURS * 86400000, it = dossier.getFiles(), retirees = 0;
+    while (it.hasNext()) { var f = it.next(); if (/^Espace membres OESSH - \d{4}-\d{2}-\d{2}\.xlsx$/.test(f.getName()) && f.getDateCreated().getTime() < limite) { f.setTrashed(true); retirees++; } }
+    PropertiesService.getScriptProperties().setProperty('SAUV_DERNIERE', jour);
+    return 'Sauvegarde ' + nom + ' enregistrée (' + retirees + ' ancienne(s) retirée(s)) : ' + dossier.getUrl();
+  } catch (e) {
+    var dest = Session.getEffectiveUser().getEmail();
+    try { GmailApp.sendEmail(dest, 'Espace membres OESSH : échec de la sauvegarde', 'La sauvegarde quotidienne de la feuille privée a échoué : ' + (e && e.message || e) + '\n\nDernière sauvegarde réussie : ' + (prop_('SAUV_DERNIERE') || 'aucune') + '.'); } catch (x) { /* rien d'autre à faire */ }
+    throw e;
+  }
 }
 
 /* ======================= Feuille : utilitaires ======================= */
