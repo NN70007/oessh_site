@@ -201,6 +201,36 @@ console.log('Week-end de retraite');
   ok(s3.post({ action: 'ret.creneau', token: tA, creneau: { jour: 'n-importe', titre: 'Remarque' } }).ok && s3.post({ action: 'ret.charger', token: tA }).programme.some(c => c.jour === 'notes'), 'jour inconnu : enregistré comme remarque');
   ok(s3.post({ action: 'ret.creneauSupprimer', token: tA, id: idC }).ok && !s3.post({ action: 'ret.charger', token: tA }).programme.some(c => c.id === idC), 'suppression d\'un créneau');
   ok(s3.sheets.RetActivite.data.length > 3 && s3.sheets.Activite.data.length === 1, 'activité de la retraite séparée de celle de l\'investiture');
+
+  console.log('Carnet des candidats (documents)');
+  ok(add3({ email: 'jk@x.lu', nom: 'Jacques Klein', inv: '', ret: 'contributeur', site: {} }).ok && add3({ email: 'lu@x.lu', nom: 'Lucie Lecture', inv: '', ret: 'lecture', site: {} }).ok, 'ajout d\'un intervenant et d\'une lectrice');
+  const tJ = lg('jk@x.lu'), tL = lg('lu@x.lu');
+  const cJ = s3.post({ action: 'ret.creneau', token: tA, creneau: { jour: '2027-01-09', debut: '11:15', titre: 'PLJ et pèlerinage', qui: 'Son Excellence Jacques KLEIN, Lieutenant', statut: 'confirme' } }).id;
+  const cB = s3.post({ action: 'ret.creneau', token: tA, creneau: { jour: '2027-01-10', debut: '14:00', titre: 'Ouvrage du Cardinal', qui: 'Chanoine Claude Bache', statut: 'confirme' } }).id;
+  s3.sheets.RetDocuments && delete s3.sheets.RetDocuments;   // onglet absent sur la feuille réelle : créé au premier usage
+  const b64 = (t) => Buffer.from(t).toString('base64');
+  x = s3.post({ action: 'ret.charger', token: tJ });
+  ok(x.ok && Array.isArray(x.documents) && x.mesCreneaux.join() === cJ, 'l\'intervenant voit qu\'il peut déposer sur son seul créneau (nom retrouvé dans un titre plus long)');
+  ok(s3.post({ action: 'ret.charger', token: tA }).mesCreneaux.join() === '*', 'un organisateur peut déposer partout');
+  x = s3.post({ action: 'ret.docDeposer', token: tJ, creneau: cJ, nom: 'PLJ.pdf', contenu: b64('version 1') });
+  ok(x.ok, 'l\'intervenant dépose le document de sa conférence');
+  const idDoc = x.id;
+  ok(s3.post({ action: 'ret.docDeposer', token: tJ, creneau: cB, nom: 'x.pdf', contenu: b64('x') }).code === 'droits', 'pas de dépôt sur la conférence d\'un autre');
+  ok(s3.post({ action: 'ret.docDeposer', token: tJ, creneau: 'general', nom: 'x.pdf', contenu: b64('x') }).code === 'droits', 'documents généraux réservés aux organisateurs');
+  ok(s3.post({ action: 'ret.docDeposer', token: tL, creneau: cJ, nom: 'x.pdf', contenu: b64('x') }).code === 'droits', 'une lectrice ne dépose rien');
+  ok(s3.post({ action: 'ret.docDeposer', token: tJ, creneau: cJ, nom: 'virus.exe', contenu: b64('x') }).code === 'donnees', 'type de fichier refusé');
+  ok(s3.post({ action: 'ret.docDeposer', token: tA, creneau: 'general', nom: 'Programme.docx', contenu: b64('prog') }).ok, 'l\'organisateur dépose un document général');
+  ok(s3.post({ action: 'ret.docDeposer', token: tA, creneau: cB, nom: 'Filoni.pptx', contenu: b64('fil') }).ok, 'l\'organisateur dépose pour un intervenant sans accès');
+  x = s3.post({ action: 'ret.docTelecharger', token: tL, id: idDoc });
+  ok(x.ok && Buffer.from(x.contenu, 'base64').toString() === 'version 1' && x.nom === 'PLJ.pdf', 'tout le monde (même en lecture) télécharge un document');
+  ok(s3.post({ action: 'ret.docDeposer', token: tJ, creneau: cJ, nom: 'PLJ v2.pdf', contenu: b64('version 2'), remplace: idDoc }).ok, 'remplacement par une nouvelle version');
+  x = s3.post({ action: 'ret.charger', token: tL }).documents;
+  ok(x.length === 3 && x.find(d => d.id === idDoc).nom === 'PLJ v2.pdf' && Buffer.from(s3.post({ action: 'ret.docTelecharger', token: tL, id: idDoc }).contenu, 'base64').toString() === 'version 2', 'seule la dernière version reste en ligne');
+  x = s3.post({ action: 'ret.docTout', token: tL });
+  const noms = JSON.parse(Buffer.from(x.contenu, 'base64').toString());
+  ok(x.ok && x.nb === 3 && /^01 - Documents généraux - Programme\.docx$/.test(noms[0]) && /^02 - Sam 11h15 - PLJ et pèlerinage - PLJ v2\.pdf$/.test(noms[1]) && /^03 - Dim 14h00/.test(noms[2]), 'ZIP de tous les documents, rangés dans l\'ordre du programme');
+  ok(s3.post({ action: 'ret.docSupprimer', token: tL, id: idDoc }).code === 'droits', 'une lectrice ne retire pas un document');
+  ok(s3.post({ action: 'ret.docSupprimer', token: tJ, id: idDoc }).ok && s3.post({ action: 'ret.charger', token: tA }).documents.length === 2, 'l\'intervenant retire son document');
 }
 
 console.log('Script autonome (hors feuille)');

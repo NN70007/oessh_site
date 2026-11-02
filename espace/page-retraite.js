@@ -17,7 +17,7 @@ var EVENT_DAY="2027-01-09";
 var REFRESH_MS=30000;
 
 var user=S.user, me=user.nom;
-var tasks=[], activity=[], jalons=[], personnes=[], programme=[], organisation=[], inscriptions=null, inscriptionsAutres=[], loaded=false, loadErr="";
+var tasks=[], activity=[], jalons=[], personnes=[], programme=[], organisation=[], inscriptions=null, inscriptionsAutres=[], documents=[], mesCreneaux=[], loaded=false, loadErr="";
 var view="ensemble", poleFocus=null, poleFilter="tous", progFilter="tout", editing=null, busy={};
 try{ var v=localStorage.getItem("ret27_view"); if(v) view=v; }catch(e){}
 
@@ -287,6 +287,7 @@ function slotHTML(c){
     '<div class="t"><div class="title">'+esc(c.titre)+'</div>'+
       (c.qui?'<div class="by">'+esc(c.qui)+'</div>':"")+
       (c.note?'<div class="note">'+esc(c.note)+'</div>':"")+
+      (docsDe(c.id).length?'<button type="button" class="slot-doc" data-act="tab" data-tab="carnet">'+docsDe(c.id).length+' document'+(docsDe(c.id).length>1?'s':'')+' au carnet</button>':"")+
     '</div>'+pill+edit+'</div>';
 }
 function vProgramme(){
@@ -333,8 +334,70 @@ function vQui(){
   return h+'</div></section>';
 }
 
+
+/* ---------- Carnet des candidats : dépôt et téléchargement des documents ---------- */
+var JOUR_COURT={"2027-01-09":"Sam.","2027-01-10":"Dim."};
+function docsDe(cid){return documents.filter(function(d){return d.creneau===cid;}).sort(function(a,b){return a.le-b.le;});}
+function peutDeposer(cid){return mesCreneaux.indexOf("*")>-1||(cid!=="general"&&mesCreneaux.indexOf(cid)>-1);}
+function taille(n){return n>=1048576?(n/1048576).toFixed(1).replace(".",",")+" Mo":Math.max(1,Math.round(n/1024))+" Ko";}
+function docRow(d){
+  var dep=peutDeposer(d.creneau);
+  return '<li class="doc"><span class="doc-nom">'+esc(d.nom)+'</span><span class="doc-meta">'+taille(d.taille)+' · déposé par '+esc(d.par||"?")+(d.le?' · '+whenStr(d.le):"")+'</span>'+
+    '<span class="doc-act"><button type="button" class="btn btn-ghost btn-sm" data-act="doc-get" data-id="'+esc(d.id)+'"'+(busy["get"+d.id]?" disabled":"")+'>Télécharger</button>'+
+    (dep?'<button type="button" class="btn btn-ghost btn-sm" data-act="doc-up" data-cid="'+esc(d.creneau)+'" data-rep="'+esc(d.id)+'">Remplacer</button><button type="button" class="btn btn-ghost btn-sm" data-act="doc-del" data-id="'+esc(d.id)+'">Retirer</button>':"")+'</span></li>';
+}
+function carnetBloc(cid,hr,titre,qui){
+  var ds=docsDe(cid), dep=peutDeposer(cid);
+  return '<div class="carnet-item'+(dep?" mine":"")+'"><div class="hr">'+hr+'</div><div class="t"><div class="title">'+esc(titre)+'</div>'+(qui?'<div class="by">'+esc(qui)+'</div>':"")+
+    (ds.length?'<ul class="docs">'+ds.map(docRow).join("")+'</ul>':'<div class="doc-vide">'+(dep?"Aucun document : déposez le vôtre.":"Aucun document déposé.")+'</div>')+
+    (dep?'<button type="button" class="btn '+(ds.length?"btn-ghost":"btn-primary")+' btn-sm" data-act="doc-up" data-cid="'+esc(cid)+'"'+(busy["up"+cid]?" disabled":"")+'>'+(busy["up"+cid]?"Envoi en cours…":(ds.length?"+ Ajouter un document":"Déposer un document"))+'</button>':"")+'</div></div>';
+}
+function vCarnet(){
+  var h='<section class="block"><div class="container">'+head("— Carnet des candidats","Documents","Le carnet remis aux candidats.","Chaque intervenant dépose ici le document de sa conférence (PDF, Word, PowerPoint, 10 Mo au plus) ; un nouveau dépôt remplace l\'ancienne version. Tout le monde peut télécharger les documents, un par un ou tous ensemble, rangés dans l\'ordre du programme.");
+  if(!loaded) return h+stateNotice()+'</div></section>';
+  var slots=programme.filter(function(c){return c.jour!=="notes"&&(c.qui||docsDe(c.id).length);})
+    .sort(function(a,b){return (a.jour+(a.debut||"99")).localeCompare(b.jour+(b.debut||"99"));});
+  var mine=slots.filter(function(c){return peutDeposer(c.id)&&mesCreneaux.indexOf("*")<0;});
+  h+='<div class="prog-bar"><span class="eyebrow">'+documents.length+' document'+(documents.length>1?"s":"")+' déposé'+(documents.length>1?"s":"")+'</span>'+
+    (documents.length?'<button type="button" class="btn btn-primary btn-sm" data-act="doc-zip"'+(busy.zip?" disabled":"")+'>'+(busy.zip?"Préparation du ZIP…":"Tout télécharger (.zip)")+'</button>':"")+'</div>';
+  if(mine.length) h+='<div class="notice" style="margin-bottom:28px"><h4>Vos interventions</h4><p>Vous pouvez déposer un document pour : '+mine.map(function(c){return esc(c.titre);}).join(" ; ")+'.</p></div>';
+  h+='<div class="carnet">';
+  if(mesCreneaux.indexOf("*")>-1||docsDe("general").length) h+=carnetBloc("general","—","Documents généraux","Programme définitif, statuts, textes communs");
+  h+=slots.map(function(c){return carnetBloc(c.id,'<b>'+esc(JOUR_COURT[c.jour]||"")+'</b> '+esc(hhmm(c.debut)||""),c.titre,c.qui);}).join("");
+  return h+'</div></div></section>';
+}
+var docInput=document.createElement("input"); docInput.type="file"; docInput.hidden=true;
+docInput.accept=".pdf,.doc,.docx,.odt,.ppt,.pptx,.txt,.jpg,.jpeg,.png";
+document.body.appendChild(docInput);
+var docCible=null;
+docInput.addEventListener("change",function(){
+  var f=docInput.files&&docInput.files[0], c=docCible; docInput.value=""; if(!f||!c) return;
+  if(f.size>10*1024*1024){ toast("Fichier trop lourd : 10 Mo au maximum."); return; }
+  var r=new FileReader();
+  r.onload=async function(){
+    busy["up"+c.cid]=1; render();
+    try{ await E.api("ret.docDeposer",{creneau:c.cid,nom:f.name,contenu:String(r.result).split(",")[1]||"",remplace:c.rep||""}); toast(c.rep?"Nouvelle version enregistrée":"Document déposé"); }
+    catch(e){ toast(e.message); }
+    delete busy["up"+c.cid]; await load(true);
+  };
+  r.onerror=function(){ toast("Lecture du fichier impossible."); };
+  r.readAsDataURL(f);
+});
+function enregistrer(o){
+  var bin=atob(o.contenu), a=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i);
+  var url=URL.createObjectURL(new Blob([a],{type:o.type||"application/octet-stream"})), l=document.createElement("a");
+  l.href=url; l.download=o.nom; document.body.appendChild(l); l.click(); l.remove(); setTimeout(function(){URL.revokeObjectURL(url);},4000);
+}
+async function docGet(id,cle,action){
+  busy[cle]=1; render();
+  try{ enregistrer(await E.api(action,action==="ret.docTout"?{}:{id:id})); }
+  catch(e){ toast(e.message); }
+  delete busy[cle]; render();
+}
+var docDelArmed=null;
+
 /* ---------- Rendu ---------- */
-var TABS=[["ensemble","Vue d'ensemble"],["programme","Programme"],["mes","Mes tâches"],["poles","Par pôle"],["contacts","Équipes & contacts"],["qui","Qui s'en charge ?"]];
+var TABS=[["ensemble","Vue d'ensemble"],["programme","Programme"],["carnet","Carnet"],["mes","Mes tâches"],["poles","Par pôle"],["contacts","Équipes & contacts"],["qui","Qui s'en charge ?"]];
 function renderChrome(){
   var fr=tasks.filter(function(t){return isFree(t)&&t.statut!=="fait";}).length;
   var mineN=tasks.filter(function(t){return t.resp.indexOf(me)>-1&&t.statut!=="fait";}).length;
@@ -347,7 +410,7 @@ function renderChrome(){
 }
 function render(){
   var sx=window.scrollY;
-  var html={ensemble:vEnsemble,programme:vProgramme,mes:vMes,poles:vPoles,contacts:vContacts,qui:vQui}[view]||vEnsemble;
+  var html={ensemble:vEnsemble,programme:vProgramme,carnet:vCarnet,mes:vMes,poles:vPoles,contacts:vContacts,qui:vQui}[view]||vEnsemble;
   var m=$("#view"); var changed=m.dataset.view!==view;
   m.innerHTML='<div class="view">'+html()+'</div>';
   if(!changed){ m.firstChild.style.animation="none"; window.scrollTo(0,sx); }
@@ -363,7 +426,7 @@ async function load(quiet){
   if(loading) return; loading=true;
   try{
     var out=await E.api("ret.charger");
-    tasks=out.taches; activity=out.activite; jalons=out.jalons; personnes=out.personnes; programme=out.programme||[]; organisation=out.organisation||[]; inscriptions=out.inscriptions||null; inscriptionsAutres=out.inscriptionsAutres||[];
+    tasks=out.taches; activity=out.activite; jalons=out.jalons; personnes=out.personnes; programme=out.programme||[]; organisation=out.organisation||[]; inscriptions=out.inscriptions||null; inscriptionsAutres=out.inscriptionsAutres||[]; documents=out.documents||[]; mesCreneaux=out.mesCreneaux||[];
     user=out.user; me=user.nom; loaded=true; loadErr="";
     if(!user.ret){ location.replace("./"); return; }
   }catch(e){
@@ -523,6 +586,10 @@ document.addEventListener("click",function(e){
   else if(a==="filter"){ poleFilter=b.dataset.filter; render(); }
   else if(a==="take") assign(b.dataset.id,me);
   else if(a==="reload") load(false);
+  else if(a==="doc-up"){ docCible={cid:b.dataset.cid,rep:b.dataset.rep||""}; docInput.click(); }
+  else if(a==="doc-get") docGet(b.dataset.id,"get"+b.dataset.id,"ret.docTelecharger");
+  else if(a==="doc-zip") docGet(null,"zip","ret.docTout");
+  else if(a==="doc-del"){ if(docDelArmed!==b.dataset.id){ docDelArmed=b.dataset.id; b.textContent="Confirmer le retrait"; setTimeout(function(){ if(docDelArmed===b.dataset.id){ docDelArmed=null; render(); } },4000); } else { docDelArmed=null; call("ret.docSupprimer",{id:b.dataset.id},"Document retiré"); } }
   else if(a==="copy"){
     var v=b.dataset.v;
     try{ navigator.clipboard.writeText(v).then(function(){toast("Numéro copié : "+v);},function(){toast("Sélectionnez le numéro pour le copier.");}); }

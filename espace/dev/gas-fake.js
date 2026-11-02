@@ -22,7 +22,8 @@ function charger(opts) {
   const drive = { dossiers: {}, fichiers: {}, n: 0 };
   function blob(bytes, type, name) {
     const b = Buffer.from(bytes || []);
-    return { getBytes: () => Array.from(b), getContentType: () => type, getName: () => name, getDataAsString: () => b.toString('utf8'), taille: b.length };
+    const o = { getBytes: () => Array.from(b), getContentType: () => type, getName: () => name, getDataAsString: () => b.toString('utf8'), taille: b.length, setName: (n) => { name = n; return o; } };
+    return o;
   }
   function dossier(id, nom) {
     return {
@@ -160,6 +161,8 @@ function charger(opts) {
       Charset: { UTF_8: 'utf8' },
       newBlob: (bytes, type, name) => blob(bytes, type, name),
       base64Decode: (b64) => Array.from(Buffer.from(b64, 'base64')),
+      base64Encode: (bytes) => Buffer.from((bytes || []).map((x) => (x < 0 ? x + 256 : x))).toString('base64'),
+      zip: (blobs, name) => blob(Buffer.from(JSON.stringify(blobs.map((x) => x.getName()))), 'application/zip', name),
       computeDigest: (alg, s) => Array.from(crypto.createHash('sha256').update(String(s), 'utf8').digest()).map(b => (b > 127 ? b - 256 : b)),
       getUuid: () => crypto.randomUUID(),
       formatDate: (d) => d.toISOString().slice(0, 10)
