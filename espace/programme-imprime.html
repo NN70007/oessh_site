@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Programme du week-end des candidats</title>
+<link rel="icon" type="image/svg+xml" href="../assets/croix-jerusalem-cardinal-liseree.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1a1a1a;--soft:#555;--mute:#888;--line:#d9d4ca;--cardinal:#b10103}
+  *{box-sizing:border-box}
+  html,body{background:#fff;color:var(--ink);margin:0}
+  body{font-family:Inter,system-ui,sans-serif;font-size:13px;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .barre{position:sticky;top:0;background:#f7f4ee;border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .barre button{font:inherit;font-weight:500;background:var(--cardinal);color:#fff;border:0;padding:9px 16px;cursor:pointer}
+  .barre a{color:var(--soft)}
+  .feuille{max-width:190mm;margin:0 auto;padding:14mm 0 10mm}
+  .entete{display:block;width:20mm;height:auto;margin:0 auto 3mm}
+  .ordre{text-align:center;font-family:"Cormorant Garamond",Georgia,serif;font-size:15px;line-height:1.25;margin:0 0 7mm;color:var(--cardinal)}
+  .ordre small{display:block;font-family:Inter,sans-serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin-top:2px}
+  h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:27px;line-height:1.15;text-align:center;margin:0 0 4px}
+  .lieu{text-align:center;color:var(--soft);margin:0 0 3px}
+  .edition{text-align:center;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--cardinal);margin:8px 0 7mm}
+  h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:19px;margin:5mm 0 2mm;padding-bottom:2px;border-bottom:1.5px solid var(--cardinal)}
+  table{width:100%;border-collapse:collapse}
+  tr{break-inside:avoid;page-break-inside:avoid}
+  td{vertical-align:top;padding:5px 0;border-bottom:1px solid var(--line)}
+  td.h{width:26mm;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap;padding-right:4mm}
+  td.h span{color:var(--mute)}
+  .t{font-weight:500}
+  .q{color:var(--soft);font-style:italic}
+  .vide{text-align:center;color:var(--mute);padding:20mm 0}
+  @page{size:A4;margin:12mm 12mm 14mm}
+  @media print{.barre{display:none}.feuille{padding:0;max-width:none}}
+</style>
+</head>
+<body>
+<div class="barre"><span>Programme établi à partir de la page du week-end, dans son état actuel.</span><span><a href="retraite.html">Retour à la page du week-end</a> &nbsp; <button type="button" id="btn-imprimer">Imprimer ou enregistrer en PDF</button></span></div>
+<main class="feuille" id="feuille"><p class="vide">Chargement du programme…</p></main>
+<script src="config.js"></script>
+<script src="espace.js?v=20261020a"></script>
+<script src="page-programme-imprime.js?v=20261102c"></script>
+</body>
+</html>

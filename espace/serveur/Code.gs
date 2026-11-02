@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-11-02b',
+  VERSION: '2026-11-02c',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -52,7 +52,8 @@ var ONGLETS = {
   RetIntervenants: ['TacheId', 'Nom', 'Role', 'Telephone', 'Email'],
   RetActivite: ['Date', 'Qui', 'Texte'],
   RetJalons: ['Date', 'Titre', 'Detail', 'Cle'],
-  RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note'],
+  // TitrePublic / IntervenantPublic : textes facultatifs du programme imprimé (sinon Titre / Intervenant)
+  RetProgramme: ['Id', 'Jour', 'Debut', 'Fin', 'Titre', 'Intervenant', 'Statut', 'Note', 'TitrePublic', 'IntervenantPublic'],
   RetOrganisation: ['Fonction', 'Nom'],
   // Carnet des candidats : liste des documents convenus (titre, responsable), puis les fichiers déposés pour chacun
   RetCarnet: ['Id', 'Ordre', 'Titre', 'Responsable', 'Note'],
@@ -577,12 +578,26 @@ function activite_(P, qui, texte) {
 /* ---------- Programme du week-end de retraite (créneaux horaires) ---------- */
 var STATUTS_CRENEAU = ['confirme', 'principe', 'aconfirmer', 'atrouver', ''];
 
+/** Colonnes ajoutées après coup à l'onglet du programme (créées une fois, en fin d'onglet). */
+function colonnesProgramme_(P) {
+  if (CACHE_COLS_PROG_) return true;
+  ajouterColonne_(P.programme, 'TitrePublic');
+  ajouterColonne_(P.programme, 'IntervenantPublic');
+  // Les écritures se font dans l'ordre de ONGLETS : l'en-tête de l'onglet doit lui correspondre exactement.
+  var head = feuille_(P.programme).getDataRange().getValues()[0].map(String), att = ONGLETS[P.programme];
+  if (att.some(function (h, i) { return head[i] !== h; })) throw refus_("L'onglet " + P.programme + " a des colonnes inattendues : attendu « " + att.join(', ') + ' ».', 'installation');
+  CACHE_COLS_PROG_ = true;
+  return true;
+}
+var CACHE_COLS_PROG_ = false;
 function toutProgramme_(P) {
+  try { colonnesProgramme_(P); } catch (e) { /* lecture quand même : les textes du programme imprimé restent vides */ }
   return lire_(P.programme).filter(function (r) { return r.Id; }).map(function (r) {
     var st = String(r.Statut || '').toLowerCase().trim();
     return {
       id: String(r.Id), jour: String(r.Jour || '').slice(0, 10), debut: String(r.Debut || ''), fin: String(r.Fin || ''),
-      titre: r.Titre, qui: r.Intervenant, statut: STATUTS_CRENEAU.indexOf(st) > -1 ? st : '', note: r.Note
+      titre: r.Titre, qui: r.Intervenant, statut: STATUTS_CRENEAU.indexOf(st) > -1 ? st : '', note: r.Note,
+      titrePub: r.TitrePublic || '', quiPub: r.IntervenantPublic || ''
     };
   });
 }
@@ -596,8 +611,10 @@ function enregistrerCreneau_(P, u, x) {
   var jour = /^\d{4}-\d{2}-\d{2}$/.test(String(x.jour || '')) ? x.jour : 'notes';
   var ligne = {
     Jour: jour, Debut: heure(x.debut), Fin: heure(x.fin), Titre: titre, Intervenant: texte_(x.qui, 200),
-    Statut: STATUTS_CRENEAU.indexOf(x.statut) > -1 ? x.statut : '', Note: texte_(x.note, 400)
+    Statut: STATUTS_CRENEAU.indexOf(x.statut) > -1 ? x.statut : '', Note: texte_(x.note, 400),
+    TitrePublic: texte_(x.titrePub, 300), IntervenantPublic: texte_(x.quiPub, 200)
   };
+  colonnesProgramme_(P);
   return verrou_(function () {
     if (x.id) {
       majLigne_(P.programme, function (r) { return r.Id === String(x.id); }, ligne);

@@ -298,7 +298,7 @@ function vProgramme(){
   var pend=slots.filter(isPending).length;
   h+='<div class="prog-bar"><div class="filters" role="group" aria-label="Filtrer le programme">'+
     [["tout","Tout le programme"],["attente","À confirmer seulement"]].map(function(f){return '<button type="button" class="chip'+(progFilter===f[0]?" on":"")+'" data-act="pfilter" data-pfilter="'+f[0]+'">'+f[1]+(f[0]==="attente"&&pend?" · "+pend:"")+'</button>';}).join("")+
-    '</div><span class="eyebrow">'+slots.length+' créneau'+(slots.length>1?"x":"")+' · '+conf+' confirmé'+(conf>1?"s":"")+' · '+pend+' en attente</span></div>';
+    '</div><span class="row" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><a class="btn btn-ghost btn-sm" href="programme-imprime.html" target="_blank" rel="noopener">Programme imprimable (PDF)</a><span class="eyebrow">'+slots.length+' créneau'+(slots.length>1?"x":"")+' · '+conf+' confirmé'+(conf>1?"s":"")+' · '+pend+' en attente</span></span></div>';
   if(!slots.length&&!notes.length){
     return h+'<div class="notice"><h4>Le programme n\'est pas encore saisi.</h4>'+(isOrg()?'<p>Ajoutez le premier créneau, ou importez le programme dans la feuille.</p><button class="btn btn-primary btn-sm" type="button" data-act="slot-new" data-jour="'+DAYS[0].d+'">+ Ajouter un créneau</button>':'<p>Il apparaîtra ici dès que les organisateurs l\'auront saisi.</p>')+'</div></div></section>';
   }
@@ -543,19 +543,19 @@ function openSlot(id,jour){
   if(!isOrg()) return;
   cEditing=id?programme.filter(function(c){return c.id===id;})[0]||null:null;
   if(id&&!cEditing) return;
-  var c=cEditing||{jour:jour||DAYS[0].d,debut:"",fin:"",titre:"",qui:"",statut:jour==="notes"?"":"aconfirmer",note:""};
+  var c=cEditing||{jour:jour||DAYS[0].d,debut:"",fin:"",titre:"",qui:"",statut:jour==="notes"?"":"aconfirmer",note:"",titrePub:"",quiPub:""};
   $("#c-title").textContent=cEditing?(c.jour==="notes"?"Modifier la note":"Modifier le créneau"):(c.jour==="notes"?"Nouvelle note":"Nouveau créneau");
   $("#c-jour").innerHTML=DAYS.map(function(d){return '<option value="'+d.d+'">'+esc(d.n)+'</option>';}).join("")+'<option value="notes">À retenir (remarque)</option>';
   $("#c-jour").value=DAYS.some(function(d){return d.d===c.jour;})||c.jour==="notes"?c.jour:DAYS[0].d;
   $("#c-debut").value=c.debut||""; $("#c-fin").value=c.fin||"";
-  $("#c-titre").value=c.titre||""; $("#c-qui").value=c.qui||""; $("#c-note").value=c.note||"";
+  $("#c-titre").value=c.titre||""; $("#c-qui").value=c.qui||""; $("#c-note").value=c.note||""; $("#c-titre-pub").value=c.titrePub||""; $("#c-qui-pub").value=c.quiPub||"";
   cStatut=c.statut||""; paintCSeg(); paintCJour();
   cDelArmed=false; $("#c-del").textContent="Supprimer"; $("#c-del").hidden=!cEditing;
   if(typeof dlgC.showModal==="function") dlgC.showModal(); else dlgC.setAttribute("open","");
   $("#c-titre").focus();
 }
 function paintCSeg(){ document.querySelectorAll("#c-statut button").forEach(function(b){var on=b.dataset.cs===cStatut;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on);}); }
-function paintCJour(){ var n=$("#c-jour").value==="notes"; $("#c-heures").hidden=n; $("#c-qui-field").hidden=n; $("#c-statut-field").hidden=n; }
+function paintCJour(){ var n=$("#c-jour").value==="notes"; $("#c-heures").hidden=n; $("#c-qui-field").hidden=n; $("#c-statut-field").hidden=n; $("#c-pub-field").hidden=n; }
 function closeSlot(){ if(dlgC.open) dlgC.close(); cEditing=null; }
 $("#c-jour").addEventListener("change",paintCJour);
 $("#c-statut").addEventListener("click",function(e){var b=e.target.closest("button");if(b){cStatut=b.dataset.cs;paintCSeg();}});
@@ -570,7 +570,7 @@ $("#c-form").addEventListener("submit",async function(e){
   e.preventDefault();
   var titre=$("#c-titre").value.trim(); if(!titre){ $("#c-titre").focus(); return; }
   var note=$("#c-jour").value==="notes";
-  var data={jour:$("#c-jour").value,debut:note?"":$("#c-debut").value,fin:note?"":$("#c-fin").value,titre:titre,qui:note?"":$("#c-qui").value.trim(),statut:note?"":cStatut,note:$("#c-note").value.trim()};
+  var data={jour:$("#c-jour").value,debut:note?"":$("#c-debut").value,fin:note?"":$("#c-fin").value,titre:titre,qui:note?"":$("#c-qui").value.trim(),statut:note?"":cStatut,note:$("#c-note").value.trim(),titrePub:note?"":$("#c-titre-pub").value.trim(),quiPub:note?"":$("#c-qui-pub").value.trim()};
   if(cEditing) data.id=cEditing.id;
   var wasNew=!cEditing;
   closeSlot();
