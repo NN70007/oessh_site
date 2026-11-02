@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-11-02d',
+  VERSION: '2026-11-02e',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -398,7 +398,7 @@ function peutModifier_(u, t, P) {
    sa colonne de droits dans « Acces » et ses pôles. */
 var PROJETS = {
   inv: { droit: 'inv', col: 'Investiture', T: 'Taches', I: 'Intervenants', A: 'Activite', J: 'Jalons', poles: POLES },
-  ret: { droit: 'ret', col: 'Retraite', T: 'RetTaches', I: 'RetIntervenants', A: 'RetActivite', J: 'RetJalons', poles: POLES_RET, programme: 'RetProgramme', organisation: 'RetOrganisation', evenement: '2027-01-09-retraite', documents: 'RetDocuments', carnet: 'RetCarnet' }
+  ret: { droit: 'ret', col: 'Retraite', T: 'RetTaches', I: 'RetIntervenants', A: 'RetActivite', J: 'RetJalons', poles: POLES_RET, programme: 'RetProgramme', organisation: 'RetOrganisation', evenement: '2027-01-09-retraite', autresEvenements: ['2027-01-10-messe'], documents: 'RetDocuments', carnet: 'RetCarnet' }
 };
 
 function chargerProjet_(P, u) {
@@ -430,11 +430,18 @@ function chargerProjet_(P, u) {
   // État des inscriptions de l'événement du projet (réponses aux invitations du Courrier e-mail)
   if (P.evenement && role !== 'intervenant') {
     try { out.inscriptions = inscriptionsEvenement_(P.evenement, ''); } catch (e) { out.inscriptions = null; }
-    // Autres listes de réponses pour le même événement (ex. orateurs, parrains et marraines)
+    // Autres listes de réponses : même événement (ex. orateurs, parrains et marraines) et événements liés (ex. messe du dimanche)
     try {
-      var cats = [];
-      lire_('JournalEnvois').forEach(function (r) { var e = r.Type === 'envoi' && r.Id ? evtDeLigne_(r) : null; if (e && e.id === P.evenement && e.categorie && cats.indexOf(e.categorie) < 0) cats.push(e.categorie); });
-      out.inscriptionsAutres = cats.map(function (c) { var o = inscriptionsEvenement_(P.evenement, c); o.categorie = c; return o; });
+      var listes = [], cle = {};
+      lire_('JournalEnvois').forEach(function (r) {
+        var e = r.Type === 'envoi' && r.Id ? evtDeLigne_(r) : null;
+        if (!e) return;
+        var lie = (P.autresEvenements || []).indexOf(e.id) > -1;
+        if (!(e.id === P.evenement && e.categorie) && !lie) return;
+        var k = e.id + '|' + (e.categorie || '');
+        if (!cle[k]) { cle[k] = 1; listes.push({ evt: e.id, cat: e.categorie || '', titre: e.categorie || e.titre }); }
+      });
+      out.inscriptionsAutres = listes.map(function (l) { var o = inscriptionsEvenement_(l.evt, l.cat); o.categorie = l.titre; o.evenement = l.evt; return o; });
     } catch (e) { out.inscriptionsAutres = []; }
   }
   return out;
@@ -458,7 +465,7 @@ function inscriptionsEvenement_(evtId, categorie) {
   return {
     envoye: true, test: test, envoyeLe: Math.max.apply(null, choisis.map(function (r) { return Number(r.Date) || 0; })),
     limite: evt && evt.limite ? evt.limite : '', limitePassee: evt ? limitePassee_(evt) : false, hebergement: !!(evt && evt.hebergement),
-    total: lignes.length, oui: oui.length, non: lignes.filter(function (x) { return x.Reponse === 'non'; }).length, sans: lignes.filter(function (x) { return !x.Reponse; }).length,
+    total: lignes.length, oui: oui.length, nbPersonnes: oui.reduce(function (t, x) { return t + 1 + (Number(x.Accompagnants) || 0); }, 0), non: lignes.filter(function (x) { return x.Reponse === 'non'; }).length, sans: lignes.filter(function (x) { return !x.Reponse; }).length,
     simples: tc.simples, doubles: tc.doubles, sansNuitee: tc.aucune, aVerifier: tc.seuls,
     repas: evt && evt.repasListe ? comptesRepas_(oui, evt).map(function (y) { return { lib: y.lib, n: y.n }; }) : null,
     personnes: lignes.map(function (x) {

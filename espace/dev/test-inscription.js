@@ -199,4 +199,10 @@ console.log('Rappels à dates choisies');
   ok(srv.gmails.filter(x => x.subject.startsWith('Votre réponse')).length === 2, 'nouvelle date de rappel atteinte : nouveau rappel aux non-répondants');
 }
 
+{
+  const autres = srv.run('(() => { var u = userFromRow_(lire_("Acces")[0]); u.ret = "organisateur"; return chargerProjet_(PROJETS.ret, u).inscriptionsAutres; })');
+  const messe = autres.find(x => x.evenement === '2027-01-10-messe');
+  ok(messe && messe.categorie === 'Messe' && messe.total === 3 && messe.oui === 1 && messe.nbPersonnes === 1 && autres.some(x => x.evenement === '2027-01-09-retraite'), 'réponses de la messe du dimanche visibles sur la page du week-end, à côté des autres listes');
+}
+
 console.log('\n' + n + ' vérifications réussies.');

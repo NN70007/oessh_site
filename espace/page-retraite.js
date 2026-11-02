@@ -174,7 +174,7 @@ var CH_LIB={simple:"Chambre individuelle",double:"Chambre double",aucune:"Pas de
 /* Vue groupée : candidats + autres listes de réponses (orateurs, parrains et marraines…) */
 function groupeHTML(){
   if(user.ret==="intervenant"||!inscriptions) return "";
-  var L=[{t:"Candidats",I:inscriptions,forfait:true}].concat(inscriptionsAutres.map(function(I){return {t:I.categorie||"Autres",I:I};})).filter(function(x){return x.I&&x.I.envoye;});
+  var L=[{t:"Candidats",I:inscriptions,forfait:true}].concat(inscriptionsAutres.filter(function(I){return !I.evenement||I.evenement==="2027-01-09-retraite";}).map(function(I){return {t:I.categorie||"Autres",I:I};})).filter(function(x){return x.I&&x.I.envoye;});
   if(L.length<2) return "";
   var repasLib=[];
   L.forEach(function(x){(x.I.repas||[]).forEach(function(r){if(repasLib.indexOf(r.lib)<0) repasLib.push(r.lib);});});
@@ -202,7 +202,7 @@ function inscHTML(I,titre){
   var jl=I.limite?days(todayStr(),I.limite):null;
   h+='<span class="eyebrow">'+(I.test?"Envoi de test · ":"")+(I.limite?(I.limitePassee?"Réponses closes depuis le "+esc(lim):"Réponses jusqu\'au "+esc(lim)+(jl===0?" (aujourd\'hui)":" · J-"+jl)):"")+'</span></div>';
   var tile=function(v,k,c){return '<div class="insc-tile'+(c?" "+c:"")+'"><b>'+v+'</b><span>'+k+'</span></div>';};
-  h+='<div class="insc-tiles">'+tile(I.oui,"viennent","ok")+tile(I.non,"ne viennent pas","")+tile(I.sans,"sans réponse",I.sans?"warn":"")+tile(I.total,"invités","")+
+  h+='<div class="insc-tiles">'+tile(I.oui,"viennent","ok")+(I.nbPersonnes>I.oui?tile(I.nbPersonnes,"personnes avec les accompagnants","ok"):"")+tile(I.non,"ne viennent pas","")+tile(I.sans,"sans réponse",I.sans?"warn":"")+tile(I.total,"invités","")+
      (I.hebergement?tile(I.simples,"chambres individuelles","")+tile(I.doubles,"chambres doubles","")+tile(I.sansNuitee,"sans nuitée",""):"")+
      (I.repas?I.repas.map(function(r){return tile(r.n,esc(r.lib.toLowerCase()),"");}).join(""):"")+'</div>';
   if(I.aVerifier&&I.aVerifier.length) h+='<p class="insc-alert">À vérifier : chambre double sans partenaire inscrit pour '+esc(I.aVerifier.join(", "))+'.</p>';
