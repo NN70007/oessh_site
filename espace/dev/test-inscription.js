@@ -177,4 +177,26 @@ const cands = srv.run('(() => inscriptionsEvenement_("2027-01-09-retraite", ""))
 const autres = srv.run('(() => inscriptionsEvenement_("2027-01-09-retraite", "Orateurs, parrains et marraines"))');
 ok(autres.total === 3 && autres.oui === 1 && autres.repas[1].n === 2 && cands.personnes.every(p => p.nom !== 'Anne Dauphin'), 'liste séparée des candidats sur la page du week-end');
 
+console.log('Rappels à dates choisies');
+{
+  const iso = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
+  const fr = (x) => x.split('-').reverse().join('/');
+  const ev = { id: '2027-01-10-messe', date: iso(40), heure: '16:00', titre: 'Messe du dimanche', lieu: 'Chapelle', categorie: 'Messe', rappels: fr(iso(-1)) + ', ' + iso(5) + ', ' + iso(90) };
+  ok(srv.run('(() => evenementDe_(' + JSON.stringify(ev) + ').rappels.join())') === [iso(-1), iso(5)].join(), 'dates lues (jj/mm/aaaa ou aaaa-mm-jj), au plus tard le jour de l’événement');
+  const b2 = { token: tJB, casquette: 'secretaire', objet: 'Messe', corps: '{appel}\n\nInvitation.\n\n{politesse}', evenement: ev };
+  srv.post(Object.assign({}, b2, { action: 'mail.essai', apercu: ids[0] })); srv.gmails.length = 0;
+  ok(srv.post(Object.assign({}, b2, { action: 'mail.envoyer', ids })).ok, 'invitation avec rappels envoyée');
+  const J = srv.sheets.JournalEnvois.data, lg = J[J.length - 1], id2 = lg[9];
+  lg[0] = String(Date.now() - 5 * 86400000);   // invitation partie il y a 5 jours
+  srv.post({ action: 'insc.repondre', t: srv.run('(() => jetonInsc_("' + id2 + '", "' + ids[0] + '"))'), reponse: 'oui', accompagnants: 0, noms: [] });
+  srv.gmails.length = 0; srv.run('rappelsInscriptions');
+  const rel = srv.gmails.filter(x => x.subject.startsWith('Votre réponse'));
+  ok(rel.length === 2 && !rel.some(x => x.to === 'mdauphin@pt.lu'), 'rappel à la date atteinte, seulement à ceux qui n’ont pas répondu');
+  srv.gmails.length = 0; srv.run('rappelsInscriptions');
+  ok(!srv.gmails.some(x => x.subject.startsWith('Votre réponse')), 'pas de second rappel le même jour ni pour la même date');
+  const iE = J[0].indexOf('Evenement'), e3 = JSON.parse(lg[iE]); e3.rappels = [iso(-3), iso(-1)].concat(e3.rappels.slice(1)); e3.rappels = [iso(-3), iso(-1), iso(0)]; lg[iE] = JSON.stringify(e3);
+  srv.gmails.length = 0; srv.run('rappelsInscriptions');
+  ok(srv.gmails.filter(x => x.subject.startsWith('Votre réponse')).length === 2, 'nouvelle date de rappel atteinte : nouveau rappel aux non-répondants');
+}
+
 console.log('\n' + n + ' vérifications réussies.');

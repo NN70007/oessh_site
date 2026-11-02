@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-11-02c',
+  VERSION: '2026-11-02d',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -1785,6 +1785,14 @@ function evenementDe_(x) {
     return { id: 'r' + (i + 1), lib: texte_(prix ? l.slice(0, k) : l, 100), prix: prix };
   });
   if (lr.length) e.repasListe = lr;
+  // Rappels à dates choisies (facultatif) : relance de ceux qui n'ont pas répondu, à chacune de ces dates (remplace la relance automatique)
+  var rp = (Array.isArray(x.rappels) ? x.rappels : String(x.rappels || '').split(/[\s,;]+/)).map(function (d) {
+    d = String(d || '').trim();
+    var m = /^(\d{1,2})[\/.](\d{1,2})[\/.](\d{4})$/.exec(d);
+    if (m) d = m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2);
+    return /^\d{4}-\d{2}-\d{2}$/.test(d) && d <= e.date ? d : '';
+  }).filter(function (d, i, t) { return d && t.indexOf(d) === i; }).sort().slice(0, 6);
+  if (rp.length) e.rappels = rp;
   // Engagement (paiement, conditions d'annulation) : rappelé au-dessus des boutons et à accepter pour confirmer « Je viendrai »
   var eng = texte_(x.engagement, 600);
   if (eng) e.engagement = eng;
@@ -2212,7 +2220,10 @@ function rappelsInscriptions() {
     var recent = Date.now() - (Number(r.Date) || 0) <= joursMs_(2);   // pas de rappel juste après l'invitation
     // Relance de ceux qui n'ont pas répondu : 3 jours avant la date limite s'il y en a une, sinon 7 jours avant l'événement
     var jl = evt.limite ? joursAvant_(evt.limite) : null;
-    var j7 = !recent && (jl === null ? j >= 2 && j <= 7 : jl >= 0 && jl <= 3);
+    // Rappels à dates choisies : ceux dont la date est atteinte et pas encore envoyés à la personne (colonne Rappel7)
+    var dues = evt.rappels ? evt.rappels.filter(function (d) { return d <= aujourdhui_(); }) : null;
+    var aFaire = function (x) { var deja = String(x.Rappel7 || '').split(','); return dues.filter(function (d) { return deja.indexOf(d) < 0; }); };
+    var j7 = !recent && (dues ? dues.length > 0 && j >= 0 : (jl === null ? j >= 2 && j <= 7 : jl >= 0 && jl <= 3));
     var j1 = j >= 0 && j <= 1;
     if (!j7 && !j1) return;
     var acces = accesPour_(r.Qui);
@@ -2225,7 +2236,7 @@ function rappelsInscriptions() {
     var parId = {};
     membres.forEach(function (m) { parId[m.id] = m; });
     lignes.filter(function (x) { return x.EnvoiId === r.Id; }).forEach(function (x) {
-      var cas = j1 && x.Reponse === 'oui' && !x.Rappel1 ? 'veille' : (j7 && !x.Reponse && !x.Rappel7 ? 'relance' : '');
+      var cas = j1 && x.Reponse === 'oui' && !x.Rappel1 ? 'veille' : (j7 && !x.Reponse && (dues ? aFaire(x).length > 0 : !x.Rappel7) ? 'relance' : '');
       if (!cas || !x.Email) return;
       var m = parId[x.Membre] || { id: x.Membre, nom: x.Nom, prenom: '', appel: 'Madame, Monsieur,', groupe: '' };
       var rp = nomsRepas_(x);
@@ -2240,7 +2251,7 @@ function rappelsInscriptions() {
       var P = { casq: casq, objet: (cas === 'veille' ? 'Rappel : ' : 'Votre réponse : ') + evt.titre, corps: corps, pj: { ids: [], noms: [], blobs: [] }, suivi: adresseSuivi_(r.Id), evt: cas === 'relance' ? evt : null };
       try {
         expedier_(P, x.Email, composerMail_(u, P, m, URL_INSCRIPTION + '?t=' + jetonInsc_(r.Id, x.Membre)), P.objet);
-        majInsc_(x._ligne, cas === 'veille' ? { Rappel1: aujourdhui_() } : { Rappel7: aujourdhui_() });
+        majInsc_(x._ligne, cas === 'veille' ? { Rappel1: aujourdhui_() } : { Rappel7: dues ? String(x.Rappel7 || '').split(',').filter(Boolean).concat(aFaire(x)).join(',') : aujourdhui_() });
         journal.push(cas + ' ' + r.Id + ' ' + x.Nom);
       } catch (e) { console.error('Rappel non envoyé à ' + x.Nom + ' : ' + e); }
     });
