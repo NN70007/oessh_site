@@ -21,6 +21,9 @@
     return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  // Sécurité : liens limités à https://, assets/ et aux ancres de la page (#…)
+  function urlSure(u) { u = String(u || '').trim(); return /^(https:\/\/|assets\/|#)/i.test(u) ? u : '#'; }
+
   /* ── rendu d'un ouvrage ─────────────────────────────────────────── */
   function buildBook(ouvrage) {
     var imgSrc = ouvrage.img_filename ? 'assets/' + ouvrage.img_filename : '';
@@ -30,7 +33,7 @@
     var coverHTML;
     var firstLien = (ouvrage.liens || []).filter(function (l) { return !l.muted; })[0];
     if (firstLien && firstLien.url && firstLien.url !== '#' && !firstLien.reveal_order) {
-      coverHTML = '<a class="cover" href="' + esc(firstLien.url) + '" target="_blank" rel="noopener" aria-label="' + (lang === 'fr' ? 'Acheter le livre' : lang === 'de' ? 'Buch kaufen' : 'Buy the book') + '">' +
+      coverHTML = '<a class="cover" href="' + esc(urlSure(firstLien.url)) + '" target="_blank" rel="noopener" aria-label="' + (lang === 'fr' ? 'Acheter le livre' : lang === 'de' ? 'Buch kaufen' : 'Buy the book') + '">' +
         (imgSrc ? '<img src="' + esc(imgSrc) + '" alt="' + imgAlt + '" loading="lazy" decoding="async"/>' : '') +
         '</a>';
     } else {
@@ -77,7 +80,7 @@
           return '<a href="#" class="reveal-order" onclick="this.closest(\'.body\').querySelector(\'.order-info\').hidden=false;this.remove();return false;">' +
             esc(t(l.label)) + ' ↗</a>' + orderBlock;
         }
-        return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener"' +
+        return '<a href="' + esc(urlSure(l.url)) + '" target="_blank" rel="noopener"' +
           (l.muted ? ' class="muted"' : '') + '>' + esc(t(l.label)) + ' ↗</a>';
       }).join('') +
       '</div>';

@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-11-02e',
+  VERSION: '2026-11-02f',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -256,7 +256,8 @@ function demanderCode_(email) {
   cache.put('otpn:*', String(nTot + 1), 3600);
   var row = accesPour_(email);
   if (!row) { journal_(email, 'refus', 'Code demandé sans autorisation'); return neutre; }
-  var code = String(Math.floor(100000 + Math.random() * 900000));
+  // Code tiré d'un UUID (générateur aléatoire sûr de Google) plutôt que de Math.random
+  var code = String(100000 + parseInt(Utilities.getUuid().replace(/-/g, '').slice(0, 12), 16) % 900000);
   cache.put('otp:' + email, JSON.stringify({ h: hash_(code + '|' + email), essais: 0 }), CONFIG.CODE_MINUTES * 60);
   var prenom = String(row.Nom || '').split(' ')[0];
   var corps = 'Bonjour ' + prenom + ',\n\nVoici votre code de connexion à l’espace membres de la Lieutenance : ' + code +
@@ -269,16 +270,19 @@ function verifierCode_(email, code) {
   email = norm_(email);
   code = String(code || '').replace(/\D/g, '');
   var cache = CacheService.getScriptCache();
-  var raw = cache.get('otp:' + email);
-  if (!raw) throw refus_('Code expiré ou inconnu. Demandez un nouveau code.', 'code');
-  var o = JSON.parse(raw);
-  if (o.essais >= CONFIG.CODE_ESSAIS_MAX) { cache.remove('otp:' + email); throw refus_('Trop d’essais. Demandez un nouveau code.', 'code'); }
-  if (hash_(code + '|' + email) !== o.h) {
-    o.essais++;
-    cache.put('otp:' + email, JSON.stringify(o), CONFIG.CODE_MINUTES * 60);
-    throw refus_('Code incorrect.', 'code');
-  }
-  cache.remove('otp:' + email);
+  // Lecture, comptage des essais et consommation du code sous verrou : des essais simultanés ne peuvent pas dépasser la limite
+  verrou_(function () {
+    var raw = cache.get('otp:' + email);
+    if (!raw) throw refus_('Code expiré ou inconnu. Demandez un nouveau code.', 'code');
+    var o = JSON.parse(raw);
+    if (o.essais >= CONFIG.CODE_ESSAIS_MAX) { cache.remove('otp:' + email); throw refus_('Trop d’essais. Demandez un nouveau code.', 'code'); }
+    if (hash_(code + '|' + email) !== o.h) {
+      o.essais++;
+      cache.put('otp:' + email, JSON.stringify(o), CONFIG.CODE_MINUTES * 60);
+      throw refus_('Code incorrect.', 'code');
+    }
+    cache.remove('otp:' + email);
+  });
   var row = accesPour_(email);
   if (!row) throw refus_("Votre compte n'est pas autorisé.", 'non_autorise');
   return ouvrirSession_(row, 'code', email);

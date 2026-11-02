@@ -10,6 +10,9 @@
   function esc(s) {
     return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
+  // Sécurité : liens limités à https://, assets/ et aux ancres de la page (#…)
+  function urlSure(u) { u = String(u || '').trim(); return /^(https:\/\/|assets\/|#)/i.test(u) ? u : '#'; }
+
 
   /* ── rendu d'une newsletter ─────────────────────────────────────── */
   function buildNewsletter(nl, isFeatured) {
@@ -20,7 +23,7 @@
     var classe = isFeatured ? 'nl featured has-image' : 'nl has-image';
     var pdfHref = nl.pdf_filename ? 'assets/' + nl.pdf_filename : (nl.pdf_url || '#');
 
-    return '<a class="' + classe + '" href="' + esc(pdfHref) + '" target="_blank" rel="noopener">' +
+    return '<a class="' + classe + '" href="' + esc(urlSure(pdfHref)) + '" target="_blank" rel="noopener">' +
       '<div class="cover">' +
       (imgSrc ? '<img src="' + esc(imgSrc) + '" alt="' + imgAlt + '" loading="lazy" decoding="async"/>' : '') +
       newTag +
