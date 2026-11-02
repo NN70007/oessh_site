@@ -451,4 +451,5 @@ a{color:inherit;text-decoration:none}
 .insc-tab td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line-soft)}
 .insc-tab th:first-child,.insc-tab td:first-child{text-align:left}
 .insc-tab tr.tot td{font-weight:600;border-top:1px solid var(--line)}
+.insc-tab tr.messe td{color:var(--ink-soft);font-style:italic;border-top:1px dashed var(--line)}
 @media (max-width:720px){.insc-list{columns:1}.insc-box{padding:18px 16px}}
