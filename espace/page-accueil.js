@@ -26,7 +26,12 @@
     try{ var out=await E.api("auth.google",{idToken:r.credential}); done(out); }
     catch(e){ msg("#login-err",e.message); }
   }
-  function done(out){ E.setSession({token:out.token,expire:out.expire,user:out.user}); history.replaceState(null,"","./"); showHome(); }
+  function done(out){
+    E.setSession({token:out.token,expire:out.expire,user:out.user});
+    var apres=null; try{ apres=sessionStorage.getItem("espace_apres"); sessionStorage.removeItem("espace_apres"); }catch(e){}
+    if(apres&&/^\/espace\/[\w\-\/.]*\.html([?#][\w\-=&#]*)?$/.test(apres)){ location.replace(apres); return; }
+    history.replaceState(null,"","./"); showHome();
+  }
 
   $("#f-email").addEventListener("submit",async function(ev){
     ev.preventDefault(); msg();
@@ -56,7 +61,7 @@
     $("#home-title").textContent="Bonjour, "+u.nom.split(" ")[0]+".";
     var T=[];
     if(u.inv) T.push({h:"investiture.html",n:"— 9 & 10 juillet 2027",t:"Investiture 2027",p:"Tâches, responsables, équipes et calendrier des cérémonies d'investiture.",r:ROLE_TXT[u.inv]});
-    if(u.ret) T.push({h:"retraite.html",n:"— 9 & 10 janvier 2027",t:"Week-end de retraite",p:"Programme, intervenants à confirmer, tâches et équipes du week-end de formation des impétrants.",r:ROLE_TXT[u.ret]});
+    if(u.ret) T.push({h:"retraite.html",n:"— 9 & 10 janvier 2027",t:"Week-end de retraite",p:"Programme, intervenants à confirmer, tâches et équipes du week-end de formation des candidats.",r:ROLE_TXT[u.ret]});
     if(u.site&&(u.site.actualites||u.site.lectures||u.site.newsletter)) T.push({h:"admin/",n:"— Publication",t:"Édition du site",p:"Rédiger et publier les actualités, lectures et newsletters du site oessh.lu.",r:[u.site.actualites?"Actualités":"",u.site.lectures?"Lectures":"",u.site.newsletter?"Newsletter":""].filter(Boolean).join(" · ")});
     if(u.media||u.admin||u.gestion) T.push({h:"media/",n:"— Ressources",t:"Médiathèque",p:"Logos, armoiries, croix de Jérusalem et visuels officiels de la Lieutenance.",r:"Ressources graphiques"});
     if(u.courrier||u.admin) T.push({h:"courrier/",n:"— Communication",t:"Courrier papier",p:"Rédigez, corrigez et imprimez un courrier officiel de la Lieutenance ou de l'Asbl.",r:"Rédaction"});

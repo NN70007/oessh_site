@@ -53,7 +53,14 @@
 
   function requireLogin() {
     var s = getSession();
-    if (!s) { if (!surPageConnexion()) location.replace(lien("./")); return null; }
+    if (!s) {
+      if (!surPageConnexion()) {
+        // Après la connexion, revenir à la page demandée (lien reçu par courriel, par exemple retraite.html#carnet)
+        try { if (/^\/espace\//.test(location.pathname)) sessionStorage.setItem("espace_apres", location.pathname + location.search + location.hash); } catch (e) {}
+        location.replace(lien("./"));
+      }
+      return null;
+    }
     return s;
   }
 

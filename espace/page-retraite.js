@@ -20,6 +20,8 @@ var user=S.user, me=user.nom;
 var tasks=[], activity=[], jalons=[], personnes=[], programme=[], organisation=[], inscriptions=null, inscriptionsAutres=[], carnet=[], documents=[], mesCreneaux=[], carnetEdit=null, loaded=false, loadErr="";
 var view="ensemble", poleFocus=null, poleFilter="tous", progFilter="tout", editing=null, busy={};
 try{ var v=localStorage.getItem("ret27_view"); if(v) view=v; }catch(e){}
+// Lien direct vers un onglet : retraite.html#carnet, #programme…
+var vh=location.hash.replace("#",""); if(/^(ensemble|programme|carnet|mes|poles|contacts|qui)$/.test(vh)) view=vh;
 
 function canWrite(){ return user.ret==="organisateur"||user.ret==="contributeur"; }
 function isOrg(){ return user.ret==="organisateur"; }
