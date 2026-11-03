@@ -213,15 +213,19 @@ function inscHTML(I,titre){
      (I.hebergement?tile(I.simples,"chambres individuelles","")+tile(I.doubles,"chambres doubles","")+tile(I.sansNuitee,"sans nuitée",""):"")+
      (I.repas?I.repas.map(function(r){return tile(r.n,esc(r.lib.toLowerCase()),"");}).join(""):"")+'</div>';
   if(I.aVerifier&&I.aVerifier.length) h+='<p class="insc-alert">À vérifier : chambre double sans partenaire inscrit pour '+esc(I.aVerifier.join(", "))+'.</p>';
-  var rk={oui:0,"":1,non:2};
-  var ps=I.personnes.slice().sort(function(a,b){return (rk[a.reponse]-rk[b.reponse])||a.nom.localeCompare(b.nom,"fr");});
-  h+='<ul class="insc-list">'+ps.map(function(p){
+  // Trois listes séparées, chacune par ordre alphabétique : viennent, ne viennent pas, sans réponse
+  var grp=[{r:"oui",t:"Viennent"},{r:"non",t:"Ne viennent pas"},{r:"",t:"Sans réponse"}];
+  h+=grp.map(function(G){
+  var ps=I.personnes.filter(function(p){return (p.reponse||"")===G.r;}).sort(function(a,b){return a.nom.localeCompare(b.nom,"fr");});
+  if(!ps.length) return "";
+  return '<div class="eyebrow insc-grp">'+G.t+' ('+ps.length+')</div><ul class="insc-list">'+ps.map(function(p){
     var st=p.reponse==="oui"?'<span class="insc-st ok">Vient</span>':p.reponse==="non"?'<span class="insc-st no">Ne vient pas</span>':'<span class="insc-st wait">Sans réponse</span>';
     var acc=p.accompagnants&&p.accompagnants.length?p.accompagnants:[];
     var chs=acc.length&&p.chambres?Object.keys(p.chambres).map(function(n){return n+" : "+(CH_LIB[p.chambres[n]]||p.chambres[n]).toLowerCase();}).join(", "):(p.chambre?CH_LIB[p.chambre]||p.chambre:"");
     var det=p.reponse==="oui"?[acc.length?"avec "+acc.join(", "):"",chs,p.partage?"partagée avec "+p.partage:"",p.repas&&p.repas.length?"repas : "+p.repas.join(" ; "):"",p.remarque?"« "+p.remarque+" »":""].filter(Boolean).join(" · "):"";
     return '<li><span class="insc-nom">'+esc(p.nom)+'</span>'+st+(det?'<span class="insc-det">'+esc(det)+'</span>':"")+'</li>';
   }).join("")+'</ul>';
+  }).join("");
   return h+'</div>';
 }
 function whenStr(ts){
