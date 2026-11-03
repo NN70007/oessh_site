@@ -213,10 +213,16 @@ function inscHTML(I,titre){
      (I.hebergement?tile(I.simples,"chambres individuelles","")+tile(I.doubles,"chambres doubles","")+tile(I.sansNuitee,"sans nuitée",""):"")+
      (I.repas?I.repas.map(function(r){return tile(r.n,esc(r.lib.toLowerCase()),"");}).join(""):"")+'</div>';
   if(I.aVerifier&&I.aVerifier.length) h+='<p class="insc-alert">À vérifier : chambre double sans partenaire inscrit pour '+esc(I.aVerifier.join(", "))+'.</p>';
+  // Tri par nom de famille : le nom commence au premier mot en capitales (« Bertrand de MAZIÈRES » sous M, « d'ANTERROCHES » sous A)
+  var cleNom=function(n){
+    var w=String(n||"").trim().split(/\s+/), i=w.findIndex(function(x){var y=x.replace(/^d['’]/i,"");return (y.match(/\p{L}/gu)||[]).length>1&&y===y.toUpperCase();});
+    if(i<0) return String(n||"");
+    return w.slice(i).join(" ").replace(/^d['’]/i,"")+" "+w.slice(0,i).filter(function(x){return !/^(de|du|von|van|d['’])$/i.test(x);}).join(" ");
+  };
   // Trois listes séparées, chacune par ordre alphabétique : viennent, ne viennent pas, sans réponse
   var grp=[{r:"oui",t:"Viennent"},{r:"non",t:"Ne viennent pas"},{r:"",t:"Sans réponse"}];
   h+=grp.map(function(G){
-  var ps=I.personnes.filter(function(p){return (p.reponse||"")===G.r;}).sort(function(a,b){return a.nom.localeCompare(b.nom,"fr");});
+  var ps=I.personnes.filter(function(p){return (p.reponse||"")===G.r;}).sort(function(a,b){return cleNom(a.nom).localeCompare(cleNom(b.nom),"fr");});
   if(!ps.length) return "";
   return '<div class="eyebrow insc-grp">'+G.t+' ('+ps.length+')</div><ul class="insc-list">'+ps.map(function(p){
     var st=p.reponse==="oui"?'<span class="insc-st ok">Vient</span>':p.reponse==="non"?'<span class="insc-st no">Ne vient pas</span>':'<span class="insc-st wait">Sans réponse</span>';
