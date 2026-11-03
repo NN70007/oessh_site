@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-11-02g',
+  VERSION: '2026-11-03a',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -450,19 +450,23 @@ function chargerProjet_(P, u) {
   }
   return out;
 }
-/** Inscriptions de tous les envois rattachés à un événement. Les envois à une seule personne (tests) ne comptent
-    que s'il n'y a pas encore d'envoi réel ; la réponse la plus récente de chaque personne fait foi. */
+/** Inscriptions de tous les envois rattachés à un événement. Les envois à une seule personne faits avant le premier
+    envoi groupé (tests) ne comptent que s'il n'y a pas encore d'envoi réel ; après l'envoi groupé, un envoi individuel
+    (adresse corrigée, personne ajoutée) compte, sauf s'il part à l'auteur lui-même. Chaque personne n'est comptée
+    qu'une fois : sa réponse la plus récente fait foi, sinon sa dernière invitation. */
 function inscriptionsEvenement_(evtId, categorie) {
   categorie = categorie || '';
   var envois = lire_('JournalEnvois').filter(function (r) { var e = r.Type === 'envoi' && r.Id ? evtDeLigne_(r) : null; return e && e.id === evtId && (e.categorie || '') === categorie; });
   if (!envois.length) return { envoye: false };
-  var reels = envois.filter(function (r) { return (Number(r.Nb) || 0) >= 2; }), test = !reels.length, choisis = test ? envois : reels;
+  var groupe = function (r) { return (Number(r.Nb) || 0) >= 2; };
+  var premier = Math.min.apply(null, envois.filter(groupe).map(function (r) { return Number(r.Date) || 0; }));
+  var reels = envois.filter(function (r) { return groupe(r) || ((Number(r.Date) || 0) > premier && !envoiAAuteur_(r)); }), test = !reels.length, choisis = test ? envois : reels;
   var ids = choisis.map(function (r) { return r.Id; }), evt = evtDeLigne_(choisis[choisis.length - 1]);
   var parMembre = {};
   lignesInsc_().forEach(function (x) {
     if (ids.indexOf(x.EnvoiId) < 0) return;
-    var a = parMembre[x.Membre];
-    if (!a || (Number(x.RepLe) || 0) > (Number(a.RepLe) || 0)) parMembre[x.Membre] = x;
+    var k = norm_(x.Nom) || x.Membre, a = parMembre[k], rx = Number(x.RepLe) || 0, ra = a ? Number(a.RepLe) || 0 : -1;
+    if (!a || rx > ra || (rx === ra && !x.Reponse === !a.Reponse)) parMembre[k] = x;
   });
   var lignes = Object.keys(parMembre).map(function (k) { return parMembre[k]; });
   var oui = lignes.filter(function (x) { return x.Reponse === 'oui'; }), tc = totalChambres_(oui);
@@ -479,6 +483,23 @@ function inscriptionsEvenement_(evtId, categorie) {
         repas: Object.keys(rc).map(function (n) { return (n === x.Nom ? '' : n + ' : ') + libRepas_(evt, rc[n]).join(', ').toLowerCase(); }) };
     }).sort(function (a, b) { return a.nom.localeCompare(b.nom, 'fr'); })
   };
+}
+
+/** Envoi individuel parti à son auteur (copie pour soi) : jamais compté comme invitation. */
+function envoiAAuteur_(r) {
+  try { var d = JSON.parse(r.Destinataires || '[]'); return d.length === 1 && norm_(d[0][1]) === norm_(r.Qui); } catch (e) { return false; }
+}
+/** Pour chaque personne et chaque événement, l'invitation la plus récente : une invitation renvoyée (adresse corrigée)
+    remplace la précédente, qui ne reçoit plus de relance. */
+function invitationsRemplacees_(envois, lignes) {
+  var ordre = {}, dernier = {};
+  envois.forEach(function (r, i) { var e = evtDeLigne_(r); if (e) ordre[r.Id] = { i: i, k: e.id + '|' + (e.categorie || '') }; });
+  lignes.forEach(function (x) {
+    var o = ordre[x.EnvoiId]; if (!o) return;
+    var k = o.k + '|' + norm_(x.Nom);
+    if (!dernier[k] || ordre[dernier[k]].i < o.i) dernier[k] = x.EnvoiId;
+  });
+  return function (x) { var o = ordre[x.EnvoiId]; return !!o && dernier[o.k + '|' + norm_(x.Nom)] !== x.EnvoiId; };
 }
 
 function statutTache_(P, u, id, statut) {
@@ -2262,7 +2283,7 @@ function bilanTexte_(r, evt, quotidien) {
 function rappelsInscriptions() {
   var envois = lire_('JournalEnvois').filter(function (r) { return r.Type === 'envoi' && r.Id && r.Evenement; });
   if (!envois.length) return;
-  var lignes = lignesInsc_(), membres = null, journal = [];
+  var lignes = lignesInsc_(), membres = null, journal = [], remplacee = invitationsRemplacees_(envois, lignes);
   envois.forEach(function (r) {
     var evt = evtDeLigne_(r);
     if (!evt) return;
@@ -2286,7 +2307,7 @@ function rappelsInscriptions() {
     var parId = {};
     membres.forEach(function (m) { parId[m.id] = m; });
     lignes.filter(function (x) { return x.EnvoiId === r.Id; }).forEach(function (x) {
-      var cas = j1 && x.Reponse === 'oui' && !x.Rappel1 ? 'veille' : (j7 && !x.Reponse && (dues ? aFaire(x).length > 0 : !x.Rappel7) ? 'relance' : '');
+      var cas = j1 && x.Reponse === 'oui' && !x.Rappel1 ? 'veille' : (j7 && !x.Reponse && !remplacee(x) && (dues ? aFaire(x).length > 0 : !x.Rappel7) ? 'relance' : '');
       if (!cas || !x.Email) return;
       var m = parId[x.Membre] || { id: x.Membre, nom: x.Nom, prenom: '', appel: 'Madame, Monsieur,', groupe: '' };
       var rp = nomsRepas_(x);

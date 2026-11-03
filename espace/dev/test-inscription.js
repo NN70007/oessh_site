@@ -205,4 +205,28 @@ console.log('Rappels à dates choisies');
   ok(messe && messe.categorie === 'Messe' && messe.total === 3 && messe.oui === 1 && messe.nbPersonnes === 1 && autres.some(x => x.evenement === '2027-01-09-retraite'), 'réponses de la messe du dimanche visibles sur la page du week-end, à côté des autres listes');
 }
 
+console.log('Invitation ajoutée ou renvoyée après l’envoi groupé');
+{
+  const ev = { id: '2027-02-01-ajout', date: '2027-02-01', heure: '10:00', titre: 'Essai ajout', lieu: 'Chapelle' };
+  const b = { token: tJB, casquette: 'secretaire', objet: 'Ajout', corps: '{appel}\n\nInvitation.\n\n{politesse}', evenement: ev };
+  const J = srv.sheets.JournalEnvois.data;
+  srv.post(Object.assign({}, b, { action: 'mail.essai', apercu: ids[0] }));
+  ok(srv.post(Object.assign({}, b, { action: 'mail.envoyer', ids: [ids[0], ids[1]] })).ok, 'envoi groupé à deux personnes');
+  J[J.length - 1][0] = String(Date.now() - 60000);
+  let s1 = srv.run('(() => inscriptionsEvenement_("2027-02-01-ajout"))');
+  ok(s1.total === 2 && !s1.test, 'deux invités');
+  ok(srv.post(Object.assign({}, b, { action: 'mail.envoyer', ids: [ids[2]] })).ok, 'personne ajoutée : envoi individuel');
+  s1 = srv.run('(() => inscriptionsEvenement_("2027-02-01-ajout"))');
+  ok(s1.total === 3, 'envoi individuel après l’envoi groupé : compté');
+  ok(srv.post(Object.assign({}, b, { action: 'mail.envoyer', ids: [ids[1]] })).ok, 'invitation renvoyée à une personne déjà invitée');
+  const idR = J[J.length - 1][9];
+  s1 = srv.run('(() => inscriptionsEvenement_("2027-02-01-ajout"))');
+  ok(s1.total === 3 && s1.personnes.length === 3, 'personne réinvitée comptée une seule fois');
+  srv.post({ action: 'insc.repondre', t: srv.run('(() => jetonInsc_("' + idR + '", "' + ids[1] + '"))'), reponse: 'oui', accompagnants: 0, noms: [] });
+  s1 = srv.run('(() => inscriptionsEvenement_("2027-02-01-ajout"))');
+  ok(s1.total === 3 && s1.oui === 1 && s1.sans === 2, 'réponse à l’invitation renvoyée prise en compte');
+  const rempl = srv.run('(() => { var e = lire_("JournalEnvois").filter(function (r) { return r.Type === "envoi" && r.Id; }), l = lignesInsc_(), f = invitationsRemplacees_(e, l); return l.filter(f).length; })');
+  ok(rempl >= 1, 'ancienne invitation marquée remplacée (plus de relance)');
+}
+
 console.log('\n' + n + ' vérifications réussies.');
