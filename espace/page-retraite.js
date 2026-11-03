@@ -126,7 +126,7 @@ function vEnsemble(){
   var notice=stateNotice();
 
   var h='<section class="block"><div class="container">'+
-    head("— 9 & 10 janvier 2027","Retraite","Formation et retraite des candidats.","Un week-end de formation, de prière et de témoignages à la Maison d\'Accueil des Franciscaines, 50 avenue Gaston Diderich, à Luxembourg.")+orgHTML()+roleNote()+groupeHTML()+inscHTML()+inscriptionsAutres.map(function(I){return inscHTML(I,I.categorie);}).join("")+
+    head("— 9 & 10 janvier 2027","Retraite","Formation et retraite des candidats.","Un week-end de formation, de prière et de témoignages à la Maison d\'Accueil des Franciscaines, 50 avenue Gaston Diderich, à Luxembourg.")+orgHTML()+roleNote()+
     '<div class="hero-grid">'+
       '<div class="hero-cell"><div class="eyebrow">Compte à rebours</div><div class="countdown"><span class="n">'+dleft+'</span><span class="u">jours</span></div><p class="cap">avant la <strong>messe d\'ouverture</strong>, samedi 9 janvier 2027 à 9h00, chez les Sœurs franciscaines.</p></div>'+
       '<div class="hero-cell"><div class="eyebrow">Avancement'+(user.ret==="intervenant"?" de vos tâches":" général")+'</div><div class="ring-wrap">'+
@@ -138,7 +138,9 @@ function vEnsemble(){
         '<button class="counter" type="button" data-act="tab" data-tab="poles" data-filter="encours"><span class="k"><i class="dot doing"></i>En cours</span><span class="v">'+doing+'</span></button>'+
         '<button class="counter" type="button" data-act="tab" data-tab="programme" data-pfilter="attente"><span class="k"><i class="dot todo"></i>Intervenants à confirmer</span><span class="v">'+pend+'</span></button>'+
       '</div></div>'+
-    '</div></div></section>';
+    '</div>'+   // fin de la grille du haut (compte à rebours, avancement, priorités)
+    groupeHTML()+inscHTML()+inscriptionsAutres.map(function(I){return inscHTML(I,I.categorie);}).join("")+
+    '</div></section>';
 
   if(notice){ return h+'<section class="block"><div class="container">'+notice+'</div></section>'; }
 
