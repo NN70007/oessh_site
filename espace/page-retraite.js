@@ -17,6 +17,8 @@ var EVENT_DAY="2027-01-09";
 var REFRESH_MS=30000;
 
 var user=S.user, me=user.nom;
+var inscOuverts={};
+document.addEventListener("toggle",function(e){var d=e.target; if(d&&d.classList&&d.classList.contains("insc-pli")) inscOuverts[d.getAttribute("data-k")]=d.open;},true);
 var tasks=[], activity=[], jalons=[], personnes=[], programme=[], organisation=[], inscriptions=null, inscriptionsAutres=[], carnet=[], documents=[], mesCreneaux=[], carnetEdit=null, loaded=false, loadErr="";
 var view="ensemble", poleFocus=null, poleFilter="tous", progFilter="tout", editing=null, busy={};
 try{ var v=localStorage.getItem("ret27_view"); if(v) view=v; }catch(e){}
@@ -211,9 +213,13 @@ function inscHTML(I,titre){
   var jl=I.limite?days(todayStr(),I.limite):null;
   h+='<span class="eyebrow">'+(I.test?"Envoi de test · ":"")+(I.limite?(I.limitePassee?"Réponses closes depuis le "+esc(lim):"Réponses jusqu\'au "+esc(lim)+(jl===0?" (aujourd\'hui)":" · J-"+jl)):"")+'</span></div>';
   var tile=function(v,k,c){return '<div class="insc-tile'+(c?" "+c:"")+'"><b>'+v+'</b><span>'+k+'</span></div>';};
+  // Détail des réponses replié : un clic sur les chiffres l'ouvre (état gardé pendant la visite)
+  var kp=titre||"candidats";
+  h+='<details class="insc-pli" data-k="'+esc(kp)+'"'+(inscOuverts[kp]?" open":"")+'><summary title="Afficher ou masquer le détail des réponses">';
   h+='<div class="insc-tiles">'+tile(I.oui,"viennent","ok")+(I.nbPersonnes>I.oui?tile(I.nbPersonnes,"personnes avec les accompagnants","ok"):"")+tile(I.non,"ne viennent pas","")+tile(I.sans,"sans réponse",I.sans?"warn":"")+tile(I.total,"invités","")+
      (I.hebergement?tile(I.simples,"chambres individuelles","")+tile(I.doubles,"chambres doubles","")+tile(I.sansNuitee,"sans nuitée",""):"")+
      (I.repas?I.repas.map(function(r){return tile(r.n,esc(r.lib.toLowerCase()),"");}).join(""):"")+'</div>';
+  h+='<span class="insc-voir">Détail des réponses</span></summary>';
   if(I.aVerifier&&I.aVerifier.length) h+='<p class="insc-alert">À vérifier : chambre double sans partenaire inscrit pour '+esc(I.aVerifier.join(", "))+'.</p>';
   // Tri par nom de famille : le nom commence au premier mot en capitales (« Bertrand de MAZIÈRES » sous M, « d'ANTERROCHES » sous A)
   var cleNom=function(n){
@@ -234,7 +240,7 @@ function inscHTML(I,titre){
     return '<li><span class="insc-nom">'+esc(p.nom)+'</span>'+st+(det?'<span class="insc-det">'+esc(det)+'</span>':"")+'</li>';
   }).join("")+'</ul>';
   }).join("");
-  return h+'</div>';
+  return h+'</details></div>';
 }
 function whenStr(ts){
   if(!ts) return "";
