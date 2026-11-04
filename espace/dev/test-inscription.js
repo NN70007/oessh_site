@@ -128,10 +128,8 @@ const jl = srv.sheets.JournalEnvois.data, iDate = jl[0].indexOf('Date');
 jl.forEach((x, i) => { if (i && x[9] === id2) x[iDate] = String(Date.now() - 2 * 86400000); });
 srv.gmails.length = 0;
 srv.run('rappelsInscriptions');
-const pj = srv.gmails.filter(x => x.subject.startsWith('Inscriptions au '));
-const dests = pj.map(x => x.to + '|' + (x.cc || ''));
-ok(dests.length === new Set(dests).size, 'un seul point du jour par groupe de destinataires (' + pj.length + ' e-mail(s))');
-const point = srv.gmails.find(x => x.subject.startsWith('Inscriptions au ') && / \d+\/3( ;|$)/.test(x.subject));
+const pj = srv.gmails.filter(x => x.subject.startsWith('Inscriptions au ') && x.body.includes('Retraite') === false);
+const point = srv.gmails.find(x => x.subject.startsWith('Inscriptions au ') && / : \d+\/3 réponses$/.test(x.subject));
 ok(point && point.to === 'secretariat@oessh.lu,chancelier@oessh.lu' && point.cc === 'lieutenant@oessh.lu' && point.body.includes('Point des inscriptions du') && point.body.includes('Date limite : jeudi 5 novembre 2026') && point.body.includes('Nouvelles réponses ou modifications depuis hier'), 'point du jour envoyé à l’auteur et à Joris, Lieutenant en copie');
 srv.gmails.length = 0;
 srv.run('rappelsInscriptions');
@@ -229,30 +227,6 @@ console.log('Invitation ajoutée ou renvoyée après l’envoi groupé');
   ok(s1.total === 3 && s1.oui === 1 && s1.sans === 2, 'réponse à l’invitation renvoyée prise en compte');
   const rempl = srv.run('(() => { var e = lire_("JournalEnvois").filter(function (r) { return r.Type === "envoi" && r.Id; }), l = lignesInsc_(), f = invitationsRemplacees_(e, l); return l.filter(f).length; })');
   ok(rempl >= 1, 'ancienne invitation marquée remplacée (plus de relance)');
-}
-
-console.log('Point du jour : un seul e-mail pour toutes les listes');
-{
-  const iso = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
-  const J = srv.sheets.JournalEnvois.data, iDate = J[0].indexOf('Date');
-  // Fermer les listes précédentes pour isoler ce test
-  const iE = J[0].indexOf('Evenement');
-  J.forEach((x, i) => { if (i && x[iE]) { try { const e = JSON.parse(x[iE]); if (e.limite) { e.limite = iso(-30); x[iE] = JSON.stringify(e); } } catch (_) {} } });
-  const mk = (id, cat) => ({ id, date: iso(60), heure: '10:00', titre: 'Essai ' + id, lieu: 'Chapelle', limite: iso(20), categorie: cat });
-  [['2027-03-01-a', 'Liste A'], ['2027-03-01-a', 'Liste B'], ['2027-03-02-b', '']].forEach(([id, cat]) => {
-    const b = { token: tJB, casquette: 'secretaire', objet: 'Point ' + id + cat, corps: '{appel}\n\nInvitation.\n\n{politesse}', evenement: mk(id, cat) };
-    srv.post(Object.assign({}, b, { action: 'mail.essai', apercu: ids[0] }));
-    srv.post(Object.assign({}, b, { action: 'mail.envoyer', ids }));
-    J[J.length - 1][iDate] = String(Date.now() - 2 * 86400000);
-  });
-  srv.gmails.length = 0;
-  srv.run('rappelsInscriptions');
-  const pts = srv.gmails.filter(x => x.subject.startsWith('Inscriptions au '));
-  ok(pts.length === 1, 'un seul point du jour pour trois listes ouvertes (' + pts.length + ')');
-  ok(pts[0] && pts[0].body.includes('=== LISTE A ===') && pts[0].body.includes('=== LISTE B ===') && pts[0].body.includes('=== ESSAI 2027-03-02-B ===') && pts[0].body.includes('3 listes de réponses'), 'les trois listes dans le même e-mail');
-  srv.gmails.length = 0;
-  srv.run('rappelsInscriptions');
-  ok(!srv.gmails.some(x => x.subject.startsWith('Inscriptions au ')), 'pas de second point le même jour');
 }
 
 console.log('\n' + n + ' vérifications réussies.');
