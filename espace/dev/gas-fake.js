@@ -181,12 +181,20 @@ function charger(opts) {
     }
   };
   vm.createContext(ctx);
+  // Horloge figée en option (tests indépendants de la date du jour) : le temps s'écoule normalement à partir de opts.maintenant
+  if (opts.maintenant) {
+    const off = opts.maintenant - Date.now();
+    vm.runInContext('(function(){var R=Date,o=' + off + ';function D(){if(!(this instanceof D))return new R(R.now()+o).toString();' +
+      'var a=Array.prototype.slice.call(arguments);return a.length?new (Function.prototype.bind.apply(R,[null].concat(a)))():new R(R.now()+o);}' +
+      'D.now=function(){return R.now()+o};D.UTC=R.UTC;D.parse=R.parse;D.prototype=R.prototype;globalThis.Date=D;})()', ctx);
+  }
   const code = fs.readFileSync(path.join(__dirname, '..', 'serveur', 'Code.gs'), 'utf8');
   vm.runInContext(code, ctx, { filename: 'Code.gs' });
   if (opts.extra) vm.runInContext(opts.extra, ctx, { filename: 'extra.gs' });
 
   return {
     ctx, sheets, props, cache, mails, github, claude, gmails, drive,
+    now: () => vm.runInContext('Date.now()', ctx),
     run: (fnName) => vm.runInContext(fnName + '()', ctx),
     post: (body) => JSON.parse(ctx.doPost({ postData: { contents: JSON.stringify(body) } }).content),
     lastCode: (email) => {

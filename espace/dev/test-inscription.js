@@ -10,7 +10,8 @@ const MEMBRES = [ENTETE,
   L('Candidat', 'MARTIN', 'Claire', 'Madame', 'claire.martin@pt.lu'),
   L('Candidat', 'NEU', 'Paul', 'Monsieur', 'paul.neu@pt.lu')];
 
-const srv = charger({ membres: MEMBRES });
+// Horloge figée au 1er novembre 2026 : les dates limites des données de test (5 et 8 novembre) restent à venir
+const srv = charger({ membres: MEMBRES, maintenant: Date.parse('2026-11-01T09:00:00Z') });
 let n = 0;
 function ok(cond, msg) { assert.ok(cond, msg); n++; console.log('  ✓ ' + msg); }
 
@@ -125,7 +126,7 @@ ok(m4.body.startsWith('Chère candidate, cher candidat,') && m4.body.indexOf('Je
 console.log('Point quotidien jusqu’à la date limite');
 ok(!srv.post(Object.assign({}, base2, { action: 'mail.essai', evenement: Object.assign({}, evt2, { suiviCc: 'pas-une-adresse' }) })).ok, 'adresse de copie invalide refusée');
 const jl = srv.sheets.JournalEnvois.data, iDate = jl[0].indexOf('Date');
-jl.forEach((x, i) => { if (i && x[9] === id2) x[iDate] = String(Date.now() - 2 * 86400000); });
+jl.forEach((x, i) => { if (i && x[9] === id2) x[iDate] = String(srv.now() - 2 * 86400000); });
 srv.gmails.length = 0;
 srv.run('rappelsInscriptions');
 const pj = srv.gmails.filter(x => x.subject.startsWith('Inscriptions au '));
@@ -181,7 +182,7 @@ ok(autres.total === 3 && autres.oui === 1 && autres.repas[1].n === 2 && cands.pe
 
 console.log('Rappels à dates choisies');
 {
-  const iso = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
+  const iso = (d) => new Date(srv.now() + d * 86400000).toISOString().slice(0, 10);
   const fr = (x) => x.split('-').reverse().join('/');
   const ev = { id: '2027-01-10-messe', date: iso(40), heure: '16:00', titre: 'Messe du dimanche', lieu: 'Chapelle', categorie: 'Messe', rappels: fr(iso(-1)) + ', ' + iso(5) + ', ' + iso(90) };
   ok(srv.run('(() => evenementDe_(' + JSON.stringify(ev) + ').rappels.join())') === [iso(-1), iso(5)].join(), 'dates lues (jj/mm/aaaa ou aaaa-mm-jj), au plus tard le jour de l’événement');
@@ -189,7 +190,7 @@ console.log('Rappels à dates choisies');
   srv.post(Object.assign({}, b2, { action: 'mail.essai', apercu: ids[0] })); srv.gmails.length = 0;
   ok(srv.post(Object.assign({}, b2, { action: 'mail.envoyer', ids })).ok, 'invitation avec rappels envoyée');
   const J = srv.sheets.JournalEnvois.data, lg = J[J.length - 1], id2 = lg[9];
-  lg[0] = String(Date.now() - 5 * 86400000);   // invitation partie il y a 5 jours
+  lg[0] = String(srv.now() - 5 * 86400000);   // invitation partie il y a 5 jours
   srv.post({ action: 'insc.repondre', t: srv.run('(() => jetonInsc_("' + id2 + '", "' + ids[0] + '"))'), reponse: 'oui', accompagnants: 0, noms: [] });
   srv.gmails.length = 0; srv.run('rappelsInscriptions');
   const rel = srv.gmails.filter(x => x.subject.startsWith('Votre réponse'));
@@ -214,7 +215,7 @@ console.log('Invitation ajoutée ou renvoyée après l’envoi groupé');
   const J = srv.sheets.JournalEnvois.data;
   srv.post(Object.assign({}, b, { action: 'mail.essai', apercu: ids[0] }));
   ok(srv.post(Object.assign({}, b, { action: 'mail.envoyer', ids: [ids[0], ids[1]] })).ok, 'envoi groupé à deux personnes');
-  J[J.length - 1][0] = String(Date.now() - 60000);
+  J[J.length - 1][0] = String(srv.now() - 60000);
   let s1 = srv.run('(() => inscriptionsEvenement_("2027-02-01-ajout"))');
   ok(s1.total === 2 && !s1.test, 'deux invités');
   ok(srv.post(Object.assign({}, b, { action: 'mail.envoyer', ids: [ids[2]] })).ok, 'personne ajoutée : envoi individuel');
@@ -233,7 +234,7 @@ console.log('Invitation ajoutée ou renvoyée après l’envoi groupé');
 
 console.log('Point du jour : un seul e-mail pour toutes les listes');
 {
-  const iso = (d) => new Date(Date.now() + d * 86400000).toISOString().slice(0, 10);
+  const iso = (d) => new Date(srv.now() + d * 86400000).toISOString().slice(0, 10);
   const J = srv.sheets.JournalEnvois.data, iDate = J[0].indexOf('Date');
   // Fermer les listes précédentes pour isoler ce test
   const iE = J[0].indexOf('Evenement');
@@ -243,7 +244,7 @@ console.log('Point du jour : un seul e-mail pour toutes les listes');
     const b = { token: tJB, casquette: 'secretaire', objet: 'Point ' + id + cat, corps: '{appel}\n\nInvitation.\n\n{politesse}', evenement: mk(id, cat) };
     srv.post(Object.assign({}, b, { action: 'mail.essai', apercu: ids[0] }));
     srv.post(Object.assign({}, b, { action: 'mail.envoyer', ids }));
-    J[J.length - 1][iDate] = String(Date.now() - 2 * 86400000);
+    J[J.length - 1][iDate] = String(srv.now() - 2 * 86400000);
   });
   srv.gmails.length = 0;
   srv.run('rappelsInscriptions');
