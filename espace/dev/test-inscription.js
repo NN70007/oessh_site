@@ -256,4 +256,15 @@ console.log('Point du jour : un seul e-mail pour toutes les listes');
   ok(!srv.gmails.some(x => x.subject.startsWith('Inscriptions au ')), 'pas de second point le même jour');
 }
 
+console.log('Invitation à une seule personne, avec copie');
+{
+  const e6 = Object.assign({}, evt, { id: '2027-01-09-retraite-c', limite: '2026-12-01' });
+  srv.gmails.length = 0;
+  const r6 = srv.post({ action: 'mail.envoyer', token: tJB, casquette: 'secretaire', objet: 'Ton invitation', corps: 'Cher ami,\n\nClique sur le bouton.', evenement: e6, ids: [ids[0]], copie: ['joris@exemple.lu'] });
+  const dest = srv.gmails.find(x => x.to !== 'joris@exemple.lu'), cp = srv.gmails.find(x => x.to === 'joris@exemple.lu');
+  ok(r6.ok && r6.envoyes === 1, 'invitation à une seule personne envoyée sans essai');
+  ok(dest && dest.body.includes('Je viendrai :'), 'le destinataire reçoit ses boutons');
+  ok(cp && !cp.body.includes('Je viendrai') && !cp.htmlBody.includes('inscription/?t=') && cp.body.includes('boutons de réponse personnels ont été retirés'), 'la copie n’a aucun bouton de réponse');
+}
+
 console.log('\n' + n + ' vérifications réussies.');

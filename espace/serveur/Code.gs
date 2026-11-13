@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-11-04a',
+  VERSION: '2026-11-13a',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -58,7 +58,7 @@ var ONGLETS = {
   // Carnet des candidats : liste des documents convenus (titre, responsable), puis les fichiers déposés pour chacun
   RetCarnet: ['Id', 'Ordre', 'Titre', 'Responsable', 'Note'],
   RetDocuments: ['Id', 'Creneau', 'Fichier', 'Nom', 'Taille', 'Par', 'Email', 'Le'],
-  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type', 'PJ', 'Id', 'RepondreA', 'Destinataires', 'Evenement'],
+  JournalEnvois: ['Date', 'Qui', 'Casquette', 'Objet', 'Groupes', 'Nb', 'Erreurs', 'Type', 'PJ', 'Id', 'RepondreA', 'Destinataires', 'Evenement', 'Copie'],
   // Placement et procession : réglages d'une cérémonie (rôles du jour, corrections), partagés par tous les utilisateurs du Courrier e-mail
   Ceremonial: ['Evenement', 'Donnees', 'MajLe', 'MajPar']
 };
@@ -1414,14 +1414,16 @@ function mailEssai_(u, req) {
 function mailEnvoyer_(u, req) {
   exigerEnvois_(u);
   var P = preparerMail_(u, req);
-  if (!CacheService.getScriptCache().get('essai:' + u.email + ':' + P.empreinte)) {
-    throw refus_('Faites d’abord un envoi d’essai de ce texte exact : il a changé depuis le dernier essai.', 'essai');
-  }
-  verifierAlias_();
   var ids = (Array.isArray(req.ids) ? req.ids : []).map(String);
   var membres = lireMembres_();
   var cibles = membres.filter(function (m) { return ids.indexOf(m.id) > -1; });
   if (!cibles.length) throw refus_('Aucun destinataire sélectionné.', 'donnees');
+  // Essai obligatoire, sauf pour une seule personne sans pièce jointe : l'aperçu montre alors exactement ce qu'elle reçoit.
+  if (!essaiFacultatif_(cibles, P) && !CacheService.getScriptCache().get('essai:' + u.email + ':' + P.empreinte)) {
+    throw refus_('Faites d’abord un envoi d’essai de ce texte exact : il a changé depuis le dernier essai.', 'essai');
+  }
+  var copie = adressesCopie_(req.copie);
+  verifierAlias_();
   if (cibles.length > CONFIG.ENVOI_MAX) throw refus_('Trop de destinataires en une fois (' + cibles.length + ', maximum ' + CONFIG.ENVOI_MAX + ').', 'donnees');
   var avec = cibles.filter(function (m) { return m.email; });
   if (P.corps.indexOf('{perso}') > -1) {
@@ -1441,12 +1443,43 @@ function mailEnvoyer_(u, req) {
   // Pièces jointes envoyées à tous : plus utiles, mises à la corbeille de Drive (gardées en cas d'échec, pour renvoyer).
   var pjSupprimees = !erreurs.length && P.pj.ids.length ? corbeillePJ_(P.pj.ids) : false;
   var sans = cibles.filter(function (m) { return !m.email; }).map(function (m) { return (m.prenom ? m.prenom + ' ' : '') + m.nom; });
+  var copieOk = envoyes && copie.length ? envoyerCopie_(u, P, recus, avec, copie) : [];
   var groupesTxt = texte_(Array.isArray(req.groupes) ? req.groupes.join(', ') : req.groupes, 200);
   journalEnvoi_({ Date: String(Date.now()), Qui: u.email, Casquette: P.casq.code, Objet: P.objet, Groupes: groupesTxt, Nb: String(envoyes), Erreurs: erreurs.join(', '), Type: 'envoi', PJ: P.pj.noms.join(', '),
     Id: P.suivi || P.evt ? envoiId : '', RepondreA: P.casq.repondreA, Destinataires: P.suivi || P.evt ? JSON.stringify(recus) : '',
-    Evenement: P.evt ? JSON.stringify(P.evt) : '' });
-  journal_(u.email, 'mail.envoi', P.objet + ' - ' + envoyes + ' destinataire(s)' + (erreurs.length ? ', ' + erreurs.length + ' erreur(s)' : ''));
-  return { ok: true, envoyes: envoyes, erreurs: erreurs, sansCourriel: sans, pjSupprimees: pjSupprimees };
+    Evenement: P.evt ? JSON.stringify(P.evt) : '', Copie: copieOk.join(', ') });
+  journal_(u.email, 'mail.envoi', P.objet + ' - ' + envoyes + ' destinataire(s)' + (erreurs.length ? ', ' + erreurs.length + ' erreur(s)' : '') + (copieOk.length ? ', copie à ' + copieOk.join(', ') : ''));
+  return { ok: true, envoyes: envoyes, erreurs: erreurs, sansCourriel: sans, pjSupprimees: pjSupprimees, copie: copieOk, copieEchec: copie.filter(function (a) { return copieOk.indexOf(a) < 0; }) };
+}
+
+/** Une seule personne (avec adresse) et aucune pièce jointe : l'essai n'est pas exigé. */
+function essaiFacultatif_(cibles, P) { return cibles.length === 1 && !!cibles[0].email && !P.pj.ids.length; }
+
+/** Adresses « Copie à » : 5 au plus, valides, sans doublon. */
+function adressesCopie_(v) {
+  var l = (Array.isArray(v) ? v : String(v || '').split(/[,;\s]+/)).map(norm_).filter(Boolean), out = [];
+  l.forEach(function (a) {
+    if (!/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(a)) throw refus_('Adresse en copie invalide : ' + a, 'donnees');
+    if (out.indexOf(a) < 0) out.push(a);
+  });
+  if (out.length > 5) throw refus_('Cinq adresses au plus en copie.', 'donnees');
+  return out;
+}
+
+/** Copie pour information : un seul courriel par adresse, sans boutons de réponse (un clic inscrirait le destinataire à sa place). */
+function envoyerCopie_(u, P, recus, avec, copie) {
+  var seul = recus.length === 1 ? avec.filter(function (m) { return norm_(m.email) === norm_(recus[0][1]); })[0] : null;
+  var modele = seul || { nom: '', prenom: '', appel: 'Cher Confrère,', groupe: 'lt' };
+  var c = composerMail_(u, P, modele, '');
+  var qui = recus.length === 1 ? recus[0][0] + ' (' + recus[0][1] + ')' : recus.length + ' destinataires';
+  var info = 'Copie pour information de l’e-mail envoyé à ' + qui + '.' +
+    (P.evt ? ' L’invitation « ' + P.evt.titre + ' » et ses boutons de réponse personnels ont été retirés de cette copie.' : '');
+  var esc = function (x) { return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+  c.texte = info + '\n\n' + c.texte;
+  c.html = '<div style="max-width:640px;margin:0 auto 10px;padding:10px 14px;background:#fff8e6;border:1px solid #b08a4f;font:14px Arial,sans-serif;color:#5a4a2a">' + esc(info) + '</div>' + c.html;
+  var ok = [];
+  copie.forEach(function (a) { try { expedier_(P, a, c, '[Copie] ' + P.objet); ok.push(a); } catch (e) { /* signalé dans copieEchec */ } });
+  return ok;
 }
 
 /* ======================= Courrier e-mail : suivi des réponses ======================= */

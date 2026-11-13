@@ -74,7 +74,7 @@ function repasTxt(r) { return "Repas" + (r.lieu ? " : " + r.lieu : "") + (r.heur
 function decaler(iso, n) { var p = iso.split("-").map(Number), d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n, 12)); return d.toISOString().slice(0, 10); }
 
 /* ── Chargement ── */
-var VERSION_SERVEUR = "2026-11-04a";   // doit correspondre à CONFIG.VERSION dans Code.gs
+var VERSION_SERVEUR = "2026-11-13a";   // doit correspondre à CONFIG.VERSION dans Code.gs
 E.api("mail.charger").then(function (r) {
   D = r;
   D.membres.forEach(function (m) { MEMBRES[m.id] = m; });
@@ -202,9 +202,11 @@ function maj() {
   var c = casq(), pret = !!(c && $("in-objet").value.trim() && $("in-corps").value.trim());
   $("btn-essai").disabled = !pret || pjEnCours > 0;
   var essaiValide = essaiOk && essaiOk === empreinte();
-  $("btn-envoyer").disabled = !(pret && essaiValide && avec > 0) || pjEnCours > 0;
+  var sansEssai = avec === 1 && !PIECES.length;   // une seule personne sans pièce jointe : l'aperçu suffit (même règle que le serveur)
+  $("btn-envoyer").disabled = !(pret && (essaiValide || sansEssai) && avec > 0) || pjEnCours > 0;
   $("btn-envoyer").textContent = "Envoyer à " + avec + " personne" + (avec > 1 ? "s" : "");
-  $("envoi-aide").textContent = essaiValide ? "Essai fait pour ce texte : vous pouvez envoyer." : "L’envoi réel s’active après un essai du texte exact.";
+  $("envoi-aide").textContent = essaiValide ? "Essai fait pour ce texte : vous pouvez envoyer." :
+    sansEssai ? "Un seul destinataire : l’aperçu montre ce qu’il recevra, l’essai est facultatif." : "L’envoi réel s’active après un essai du texte exact.";
 }
 ["in-objet", "in-corps", "in-perso"].forEach(function (id) { $(id).addEventListener("input", maj); });
 
@@ -307,6 +309,7 @@ function dessinerApercu() {
 /* ── Essai et envoi ── */
 function etat(txt, ok) { var el = $("etat"); el.textContent = txt; el.className = "etat visible " + (ok ? "ok" : "ko"); }
 function demande() { return { casquette: $("in-casq").value, repondreA: repondre(), objet: $("in-objet").value.trim(), corps: $("in-corps").value, pieces: PIECES.map(function (p) { return p.id; }), evenement: evtChoisi(), perso: $("in-perso").value }; }
+function copies() { return $("in-copie").value.split(/[,;\s]+/).map(function (a) { return a.trim().toLowerCase(); }).filter(Boolean); }
 /* Texte {perso} d'un destinataire : ligne « Prénom NOM : texte », comparée sans casse, accents ni ordre des mots (même règle que le serveur) */
 function normNom(s) { return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z]+/g, " ").trim(); }
 function memeNom(a, b) {
@@ -335,11 +338,18 @@ $("btn-essai").addEventListener("click", function () {
 $("btn-envoyer").addEventListener("click", function () {
   var b = this, c = casq();
   var ids = Object.keys(choisis), avec = ids.filter(function (id) { return !MEMBRES[id].sansCourriel; }).length;
-  if (!confirm("Vous allez envoyer ce courriel à " + avec + " personne" + (avec > 1 ? "s" : "") + ", en qualité de " + c.signature + " (" + c.entiteNom + ")" + (PIECES.length ? ", avec " + PIECES.length + " pièce" + (PIECES.length > 1 ? "s jointes" : " jointe") : "") + ".\n\nConfirmer l’envoi ?")) return;
+  var cc = copies(), mauvaise = cc.filter(function (a) { return !/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(a); });
+  if (mauvaise.length) { etat("Adresse en copie invalide : " + mauvaise.join(", "), false); return; }
+  if (cc.length > 5) { etat("Cinq adresses au plus en copie.", false); return; }
+  var seul = avec === 1 ? MEMBRES[ids.filter(function (id) { return !MEMBRES[id].sansCourriel; })[0]] : null;
+  if (!confirm("Vous allez envoyer ce courriel à " + (seul ? nomComplet(seul) : avec + " personnes") + ", en qualité de " + c.signature + " (" + c.entiteNom + ")" + (PIECES.length ? ", avec " + PIECES.length + " pièce" + (PIECES.length > 1 ? "s jointes" : " jointe") : "") + "." +
+    (cc.length ? "\nCopie pour information à : " + cc.join(", ") + "." : "") + "\n\nConfirmer l’envoi ?")) return;
   var groupes = D.groupes.filter(function (g) { return groupesCoches[g.id]; }).map(function (g) { return g.nom; });
   b.disabled = true; b.textContent = "Envoi en cours…";
-  E.api("mail.envoyer", Object.assign(demande(), { ids: ids, groupes: groupes.length ? groupes : ["sélection individuelle"] })).then(function (r) {
+  E.api("mail.envoyer", Object.assign(demande(), { ids: ids, groupes: groupes.length ? groupes : ["sélection individuelle"], copie: cc })).then(function (r) {
     var txt = "Courriel envoyé à " + r.envoyes + " personne" + (r.envoyes > 1 ? "s" : "") + ".";
+    if (r.copie && r.copie.length) { txt += " Copie envoyée à " + r.copie.join(", ") + "."; $("in-copie").value = ""; }
+    if (r.copieEchec && r.copieEchec.length) txt += " Copie non envoyée à : " + r.copieEchec.join(", ") + ".";
     if (r.erreurs && r.erreurs.length) txt += " Échec pour : " + r.erreurs.join(", ") + ".";
     if (r.sansCourriel && r.sansCourriel.length) txt += " À prévenir par la poste : " + r.sansCourriel.join(", ") + ".";
     if (r.pjSupprimees) { txt += " Pièces jointes retirées du Drive."; PIECES = []; dessinerPieces(); }
