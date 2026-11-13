@@ -4,7 +4,7 @@
 var E=window.Espace, esc=E.esc, $=function(s){return document.querySelector(s);};
 var S=E.requireLogin(); if(!S) return;
 if(!S.user.gestion){ location.replace("./"); return; }
-var personnes=[], editing=null, delArmed=false;
+var personnes=[], casquettes=[], editing=null, delArmed=false;
 var INV={organisateur:"Organisateur",contributeur:"Contributeur",lecture:"Lecture",intervenant:"Intervenant"};
 
 E.renderTop({section:"Accès",tabs:E.sectionTabs([{id:"sec-roles",t:"Rôles"},{id:"sec-personnes",t:"Personnes inscrites"},{id:"sec-journal",t:"Journal"}])}); E.renderFoot();
@@ -14,7 +14,7 @@ function yes(b){ return b?'<span class="yes" aria-label="oui">✓</span>':'<span
 function render(){
   if(!personnes.length){ $("#list").innerHTML='<div class="notice"><h4>Personne n\'est inscrit.</h4></div>'; return; }
   var rows=personnes.slice().sort(function(a,b){return a.nom.localeCompare(b.nom,"fr");});
-  $("#list").innerHTML='<div class="acc-scroll"><table class="acc"><thead><tr><th>Personne</th><th>Investiture</th><th>Retraite</th><th class="c">Actualités</th><th class="c">Lectures</th><th class="c">Newsletter</th><th class="c">Gestion</th><th></th></tr></thead><tbody>'+
+  $("#list").innerHTML='<div class="acc-scroll"><table class="acc"><thead><tr><th>Personne</th><th>Investiture</th><th>Retraite</th><th class="c">Actualités</th><th class="c">Lectures</th><th class="c">Newsletter</th><th class="c">Gestion</th><th class="c">E-mail</th><th></th></tr></thead><tbody>'+
     rows.map(function(p){
       return '<tr class="'+(p.actif?"":"off")+'"><td><div class="nm">'+esc(p.nom)+(isSelf(p)?' <span class="role-pill">vous</span>':'')+'</div><div class="em">'+p.emails.map(esc).join('<br>')+'</div>'+(p.note?'<div style="font-size:12.5px;color:var(--ink-mute);font-style:italic">'+esc(p.note)+'</div>':"")+(p.actif?"":'<div style="font-size:12px;color:var(--cardinal)">Accès désactivé</div>')+'</td>'+
         '<td>'+(p.inv?'<span class="role-pill">'+INV[p.inv]+'</span>':'<span class="no">—</span>')+'</td>'+
@@ -29,7 +29,7 @@ function renderJournal(j){
   $("#journal").innerHTML=j.length?j.map(function(x){return '<li><span class="when">'+esc(whenStr(x.ts))+'</span><span class="what"><b>'+esc(x.qui)+'</b> · '+esc(ACT[x.action]||x.action)+(x.detail?' — '+esc(x.detail):'')+'</span></li>';}).join(""):'<li><span class="when">—</span><span class="what">Rien pour l\'instant.</span></li>';
 }
 async function load(){
-  try{ var out=await E.api("acces.lister"); personnes=out.personnes; render(); renderJournal(out.journal); }
+  try{ var out=await E.api("acces.lister"); personnes=out.personnes; casquettes=out.casquettes||[]; render(); renderJournal(out.journal); }
   catch(e){ $("#list").innerHTML='<div class="notice"><h4>Impossible de charger la liste.</h4><p>'+esc(e.message)+'</p></div>'; }
 }
 
@@ -41,6 +41,10 @@ function open(p){
   $("#p-inv").value=p?p.inv:"";
   $("#p-ret").value=p?(p.ret||""):"";
   $("#p-act").checked=!!(p&&p.site.actualites); $("#p-lec").checked=!!(p&&p.site.lectures); $("#p-nl").checked=!!(p&&p.site.newsletter);
+  $("#p-env").checked=!!(p&&p.envois); $("#p-sig").value=p?(p.sig||""):"";
+  var mes=p?(p.casquettes||[]):[];
+  $("#p-casq").innerHTML=casquettes.map(function(c){return '<label><input type="checkbox" data-casq="'+esc(c.code)+'"'+(mes.indexOf(c.code)>-1?" checked":"")+'> '+esc(c.libelle)+'</label>';}).join("");
+  majCasq();
   $("#p-gest").checked=!!(p&&p.gestion); $("#p-actif").checked=p?p.actif:true; $("#p-note").value=p?p.note:"";
   var self=p&&isSelf(p);
   $("#p-gest").disabled=!!self; $("#p-actif").disabled=!!self;
@@ -49,6 +53,8 @@ function open(p){
   $("#p-err").hidden=true;
   dlg.showModal(); $("#p-nom").focus();
 }
+function majCasq(){ $("#p-casq-bloc").hidden=!$("#p-env").checked; }
+$("#p-env").addEventListener("change",majCasq);
 $("#btn-add").addEventListener("click",function(){ open(null); });
 $("#list").addEventListener("click",function(e){ var b=e.target.closest("button[data-email]"); if(!b) return; var p=personnes.filter(function(x){return x.cle===b.dataset.email;})[0]; if(p) open(p); });
 $("#p-cancel").addEventListener("click",function(){ dlg.close(); });
@@ -74,7 +80,9 @@ $("#f").addEventListener("submit",async function(e){
   e.preventDefault();
   var p={nom:$("#p-nom").value.trim(),email:$("#p-email").value.trim(),inv:$("#p-inv").value,ret:$("#p-ret").value,
     site:{actualites:$("#p-act").checked,lectures:$("#p-lec").checked,newsletter:$("#p-nl").checked},
-    gestion:$("#p-gest").checked,actif:$("#p-actif").checked,note:$("#p-note").value.trim()};
+    gestion:$("#p-gest").checked,actif:$("#p-actif").checked,note:$("#p-note").value.trim(),
+    courriel:{envois:$("#p-env").checked,signature:$("#p-sig").value.trim(),casquettes:Array.prototype.map.call(document.querySelectorAll("#p-casq input:checked"),function(x){return x.dataset.casq;})}};
+  if(p.courriel.envois&&!p.courriel.casquettes.length){ $("#p-err").textContent="Cochez au moins une fonction pour le Courrier e-mail."; $("#p-err").hidden=false; return; }
   var ems=p.email.split(/[;,\s]+/).filter(Boolean);
   if(!p.nom||!ems.length||ems.some(function(x){return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x);})){ $("#p-err").textContent="Indiquez un nom et des adresses e-mail valides (séparées par une virgule)."; $("#p-err").hidden=false; return; }
   try{

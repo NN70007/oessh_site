@@ -27,7 +27,7 @@ var CONFIG = {
   MEMBRES_SHEET_ID: '1WPR56P1h8u7lSIVJRMc8S2lR8aMGQgbCJ_-UDwdidnQ',
   ENVOI_ALIAS: 'envois@oessh.lu',
   // Version du code, comparée par la page Courrier e-mail pour signaler un déploiement oublié
-  VERSION: '2026-11-13a',
+  VERSION: '2026-11-13b',
   // Suivi des réponses : actif seulement quand la propriété du script REPONSES_ALIAS est renseignée
   // (alias de collecte du compte du script, par ex. reponses@oessh.lu). Copies effacées après ce délai.
   REPONSES_JOURS: 180,   // six mois
@@ -858,10 +858,13 @@ function docTout_(P, u) {
 function accesLister_(u) {
   exigerGestion_(u);
   var personnes = lire_('Acces').map(function (r) {
-    var x = userFromRow_(r); delete x.email; x.actif = oui_(r.Actif); x.note = r.Note || ''; return x;
+    var x = userFromRow_(r); delete x.email; x.actif = oui_(r.Actif); x.note = r.Note || ''; x.sig = colSignature_(r);
+    x.casquettes = codesCasquettes_(x.roles); return x;
   });
   var journal = lire_('Journal').slice(-60).reverse().map(function (r) { return { ts: Number(r.Date) || 0, qui: r.Qui, action: r.Action, detail: r.Detail }; });
-  return { ok: true, personnes: personnes, journal: journal };
+  // Fonctions proposées pour le Courrier e-mail (colonne Roles), dans l'ordre du tableau CASQUETTES
+  var casquettes = Object.keys(CASQUETTES).map(function (c) { var k = CASQUETTES[c]; return { code: c, entite: k.e, libelle: k.s + (k.e === 'asbl' ? ' (Asbl)' : ' (Lieutenance)') }; });
+  return { ok: true, personnes: personnes, journal: journal, casquettes: casquettes };
 }
 
 function accesEnregistrer_(u, p, cleOriginale) {
@@ -895,9 +898,34 @@ function accesEnregistrer_(u, p, cleOriginale) {
       throw refus_("La colonne « Retraite » manque dans l'onglet Acces : lancez « installer » dans le script.", 'installation');
     }
     ligne.Retraite = ret;
+    // Courrier e-mail : droit d'envoi, fonctions (colonne Roles) et nom de signature. Les codes de Roles inconnus ici
+    // (ex. réservés à un autre outil) sont conservés tels quels.
+    if (p.courriel && typeof p.courriel === 'object') {
+      var c = p.courriel, choisies = (Array.isArray(c.casquettes) ? c.casquettes : []).map(norm_).filter(function (x) { return CASQUETTES[x]; });
+      var avant = cible ? String(cible.Roles || '').split(/[,;\s]+/).filter(Boolean) : [];
+      var autres = avant.filter(function (x) { var n = norm_(x); return !CASQUETTES[CASQUETTES_ALIAS[n] || n]; });
+      var roles = autres.concat(choisies.filter(function (x, i) { return choisies.indexOf(x) === i; })).join(', ');
+      var parCle = function (r) { return cle_(r) === ems[0]; };
+      colonneAssuree_('Acces', COL_ENVOIS); colonneAssuree_('Acces', 'Roles'); var colSig = colonneAssuree_('Acces', 'Signature');
+      ecrireColonne_('Acces', parCle, COL_ENVOIS, c.envois ? 'oui' : '');
+      ecrireColonne_('Acces', parCle, 'Roles', roles);
+      ecrireColonne_('Acces', parCle, colSig, texte_(c.signature, 80));
+      ligne.Envois = c.envois ? 'oui' : ''; ligne.Roles = choisies.join(', ');
+    }
     journal_(u.email, cible ? 'acces.modifie' : 'acces.ajoute', resumeDroits_(ligne));
     return { ok: true };
   });
+}
+/** Codes de fonction reconnus dans une valeur de la colonne Roles. */
+function codesCasquettes_(roles) {
+  return String(roles || '').split(/[,;\s]+/).map(function (c) { c = norm_(c); return CASQUETTES_ALIAS[c] || c; }).filter(function (c, i, t) { return CASQUETTES[c] && t.indexOf(c) === i; });
+}
+/** Renvoie l'en-tête exact d'une colonne (comparaison sans espaces ni casse) ; la crée en fin d'onglet si elle manque. */
+function colonneAssuree_(nom, entete) {
+  var sh = feuille_(nom), head = sh.getRange(1, 1, 1, Math.max(1, sh.getLastColumn())).getValues()[0];
+  for (var i = 0; i < head.length; i++) if (String(head[i]).trim().toLowerCase() === entete.toLowerCase()) return head[i];
+  sh.getRange(1, head.length + 1).setValue(entete);
+  return entete;
 }
 
 function accesSupprimer_(u, cle) {
@@ -932,6 +960,7 @@ function resumeDroits_(l) {
   if (l.Retraite) d.push('retraite : ' + l.Retraite);
   ['Actualites', 'Lectures', 'Newsletter'].forEach(function (k) { if (l[k]) d.push(k.toLowerCase()); });
   if (l.Gestion) d.push('gestion des accès');
+  if (l.Envois) d.push('courrier e-mail' + (l.Roles ? ' (' + l.Roles + ')' : ''));
   return l.Email + ' — ' + (d.join(', ') || 'aucun droit') + (l.Actif !== 'oui' ? ' (désactivé)' : '');
 }
 function journal_(qui, action, detail) { ajouter_('Journal', { Date: String(Date.now()), Qui: qui, Action: action, Detail: detail }); }

@@ -75,6 +75,16 @@
       </div>
       <p class="help">Donne accès aux rubriques correspondantes de l'admin du site. Aucune clé à configurer : la publication passe par le serveur.</p>
     </div>
+    <div class="field"><span>Courrier e-mail</span>
+      <div class="checks">
+        <label><input type="checkbox" id="p-env"> Peut écrire aux membres (page Courrier e-mail)</label>
+      </div>
+      <div id="p-casq-bloc">
+        <p class="help" style="margin:6px 0 8px">Fonctions au nom desquelles la personne peut écrire (la réponse arrive à l'adresse de la fonction) :</p>
+        <div class="checks" id="p-casq"></div>
+        <label class="field" style="margin-top:12px"><span>Nom de signature (facultatif)</span><input type="text" id="p-sig" maxlength="80" placeholder="Ex. Dr Marie Exemple ; vide = nom ci-dessus"></label>
+      </div>
+    </div>
     <div class="field"><span>Gestion</span>
       <div class="checks">
         <label><input type="checkbox" id="p-gest"> Peut gérer les accès (cette page)</label>
@@ -92,6 +102,6 @@
 
 <script src="config.js"></script>
 <script src="espace.js?v=20261102d"></script>
-<script src="page-acces.js?v=20261019a"></script>
+<script src="page-acces.js?v=20261113b"></script>
 </body>
 </html>

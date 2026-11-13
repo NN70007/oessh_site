@@ -259,4 +259,26 @@ const auto = charger({ autonome: true });
 ok(/Installation terminée/.test(auto.run('installer')) && auto.props.SHEET_ID === 'fake', 'installer crée et mémorise la feuille si le script n\'est pas rattaché');
 ok(auto.sheets.Acces.data.length === 2, 'onglets créés dans la feuille mémorisée');
 
+console.log('Accès : Courrier e-mail (droit d\'envoi, fonctions, signature)');
+{
+  const s3 = charger({});
+  s3.run('installer');
+  const A = s3.sheets.Acces.data; A[0].push('Roles'); A[1][A[0].indexOf('Roles')] = 'secretaire';
+  s3.post({ action: 'auth.demanderCode', email: 'jb.niedercorn@gmail.com' });
+  const t = s3.post({ action: 'auth.verifierCode', email: 'jb.niedercorn@gmail.com', code: s3.lastCode('jb.niedercorn@gmail.com') }).token;
+  const l0 = s3.post({ action: 'acces.lister', token: t });
+  ok(l0.casquettes && l0.casquettes.some(c => c.code === 'lieutenant' && /Lieutenance/.test(c.libelle)) && l0.casquettes.some(c => c.code === 'president_asbl'), 'les fonctions sont proposées à la page Accès');
+  ok(s3.post({ action: 'acces.enregistrer', token: t, personne: { email: 'jk@x.lu, lieutenant@oessh.lu', nom: 'Jacques Test', site: {}, courriel: { envois: true, casquettes: ['lieutenant', 'president_asbl', 'inconnu'], signature: 'Jacques TEST' } } }).ok, 'ajout avec droit Courrier e-mail');
+  const H = A[0], row = A.find(r => String(r[0]).indexOf('jk@x.lu') > -1);
+  const col = (h) => row[H.findIndex(x => String(x).trim().toLowerCase() === h.toLowerCase())];
+  ok(col('Envois') === 'oui' && col('Roles') === 'lieutenant, president_asbl' && col('Signature') === 'Jacques TEST', 'Envois, Roles et Signature écrits (colonne Signature créée si besoin)');
+  const p = s3.post({ action: 'acces.lister', token: t }).personnes.find(x => x.nom === 'Jacques Test');
+  ok(p.envois && p.casquettes.join() === 'lieutenant,president_asbl' && p.sig === 'Jacques TEST' && p.emails.length === 2, 'relu par la page : droit, fonctions, signature et deux adresses');
+  // Un code inconnu de Roles (autre outil) est conservé ; retirer le droit vide Envois
+  row[H.indexOf('Roles')] = 'lieutenant, codeperso';
+  ok(s3.post({ action: 'acces.enregistrer', token: t, emailOriginal: 'jk@x.lu', personne: { email: 'jk@x.lu, lieutenant@oessh.lu', nom: 'Jacques Test', site: {}, courriel: { envois: false, casquettes: ['chancelier'], signature: '' } } }).ok, 'modification');
+  ok(col('Envois') === '' && col('Roles') === 'codeperso, chancelier' && col('Signature') === '', 'code inconnu conservé, droit retiré, signature vidée');
+  ok(s3.post({ action: 'acces.enregistrer', token: t, emailOriginal: 'jk@x.lu', personne: { email: 'jk@x.lu', nom: 'Jacques Test', site: {} } }).ok && col('Roles') === 'codeperso, chancelier', 'sans section Courrier e-mail (ancienne page) : rien n\'est touché');
+}
+
 console.log('\n' + n + ' vérifications réussies.');

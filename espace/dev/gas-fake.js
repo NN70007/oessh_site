@@ -51,6 +51,7 @@ function charger(opts) {
       getMaxRows: () => Math.max(1000, data.length),
       setFrozenRows: () => sh,
       getLastRow: () => data.length,
+      getLastColumn: () => data.reduce((m, r) => Math.max(m, r.length), 0),
       getDataRange: () => ({ getValues: () => data.map(r => r.slice()) }),
       getRange: (r, c, nr, nc) => {
         nr = nr || 1; nc = nc || 1;
