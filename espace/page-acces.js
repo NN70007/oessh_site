@@ -7,7 +7,7 @@ if(!S.user.gestion){ location.replace("./"); return; }
 var personnes=[], casquettes=[], editing=null, delArmed=false;
 var INV={organisateur:"Organisateur",contributeur:"Contributeur",lecture:"Lecture",intervenant:"Intervenant"};
 
-E.renderTop({section:"Accès",tabs:E.sectionTabs([{id:"sec-roles",t:"Rôles"},{id:"sec-personnes",t:"Personnes inscrites"},{id:"sec-journal",t:"Journal"}])}); E.renderFoot();
+E.renderTop({section:"Accès",tabs:E.sectionTabs([{id:"sec-roles",t:"Rôles"},{id:"sec-personnes",t:"Personnes autorisées"},{id:"sec-journal",t:"Journal"}])}); E.renderFoot();
 
 function isSelf(p){ var mine=(S.user.emails||[S.user.email]); return p.emails.some(function(e){return mine.indexOf(e)>-1;}); }
 function yes(b){ return b?'<span class="yes" aria-label="oui">✓</span>':'<span class="no" aria-label="non">—</span>'; }
@@ -20,6 +20,7 @@ function render(){
         '<td>'+(p.inv?'<span class="role-pill">'+INV[p.inv]+'</span>':'<span class="no">—</span>')+'</td>'+
         '<td>'+(p.ret?'<span class="role-pill">'+INV[p.ret]+'</span>':'<span class="no">—</span>')+'</td>'+
         '<td class="c">'+yes(p.site.actualites)+'</td><td class="c">'+yes(p.site.lectures)+'</td><td class="c">'+yes(p.site.newsletter)+'</td><td class="c">'+yes(p.gestion)+'</td>'+
+        '<td class="c" title="'+esc((p.casquettes||[]).map(function(c){var k=casquettes.find(function(x){return x.code===c;});return k?k.libelle:c;}).join(", "))+'">'+yes(p.envois)+'</td>'+
         '<td><button class="btn btn-ghost btn-sm" type="button" data-email="'+esc(p.cle)+'">Modifier</button></td></tr>';
     }).join("")+'</tbody></table></div>';
 }
