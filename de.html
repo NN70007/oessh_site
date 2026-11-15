@@ -129,7 +129,7 @@
     </div>
     <div class="nav-cta">
       <div class="lang-switch" role="group" aria-label="Sprache / Language">
-        <a href="index.html" class="lang-opt">FR</a>
+        <a href="index.html?lang=fr" class="lang-opt">FR</a>
         <span class="lang-sep" aria-hidden="true">/</span>
         <a href="de.html" class="lang-opt is-active" aria-current="page">DE</a>
         <span class="lang-sep" aria-hidden="true">/</span>
@@ -148,8 +148,8 @@
     <a href="#publications" onclick="closeMobileMenu()">Publikationen</a>
     <a href="#lectures" onclick="closeMobileMenu()">Lektüre</a>
     <a href="#" onclick="closeMobileMenu();openContactModal();return false;">Kontakt</a>
-    <a href="index.html" onclick="closeMobileMenu()">Français ↗</a>
-    <a href="en.html" onclick="closeMobileMenu()">English ↗</a>
+    <a href="index.html?lang=fr" class="lang-mobile" onclick="closeMobileMenu()">Français ↗</a>
+    <a href="en.html" class="lang-mobile" onclick="closeMobileMenu()">English ↗</a>
   </div>
 </header>
 
@@ -1092,8 +1092,8 @@ document.addEventListener('keydown', function(e){
 <script src="lectures-loader.js?v=20261102"></script>
 <script src="newsletters-loader.js?v=20261102"></script>
 <script>
-/* Mémorise la langue choisie avec FR / DE / EN (prime sur la détection automatique). */
-document.querySelectorAll('.lang-opt').forEach(function(a){
+/* Mémorise la langue choisie avec FR / DE / EN, en haut de page ou dans le menu mobile (prime sur la détection automatique). */
+document.querySelectorAll('.lang-opt, .lang-mobile').forEach(function(a){
   a.addEventListener('click',function(){
     var h=a.getAttribute('href')||'', l=h.indexOf('de.html')>-1?'de':h.indexOf('en.html')>-1?'en':'fr';
     try{ localStorage.setItem('oessh_lang', l); }catch(e){}

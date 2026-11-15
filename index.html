@@ -4,12 +4,21 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <script>
-/* Langue automatique (première visite de la page d'accueil) :
-   allemand → de.html ; français, luxembourgeois, italien → reste en français ; autre langue → en.html.
-   Un choix fait avec FR / DE / EN est mémorisé et prime toujours. Les robots d'indexation ne sont pas redirigés. */
+/* Langue automatique de la page d'accueil — une simple proposition, jamais un blocage :
+   1. Un lien avec ?lang=fr|de|en (menus FR / DE / EN) enregistre ce choix et n'est jamais redirigé.
+   2. Un choix déjà enregistré prime toujours (de → de.html, en → en.html, fr → reste ici).
+   3. Sinon, à la première visite : allemand → de.html ; français, luxembourgeois, italien → reste en français ;
+      autre langue → en.html. Les robots d'indexation ne sont pas redirigés. */
 (function(){
   try{
-    if(localStorage.getItem('oessh_lang')) return;
+    var q=(location.search.match(/[?&]lang=(fr|de|en)(?:&|$)/)||[])[1];
+    if(q){ try{ localStorage.setItem('oessh_lang', q); }catch(e){} return; }
+    var s=null; try{ s=localStorage.getItem('oessh_lang'); }catch(e){}
+    if(s){
+      if(s==='de') location.replace('de.html'+location.hash);
+      else if(s==='en') location.replace('en.html'+location.hash);
+      return;
+    }
     if(location.hash || location.search) return;
     if(/bot|crawl|spider|slurp|google|bing|yandex|baidu|duckduck|facebookexternalhit|lighthouse|headless/i.test(navigator.userAgent)) return;
     var l=((navigator.languages&&navigator.languages[0])||navigator.language||'fr').toLowerCase().slice(0,2);
@@ -147,7 +156,7 @@
     </div>
     <div class="nav-cta">
       <div class="lang-switch" role="group" aria-label="Langue / Language">
-        <a href="index.html" class="lang-opt is-active" aria-current="page">FR</a>
+        <a href="index.html?lang=fr" class="lang-opt is-active" aria-current="page">FR</a>
         <span class="lang-sep" aria-hidden="true">/</span>
         <a href="de.html" class="lang-opt">DE</a>
         <span class="lang-sep" aria-hidden="true">/</span>
@@ -166,8 +175,8 @@
     <a href="#publications" onclick="closeMobileMenu()">Publications</a>
     <a href="#lectures" onclick="closeMobileMenu()">Lectures</a>
     <a href="#" onclick="closeMobileMenu();openContactModal();return false;">Contact</a>
-    <a href="de.html" onclick="closeMobileMenu()">Deutsch ↗</a>
-    <a href="en.html" onclick="closeMobileMenu()">English ↗</a>
+    <a href="de.html" class="lang-mobile" onclick="closeMobileMenu()">Deutsch ↗</a>
+    <a href="en.html" class="lang-mobile" onclick="closeMobileMenu()">English ↗</a>
   </div>
 </header>
 
@@ -1018,8 +1027,8 @@ document.addEventListener('keydown', function(e){
 <script src="lectures-loader.js?v=20261102"></script>
 <script src="newsletters-loader.js?v=20261102"></script>
 <script>
-/* Mémorise la langue choisie avec FR / DE / EN (prime sur la détection automatique). */
-document.querySelectorAll('.lang-opt').forEach(function(a){
+/* Mémorise la langue choisie avec FR / DE / EN, en haut de page ou dans le menu mobile (prime sur la détection automatique). */
+document.querySelectorAll('.lang-opt, .lang-mobile').forEach(function(a){
   a.addEventListener('click',function(){
     var h=a.getAttribute('href')||'', l=h.indexOf('de.html')>-1?'de':h.indexOf('en.html')>-1?'en':'fr';
     try{ localStorage.setItem('oessh_lang', l); }catch(e){}
