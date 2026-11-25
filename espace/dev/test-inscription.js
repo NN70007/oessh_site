@@ -123,20 +123,13 @@ srv.post(Object.assign({}, base3, { action: 'mail.essai', apercu: ids[0], corps:
 const m4 = srv.gmails.pop();
 ok(m4.body.startsWith('Chère candidate, cher candidat,') && m4.body.indexOf('Je viendrai :') < m4.body.indexOf('Je vous prie d’agréer, chère candidate'), 'encadré placé avant la formule finale écrite à la main, sans formule d’appel ajoutée');
 
-console.log('Point quotidien jusqu’à la date limite');
+console.log('Pas de point quotidien jusqu’à la date limite');
 ok(!srv.post(Object.assign({}, base2, { action: 'mail.essai', evenement: Object.assign({}, evt2, { suiviCc: 'pas-une-adresse' }) })).ok, 'adresse de copie invalide refusée');
 const jl = srv.sheets.JournalEnvois.data, iDate = jl[0].indexOf('Date');
 jl.forEach((x, i) => { if (i && x[9] === id2) x[iDate] = String(srv.now() - 2 * 86400000); });
 srv.gmails.length = 0;
 srv.run('rappelsInscriptions');
-const pj = srv.gmails.filter(x => x.subject.startsWith('Inscriptions au '));
-const dests = pj.map(x => x.to + '|' + (x.cc || ''));
-ok(dests.length === new Set(dests).size, 'un seul point du jour par groupe de destinataires (' + pj.length + ' e-mail(s))');
-const point = srv.gmails.find(x => x.subject.startsWith('Inscriptions au ') && / \d+\/3( ;|$)/.test(x.subject));
-ok(point && point.to === 'secretariat@oessh.lu,chancelier@oessh.lu' && point.cc === 'lieutenant@oessh.lu' && point.body.includes('Point des inscriptions du') && point.body.includes('Date limite : jeudi 5 novembre 2026') && point.body.includes('Nouvelles réponses ou modifications depuis hier'), 'point du jour envoyé à l’auteur et à Joris, Lieutenant en copie');
-srv.gmails.length = 0;
-srv.run('rappelsInscriptions');
-ok(!srv.gmails.some(x => x.subject.startsWith('Inscriptions au ')), 'un seul point par jour');
+ok(!srv.gmails.some(x => x.subject.startsWith('Inscriptions au ')), 'plus de point quotidien des inscriptions');
 
 console.log('État des inscriptions sur la page du week-end');
 const ie = srv.run('(() => inscriptionsEvenement_("2027-01-09-retraite"))');
@@ -232,7 +225,7 @@ console.log('Invitation ajoutée ou renvoyée après l’envoi groupé');
   ok(rempl >= 1, 'ancienne invitation marquée remplacée (plus de relance)');
 }
 
-console.log('Point du jour : un seul e-mail pour toutes les listes');
+console.log('Point du jour : supprimé, même avec plusieurs listes');
 {
   const iso = (d) => new Date(srv.now() + d * 86400000).toISOString().slice(0, 10);
   const J = srv.sheets.JournalEnvois.data, iDate = J[0].indexOf('Date');
@@ -248,12 +241,7 @@ console.log('Point du jour : un seul e-mail pour toutes les listes');
   });
   srv.gmails.length = 0;
   srv.run('rappelsInscriptions');
-  const pts = srv.gmails.filter(x => x.subject.startsWith('Inscriptions au '));
-  ok(pts.length === 1, 'un seul point du jour pour trois listes ouvertes (' + pts.length + ')');
-  ok(pts[0] && pts[0].body.includes('=== LISTE A ===') && pts[0].body.includes('=== LISTE B ===') && pts[0].body.includes('=== ESSAI 2027-03-02-B ===') && pts[0].body.includes('3 listes de réponses'), 'les trois listes dans le même e-mail');
-  srv.gmails.length = 0;
-  srv.run('rappelsInscriptions');
-  ok(!srv.gmails.some(x => x.subject.startsWith('Inscriptions au ')), 'pas de second point le même jour');
+  ok(!srv.gmails.some(x => x.subject.startsWith('Inscriptions au ')), 'aucun point du jour, même avec trois listes ouvertes');
 }
 
 console.log('Invitation à une seule personne, avec copie');

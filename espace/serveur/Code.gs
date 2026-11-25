@@ -2441,34 +2441,9 @@ function rappelsInscriptions() {
       journal.push('récap repas ' + r.Id);
     } catch (e) { console.error('Récapitulatif repas non envoyé : ' + e); }
   });
-  // Point quotidien jusqu'à la date limite : UN SEUL e-mail par jour et par groupe de destinataires, avec toutes les listes
-  // ouvertes (à partir du lendemain de l'envoi groupé ; les envois d'une même liste sont réunis, chaque personne comptée une fois).
-  var listes = listesSuivi_(envois), props = PropertiesService.getScriptProperties(), parDest = {}, ordreDest = [];
-  listes.forEach(function (L) {
-    var evt = L.evt;
-    if (!evt || !evt.limite || limitePassee_(evt)) return;
-    if (Date.now() - (Number(L.r.Date) || 0) < joursMs_(1) / 2) return;
-    var o = optsSuivi_(evt), k = destSuivi_(L.r, evt) + '|' + (o.cc || '');
-    if (!parDest[k]) { parDest[k] = { to: destSuivi_(L.r, evt), opts: o, listes: [] }; ordreDest.push(k); }
-    parDest[k].listes.push(L);
-  });
-  ordreDest.forEach(function (k) {
-    var G = parDest[k], cle = 'recapJour:' + hash_(k).slice(0, 16) + ':' + aujourdhui_();
-    if (props.getProperty(cle)) return;
-    try {
-      var resume = [], sections = G.listes.map(function (L) {
-        var lg = lignesListe_(L.r.Ids), nbRep = lg.filter(function (x) { return x.Reponse; }).length, nom = L.evt.categorie || L.evt.titre;
-        resume.push(nom + ' ' + nbRep + '/' + lg.length);
-        return '=== ' + nom.toUpperCase() + ' ===\n' + bilanTexte_(L.r, L.evt, true, true);
-      });
-      var corps = 'Bonjour,\n\nPoint des inscriptions du ' + dateEvt_(aujourdhui_()) + ' : ' + G.listes.length + ' liste' + (G.listes.length > 1 ? 's' : '') + ' de réponses en cours.\n\n' +
-        sections.join('\n\n\n') +
-        '\n\n\nVous recevrez ce point chaque jour tant qu’une liste est ouverte, puis le récapitulatif final de chaque liste le lendemain de sa date limite. Le détail reste disponible dans le Courrier e-mail, rubrique « Derniers envois ».';
-      GmailApp.sendEmail(G.to, 'Inscriptions au ' + aujourdhui_().split('-').reverse().join('/') + ' : ' + resume.join(' ; '), corps, G.opts);
-      props.setProperty(cle, '1');
-      journal.push('point du jour ' + G.listes.length + ' liste(s)');
-    } catch (e) { console.error('Point du jour non envoyé : ' + e); }
-  });
+  // Plus de point quotidien des inscriptions (supprimé à la demande de Jean-Baptiste, 25/11/2026) :
+  // seul le récapitulatif final part, le lendemain de la date limite.
+  var listes = listesSuivi_(envois), props = PropertiesService.getScriptProperties();
   // Récapitulatif complet, le lendemain de la date limite : un par liste (envois d'une même liste réunis)
   listes.forEach(function (L) {
     var evt = L.evt;
